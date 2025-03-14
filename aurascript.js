@@ -1,11 +1,12 @@
+import "./modules/remotedata.js";
+import "./modules/useraccount.js";
 import "./modules/usersettings.js";
 
-function OnAuraLoad()
+function OnAuraInit()
 {
 
 }
 
-console.info("Aura Loading...");
-OnAuraLoad();
+console.info("Aura Initializing...");
+OnAuraInit();
 console.info(" ...Done");
-// (() => { OnAuraLoad(); })();

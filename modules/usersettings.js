@@ -1,3 +1,5 @@
-console.info("[ +Module ] User Settings");
+import "./modules/modules.js";
 
 //export class UserSettingsWindow extends DraggableWindow{}
+
+Modules.Report("User Settings");
