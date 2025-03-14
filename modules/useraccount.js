@@ -1,4 +1,4 @@
-import "./modules/modules.js";
+import "./modules.js";
 
 export class UserAccountManager
 {
