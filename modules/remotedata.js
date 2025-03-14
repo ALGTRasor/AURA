@@ -1,4 +1,4 @@
-import "./modules.js";
+import { Modules } from "./modules.js";
 
 export class RemoteDataUsage
 {
