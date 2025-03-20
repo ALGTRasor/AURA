@@ -1,8 +1,248 @@
 import { Modules } from "./modules.js";
 
+const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
+const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
+const url_mo_oauth = url_mo + 'oauth2/v2.0/authorize';
+const url_mo_token = url_mo + 'oauth2/v2.0/token';
+
+const rgx_access_token = /[\#\&\?]access_token\=([^\&]+)/;
+const rgx_id_token = /[\#\&\?]id_token\=([^\&]+)/;
+const lskey_access_token = 'o365_access_token_latest';
+
+const lskey_user_data = 'o365_user_data';
+
+const CLIENT_ID = "ea723209-ebaa-402a-8ff0-ffe4a49b3282";
+const CLIENT_SCOPES = [
+	'openid',
+	'user.read',
+	'AllSites.FullControl'
+].join(' ');
+
 export class UserAccountManager
 {
-	static instance = new UserAccountManager();
+	static user_info = {};
+
+	// id token - used to obtain tenant account info
+	static id_token = '';
+	static id_token_found = false;
+
+	// access token - used for authorizing api calls
+	static access_token = '';
+	static access_token_found = false;
+
+	static IsValidString(str)
+	{
+		return str !== undefined && str !== null && typeof str === 'string' && str !== 'undefined' && str !== 'null';
+	}
+
+	static UpdateIdToken(new_value)
+	{
+		if (UserAccountManager.IsValidString(new_value))
+		{
+			UserAccountManager.id_token = new_value;
+			UserAccountManager.id_token_found = true;
+			console.info("Updated ID Token: " + UserAccountManager.id_token.substring(0, 64) + '...');
+		}
+		else
+		{
+			console.warn("Invalid ID Token!");
+		}
+	}
+
+	static LoadExistingAccessToken()
+	{
+		console.info("Loading Access Token...");
+		let tmp = localStorage.getItem(lskey_access_token);
+		if (tmp) UserAccountManager.UpdateAccessToken(tmp);
+		else UserAccountManager.UpdateAccessToken();
+	}
+
+	static UpdateAccessToken(new_value, update_store = false)
+	{
+		if (new_value && UserAccountManager.IsValidString(new_value))
+		{
+			UserAccountManager.access_token = new_value;
+			UserAccountManager.access_token_found = true;
+			console.info("Updated Access Token: " + UserAccountManager.access_token.substring(0, 64) + '...');
+
+			if (update_store) localStorage.setItem(lskey_access_token, UserAccountManager.access_token);
+		}
+	}
+
+	static GetNonce() { return Math.floor(Math.random() * 8999999) + 1000000; }
+
+	static GetAuthURL()
+	{
+		let url = url_mo_oauth;
+		url += "?response_type=id_token+token";
+		url += "&response_mode=fragment";
+		url += "&client_id=" + CLIENT_ID;
+		url += "&redirect_uri=" + UserAccountManager.GetRedirectUri();
+		url += "&scope=" + CLIENT_SCOPES;
+		url += "&nonce=" + UserAccountManager.GetNonce();
+		return url;
+	}
+
+	static GetRedirectUri(force_secure_protocol = false)
+	{
+		let n = window.location.toString();
+		n = n.replace(window.location.search, "");
+		n = n.replace('?', '');
+		n = n.replace(window.location.hash, "");
+		n = n.replace('#', '');
+		if (force_secure_protocol) n = n.replace("http://", "https://");
+		return n;
+	}
+
+	static async AttemptAutoLogin()
+	{
+		console.info('Autologin begin...');
+		UserAccountManager.LoadCachedUserData();
+		UserAccountManager.LoadExistingAccessToken();
+		if (UserAccountManager.access_token_found)
+		{
+			console.info('...Autologin complete');
+			document.getElementById('action-bar-btn-auth').innerText = 'Renew Login';
+		}
+		else
+		{
+			console.warn('...Access Token not found. Authorization required.');
+			document.getElementById('action-bar-btn-auth').innerText = 'Login To O365';
+		}
+	}
+
+	static RequestLogin()
+	{
+		var auth_url = UserAccountManager.GetAuthURL();
+		console.warn('redirect: ' + UserAccountManager.GetRedirectUri());
+		window.open(auth_url, "_self");
+	}
+
+
+	static async GetCurrentUserInfo()
+	{
+		var resp = await fetch(
+			"https://graph.microsoft.com/v1.0/me",
+			{
+				method: 'get',
+				headers:
+				{
+					'Authorization': 'Bearer ' + UserAccountManager.access_token,
+					'Accept': 'application/json'
+				}
+			}
+		);
+		var resp_obj = await resp.json();
+
+		UserAccountManager.user_info.display_name = resp_obj.displayName;
+		UserAccountManager.user_info.email = resp_obj.mail;
+
+		let id_at = resp_obj.mail.indexOf("@");
+		UserAccountManager.user_info.user_id = id_at > -1 ? resp_obj.mail.substring(0, id_at) : resp_obj.mail;
+
+		console.info("GOT USER DATA FOR " + UserAccountManager.user_info.user_id);
+		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountManager.user_info));
+	}
+
+	static LoadCachedUserData()
+	{
+		let tmp = JSON.parse(localStorage.getItem(lskey_user_data));
+		if (tmp) UserAccountManager.user_info = tmp;
+		else UserAccountManager.user_info = {};
+	}
+
+
+
+	/*
+	static async RequestAccessToken()
+	{
+		console.info('Requesting Access Token...');
+		try
+		{
+			const xhr = new XMLHttpRequest();
+			xhr.open("POST", url_mo_token, true);
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+			xhr.onload = () => { UserAccountManager.UpdateAccessToken(JSON.parse(xhr.responseText).access_token); };
+
+			xhr.send(
+				new URLSearchParams(
+					{
+						client_id: CLIENT_ID,
+						grant_type: 'authorization_code',
+						code: UserAccountManager.oauth_code,
+						scope: CLIENT_SCOPES,
+						redirect_uri: UserAccountManager.GetRedirectUri()
+					})
+			);
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
+	}
+	*/
+
+	static async RequestAccessToken()
+	{
+		console.info('Requesting Access Token...');
+		try
+		{
+			let resp = await fetch(
+				url_mo_token,
+				{
+					method: 'post',
+					body: new URLSearchParams(
+						{
+							client_id: CLIENT_ID,
+							grant_type: 'authorization_code',
+							code: UserAccountManager.oauth_code,
+							scope: CLIENT_SCOPES,
+							redirect_uri: UserAccountManager.GetRedirectUri()
+						}
+					),
+					headers:
+					{
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				}
+			);
+
+			let resp_obj = await resp.json();
+			UserAccountManager.UpdateAccessToken(resp_obj.access_token);
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
+	}
+
+	static async CheckWindowLocationForCodes()
+	{
+		let dirty_location = false;
+
+		let id_token_match = window.location.toString().match(rgx_id_token);
+		if (id_token_match != null)
+		{
+			UserAccountManager.UpdateIdToken(id_token_match[1]);
+			dirty_location = true;
+		}
+
+		let access_token_match = window.location.toString().match(rgx_access_token);
+		if (access_token_match != null)
+		{
+			UserAccountManager.UpdateAccessToken(access_token_match[1], true);
+			dirty_location = true;
+		}
+
+		if (dirty_location)
+		{
+			let windowloc = window.location.toString();
+			if (windowloc.indexOf('?') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('?'));
+			if (windowloc.indexOf('#') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('#'));
+			window.history.replaceState(null, '', windowloc);
+		}
+	}
 }
 
 Modules.Report("User Account");
