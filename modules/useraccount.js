@@ -102,12 +102,14 @@ export class UserAccountManager
 		if (UserAccountManager.access_token_found)
 		{
 			console.info('...Autologin complete');
-			document.getElementById('action-bar-btn-auth').innerText = 'Renew Login';
+			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
+			document.getElementById('action-bar-btn-logout').style.display = 'block';
 		}
 		else
 		{
 			console.warn('...Access Token not found. Authorization required.');
-			document.getElementById('action-bar-btn-auth').innerText = 'Login To O365';
+			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
+			document.getElementById('action-bar-btn-logout').style.display = 'none';
 		}
 	}
 
@@ -116,6 +118,15 @@ export class UserAccountManager
 		var auth_url = UserAccountManager.GetAuthURL();
 		console.warn('redirect: ' + UserAccountManager.GetRedirectUri());
 		window.open(auth_url, "_self");
+	}
+
+	static ForceLogOut()
+	{
+		console.info('Forced logout');
+		UserAccountManager.access_token = '';
+		UserAccountManager.access_token_found = false;
+		localStorage.removeItem(lskey_access_token);
+		window.open(UserAccountManager.GetRedirectUri(), "_self");
 	}
 
 
@@ -150,38 +161,6 @@ export class UserAccountManager
 		if (tmp) UserAccountManager.user_info = tmp;
 		else UserAccountManager.user_info = {};
 	}
-
-
-
-	/*
-	static async RequestAccessToken()
-	{
-		console.info('Requesting Access Token...');
-		try
-		{
-			const xhr = new XMLHttpRequest();
-			xhr.open("POST", url_mo_token, true);
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-			xhr.onload = () => { UserAccountManager.UpdateAccessToken(JSON.parse(xhr.responseText).access_token); };
-
-			xhr.send(
-				new URLSearchParams(
-					{
-						client_id: CLIENT_ID,
-						grant_type: 'authorization_code',
-						code: UserAccountManager.oauth_code,
-						scope: CLIENT_SCOPES,
-						redirect_uri: UserAccountManager.GetRedirectUri()
-					})
-			);
-		}
-		catch (e)
-		{
-			console.error(e);
-		}
-	}
-	*/
 
 	static async RequestAccessToken()
 	{

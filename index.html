@@ -5,38 +5,40 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&icon_names=favorite,home,search,help,bug_report,settings,refresh,login,logout,report">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols&icon_names=person_alert,person_check,person_cancel">
 	<link rel="stylesheet" href="aurastyles.css">
+	<link rel="stylesheet" href="styling/styles-fontfaces.css">
+	<link rel="stylesheet" href="styling/styles-obscuration.css">
 	<link rel="stylesheet" href="styling/styles-actionbar.css">
 	<link rel="stylesheet" href="styling/styles-infobar.css">
+	<link rel="stylesheet" href="styling/styles-icons.css">
 	<script type="module" src="aurascript.js"></script>
 </head>
 
 <body>
 	<div class='content-root'>
-		<div id='content-body' class='content-body'></div>
+		<div id='content-body-obscurer' class='obscurer'>obscured</div>
+		<div id='content-body' class='content-body'>content</div>
 	</div>
 	<div class='action-bar'>
-		<div class='action-bar-title'>AURA</div>
+		<div class='action-bar-title' id='action-bar-title'>AURA</div>
+		<img class='action-bar-logo' src='/resources/images/logo_alg.png'></img>
 		<div class='action-bar-button-container'>
-			<img class='action-bar-logo' src='/resources/images/logo_alg.png'></img>
-			<div class='action-bar-button'>Home</div>
-			<div class='action-bar-button' onclick='fxn.FetchCurrentUserData()'>Refresh</div>
-			<div class='action-bar-button'>Settings</div>
-			<div class='action-bar-button'>Help</div>
-			<div class='action-bar-button'>Report Bug</div>
-			<div class='action-bar-button' id='action-bar-btn-auth' onclick='fxn.AttemptLogin()'>Log Out</div>
+
+			<div class='action-bar-button'>Home<i class='material-icons icon'>home</i></div>
+			<div class='action-bar-button' onclick='fxn.FetchCurrentUserData()'>Refresh<i class='material-icons icon'>refresh</i></div>
+			<div class='action-bar-button'>Settings<i class='material-icons icon'>settings</i></div>
+			<div class='action-bar-button'>Help<i class='material-icons icon'>help</i></div>
+			<div class='action-bar-button'>Report Bug<i class='material-icons icon'>bug_report</i></div>
+			<div class='action-bar-button' onclick='fxn.AttemptLogin()'><span id='action-bar-btn-login'>Log In</span><i class='material-symbols icon'>person_cancel</i></div>
+			<div class='action-bar-button' id='action-bar-btn-logout' onclick='fxn.ForceLogOut()'>Log Out<i class='material-symbols icon'>logout</i></div>
 		</div>
 	</div>
 	<div class='info-bar'>
-		<marquee class='info-bar-marquee' id='info-bar-marquee' direction='left' scrolldelay='1000' scrollamount="80">
+		<div class='info-bar-marquee' id='info-bar-marquee' onclick='fxn.RefreshFact()'>
 			<div>Hello there. This is a message from the future of AURA.</div>
-			<div>Hello there. This is a message from the future of AURA.</div>
-			<div>Hello there. This is a message from the future of AURA.</div>
-			<div>Hello there. This is a message from the future of AURA.</div>
-			<div>Hello there. This is a message from the future of AURA.</div>
-		</marquee>
+		</div>
 	</div>
 </body>
 

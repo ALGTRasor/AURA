@@ -1,0 +1,10 @@
+.icon
+{
+	display: block;
+	position: absolute;
+	inset: 0px;
+	align-content: center;
+	text-align: center;
+
+	color: var(--theme-color);
+}

@@ -1,0 +1,21 @@
+.obscurer
+{
+	z-index: 10000;
+	position: absolute;
+	inset: 0px;
+	backdrop-filter: blur(0.369rem) contrast(90%) brightness(90%);
+
+	background-image: radial-gradient(at 0% 100%, #5555, #111a);
+	background-size: 100vw 100vw;
+
+	text-align: center;
+	align-content: center;
+	font-variant: small-caps;
+	letter-spacing: 1rem;
+	font-size: 400%;
+	text-shadow: 0px 0.666rem 6px #0005, 0px 1rem 6px #0003, 0px 1.666rem 6px #0002, -1px 1px 0.3rem var(--theme-color);
+	font-family: AtkinsonHyperlegibleBold;
+	color: transparent;
+
+	user-select: none;
+}
