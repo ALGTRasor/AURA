@@ -1,17 +1,17 @@
 @font-face
 {
 	font-family: AtkinsonHyperlegible;
-	src: url("/resources/fonts/AtkinsonHyperlegibleMono-Regular.otf");
+	src: url("resources/fonts/AtkinsonHyperlegibleMono-Regular.otf");
 }
 
 @font-face
 {
 	font-family: AtkinsonHyperlegibleBold;
-	src: url("/resources/fonts/AtkinsonHyperlegibleMono-Bold.otf");
+	src: url("resources/fonts/AtkinsonHyperlegibleMono-Bold.otf");
 }
 
 @font-face
 {
 	font-family: AtkinsonHyperlegibleLight;
-	src: url("/resources/fonts/AtkinsonHyperlegibleMono-Light.otf");
+	src: url("resources/fonts/AtkinsonHyperlegibleMono-Light.otf");
 }
