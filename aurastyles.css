@@ -4,7 +4,7 @@
 	--action-bar-height: 3rem;
 	--info-bar-height: 2rem;
 
-	--theme-color: rgb(128, 128, 128);
+	--theme-color: rgb(0, 132, 255);
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);
 	--theme-color-30: rgba(from var(--theme-color) r g b / 0.3);

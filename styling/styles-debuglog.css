@@ -1,0 +1,125 @@
+.debug-log-root
+{
+	z-index: 100000;
+	position: absolute;
+	bottom: calc(2rem + var(--info-bar-height));
+	left: 2rem;
+	transform-origin: 0% 100%;
+	transform: scale(90%);
+
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
+
+	overflow-x: hidden;
+	overflow-y: hidden;
+	scrollbar-width: 0;
+
+	min-width: 12rem;
+	max-width: 24rem;
+	min-height: 10rem;
+	max-height: 20vh;
+
+	border-radius: 0.5rem;
+	background: var(--theme-color-background);
+	outline: solid 3px hsl(from var(--theme-color-text) h s calc(l * 0.25));
+	outline-offset: -1px;
+
+	box-shadow: inset 2px 2px 8px black;
+
+	font-family: AtkinsonHyperlegibleLight;
+	letter-spacing: normal;
+	word-spacing: normal;
+	font-weight: light;
+	font-size: 86%;
+
+	padding: 0.25rem;
+
+	clip-path: stroke-box;
+	opacity: 30%;
+	cursor: default;
+
+	transition-property: max-height, opacity, outline-color, transform;
+	transition-duration: 0.5s;
+	transition-delay: 1s;
+	transition-timing-function: ease-in-out;
+}
+.debug-log-root:hover
+{
+	overflow-y: auto;
+	transform: scale(99.9%);
+	max-height: 80vh;
+	opacity: 100%;
+	transition-delay: 0s;
+	transition-duration: 0.25s;
+	outline: solid 3px hsl(from var(--theme-color-text) h s calc(l * 0.5));
+}
+
+.debug-log-item
+{
+	display: flex;
+	position: relative;
+	flex-shrink: 0.0;
+
+
+	height: auto;
+	margin: 1px;
+	padding: 0.125rem 3rem 0.125rem 0.5rem;
+
+	background: transparent;
+
+	border-width: 0 0 0 0px;
+	border-style: solid;
+	border-color: #fff0;
+
+	font-size: 85%;
+
+	opacity: 50%;
+	align-content: center;
+
+	transition-property: border, opacity, color;
+	transition-duration: 0.1s;
+	transition-timing-function: ease-in-out;
+}
+.debug-log-item:hover
+{
+	border-color: #fff;
+	border-width: 0 0 0 4px;
+	opacity: 100%;
+	background: var(--theme-color-20);
+	color: var(--theme-color-text);
+	transition-duration: 0.05s;
+}
+
+.debug-log-item-count
+{
+	position: absolute;
+	right: 0.5rem;
+	top: 0;
+	bottom: 0;
+	text-align: center;
+	background: #222a;
+	padding-right: 0.2rem;
+	padding-left: 0.2rem;
+	color: var(--theme-color-text);
+	outline: solid 2px black;
+	font-size: 80%;
+	align-content: center;
+	align-self: center;
+}
+
+.debug-log-separator
+{
+	flex-shrink: 0.0;
+	font-variant: small-caps;
+	min-height: 0px;
+	color: var(--theme-color-text-60);
+	background: var(--theme-color-50);
+	text-align: left;
+	align-content: center;
+	font-size: 90%;
+	font-weight: bold;
+	padding-left: 8px;
+	padding-top: 4px;
+	padding-bottom: 2px;
+}

@@ -1,3 +1,4 @@
+import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { PageBase } from "./pages/pagebase.js";
 
@@ -14,6 +15,7 @@ export class PageManager
 	static SetPageByIndex(index) { PageManager.SetPageDirectly(PageManager.all_pages[index]); }
 	static SetPageByTitle(title)
 	{
+		DebugLog.StartGroup('loading page');
 		var target_title = title.toLowerCase().trim();
 		for (let pid in PageManager.all_pages)
 		{
@@ -21,6 +23,7 @@ export class PageManager
 			if (p.title.toLowerCase().trim() === target_title)
 				PageManager.SetPageDirectly(p);
 		}
+		DebugLog.SubmitGroup();
 	}
 
 	static SetPageDirectly(page = PageBase.Default())

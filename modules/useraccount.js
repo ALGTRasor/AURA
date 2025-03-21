@@ -1,3 +1,4 @@
+import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
@@ -20,7 +21,6 @@ const CLIENT_SCOPES = [
 
 export class UserAccountManager
 {
-	static user_info = {};
 
 	// id token - used to obtain tenant account info
 	static id_token = '';
@@ -35,26 +35,26 @@ export class UserAccountManager
 		return str !== undefined && str !== null && typeof str === 'string' && str !== 'undefined' && str !== 'null';
 	}
 
+	static KeyString(str)
+	{
+		return str.substring(0, 32).split('').map(x => (Math.random() > 0.42) ? x : '*').join('') + '...';
+	}
+
 	static UpdateIdToken(new_value)
 	{
 		if (UserAccountManager.IsValidString(new_value))
 		{
 			UserAccountManager.id_token = new_value;
 			UserAccountManager.id_token_found = true;
-			console.info("Updated ID Token: " + UserAccountManager.id_token.substring(0, 64) + '...');
 		}
-		else
-		{
-			console.warn("Invalid ID Token!");
-		}
+		else console.warn("Invalid ID Token!");
 	}
 
 	static LoadExistingAccessToken()
 	{
-		console.info("Loading Access Token...");
 		let tmp = localStorage.getItem(lskey_access_token);
+		DebugLog.Log('...loaded cached Access Token');
 		if (tmp) UserAccountManager.UpdateAccessToken(tmp);
-		else UserAccountManager.UpdateAccessToken();
 	}
 
 	static UpdateAccessToken(new_value, update_store = false)
@@ -63,8 +63,6 @@ export class UserAccountManager
 		{
 			UserAccountManager.access_token = new_value;
 			UserAccountManager.access_token_found = true;
-			console.info("Updated Access Token: " + UserAccountManager.access_token.substring(0, 64) + '...');
-
 			if (update_store) localStorage.setItem(lskey_access_token, UserAccountManager.access_token);
 		}
 	}
@@ -96,21 +94,24 @@ export class UserAccountManager
 
 	static async AttemptAutoLogin()
 	{
-		console.info('Autologin begin...');
-		UserAccountManager.LoadCachedUserData();
+		DebugLog.StartGroup('autologin');
+		UserAccountInfo.LoadCachedUserData();
 		UserAccountManager.LoadExistingAccessToken();
 		if (UserAccountManager.access_token_found)
 		{
-			console.info('...Autologin complete');
+			if (!UserAccountInfo.user_info.user_id) await UserAccountInfo.GetCurrentUserInfo();
+
+			DebugLog.Log('...auto login complete');
 			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
 			document.getElementById('action-bar-btn-logout').style.display = 'block';
 		}
 		else
 		{
-			console.warn('...Access Token not found. Authorization required.');
+			console.warn('! auto login failed. Authorization required.');
 			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
 			document.getElementById('action-bar-btn-logout').style.display = 'none';
 		}
+		DebugLog.SubmitGroup();
 	}
 
 	static RequestLogin()
@@ -122,49 +123,17 @@ export class UserAccountManager
 
 	static ForceLogOut()
 	{
-		console.info('Forced logout');
+		DebugLog.Log('Forced logout');
 		UserAccountManager.access_token = '';
 		UserAccountManager.access_token_found = false;
+		localStorage.removeItem(lskey_user_data);
 		localStorage.removeItem(lskey_access_token);
 		window.open(UserAccountManager.GetRedirectUri(), "_self");
 	}
 
-
-	static async GetCurrentUserInfo()
-	{
-		var resp = await fetch(
-			"https://graph.microsoft.com/v1.0/me",
-			{
-				method: 'get',
-				headers:
-				{
-					'Authorization': 'Bearer ' + UserAccountManager.access_token,
-					'Accept': 'application/json'
-				}
-			}
-		);
-		var resp_obj = await resp.json();
-
-		UserAccountManager.user_info.display_name = resp_obj.displayName;
-		UserAccountManager.user_info.email = resp_obj.mail;
-
-		let id_at = resp_obj.mail.indexOf("@");
-		UserAccountManager.user_info.user_id = id_at > -1 ? resp_obj.mail.substring(0, id_at) : resp_obj.mail;
-
-		console.info("GOT USER DATA FOR " + UserAccountManager.user_info.user_id);
-		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountManager.user_info));
-	}
-
-	static LoadCachedUserData()
-	{
-		let tmp = JSON.parse(localStorage.getItem(lskey_user_data));
-		if (tmp) UserAccountManager.user_info = tmp;
-		else UserAccountManager.user_info = {};
-	}
-
 	static async RequestAccessToken()
 	{
-		console.info('Requesting Access Token...');
+		DebugLog.Log('Requesting Access Token...');
 		try
 		{
 			let resp = await fetch(
@@ -224,4 +193,53 @@ export class UserAccountManager
 	}
 }
 
+export class UserAccountInfo
+{
+	static user_info = {};
+
+	static async GetCurrentUserInfo()
+	{
+		var resp = await fetch(
+			"https://graph.microsoft.com/v1.0/me",
+			{
+				method: 'get',
+				headers:
+				{
+					'Authorization': 'Bearer ' + UserAccountManager.access_token,
+					'Accept': 'application/json'
+				}
+			}
+		);
+		var resp_obj = await resp.json();
+
+		UserAccountInfo.user_info.display_name = resp_obj.displayName;
+		UserAccountInfo.user_info.email = resp_obj.mail;
+
+		let id_at = resp_obj.mail.indexOf("@");
+		UserAccountInfo.user_info.user_id = id_at > -1 ? resp_obj.mail.substring(0, id_at) : resp_obj.mail;
+
+		DebugLog.Log("...loaded account data: " + UserAccountInfo.user_info.user_id);
+		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.user_info));
+	}
+
+	static LoadCachedUserData()
+	{
+		let tmp = JSON.parse(localStorage.getItem(lskey_user_data));
+		if (tmp)
+		{
+			UserAccountInfo.user_info = tmp;
+			DebugLog.Log('...loaded cached account data');
+		}
+		else 
+		{
+			UserAccountInfo.user_info = {};
+			DebugLog.Log('...cached account data not found');
+		}
+	}
+
+}
+
 Modules.Report("User Account");
+if (!window.fxn) window.fxn = {};
+window.fxn.AttemptLogin = UserAccountManager.RequestLogin;
+window.fxn.ForceLogOut = UserAccountManager.ForceLogOut;
