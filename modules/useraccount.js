@@ -52,9 +52,19 @@ export class UserAccountManager
 
 	static LoadExistingAccessToken()
 	{
+		DebugLog.StartGroup('loading cached access token');
 		let tmp = localStorage.getItem(lskey_access_token);
-		DebugLog.Log('...loaded cached Access Token');
-		if (tmp) UserAccountManager.UpdateAccessToken(tmp);
+		if (tmp)
+		{
+			DebugLog.Log('...found token');
+			UserAccountManager.UpdateAccessToken(tmp);
+			DebugLog.SubmitGroup('#0f04');
+		}
+		else
+		{
+			DebugLog.Log('...token not found');
+			DebugLog.SubmitGroup('#ff04');
+		}
 	}
 
 	static UpdateAccessToken(new_value, update_store = false)
@@ -97,21 +107,25 @@ export class UserAccountManager
 		DebugLog.StartGroup('autologin');
 		UserAccountInfo.LoadCachedUserData();
 		UserAccountManager.LoadExistingAccessToken();
+
 		if (UserAccountManager.access_token_found)
 		{
-			if (!UserAccountInfo.user_info.user_id) await UserAccountInfo.GetCurrentUserInfo();
+			if (!UserAccountInfo.user_info.user_id)
+				await UserAccountInfo.GetCurrentUserInfo();
 
-			DebugLog.Log('...auto login complete');
+			await UserAccountInfo.RefreshCurrentUserProfilePhoto();
+
 			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
 			document.getElementById('action-bar-btn-logout').style.display = 'block';
+			DebugLog.SubmitGroup('#0f04');
 		}
 		else
 		{
-			console.warn('! auto login failed. Authorization required.');
+			DebugLog.Log('! authorization required');
 			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
 			document.getElementById('action-bar-btn-logout').style.display = 'none';
+			DebugLog.SubmitGroup('#f004');
 		}
-		DebugLog.SubmitGroup();
 	}
 
 	static RequestLogin()
@@ -133,7 +147,7 @@ export class UserAccountManager
 
 	static async RequestAccessToken()
 	{
-		DebugLog.Log('Requesting Access Token...');
+		DebugLog.StartGroup('requesting access token');
 		try
 		{
 			let resp = await fetch(
@@ -158,10 +172,12 @@ export class UserAccountManager
 
 			let resp_obj = await resp.json();
 			UserAccountManager.UpdateAccessToken(resp_obj.access_token);
+			DebugLog.SubmitGroup('green');
 		}
 		catch (e)
 		{
 			console.error(e);
+			DebugLog.SubmitGroup('red');
 		}
 	}
 
@@ -199,6 +215,7 @@ export class UserAccountInfo
 
 	static async GetCurrentUserInfo()
 	{
+		DebugLog.StartGroup('downloading account info');
 		var resp = await fetch(
 			"https://graph.microsoft.com/v1.0/me",
 			{
@@ -218,23 +235,44 @@ export class UserAccountInfo
 		let id_at = resp_obj.mail.indexOf("@");
 		UserAccountInfo.user_info.user_id = id_at > -1 ? resp_obj.mail.substring(0, id_at) : resp_obj.mail;
 
-		DebugLog.Log("...loaded account data: " + UserAccountInfo.user_info.user_id);
+		DebugLog.Log("...user: " + UserAccountInfo.user_info.user_id);
+
 		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.user_info));
+		DebugLog.SubmitGroup('#0f04');
 	}
 
 	static LoadCachedUserData()
 	{
+		DebugLog.StartGroup('loading cached account info');
 		let tmp = JSON.parse(localStorage.getItem(lskey_user_data));
 		if (tmp)
 		{
 			UserAccountInfo.user_info = tmp;
-			DebugLog.Log('...loaded cached account data');
+			DebugLog.Log('...found info');
+			DebugLog.SubmitGroup('#0f04');
 		}
 		else 
 		{
 			UserAccountInfo.user_info = {};
-			DebugLog.Log('...cached account data not found');
+			DebugLog.Log('...info not found');
+			DebugLog.SubmitGroup('#ff04');
 		}
+	}
+
+	static async RefreshCurrentUserProfilePhoto()
+	{
+		var resp = await fetch(
+			"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
+			{
+				method: 'get',
+				headers:
+				{
+					'Authorization': 'Bearer ' + UserAccountManager.access_token
+				}
+			}
+		);
+		let imgUrl = window.URL.createObjectURL(await resp.blob());
+		document.getElementById('action-bar-profile-picture').src = imgUrl;
 	}
 
 }

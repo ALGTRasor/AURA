@@ -19,3 +19,10 @@
 
 	user-select: none;
 }
+
+.disabled
+{
+	user-select: none;
+	pointer-events: none;
+	filter: saturate(20%) blur(1px) brightness(50%);
+}

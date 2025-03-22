@@ -43,7 +43,7 @@ export class DebugLog
 		if (color && color.length > 0) return color;
 		else if (message.endsWith('...')) return '#ff0';
 		else if (message.startsWith('...')) return '#0ff';
-		else if (message.startsWith('~')) return '#f0f';
+		else if (message.startsWith('~')) return '#faf';
 		else if (message.startsWith('!')) return '#f00';
 		return '';
 	}
@@ -64,6 +64,7 @@ export class DebugLog
 			e_log_entry.innerHTML = message;
 			e_log_entry.title = message;
 			e_log_entry.style.marginLeft = (DebugLog.open_groups.length * 6) + "px";
+			if (DebugLog.open_groups.length > 0) e_log_entry.style.background = 'var(--theme-color-10)';
 
 			let ecol = DebugLog.GetEntryColor(message, color);
 			if (ecol && ecol.length > 0) e_log_entry.style.color = ecol;
@@ -86,14 +87,15 @@ export class DebugLog
 	static current_group = {};
 	static StartGroup(group_name)
 	{
-		DebugLog.current_group = { name: group_name, entries: [] };
+		DebugLog.current_group = { name: group_name, entries: [], e_top: {} };
 		DebugLog.open_groups.push(DebugLog.current_group);
-		let e_sep = DebugLog.InjectSeparator(group_name, 'var(--theme-color-20)');
-		e_sep.style.borderRadius = '6px 6px 0px 0px';
-		e_sep.style.marginTop = '2px';
+		DebugLog.current_group.e_top = DebugLog.InjectSeparator(group_name, 'var(--theme-color-20)');
+		DebugLog.current_group.e_top.style.borderRadius = '6px 6px 0px 0px';
+		DebugLog.current_group.e_top.style.marginTop = '2px';
+		return DebugLog.current_group.e_top;
 	}
 
-	static SubmitGroup()
+	static SubmitGroup(background = '', color = '')
 	{
 		if (DebugLog.open_groups.length < 1 || !DebugLog.current_group || !DebugLog.current_group.name) return; // no group was open
 		for (let eid in DebugLog.current_group.entries) DebugLog.AppendMessageElement(DebugLog.current_group.entries[eid]);
@@ -104,8 +106,23 @@ export class DebugLog
 
 		DebugLog.open_groups.splice(DebugLog.open_groups.length - 1, 1);
 
+		let e_seps = { e_top: DebugLog.current_group.e_top, e_bottom: e_sep };
+
 		if (DebugLog.open_groups.length < 1) DebugLog.current_group = null;
 		else DebugLog.current_group = DebugLog.open_groups[DebugLog.open_groups.length - 1];
+
+		if (background && background.length > 0)
+		{
+			e_seps.e_top.style.background = background;
+			e_seps.e_bottom.style.background = background;
+		}
+		if (color && color.length > 0)
+		{
+			e_seps.e_top.style.color = color;
+			e_seps.e_bottom.style.color = color;
+		}
+
+		return e_seps;
 	}
 
 	static InjectSeparator(text, color = '')

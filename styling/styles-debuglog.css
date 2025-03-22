@@ -17,8 +17,8 @@
 
 	min-width: 12rem;
 	max-width: 24rem;
-	min-height: 10rem;
-	max-height: 20vh;
+	min-height: 4rem;
+	max-height: 8rem;
 
 	border-radius: 0.5rem;
 	background: var(--theme-color-background);
@@ -63,7 +63,8 @@
 
 
 	height: auto;
-	margin: 1px;
+	margin-top: 1px;
+	margin-bottom: 1px;
 	padding: 0.125rem 3rem 0.125rem 0.5rem;
 
 	background: transparent;
@@ -78,7 +79,7 @@
 	align-content: center;
 
 	transition-property: border, opacity, color;
-	transition-duration: 0.1s;
+	transition-duration: 0.3s;
 	transition-timing-function: ease-in-out;
 }
 .debug-log-item:hover
@@ -120,6 +121,6 @@
 	font-size: 90%;
 	font-weight: bold;
 	padding-left: 8px;
-	padding-top: 4px;
+	padding-top: 2px;
 	padding-bottom: 2px;
 }

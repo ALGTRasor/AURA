@@ -1,7 +1,4 @@
-// object which holds functions available to callbacks from html elements
-if (!window.fxn) window.fxn = {};
-
-
+import "./modules/windowfxn.js";
 import "./modules/remotedata.js";
 import { SharePoint } from "./modules/sharepoint.js";
 import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
@@ -13,7 +10,16 @@ import { Fax } from "./modules/fax.js";
 import { DebugLog } from "./modules/debuglog.js";
 import { UserSettings } from "./modules/usersettings.js";
 import { DevMode } from "./modules/devmode.js";
+import { SharePointDataSource } from "./modules/sharepointdatasource.js";
 
+
+async function CheckIdentity()
+{
+	DebugLog.StartGroup('validating identity');
+	DevMode.ValidateDeveloperId(UserAccountInfo.user_info.user_id);
+	if (DevMode.active) DebugLog.SubmitGroup('#f0f3');
+	else DebugLog.SubmitGroup();
+}
 
 async function OnAuraInit()
 {
@@ -33,9 +39,7 @@ async function OnAuraInit()
 	{
 		document.getElementById('content-body-obscurer').style.display = 'none';
 
-		DebugLog.StartGroup('checking identity');
-		DevMode.ValidateDeveloperId(UserAccountInfo.user_info.user_id);
-		DebugLog.SubmitGroup();
+		CheckIdentity();
 
 		PageManager.SetPageByTitle("home");
 	}
@@ -52,9 +56,13 @@ async function OnAuraInit()
 
 window.fxn.DoTestSPList = async () =>
 {
-	var list_data = await SharePoint.GetListData('ALGInternal', 'ALGUsers');
+	var list_data = await SharePointDataSource.ALGUsers.GetData();
 	DebugLog.Log("ALGUsers: " + list_data.value.length);
 };
-window.fxn.FetchCurrentUserData = UserAccountManager.GetCurrentUserInfo;
+window.fxn.GetCurrentUserInfo = async () =>
+{
+	await UserAccountInfo.GetCurrentUserInfo();
+	CheckIdentity();
+}
 
 OnAuraInit();

@@ -13,7 +13,6 @@ export class Fax
 		if (Fax.allReading) await until(() => !Fax.allReading);
 		else if (force || !Fax.allRead)
 		{
-			DebugLog.Log("loading fax...");
 			Fax.allReading = true;
 			let resp = await fetch(
 				'resources/fax.txt',
@@ -25,6 +24,7 @@ export class Fax
 			Fax.all = (await resp.text()).split('\n').map(x => x.trim()).filter(x => x != '');
 			Fax.allRead = Fax.all.length > 0;
 			Fax.allReading = false;
+			DebugLog.Log("...loaded fax");
 		}
 	}
 
@@ -36,9 +36,10 @@ export class Fax
 
 	static async RefreshFact()
 	{
+		DebugLog.StartGroup('refreshing fax');
 		let fact = await Fax.GetOne();
 		document.getElementById('info-bar-marquee').innerHTML = '<div>' + fact + '</div>';
-		DebugLog.Log("...fact refreshed");
+		DebugLog.SubmitGroup();
 	}
 }
 

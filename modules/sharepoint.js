@@ -1,20 +1,12 @@
+import { DBConfig } from "./dbconfig.js";
+import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { UserAccountManager } from "./useraccount.js";
 
-const url_sp = 'https://arrowlandgroup.sharepoint.com/';
-const url_sp_sites = url_sp + 'sites/';
-const url_sp_site_algi = url_sp_sites + 'ALGInternal/';
-const url_sp_site_algi_api = url_sp_site_algi + '_api/web/';
-
-const url_ms_graph = 'https://graph.microsoft.com/v1.0/';
-const url_ms_graph_sites = url_ms_graph + 'sites/';
-const url_ms_graph_site_alg = url_ms_graph_sites + 'arrowlandgroup.sharepoint.com';
-
-
 export class SharePoint
 {
-	static GetSiteUrl(site_name) { return url_ms_graph_site_alg + ':/sites/' + site_name; }
-	static GetListUrl(site_name, list_name) { return url_ms_graph_site_alg + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static async GetSiteUrl(site_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name; }
+	static async GetListUrl(site_name, list_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
 
 	static async GetSiteData(site_name)
 	{
@@ -44,13 +36,14 @@ export class SharePoint
 		}
 	}
 
-	static async GetListData(site_name, list_title)
+	static async GetListData(source = SharePointDataSource.Nothing)
 	{
-		console.info('Requesting SP List data...');
+		DebugLog.StartGroup('collecting sharepoint list items');
+		let field_str = source.fields.join(',');
 		try
 		{
 			let resp = await fetch(
-				SharePoint.GetListUrl(site_name, list_title) + '/items?select=id&expand=fields(select=id,title)',
+				await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id,title&expand=fields(select=' + field_str + ')',
 				{
 					method: 'get',
 					headers:
@@ -61,13 +54,14 @@ export class SharePoint
 				}
 			);
 
-			var resp_obj = await resp.json();
-			return resp_obj;
+			DebugLog.SubmitGroup();
+			return await resp.json('#0f03');
 		}
 		catch (e)
 		{
 			console.warn('...Error requesting list data');
 			console.error(e);
+			DebugLog.SubmitGroup('#f003');
 			return null;
 		}
 	}
