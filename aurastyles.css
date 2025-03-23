@@ -4,7 +4,7 @@
 	--action-bar-height: 3rem;
 	--info-bar-height: 2rem;
 
-	--theme-color: rgb(0, 132, 255);
+	--theme-color: hsl(157, 100%, 57%);
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);
 	--theme-color-30: rgba(from var(--theme-color) r g b / 0.3);
@@ -15,7 +15,7 @@
 	--theme-color-80: rgba(from var(--theme-color) r g b / 0.8);
 	--theme-color-90: rgba(from var(--theme-color) r g b / 0.9);
 
-	--theme-color-background: hsl(from var(--theme-color) h s 5%);
+	--theme-color-background: hsl(from var(--theme-color) h s 7%);
 
 	--theme-color-text: hsl(from var(--theme-color) h s 95%);
 	--theme-color-text-10: rgba(from var(--theme-color-text) r g b / 0.1);
