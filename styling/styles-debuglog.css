@@ -22,10 +22,8 @@
 
 	border-radius: 0.5rem;
 	background: var(--theme-color-background);
-	outline: solid 3px hsl(from var(--theme-color-text) h s calc(l * 0.25));
+	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.25));
 	outline-offset: -1px;
-
-	box-shadow: inset 2px 2px 8px black;
 
 	font-family: AtkinsonHyperlegibleLight;
 	letter-spacing: normal;
@@ -35,24 +33,24 @@
 
 	padding: 0.25rem;
 
-	clip-path: stroke-box;
 	opacity: 30%;
 	cursor: default;
 
-	transition-property: max-height, opacity, outline-color, transform;
+	transition-property: max-height, opacity, outline-color, transform, box-shadow;
 	transition-duration: 0.5s;
 	transition-delay: 1s;
 	transition-timing-function: ease-in-out;
 }
 .debug-log-root:hover
 {
+	box-shadow: inset 2px 2px 8px black, -5px 5px 12px #000f;
 	overflow-y: auto;
 	transform: scale(99.9%);
 	max-height: 80vh;
 	opacity: 100%;
 	transition-delay: 0s;
 	transition-duration: 0.25s;
-	outline: solid 3px hsl(from var(--theme-color-text) h s calc(l * 0.5));
+	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.5));
 }
 
 .debug-log-item

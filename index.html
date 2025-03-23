@@ -4,15 +4,16 @@
 
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="initial-scale=1">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&icon_names=favorite,home,search,help,bug_report,settings,refresh,login,logout,report">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols&icon_names=person_alert,person_check,person_cancel,palette,light_mode,dark_mode">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols&icon_names=person_alert,person_check,person_cancel,palette,light_mode,dark_mode,close">
 	<link rel="stylesheet" href="aurastyles.css">
 	<link rel="stylesheet" href="styling/styles-fontfaces.css">
 	<link rel="stylesheet" href="styling/styles-obscuration.css">
 	<link rel="stylesheet" href="styling/styles-debuglog.css">
 	<link rel="stylesheet" href="styling/styles-actionbar.css">
 	<link rel="stylesheet" href="styling/styles-infobar.css">
+	<link rel="stylesheet" href="styling/styles-pages.css">
 	<link rel="stylesheet" href="styling/styles-icons.css">
 	<script type="module" src="aurascript.js"></script>
 </head>
@@ -20,7 +21,9 @@
 <body>
 	<div class='content-root'>
 		<div id='content-body-obscurer' class='obscurer'>...</div>
-		<div id='content-body' class='content-body'>content</div>
+		<div id='content-body' class='content-body'>
+			<div id='content-pages-root' class='content-pages-root'></div>
+		</div>
 	</div>
 	<div class='action-bar'>
 		<div class='action-bar-title' id='action-bar-title'>AURA</div>
@@ -28,7 +31,7 @@
 		<div class='action-bar-profile-root'><img class='action-bar-profile-picture' id='action-bar-profile-picture' src=''></img></div>
 		<div class='action-bar-button-container'>
 
-			<div class='action-bar-button disabled' title='Home'>Home<i class='material-icons icon'>home</i></div>
+			<div class='action-bar-button' onclick='fxn.OpenHomePage()' title='Home'>Home<i class='material-icons icon'>home</i></div>
 			<div class='action-bar-button' onclick='fxn.RefreshManual()' title='Refresh'>Refresh<i class='material-icons icon'>refresh</i></div>
 			<div class='action-bar-button disabled' title='Settings'>Settings<i class='material-icons icon'>settings</i></div>
 			<div class='action-bar-button disabled' title='Help'>Help<i class='material-icons icon'>help</i></div>

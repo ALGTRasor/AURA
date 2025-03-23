@@ -3,10 +3,15 @@ import { PageBase } from "./pagebase.js";
 
 export class PageHome extends PageBase
 {
-	constructor()
+	GetTitle() { return 'home' }
+	CreateElements(parent)
 	{
-		super();
-		this.title = "home";
+		if (!parent) return;
+		this.CreateBody();
+		this.e_body.style.width = '500px';
+		this.e_body.style.flexShrink = 0.0;
+		this.e_body.style.flexGrow = 0.0;
+		this.FinalizeBody(parent);
 	}
 }
 

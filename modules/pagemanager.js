@@ -2,9 +2,13 @@ import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { PageBase } from "./pages/pagebase.js";
 
+const e_actionbar_title_label = document.getElementById('action-bar-title');
+const e_pages_root = document.getElementById('content-pages-root');
+
 export class PageManager
 {
-	static currentPage = {};
+	static currentPages = [];
+
 	static all_pages = [];
 
 	static RegisterPage(page = PageBase.Default())
@@ -12,33 +16,36 @@ export class PageManager
 		PageManager.all_pages.push(page);
 	}
 
-	static SetPageByIndex(index) { PageManager.SetPageDirectly(PageManager.all_pages[index]); }
-	static SetPageByTitle(title)
+	static OpenPageByIndex(index) { PageManager.OpenPageDirectly(PageManager.all_pages[index]); }
+	static OpenPageByTitle(title)
 	{
-		DebugLog.StartGroup('loading page');
 		var target_title = title.toLowerCase().trim();
 		for (let pid in PageManager.all_pages)
 		{
 			let p = PageManager.all_pages[pid];
-			if (p.title.toLowerCase().trim() === target_title)
-				PageManager.SetPageDirectly(p);
+			if (p.title.toLowerCase().trim() === target_title) PageManager.OpenPageDirectly(p);
 		}
+	}
+
+
+	static OpenPageDirectly(page = PageBase.Default())
+	{
+		if (!page || !page.title) return;
+
+		DebugLog.StartGroup('loading page ' + page.title);
+		PageManager.currentPages.push(page);
+		console.info("Set Page: " + page.title);
+		e_actionbar_title_label.innerText = page.title.toUpperCase();
+
+		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();
 	}
 
-	static SetPageDirectly(page = PageBase.Default())
+	static RemoveFromCurrent(page = PageBase.Default)
 	{
-		if (page)
-		{
-			PageManager.currentPage = page;
-			console.info("Set Page: " + PageManager.currentPage.title);
-
-			document.getElementById('action-bar-title').innerText = PageManager.currentPage.title.toUpperCase();
-		}
-		else
-		{
-			console.info("Set Page: " + PageManager.currentPage.title);
-		}
+		let i = PageManager.currentPages.indexOf(page);
+		if (i < 0) return;
+		PageManager.currentPages.splice(i, 1);
 	}
 }
 
