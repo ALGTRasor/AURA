@@ -16,6 +16,17 @@ export class PageManager
 		PageManager.all_pages.push(page);
 	}
 
+	static GetPageIndexFromTitle(title = '')
+	{
+		var target_title = title.toLowerCase().trim();
+		for (let pid in PageManager.currentPages)
+		{
+			let p = PageManager.currentPages[pid];
+			if (p.title.toLowerCase().trim() === target_title) return pid;
+		}
+		return -1;
+	}
+
 	static OpenPageByIndex(index) { PageManager.OpenPageDirectly(PageManager.all_pages[index]); }
 	static OpenPageByTitle(title)
 	{
@@ -28,9 +39,12 @@ export class PageManager
 	}
 
 
-	static OpenPageDirectly(page = PageBase.Default())
+	static OpenPageDirectly(page = PageBase.Default(), force_new = false)
 	{
 		if (!page || !page.title) return;
+
+		let existing_page_id = PageManager.GetPageIndexFromTitle(page.title);
+		if (existing_page_id > -1) return;
 
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);

@@ -102,6 +102,7 @@ body
 	cursor: pointer;
 
 	border-radius: calc(0.5 * var(--font-size));
+	margin: 4px;
 	padding: var(--font-size);
 	min-width: 6rem;
 	color: var(--theme-color-text-60);
@@ -109,6 +110,7 @@ body
 	align-content: center;
 	background: var(--theme-color-10);
 	outline: solid 0px transparent;
+	scale: 95%;
 
 	transition-property: background, color, scale, rotate, outline;
 	transition-timing-function: ease-in-out;
@@ -118,19 +120,18 @@ body
 .aura-button:hover
 {
 	color: var(--theme-color-text);
-	background: var(--theme-color-80);
-	outline: solid 2px var(--theme-color-text);
-	scale: 105%;
-	transition-duration: 0.05s;
+	background: var(--theme-color-40);
+	outline: solid 2px var(--theme-color);
+	scale: 100%;
+	transition-duration: 0.02s;
 }
 
 .aura-button:active
 {
 	color: var(--theme-color-text-80);
-	background: var(--theme-color-60);
-	scale: 105%;
-	rotate: 1deg;
-	transition-duration: 0.05s;
+	background: var(--theme-color-30);
+	scale: 98%;
+	transition-duration: 0s;
 }
 
 

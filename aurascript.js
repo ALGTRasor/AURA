@@ -104,30 +104,31 @@ function SpotlightElement(e_target)
 
 const info_label = document.getElementById('info-bar-marquee');
 
-// any time the mouse moves while over the page
-document.body.addEventListener(
-	'mousemove',
-	e =>
-	{
-		let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
-		if (mouse_element && mouse_element.title && mouse_element.title.length > 0)
-		{
-			SpotlightElement(mouse_element);
 
-			window.active_tooltip = mouse_element.title;
-			info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
-			e_spotlight.style.transitionDelay = '1s';
-			e_spotlight.style.opacity = '50%';
-		}
-		else
-		{
-			window.active_tooltip = '';
-			info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
-			e_spotlight.style.transitionDelay = '0.2s';
-			e_spotlight.style.opacity = '0%';
-		}
+function RefreshGlobalTooltip(e)
+{
+	let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
+	if (mouse_element && mouse_element.title && mouse_element.title.length > 0)
+	{
+		SpotlightElement(mouse_element);
+
+		window.active_tooltip = mouse_element.title;
+		info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
+		e_spotlight.style.transitionDelay = '1s';
+		e_spotlight.style.opacity = '50%';
 	}
-);
+	else
+	{
+		window.active_tooltip = '';
+		info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
+		e_spotlight.style.transitionDelay = '0.2s';
+		e_spotlight.style.opacity = '0%';
+	}
+}
+// any time the mouse moves while over the page
+document.body.addEventListener('mouseover', RefreshGlobalTooltip);
+document.body.addEventListener('mouseout', RefreshGlobalTooltip);
+//document.body.addEventListener('click', RefreshGlobalTooltip);
 
 const e_tgl_lightmode = document.getElementById('action-bar-btn-lightmode');
 
