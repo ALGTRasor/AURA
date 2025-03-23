@@ -1,5 +1,6 @@
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
+import { EventSource } from "./eventsource.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -11,6 +12,8 @@ const rgx_id_token = /[\#\&\?]id_token\=([^\&]+)/;
 const lskey_access_token = 'o365_access_token_latest';
 
 const lskey_user_data = 'o365_user_data';
+const lskey_login_attempts = 'account_login_attempts';
+const lskey_login_forced = 'account_login_forced';
 
 const CLIENT_ID = "ea723209-ebaa-402a-8ff0-ffe4a49b3282";
 const CLIENT_SCOPES = [
@@ -21,7 +24,6 @@ const CLIENT_SCOPES = [
 
 export class UserAccountManager
 {
-
 	// id token - used to obtain tenant account info
 	static id_token = '';
 	static id_token_found = false;
@@ -81,10 +83,12 @@ export class UserAccountManager
 
 	static GetAuthURL()
 	{
+		let force = localStorage.getItem(lskey_login_forced);
 		let url = url_mo_oauth;
 		url += "?response_type=id_token+token";
 		url += "&response_mode=fragment";
 		url += "&client_id=" + CLIENT_ID;
+		if (force && force == 1) url += "&prompt=select_account";
 		url += "&redirect_uri=" + UserAccountManager.GetRedirectUri();
 		url += "&scope=" + CLIENT_SCOPES;
 		url += "&nonce=" + UserAccountManager.GetNonce();
@@ -115,6 +119,9 @@ export class UserAccountManager
 
 			await UserAccountInfo.RefreshCurrentUserProfilePhoto();
 
+			localStorage.removeItem(lskey_login_attempts);
+			localStorage.removeItem(lskey_login_forced);
+
 			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
 			document.getElementById('action-bar-btn-logout').style.display = 'block';
 			DebugLog.SubmitGroup('#0f04');
@@ -135,11 +142,28 @@ export class UserAccountManager
 		window.open(auth_url, "_self");
 	}
 
+	static MaybeAttemptReauthorize(reason = '')
+	{
+		const max_login_attempts = 1;
+
+		let login_attempts = localStorage.getItem(lskey_login_attempts);
+		if (!login_attempts) login_attempts = 0;
+
+		if (login_attempts < max_login_attempts)
+		{
+			let login_attempts_new = login_attempts ? (login_attempts + 1) : 1;
+			localStorage.setItem(lskey_login_attempts, login_attempts_new);
+			DebugLog.Log('reauthorize attempt ' + login_attempts_new + ' :: ' + (reason ? reason : 'no reason given'));
+			UserAccountManager.RequestLogin();
+		}
+	}
+
 	static ForceLogOut()
 	{
 		DebugLog.Log('Forced logout');
 		UserAccountManager.access_token = '';
 		UserAccountManager.access_token_found = false;
+		localStorage.setItem(lskey_login_forced, 1);
 		localStorage.removeItem(lskey_user_data);
 		localStorage.removeItem(lskey_access_token);
 		window.open(UserAccountManager.GetRedirectUri(), "_self");
@@ -261,18 +285,25 @@ export class UserAccountInfo
 
 	static async RefreshCurrentUserProfilePhoto()
 	{
-		var resp = await fetch(
-			"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
-			{
-				method: 'get',
-				headers:
+		try
+		{
+			var resp = await fetch(
+				"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
 				{
-					'Authorization': 'Bearer ' + UserAccountManager.access_token
+					method: 'get',
+					headers: { 'Authorization': 'Bearer ' + UserAccountManager.access_token }
 				}
-			}
-		);
-		let imgUrl = window.URL.createObjectURL(await resp.blob());
-		document.getElementById('action-bar-profile-picture').src = imgUrl;
+			);
+
+			if (resp.status === 401) UserAccountManager.MaybeAttemptReauthorize();
+
+			let imgUrl = window.URL.createObjectURL(await resp.blob());
+			document.getElementById('action-bar-profile-picture').src = imgUrl;
+		}
+		catch (e)
+		{
+			UserAccountManager.MaybeAttemptReauthorize();
+		}
 	}
 
 }

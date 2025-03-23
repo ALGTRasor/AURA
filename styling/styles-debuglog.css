@@ -2,8 +2,8 @@
 {
 	z-index: 100000;
 	position: absolute;
-	bottom: calc(2rem + var(--info-bar-height));
-	left: 2rem;
+	bottom: calc(1rem + var(--info-bar-height));
+	left: 1rem;
 	transform-origin: 0% 100%;
 	transform: scale(90%);
 

@@ -8,6 +8,10 @@ export class Fax
 	static allRead = false;
 	static allReading = false;
 
+	static current_fact = '';
+
+	static e_marquee = document.getElementById('info-bar-marquee');
+
 	static async Read(force = false)
 	{
 		if (Fax.allReading) await until(() => !Fax.allReading);
@@ -38,7 +42,7 @@ export class Fax
 	{
 		DebugLog.StartGroup('refreshing fax');
 		let fact = await Fax.GetOne();
-		document.getElementById('info-bar-marquee').innerHTML = '<div>' + fact + '</div>';
+		Fax.current_fact = fact;
 		DebugLog.SubmitGroup();
 	}
 }

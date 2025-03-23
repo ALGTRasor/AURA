@@ -1,5 +1,7 @@
 .info-bar
 {
+	z-index: 10000010;
+
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -45,7 +47,8 @@
 	font-weight: normal;
 	letter-spacing: 0px;
 	word-spacing: 0px;
-	text-align: center;
+
+	text-align: left;
 	align-content: center;
 
 	font-style: italic;

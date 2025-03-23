@@ -14,6 +14,14 @@ export class EventSourceSubscription
 		this.action(data);
 		if (this.lateAction) this.lateAction(data);
 	}
+
+	async InvokeAsync(data = {}, debugMessage = "")
+	{
+		if (debugMessage != "") console.log(debugMessage);
+		if (this.earlyAction) await this.earlyAction(data);
+		await this.action(data);
+		if (this.lateAction) await this.lateAction(data);
+	}
 }
 
 export class EventSource
@@ -45,6 +53,14 @@ export class EventSource
 		for (var subIndex in this.subscribers)
 		{
 			this.subscribers[subIndex].Invoke(data, debugMessage);
+		}
+	}
+
+	async InvokeAsync(data = {}, debugMessage = "")
+	{
+		for (var subIndex in this.subscribers)
+		{
+			await this.subscribers[subIndex].InvokeAsync(data, debugMessage);
 		}
 	}
 }

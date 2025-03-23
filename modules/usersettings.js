@@ -23,7 +23,10 @@ export class UserSettings
 {
 	static options = [];
 
-	static RegisterOption(key, defaultValue) { UserSettings.SetOptionValue(key, defaultValue, true); }
+	static RegisterOption(key, defaultValue)
+	{
+		UserSettings.SetOptionValue(key, defaultValue, true);
+	}
 
 	static GetOptionIndex(option_key)
 	{
@@ -42,12 +45,12 @@ export class UserSettings
 		{
 			if (!addIfNew) return;
 			UserSettings.options.push(new UserSettingsOption(option_key, value));
-			DebugLog.Log('+ user setting: ' + option_key + ' : ' + value);
+			DebugLog.Log('cfg: +' + option_key + ' ( ' + value + ' )');
 		}
 		else
 		{
 			UserSettings.options[existing_index].value = value;
-			DebugLog.Log('- user setting: ' + option_key + ' -> ' + value);
+			DebugLog.Log('cfg: ' + option_key + ' = ' + value);
 		}
 	}
 

@@ -27,6 +27,8 @@
 	--theme-color-text-70: rgba(from var(--theme-color-text) r g b / 0.7);
 	--theme-color-text-80: rgba(from var(--theme-color-text) r g b / 0.8);
 	--theme-color-text-90: rgba(from var(--theme-color-text) r g b / 0.9);
+
+	--theme-invert: 0.0;
 }
 
 
@@ -68,15 +70,18 @@ body
 .content-body
 {
 	position: absolute;
-	inset: 1rem;
+	inset: 0;
+	width: calc(100vw - 8rem);
+	margin: 1rem;
+	padding: 1rem;
+	justify-self: center;
+
 	border-radius: 0.5rem;
 	box-shadow: 0px 0px 0.25rem black;
 	background: hsl(from var(--theme-color) h s calc(l * 0.125));
 
 	outline: solid 2px var(--theme-color-10);
 	outline-offset: 0.25rem;
-
-	padding: 1rem;
 }
 
 
@@ -125,4 +130,62 @@ body
 	scale: 105%;
 	rotate: 1deg;
 	transition-duration: 0.05s;
+}
+
+@keyframes zoomoutline
+{
+	0%
+	{
+		outline-offset: 0.25rem;
+	}
+	50%
+	{
+		outline-offset: -0.25rem;
+	}
+	100%
+	{
+		outline-offset: 0.25rem;
+	}
+}
+
+.theme-inverter
+{
+	z-index: 5000000;
+	position: absolute;
+	pointer-events: none;
+	inset: 0;
+	padding: 0;
+	margin: 0;
+	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
+}
+
+.spotlight
+{
+	z-index: 10000000;
+	position: absolute;
+	inset: 0;
+	padding: 0;
+	margin: 0;
+
+	pointer-events: none;
+
+	opacity: 0%;
+
+	background-image:
+		linear-gradient(0deg, #000 30%, #fff 30%),
+		linear-gradient(90deg, #000 30%, #fff 30%),
+		linear-gradient(0deg, #fff 70%, #000 70%),
+		linear-gradient(90deg, #fff 70%, #000 70%);
+
+	transition-property: opacity;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.2s;
+	transition-delay: 1s;
+
+	mix-blend-mode: multiply;
+}
+
+img
+{
+	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
 }

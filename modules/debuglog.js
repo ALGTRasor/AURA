@@ -1,6 +1,5 @@
 import { DevMode } from "./devmode.js";
 import { Fax } from "./fax.js";
-import { Modules } from "./modules.js";
 
 export class DebugLog
 {
@@ -137,7 +136,13 @@ export class DebugLog
 	}
 }
 
+if (!window.fxn) window.fxn = {};
+window.fxn.DebugLog = DebugLog.Log;
+
 DevMode.AddActivateAction(DebugLog.Show);
 DevMode.AddDeactivateAction(DebugLog.Hide);
 
-Modules.Report("Debug Log");
+DebugLog.Create();
+DebugLog.Hide();
+
+DebugLog.StartGroup('initializing');

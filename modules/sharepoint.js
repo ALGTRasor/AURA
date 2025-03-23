@@ -8,6 +8,7 @@ export class SharePoint
 	static async GetSiteUrl(site_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name; }
 	static async GetListUrl(site_name, list_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
 
+	/*
 	static async GetSiteData(site_name)
 	{
 		console.info('Requesting SP Site data...');
@@ -35,15 +36,15 @@ export class SharePoint
 			return null;
 		}
 	}
+	*/
 
 	static async GetListData(source = SharePointDataSource.Nothing)
 	{
-		DebugLog.StartGroup('collecting sharepoint list items');
 		let field_str = source.fields.join(',');
 		try
 		{
 			let resp = await fetch(
-				await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id,title&expand=fields(select=' + field_str + ')',
+				await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id&expand=fields(select=' + field_str + ')',
 				{
 					method: 'get',
 					headers:
@@ -54,12 +55,15 @@ export class SharePoint
 				}
 			);
 
-			DebugLog.SubmitGroup();
-			return await resp.json('#0f03');
+			if (resp.status == 401) UserAccountManager.MaybeAttemptReauthorize();
+
+			let result = await resp.json();
+			return result.value;
 		}
 		catch (e)
 		{
-			console.warn('...Error requesting list data');
+			DebugLog.StartGroup('collecting sharepoint list items');
+			console.warn('...Error requesting list items');
 			console.error(e);
 			DebugLog.SubmitGroup('#f003');
 			return null;

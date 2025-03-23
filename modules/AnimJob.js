@@ -59,4 +59,4 @@ export class AnimJob
 	RequestNextTick() { this.animReqId = requestAnimationFrame(ts => this.Tick(ts)); }
 }
 
-Modules.Report("Animation Jobs");
+Modules.Report("AnimJobs");
