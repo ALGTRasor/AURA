@@ -120,9 +120,9 @@ function RefreshGlobalTooltip(e)
 
 		window.active_tooltip = mouse_element.title;
 		info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
-		e_spotlight.style.transitionDelay = '1.2s';
-		e_spotlight.style.transitionDuration = '0.25s';
-		e_spotlight.style.opacity = '30%';
+		e_spotlight.style.transitionDelay = '1s';
+		e_spotlight.style.transitionDuration = '0.15s';
+		e_spotlight.style.opacity = '50%';
 	}
 	else
 	{
