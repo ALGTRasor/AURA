@@ -44,9 +44,6 @@ async function OnAuraInit()
 		await AppEvents.onAccountLogin.InvokeAsync();
 
 		PageManager.OpenPageDirectly(new PageHome());
-		PageManager.OpenPageDirectly(new PageMyData());
-		PageManager.OpenPageDirectly(new PageMyData());
-		PageManager.OpenPageDirectly(new PageMyData());
 		await Fax.RefreshFact();
 	}
 	else
@@ -114,14 +111,16 @@ function RefreshGlobalTooltip(e)
 
 		window.active_tooltip = mouse_element.title;
 		info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
-		e_spotlight.style.transitionDelay = '1s';
+		e_spotlight.style.transitionDelay = '1.2s';
+		e_spotlight.style.transitionDuration = '0.3s';
 		e_spotlight.style.opacity = '50%';
 	}
 	else
 	{
 		window.active_tooltip = '';
 		info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
-		e_spotlight.style.transitionDelay = '0.2s';
+		e_spotlight.style.transitionDelay = '0.1s';
+		e_spotlight.style.transitionDuration = '0.1s';
 		e_spotlight.style.opacity = '0%';
 	}
 }
@@ -155,6 +154,8 @@ window.fxn.DoTestSPList = async () =>
 	var list_data = await DataSource.ALGUsers.GetData();
 	DebugLog.Log("ALGUsers: " + list_data.value.length);
 };
+
+
 window.fxn.RefreshManual = async () =>
 {
 	DebugLog.StartGroup('manual refresh');

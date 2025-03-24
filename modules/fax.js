@@ -43,6 +43,7 @@ export class Fax
 		DebugLog.StartGroup('refreshing fax');
 		let fact = await Fax.GetOne();
 		Fax.current_fact = fact;
+		Fax.e_marquee.innerHTML = '<div>' + fact + "</div>";
 		DebugLog.SubmitGroup();
 	}
 }

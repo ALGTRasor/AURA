@@ -26,6 +26,7 @@ export class PageBase
 
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';
+		this.e_title_bar.innerText = this.GetTitle();
 
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
@@ -40,15 +41,41 @@ export class PageBase
 			this.e_body.appendChild(this.e_btn_close);
 		}
 
+
+		this.e_btn_move_l = document.createElement('div');
+		this.e_btn_move_l.className = 'page-move-button';
+		this.e_btn_move_l.style.right = "3.6rem";
+		this.e_btn_move_l.innerHTML = "<i class='material-symbols icon'>chevron_left</i>";
+		this.e_btn_move_l.title = "Move this panel to the left";
+		this.e_btn_move_l.addEventListener('click', () => { this.MoveLeft(); });
+		this.e_body.appendChild(this.e_btn_move_l);
+
+		this.e_btn_move_r = document.createElement('div');
+		this.e_btn_move_r.className = 'page-move-button';
+		this.e_btn_move_r.innerHTML = "<i class='material-symbols icon'>chevron_right</i>";
+		this.e_btn_move_r.title = "Move this panel to the right";
+		this.e_btn_move_r.addEventListener('click', () => { this.MoveRight(); });
+		this.e_body.appendChild(this.e_btn_move_r);
+
 		this.e_body.appendChild(this.e_title_bar);
 		this.e_body.appendChild(this.e_content);
 	}
 
-	Close()
+	MoveLeft()
+	{
+		if (this.e_body.previousSibling) this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+	}
+	MoveRight()
+	{
+		if (this.e_body.nextSibling) this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+	}
+
+	Close(immediate = false)
 	{
 		PageManager.RemoveFromCurrent(this);
 		this.e_body.style.opacity = 0.0;
-		window.setTimeout(() => { this.e_body.remove(); }, 250);
+		if (immediate) this.e_body.remove();
+		else window.setTimeout(() => { this.e_body.remove(); }, 250);
 	}
 
 	FinalizeBody(parent)

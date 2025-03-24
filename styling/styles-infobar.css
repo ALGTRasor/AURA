@@ -32,6 +32,7 @@
 	position: absolute;
 
 	cursor: pointer;
+	pointer-events: none;
 
 	inset: 0;
 
@@ -41,14 +42,14 @@
 	padding-right: 0.5rem;
 	border-radius: 0.25rem;
 
-	color: var(--theme-color-text-50);
+	color: var(--theme-color-text-80);
 
 	font-size: 90%;
 	font-weight: normal;
 	letter-spacing: 0px;
 	word-spacing: 0px;
 
-	text-align: left;
+	text-align: center;
 	align-content: center;
 
 	font-style: italic;

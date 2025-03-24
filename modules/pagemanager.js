@@ -41,10 +41,10 @@ export class PageManager
 
 	static OpenPageDirectly(page = PageBase.Default(), force_new = false)
 	{
-		if (!page || !page.title) return;
+		if (!page || !page.title) return false;
 
 		let existing_page_id = PageManager.GetPageIndexFromTitle(page.title);
-		if (existing_page_id > -1) return;
+		if (existing_page_id > -1) return false;
 
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);
@@ -53,6 +53,8 @@ export class PageManager
 
 		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();
+
+		return true;
 	}
 
 	static RemoveFromCurrent(page = PageBase.Default)
