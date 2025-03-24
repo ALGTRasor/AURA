@@ -1,6 +1,7 @@
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { EventSource } from "./eventsource.js";
+import { SharedData } from "./datashared.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -114,8 +115,8 @@ export class UserAccountManager
 
 		if (UserAccountManager.access_token_found)
 		{
-			if (!UserAccountInfo.user_info.user_id)
-				await UserAccountInfo.GetCurrentUserInfo();
+			if (!UserAccountInfo.account_info.user_id)
+				await UserAccountInfo.GetCurrentAccountInfo();
 
 			await UserAccountInfo.RefreshCurrentUserProfilePhoto();
 
@@ -235,9 +236,10 @@ export class UserAccountManager
 
 export class UserAccountInfo
 {
-	static user_info = {};
+	static account_info = {}; // O365 account info
+	static user_info = {}; // internal user info
 
-	static async GetCurrentUserInfo()
+	static async GetCurrentAccountInfo()
 	{
 		DebugLog.StartGroup('downloading account info');
 		var resp = await fetch(
@@ -251,18 +253,31 @@ export class UserAccountInfo
 				}
 			}
 		);
-		var resp_obj = await resp.json();
 
-		UserAccountInfo.user_info.display_name = resp_obj.displayName;
-		UserAccountInfo.user_info.email = resp_obj.mail;
+		if (resp.status == 200)
+		{
+			var resp_obj = await resp.json();
+			UserAccountInfo.UpdateAccountInfo(resp_obj);
+			DebugLog.SubmitGroup('#0f04');
+		}
+	}
 
-		let id_at = resp_obj.mail.indexOf("@");
-		UserAccountInfo.user_info.user_id = id_at > -1 ? resp_obj.mail.substring(0, id_at) : resp_obj.mail;
+	static UpdateAccountInfo(info_obj = {})
+	{
+		let id_at = info_obj.mail.indexOf("@");
 
-		DebugLog.Log("...user: " + UserAccountInfo.user_info.user_id);
+		UserAccountInfo.account_info.user_id = id_at > -1 ? info_obj.mail.substring(0, id_at) : info_obj.mail;
+		UserAccountInfo.account_info.display_name = info_obj.displayName;
+		UserAccountInfo.account_info.email = info_obj.mail;
 
-		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.user_info));
-		DebugLog.SubmitGroup('#0f04');
+		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.account_info));
+
+		DebugLog.Log("...account: " + UserAccountInfo.account_info.user_id);
+	}
+
+	static UpdateUserInfo()
+	{
+		UserAccountInfo.user_info = SharedData.users.find(x => x.fields.Title == UserAccountInfo.account_info.user_id).fields;
 	}
 
 	static LoadCachedUserData()
@@ -275,7 +290,7 @@ export class UserAccountInfo
 			DebugLog.Log('...found info');
 			DebugLog.SubmitGroup('#0f04');
 		}
-		else 
+		else
 		{
 			UserAccountInfo.user_info = {};
 			DebugLog.Log('...info not found');
@@ -307,6 +322,8 @@ export class UserAccountInfo
 	}
 
 }
+
+SharedData.onLoaded.RequestSubscription(() => { UserAccountInfo.UpdateUserInfo(); });
 
 Modules.Report("User Account");
 if (!window.fxn) window.fxn = {};

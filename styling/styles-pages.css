@@ -23,25 +23,31 @@
 	opacity: 0.0;
 
 	margin: 0.5rem;
-	min-width: 30rem;
+	min-width: calc(100% * 0.2);
 
 	border-radius: 0.5rem;
 	clip-path: stroke-box;
 
-	scale: 98%;
+	outline: solid 3px #fff0;
+	outline-offset: -2px;
 
 	box-shadow: -1px 1px 3px #0003;
 	background-color: rgba(from var(--theme-color) r g b / 0.1);
 
-	transition-property: background-color, box-shadow, opacity, scale;
+	transition-property: background-color, box-shadow, opacity, outline-color;
+	transition-delay: 0.333s;
 	transition-duration: 0.2s;
 	transition-timing-function: ease-in-out;
 }
+
 .page-root:hover
 {
-	scale: 100%;
+	outline-color: #fff2;
+	opacity: 1.0 !important;
+
 	box-shadow: -2px 2px 6px #0006;
 	background-color: rgba(from var(--theme-color) r g b / 0.12);
+	transition-delay: 0s;
 }
 
 .page-move-button
@@ -63,22 +69,26 @@
 
 	scale: 90%;
 }
+
 .page-move-button:hover
 {
 	scale: 100%;
 	background-color: #f806;
 }
+
 .page-move-button:active
 {
 	scale: 95%;
 	background-color: #f805;
 }
+
 .page-move-button > i
 {
 	color: white;
 	pointer-events: none;
 	opacity: 15%;
 }
+
 .page-move-button:hover > i
 {
 	opacity: 65%;
@@ -103,12 +113,14 @@
 
 	scale: 90%;
 }
+
 .page-close-button:hover
 {
 	box-shadow: -2px 2px 1px #0007;
 	background-color: #f006;
 	scale: 100%;
 }
+
 .page-close-button:active
 {
 	box-shadow: -1px 1px 0px #0009;
@@ -121,21 +133,29 @@
 	pointer-events: none;
 	opacity: 15%;
 }
+
 .page-close-button:hover > i
 {
 	color: red;
 	opacity: 80%;
 }
 
+
+
+
 .page-content-root
 {
 	position: absolute;
 	inset: 2rem 0 0 0;
+	min-width: 10rem;
 
 	display: flex;
 	flex-direction: column;
 
 	padding: 0.5rem;
+
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .page-content-root-block
@@ -143,6 +163,9 @@
 	position: relative;
 	margin: 0.25rem;
 	padding: 0.5rem;
+
+	flex-grow: 1.0;
+	flex-basis: 0;
 
 	border-radius: 0.35rem;
 	border: solid 2px #ffffff05;
@@ -154,6 +177,7 @@
 	transition-duration: 0.2s;
 	transition-timing-function: ease-in-out;
 }
+
 .page-content-root-block:hover
 {
 	background-color: #aaa1;
@@ -194,7 +218,7 @@
 
 	background-color: #0002;
 
-	box-shadow: inset 2px 2px 6px #0009;
+	box-shadow: inset -2px 2px 6px #0009;
 }
 
 .menu-button
@@ -217,6 +241,7 @@
 	transition-duration: 0.2s;
 	transition-timing-function: ease-in-out;
 }
+
 .menu-button:hover
 {
 	padding-left: calc(0.5rem + 4px);
@@ -227,4 +252,166 @@
 	background-color: #fff1;
 
 	transition-duration: 0s;
+}
+
+
+.info-row
+{
+	cursor: default;
+
+	font-size: 0.75rem;
+	font-weight: normal;
+	letter-spacing: 0px;
+	word-spacing: -3px;
+
+	align-content: center;
+	line-height: 1.25rem;
+	height: 1.25rem;
+	margin-top: 2px;
+	margin-bottom: 2px;
+
+	text-wrap: nowrap;
+	text-overflow: ellipsis;
+
+	overflow: hidden;
+	border-radius: 0.3rem;
+
+	transition-property: background-color;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.1s;
+}
+
+.info-row:hover
+{
+
+	background-color: rgba(from var(--theme-color) r g b / 0.1);
+}
+
+.info-label
+{
+	display: inline-block;
+	min-width: 8rem;
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+	margin-right: 0.25rem;
+	text-align: right;
+	color: var(--theme-color-text);
+	background-color: #f803;
+
+	font-size: 110%;
+	font-variant: small-caps;
+	letter-spacing: 1px;
+
+	transition-property: margin-right;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.1s;
+}
+
+.info-row:hover > .info-label
+{
+	margin-right: 0.5rem;
+}
+
+
+
+
+
+.settings-toggles-root
+{
+	position: absolute;
+	inset: 0.5rem;
+	padding: 0.5rem;
+
+	border-radius: 0.5rem;
+	border: solid 2px #fff1;
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	align-content: start;
+}
+
+.settings-toggle
+{
+	position: relative;
+	cursor: pointer;
+	user-select: none;
+
+	flex-grow: 1.0;
+	flex-shrink: 0.0;
+
+	min-width: 8rem;
+	min-height: 8rem;
+	margin: 0.333rem;
+
+	background-color: transparent;
+	border-radius: 0.3333rem;
+	text-align: center;
+	align-content: center;
+	font-size: 90%;
+	font-variant: small-caps;
+	border: solid 2px #fff1;
+
+	opacity: 60%;
+
+	transition-property: opacity, background-color;
+	transition-duration: 0.2s;
+	transition-timing-function: ease-in-out;
+}
+
+.settings-toggle:hover
+{
+	opacity: 100%;
+	text-shadow: 0px 0px 6px #000a;
+	box-shadow: 0px 0px 6px #0007;
+}
+
+.settings-toggle:active
+{
+	box-shadow: 0px 0px 2px #000a;
+}
+
+.settings-toggle-on
+{
+	background-color: #fff1;
+	border: solid 2px #fff0;
+}
+
+
+.settings-toggle-on > span
+{
+	color: white !important;
+}
+
+.settings-toggle > span
+{
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 1.5rem;
+	align-content: center;
+	text-align: center;
+	font-variant: normal;
+	pointer-events: none;
+	color: var(--theme-color-20);
+}
+
+.settings-toggle > i
+{
+	position: absolute;
+	color: var(--theme-color-20);
+	inset: 0px 0px 1.5rem 0px;
+	align-content: center;
+	text-align: center;
+	font-variant: normal;
+	pointer-events: none;
+	font-size: 250%;
+}
+
+.settings-toggle-on > i
+{
+	color: white !important;
+	text-shadow: 0px 0px 6px #fff;
 }

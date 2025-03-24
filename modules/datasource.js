@@ -9,7 +9,15 @@ export class DataSource
 	static Roles = new DataSource('ALGRoles', 'ALGInternal', ['id', 'title', 'role_name_short', 'role_name', 'role_desc', 'role_flags', 'role_level']);
 	static Permissions = new DataSource('ALGPerms', 'ALGInternal', ['id', 'title', 'permission_name', 'permission_desc', 'permission_app_icon', 'permission_flags']);
 
-	static Users = new DataSource('ALGUsers', 'ALGInternal', ['id', 'title', 'display_name_full']);
+	static Users = new DataSource(
+		'ALGUsers', 'ALGInternal',
+		[
+			'id', 'title', 'display_name_full', 'user_role', 'user_team', 'user_manager_id', 'date_start', 'date_end',
+			'email_work', 'email_home', 'phone_work', 'phone_home', 'phone_ext', 'address_home', 'address_work',
+			'user_birthdate', 'user_permissions', 'user_notes', 'first_login_ts'
+		]
+	);
+
 	static Contacts = new DataSource('ALGContacts', 'ALGInternal', ['id', 'title', 'contact_name']);
 
 	static Tasks = new DataSource('ALGTasks', 'ALGInternal', ['id', 'title', 'task_id', 'task_title', 'task_desc', 'task_comments', 'subtask_ids', 'task_due_date', 'task_date_completed', 'owner_user_id']);

@@ -22,7 +22,7 @@ export class PageBase
 		this.e_body = document.createElement('div');
 		this.e_body.className = 'page-root';
 		this.e_body.style.opacity = 0.0;
-		window.setTimeout(() => { this.e_body.style.opacity = 1.0; }, 5);
+		window.setTimeout(() => { this.e_body.style.opacity = 0.5; }, 5);
 
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';
@@ -41,10 +41,9 @@ export class PageBase
 			this.e_body.appendChild(this.e_btn_close);
 		}
 
-
 		this.e_btn_move_l = document.createElement('div');
 		this.e_btn_move_l.className = 'page-move-button';
-		this.e_btn_move_l.style.right = "3.6rem";
+		this.e_btn_move_l.style.left = "0.2rem";
 		this.e_btn_move_l.innerHTML = "<i class='material-symbols icon'>chevron_left</i>";
 		this.e_btn_move_l.title = "Move this panel to the left";
 		this.e_btn_move_l.addEventListener('click', () => { this.MoveLeft(); });
@@ -63,16 +62,28 @@ export class PageBase
 
 	MoveLeft()
 	{
-		if (this.e_body.previousSibling) this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+		if (this.e_body.previousSibling)
+		{
+			this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+			PageManager.onLayoutChange.Invoke();
+		}
 	}
+
 	MoveRight()
 	{
-		if (this.e_body.nextSibling) this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+		if (this.e_body.nextSibling)
+		{
+			this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+			PageManager.onLayoutChange.Invoke();
+		}
 	}
 
 	Close(immediate = false)
 	{
+		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
+		this.OnClose();
 		PageManager.RemoveFromCurrent(this);
+		this.e_body.style.pointerEvents = 'none';
 		this.e_body.style.opacity = 0.0;
 		if (immediate) this.e_body.remove();
 		else window.setTimeout(() => { this.e_body.remove(); }, 250);
@@ -82,6 +93,9 @@ export class PageBase
 	{
 		if (!parent) return;
 		parent.appendChild(this.e_body);
+
+		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
+		this.OnOpen();
 	}
 
 	CreateElements(parent)
@@ -91,6 +105,27 @@ export class PageBase
 		this.e_content.innerText = 'content :: ' + this.title;
 		this.FinalizeBody(parent);
 	}
+
+	UpdatePageContext()
+	{
+		if (PageManager.currentPages.length < 2)
+		{
+			if (this.e_btn_close) this.e_btn_close.style.display = (this.title == 'home') ? 'none' : 'block';
+			this.e_btn_move_l.style.display = 'none';
+			this.e_btn_move_r.style.display = 'none';
+		}
+		else
+		{
+			if (this.e_btn_close) this.e_btn_close.style.display = 'block';
+			this.e_btn_move_l.style.display = this.e_body.previousElementSibling ? 'block' : 'none';
+			this.e_btn_move_r.style.display = this.e_body.nextElementSibling ? 'block' : 'none';
+		}
+	}
+
+
+
+	OnOpen() { }
+	OnClose() { }
 }
 
 Modules.Report("Pages");

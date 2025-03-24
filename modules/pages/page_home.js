@@ -3,6 +3,7 @@ import { PageHR } from "./page_hr.js";
 import { PageInternalUsers } from "./page_internal_users.js";
 import { PageMyData } from "./page_my_data.js";
 import { PageProjectHub } from "./page_project_hub.js";
+import { PageSettings } from "./page_settings.js";
 import { PageTaskHub } from "./page_task_hub.js";
 import { PageBase } from "./pagebase.js";
 
@@ -14,8 +15,6 @@ export class PageHome extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 		this.e_body.style.maxWidth = '500px';
-		this.e_body.style.flexShrink = 1.0;
-		this.e_body.style.flexGrow = 1.0;
 
 		this.AddMenuButton('PROJECT HUB', () => { this.OpenPage(new PageProjectHub()); });
 		this.AddMenuButton('TASK HUB', () => { this.OpenPage(new PageTaskHub()); });
@@ -26,6 +25,7 @@ export class PageHome extends PageBase
 		this.AddMenuButton('TIME LOG', () => { this.OpenPage(new PageMyData()); });
 		this.AddMenuButton('MY DATA', () => { this.OpenPage(new PageMyData()); });
 		this.AddMenuButton('HR', () => { this.OpenPage(new PageHR()); });
+		this.AddMenuButton('SETTINGS', () => { this.OpenPage(new PageSettings()); });
 		this.AddMenuButton('APP EVENTS', () => { this.OpenPage(new PageMyData()); });
 
 		this.e_content.className = 'page-content-root menu-root';

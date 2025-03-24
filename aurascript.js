@@ -16,18 +16,24 @@ import { AppEvents } from "./modules/appevents.js";
 
 import { PageMyData } from "./modules/pages/page_my_data.js";
 import { PageHome } from "./modules/pages/page_home.js";
+import { PageHR } from "./modules/pages/page_hr.js";
+import { PageSettings } from "./modules/pages/page_settings.js";
 
 
 async function CheckIdentity()
 {
 	DebugLog.StartGroup('validating identity');
-	DevMode.ValidateDeveloperId(UserAccountInfo.user_info.user_id);
+	DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
 	if (DevMode.active) DebugLog.SubmitGroup('#f0f3');
 	else DebugLog.SubmitGroup();
 }
 
 async function OnAuraInit()
 {
+	AppEvents.onToggleLightMode.RequestSubscription(UpdateLightMode);
+	AppEvents.onToggleSpotlight.RequestSubscription(UpdateSpotlight);
+	AppEvents.onToggleHideSensitiveInfo.RequestSubscription(UpdateHideSensitiveInfo);
+
 	UserSettings.LoadFromStorage();
 	await UserAccountManager.CheckWindowLocationForCodes();
 
@@ -53,6 +59,10 @@ async function OnAuraInit()
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
+
+	UpdateLightMode();
+	UpdateSpotlight();
+	UpdateHideSensitiveInfo();
 
 	DebugLog.SubmitGroup('#ff04');
 }
@@ -101,7 +111,6 @@ function SpotlightElement(e_target)
 
 const info_label = document.getElementById('info-bar-marquee');
 
-
 function RefreshGlobalTooltip(e)
 {
 	let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
@@ -112,40 +121,71 @@ function RefreshGlobalTooltip(e)
 		window.active_tooltip = mouse_element.title;
 		info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
 		e_spotlight.style.transitionDelay = '1.2s';
-		e_spotlight.style.transitionDuration = '0.3s';
-		e_spotlight.style.opacity = '50%';
+		e_spotlight.style.transitionDuration = '0.25s';
+		e_spotlight.style.opacity = '30%';
 	}
 	else
 	{
 		window.active_tooltip = '';
 		info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
-		e_spotlight.style.transitionDelay = '0.1s';
+		e_spotlight.style.transitionDelay = '0.3s';
 		e_spotlight.style.transitionDuration = '0.1s';
 		e_spotlight.style.opacity = '0%';
 	}
 }
+
+
+function UpdateLightMode()
+{
+	let is_light_mode = UserSettings.GetOptionValue('light-mode') === true;
+	document.documentElement.style.setProperty('--theme-invert', is_light_mode ? 1.0 : 0.0);
+
+	if (is_light_mode) e_tgl_lightmode.innerHTML = "Light Mode<i class='material-symbols icon'>light_mode</i>";
+	else e_tgl_lightmode.innerHTML = "Dark Mode<i class='material-symbols icon'>dark_mode</i>";
+}
+
+
+function UpdateSpotlight()
+{
+	let use_spotlight = UserSettings.GetOptionValue('spotlight') === true;
+	if (e_spotlight) e_spotlight.style.display = use_spotlight ? 'block' : 'none';
+}
+
+function UpdateHideSensitiveInfo()
+{
+	let hide_sensitive = UserSettings.GetOptionValue('hide-sensitive-info') === true;
+	document.documentElement.style.setProperty('--sensitive-info-cover', hide_sensitive ? 1.0 : 0.0);
+}
+
 // any time the mouse moves while over the page
-document.body.addEventListener('mouseover', RefreshGlobalTooltip);
+document.body.addEventListener('mousemove', RefreshGlobalTooltip);
 document.body.addEventListener('mouseout', RefreshGlobalTooltip);
-//document.body.addEventListener('click', RefreshGlobalTooltip);
+document.body.addEventListener('mouseup', e => { window.setTimeout(() => { RefreshGlobalTooltip(e); }, 50); });
+document.body.addEventListener('scroll', RefreshGlobalTooltip);
 
 const e_tgl_lightmode = document.getElementById('action-bar-btn-lightmode');
 
 window.fxn.ToggleLightMode = () =>
 {
-	let prevVal = document.documentElement.style.getPropertyValue('--theme-invert');
-	let is_light_mode = prevVal ? (prevVal < 1.0) : true;
-	document.documentElement.style.setProperty('--theme-invert', is_light_mode ? 1.0 : 0.0);
-
-	if (is_light_mode)
-		e_tgl_lightmode.innerHTML = "Light Mode<i class='material-symbols icon'>light_mode</i>";
-	else
-		e_tgl_lightmode.innerHTML = "Dark Mode<i class='material-symbols icon'>dark_mode</i>";
-}
+	const option_id = 'light-mode';
+	UserSettings.SetOptionValue(option_id, !UserSettings.GetOptionValue(option_id));
+	UpdateLightMode();
+};
 
 window.fxn.OpenHomePage = () =>
 {
 	PageManager.OpenPageDirectly(new PageHome());
+};
+
+window.fxn.OpenPageById = (page_id) =>
+{
+	switch (page_id)
+	{
+		case 'home': PageManager.OpenPageDirectly(new PageHome()); break;
+		case 'hr': PageManager.OpenPageDirectly(new PageHR()); break;
+		case 'settings': PageManager.OpenPageDirectly(new PageSettings()); break;
+		case 'mydata': PageManager.OpenPageDirectly(new PageMyData()); break;
+	}
 };
 
 
@@ -159,7 +199,7 @@ window.fxn.DoTestSPList = async () =>
 window.fxn.RefreshManual = async () =>
 {
 	DebugLog.StartGroup('manual refresh');
-	await UserAccountInfo.GetCurrentUserInfo();
+	await UserAccountInfo.GetCurrentAccountInfo();
 	await CheckIdentity();
 	await SharedData.LoadData(false);
 	DebugLog.SubmitGroup("#f808");

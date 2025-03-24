@@ -29,6 +29,8 @@
 	--theme-color-text-90: rgba(from var(--theme-color-text) r g b / 0.9);
 
 	--theme-invert: 0.0;
+
+	--sensitive-info-cover: 1.0;
 }
 
 
@@ -71,8 +73,8 @@ body
 {
 	position: absolute;
 	inset: 0;
-	width: calc(100vw - 8rem);
-	margin: 1rem;
+	width: calc(100vw - 4rem);
+	margin: 0.5rem;
 	padding: 1rem;
 	justify-self: center;
 

@@ -1,4 +1,5 @@
 import { DebugLog } from "./debuglog.js";
+import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageBase } from "./pages/pagebase.js";
 
@@ -8,8 +9,9 @@ const e_pages_root = document.getElementById('content-pages-root');
 export class PageManager
 {
 	static currentPages = [];
-
 	static all_pages = [];
+
+	static onLayoutChange = new EventSource();
 
 	static RegisterPage(page = PageBase.Default())
 	{
@@ -44,7 +46,7 @@ export class PageManager
 		if (!page || !page.title) return false;
 
 		let existing_page_id = PageManager.GetPageIndexFromTitle(page.title);
-		if (existing_page_id > -1) return false;
+		if (!force_new && existing_page_id > -1) return false;
 
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);
@@ -54,6 +56,8 @@ export class PageManager
 		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();
 
+		PageManager.onLayoutChange.Invoke();
+
 		return true;
 	}
 
@@ -62,6 +66,8 @@ export class PageManager
 		let i = PageManager.currentPages.indexOf(page);
 		if (i < 0) return;
 		PageManager.currentPages.splice(i, 1);
+		if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('home'); }, 420);
+		PageManager.onLayoutChange.Invoke();
 	}
 }
 

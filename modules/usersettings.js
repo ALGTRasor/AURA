@@ -91,4 +91,6 @@ export class UserSettings
 
 Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });
 UserSettings.RegisterOption('theme-color', '#f0f');
+UserSettings.RegisterOption('light-mode', false);
+UserSettings.RegisterOption('spotlight', false);
 Modules.Report("User Settings");

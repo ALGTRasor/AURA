@@ -1,10 +1,9 @@
 import { Modules } from "./modules.js";
 import { DataSource } from "./datasource.js";
-import { UserAccountManager } from "./useraccount.js";
-import { SharePoint } from "./sharepoint.js";
 import { DebugLog } from "./debuglog.js";
 import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
+import { EventSource } from "./eventsource.js";
 
 export class SharedDataTable
 {
@@ -29,6 +28,11 @@ export class SharedData
 	static permissions = [];
 	static users = [];
 
+	static onLoaded = new EventSource();
+	static onLoadedFromCache = new EventSource();
+	static onSavedToCache = new EventSource();
+	static onDownloaded = new EventSource();
+
 	static async LoadData(useCache = true)
 	{
 		if (SharedData.loading) return;
@@ -47,6 +51,9 @@ export class SharedData
 				SharedData.loaded = true;
 				SharedData.loading = false;
 				DebugLog.SubmitGroup();
+
+				await SharedData.onLoaded.InvokeAsync();
+				await SharedData.onLoadedFromCache.InvokeAsync();
 				return;
 			}
 		}
@@ -70,12 +77,16 @@ export class SharedData
 		SharedData.SaveToStorage('teams', SharedData.teams);
 		SharedData.SaveToStorage('permissions', SharedData.permissions);
 		SharedData.SaveToStorage('users', SharedData.users);
+		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop('shared data load') + 'ms');
 		DebugLog.SubmitGroup();
 
 		SharedData.loading = false;
 		SharedData.loaded = true;
+
+		await SharedData.onLoaded.InvokeAsync();
+		await SharedData.onDownloaded.InvokeAsync();
 	}
 
 	static AttemptLoadCache()
@@ -114,7 +125,7 @@ export class SharedData
 		if (key && key.length > 0)
 		{
 			let got = localStorage.getItem(key);
-			if (got) 
+			if (got)
 			{
 				DebugLog.Log('from cache: ' + key)
 				return JSON.parse(got).table;
@@ -123,6 +134,18 @@ export class SharedData
 		}
 		else return null;
 	}
+
+
+
+
+	static GetData(table = [], user_id = '')
+	{
+		let rec = table.find(x => x && x.fields && (x.fields.Title == user_id));
+		return (rec && rec.fields) ? rec.fields : null;
+	}
+	static GetUserData(id = '') { return SharedData.GetData(SharedData.users, id); }
+	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles, id); }
+	static GetTeamData(id = '') { return SharedData.GetData(SharedData.teams, id); }
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);
