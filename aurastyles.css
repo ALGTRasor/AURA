@@ -16,7 +16,7 @@
 	--theme-color-80: rgba(from var(--theme-color) r g b / 0.8);
 	--theme-color-90: rgba(from var(--theme-color) r g b / 0.9);
 
-	--theme-color-background: hsl(from var(--theme-color) h s 4);
+	--theme-color-background: hsl(from var(--theme-color) h s 6);
 
 	--theme-color-text: hsl(from var(--theme-color) h s 95%);
 	--theme-color-text-10: rgba(from var(--theme-color-text) r g b / 0.1);
@@ -32,6 +32,14 @@
 	--theme-invert: 0.0;
 
 	--sensitive-info-cover: 1.0;
+
+	--trans-dur-mult: 1.0;
+	--trans-dur-off-fast: calc(0.15s * var(--trans-dur-mult));
+	--trans-dur-off-slow: calc(0.3s * var(--trans-dur-mult));
+	--trans-dur-off-veryslow: calc(0.5s * var(--trans-dur-mult));
+	--trans-dur-on-fast: calc(0.05s * var(--trans-dur-mult));
+	--trans-dur-on-slow: calc(0.1s * var(--trans-dur-mult));
+	--trans-dur-on-veryslow: calc(0.2s * var(--trans-dur-mult));
 }
 
 
@@ -118,7 +126,7 @@ body
 
 	transition-property: background, color, scale, rotate, outline;
 	transition-timing-function: ease-in-out;
-	transition-duration: 0.2s;
+	transition-duration: var(--trans-dur-off-fast);
 }
 
 .aura-button:hover
@@ -127,7 +135,7 @@ body
 	background: var(--theme-color-40);
 	outline: solid 2px var(--theme-color);
 	scale: 100%;
-	transition-duration: 0.02s;
+	transition-duration: var(--trans-dur-on-fast);
 }
 
 .aura-button:active
@@ -172,7 +180,7 @@ body
 
 	transition-property: opacity;
 	transition-timing-function: ease-in-out;
-	transition-duration: 0.2s;
+	transition-duration: var(--trans-dur-off-fast);
 	transition-delay: 1s;
 
 	mix-blend-mode: multiply;

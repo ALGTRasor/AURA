@@ -34,6 +34,9 @@ async function OnAuraInit()
 	AppEvents.onToggleSpotlight.RequestSubscription(UpdateSpotlight);
 	AppEvents.onToggleHideSensitiveInfo.RequestSubscription(UpdateHideSensitiveInfo);
 	AppEvents.onToggleLimitWidth.RequestSubscription(UpdateLimitContentWidth);
+	AppEvents.onToggleDebugLog.RequestSubscription(UpdateDebugLog);
+	AppEvents.onSetAnimSpeed.RequestSubscription(UpdateAnimSpeed);
+	AppEvents.onSetThemeColor.RequestSubscription(UpdateThemeColor);
 
 	UserSettings.LoadFromStorage();
 	await UserAccountManager.CheckWindowLocationForCodes();
@@ -42,7 +45,7 @@ async function OnAuraInit()
 
 	await UserAccountManager.AttemptAutoLogin();
 
-	if (UserAccountManager.access_token_found) 
+	if (UserAccountManager.account_provider.logged_in) 
 	{
 		document.getElementById('content-body-obscurer').style.display = 'none';
 
@@ -65,8 +68,11 @@ async function OnAuraInit()
 	UpdateSpotlight();
 	UpdateHideSensitiveInfo();
 	UpdateLimitContentWidth();
+	UpdateDebugLog();
+	UpdateAnimSpeed();
+	UpdateThemeColor();
 
-	DebugLog.SubmitGroup('#ff04');
+	DebugLog.SubmitGroup('#fff4');
 }
 
 const get_grad = (deg, ca, pa, cb, pb) =>
@@ -165,6 +171,26 @@ function UpdateLimitContentWidth()
 	document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
 }
 
+function UpdateDebugLog()
+{
+	let show = UserSettings.GetOptionValue('show-debug-log') === true;
+	DebugLog.ui.e_root.style.display = show ? 'block' : 'none';
+}
+
+function UpdateAnimSpeed()
+{
+	let anim_speed = UserSettings.GetOptionValue('anim-speed');
+	document.documentElement.style.setProperty('--trans-dur-mult', 2.0 * Math.pow(1.0 - anim_speed, 2));
+}
+
+function UpdateThemeColor()
+{
+	let theme_hue = UserSettings.GetOptionValue('theme-hue');
+	let theme_sat = UserSettings.GetOptionValue('theme-saturation');
+
+	document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, 80%)');
+}
+
 // any time the mouse moves while over the page
 document.body.addEventListener('mousemove', RefreshGlobalTooltip);
 document.body.addEventListener('mouseout', RefreshGlobalTooltip);
@@ -207,7 +233,7 @@ window.fxn.DoTestSPList = async () =>
 window.fxn.RefreshManual = async () =>
 {
 	DebugLog.StartGroup('manual refresh');
-	await UserAccountInfo.GetCurrentAccountInfo();
+	await UserAccountManager.account_provider.DownloadAccountData();
 	await CheckIdentity();
 	await SharedData.LoadData(false);
 	DebugLog.SubmitGroup("#f808");

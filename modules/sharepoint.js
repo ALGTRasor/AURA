@@ -49,7 +49,7 @@ export class SharePoint
 					method: 'get',
 					headers:
 					{
-						'Authorization': 'Bearer ' + UserAccountManager.access_token,
+						'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
 						'Accept': 'application/json'
 					}
 				}

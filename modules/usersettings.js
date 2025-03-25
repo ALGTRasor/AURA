@@ -50,7 +50,7 @@ export class UserSettings
 		else if (UserSettings.options[existing_index].value != value)
 		{
 			UserSettings.options[existing_index].value = value;
-			DebugLog.Log('cfg: ' + option_key + ' = ' + value);
+			//DebugLog.Log('cfg: ' + option_key + ' = ' + value);
 		}
 	}
 
@@ -93,4 +93,6 @@ Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });
 UserSettings.RegisterOption('theme-color', '#f0f');
 UserSettings.RegisterOption('light-mode', false);
 UserSettings.RegisterOption('spotlight', false);
+UserSettings.RegisterOption('show-debug-log', true);
+UserSettings.RegisterOption('anim-speed', 0.5);
 Modules.Report("User Settings");

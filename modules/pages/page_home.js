@@ -14,6 +14,8 @@ export class PageHome extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
+
+		this.e_body.style.minWidth = '300px';
 		this.e_body.style.maxWidth = '500px';
 
 		this.AddMenuButton('PROJECT HUB', () => { this.OpenPage(new PageProjectHub()); });

@@ -9,4 +9,8 @@ export class AppEvents
 	static onToggleLimitWidth = new EventSource();
 	static onToggleSpotlight = new EventSource();
 	static onToggleHideSensitiveInfo = new EventSource();
+	static onToggleDebugLog = new EventSource();
+
+	static onSetAnimSpeed = new EventSource();
+	static onSetThemeColor = new EventSource();
 }

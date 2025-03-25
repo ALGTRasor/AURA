@@ -1,6 +1,6 @@
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
-import { EventSource } from "./eventsource.js";
+import { EventSource, EventSourceSubscription } from "./eventsource.js";
 import { SharedData } from "./datashared.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
@@ -10,6 +10,8 @@ const url_mo_token = url_mo + 'oauth2/v2.0/token';
 
 const rgx_access_token = /[\#\&\?]access_token\=([^\&]+)/;
 const rgx_id_token = /[\#\&\?]id_token\=([^\&]+)/;
+
+const lskey_id_token = 'o365_id_token_latest';
 const lskey_access_token = 'o365_access_token_latest';
 
 const lskey_user_data = 'o365_user_data';
@@ -23,66 +25,148 @@ const CLIENT_SCOPES = [
 	'AllSites.FullControl'
 ].join(' ');
 
-export class UserAccountManager
+export class UserAccountProvider
 {
-	// id token - used to obtain tenant account info
-	static id_token = '';
-	static id_token_found = false;
+	static Microsoft = new UserAccountProvider();
 
-	// access token - used for authorizing api calls
-	static access_token = '';
-	static access_token_found = false;
-
-	static IsValidString(str)
+	constructor()
 	{
-		return str !== undefined && str !== null && typeof str === 'string' && str !== 'undefined' && str !== 'null';
+		this.logging_in = false;
+		this.logged_in = false;
+
+		this.onLoginSuccess = new EventSource();
+		this.onLoginFail = new EventSource();
+
+		this.has_id_token = false;
+		this.id_token = '';
+
+		this.has_access_token = false;
+		this.access_token = '';
+
+		this.account_profile_picture_url = [];
 	}
 
-	static KeyString(str)
-	{
-		return str.substring(0, 32).split('').map(x => (Math.random() > 0.42) ? x : '*').join('') + '...';
-	}
+	GatherLocationTokens() { return false; } // checks the window location for query or hash provided auth tokens
 
-	static UpdateIdToken(new_value)
+	LoadCachedData() { } // loads cached auth tokens and account data
+	async AttemptAutoLogin() { } // attempts to login using cached  credentials
+	AttemptReauthorize() { } // automatically initiates the login flow until out of tries, triggered by api call auth errors
+
+	GetAuthorizationURL() { return ''; } // gets the url used to send the user to authorization
+	InitiateLogin() { } // sends the user to the auth page
+
+	async DownloadAccountData() { } // uses account credentials to fetch authorized account details
+	async DownloadAccountProfilePicture() { } // uses account credentials to fetch authorized account profile picture
+
+	async InitiateAccountSelection() { } // forces a logout and sends the user to authorization 
+
+	ClearCachedData() { } // clears cached account info, usually to prepare for logout
+}
+
+export class MSAccountProvider extends UserAccountProvider
+{
+	constructor() { super(); }
+
+	UpdateAccessToken(new_value, update_store = false)
 	{
-		if (UserAccountManager.IsValidString(new_value))
+		if (new_value && UserAccountManager.IsValidString(new_value))
 		{
-			UserAccountManager.id_token = new_value;
-			UserAccountManager.id_token_found = true;
+			this.access_token = new_value;
+			this.has_access_token = true;
+			if (update_store) localStorage.setItem(lskey_access_token, this.access_token);
 		}
-		else console.warn("Invalid ID Token!");
 	}
 
-	static LoadExistingAccessToken()
+	UpdateIdToken(new_value, update_store = false)
 	{
-		DebugLog.StartGroup('loading cached access token');
-		let tmp = localStorage.getItem(lskey_access_token);
-		if (tmp)
+		if (new_value && UserAccountManager.IsValidString(new_value))
 		{
-			DebugLog.Log('...found token');
-			UserAccountManager.UpdateAccessToken(tmp);
+			this.id_token = new_value;
+			this.has_id_token = true;
+			if (update_store) localStorage.setItem(lskey_id_token, this.id_token);
+		}
+	}
+
+	LoadCachedData()
+	{
+		let success = true;
+		DebugLog.StartGroup('loading account data');
+
+		let tmp_access = localStorage.getItem(lskey_access_token);
+		if (tmp_access) this.UpdateAccessToken(tmp_access);
+		else success = false;
+
+		let tmp_id = localStorage.getItem(lskey_id_token);
+		if (tmp_id) this.UpdateIdToken(tmp_id);
+		else success = false;
+
+		let tmp_account_info = localStorage.getItem(lskey_user_data);
+		if (tmp_account_info) UserAccountInfo.account_info = JSON.parse(tmp_account_info);
+		else success = false;
+
+		if (success)
+		{
+			DebugLog.Log('...loaded from cache');
 			DebugLog.SubmitGroup('#0f04');
 		}
 		else
 		{
-			DebugLog.Log('...token not found');
+			DebugLog.Log('...not found in cache');
 			DebugLog.SubmitGroup('#ff04');
 		}
 	}
 
-	static UpdateAccessToken(new_value, update_store = false)
+	async AttemptAutoLogin()
 	{
-		if (new_value && UserAccountManager.IsValidString(new_value))
+		UserAccountManager.account_provider.logging_in =
+
+			DebugLog.StartGroup('autologin');
+		this.LoadCachedData();
+
+		if (this.has_access_token)
 		{
-			UserAccountManager.access_token = new_value;
-			UserAccountManager.access_token_found = true;
-			if (update_store) localStorage.setItem(lskey_access_token, UserAccountManager.access_token);
+			DebugLog.Log('downloading account data...');
+			await this.DownloadAccountData();
+			DebugLog.Log('downloading account profile picture...');
+			await this.DownloadAccountProfilePicture();
+
+			localStorage.removeItem(lskey_login_attempts);
+			localStorage.removeItem(lskey_login_forced);
+
+			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
+			document.getElementById('action-bar-btn-logout').style.display = 'block';
+			DebugLog.SubmitGroup('#0f04');
+			UserAccountManager.account_provider.logged_in = true;
+		}
+		else
+		{
+			DebugLog.Log('! authorization required');
+			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
+			document.getElementById('action-bar-btn-logout').style.display = 'none';
+			DebugLog.SubmitGroup('#f004');
+			UserAccountManager.account_provider.logged_in = false;
+		}
+		UserAccountManager.account_provider.logging_in = false;
+	}
+
+
+	AttemptReauthorize(reason = '')
+	{
+		const max_login_attempts = 1;
+
+		let login_attempts = localStorage.getItem(lskey_login_attempts);
+		if (!login_attempts) login_attempts = 0;
+
+		if (login_attempts < max_login_attempts)
+		{
+			login_attempts += 1;
+			localStorage.setItem(lskey_login_attempts, login_attempts);
+			DebugLog.Log('reauthorize attempt ' + login_attempts + ' :: ' + (reason ? reason : 'no reason given'));
+			this.InitiateLogin();
 		}
 	}
 
-	static GetNonce() { return Math.floor(Math.random() * 8999999) + 1000000; }
-
-	static GetAuthURL()
+	GetAuthorizationURL()
 	{
 		let force = localStorage.getItem(lskey_login_forced);
 		let url = url_mo_oauth;
@@ -95,6 +179,133 @@ export class UserAccountManager
 		url += "&nonce=" + UserAccountManager.GetNonce();
 		return url;
 	}
+
+	InitiateLogin()
+	{
+		var auth_url = this.GetAuthorizationURL();
+		window.open(auth_url, "_self");
+	}
+
+	ClearCachedData()
+	{
+		this.access_token = '';
+		this.has_access_token = false;
+		this.id_token = '';
+		this.has_id_token = false;
+		localStorage.removeItem(lskey_user_data);
+		localStorage.removeItem(lskey_id_token);
+		localStorage.removeItem(lskey_access_token);
+	}
+
+	InitiateAccountSelection()
+	{
+		DebugLog.Log('Forced account selection');
+		this.ClearCachedData();
+		localStorage.setItem(lskey_login_forced, 1);
+
+		this.InitiateLogin(); // immediately sends the user to login
+		//window.open(UserAccountManager.GetRedirectUri(), "_self"); // reloads AURA logged out
+	}
+
+	GatherLocationTokens()
+	{
+		let dirty_location = false;
+
+		let id_token_match = window.location.toString().match(rgx_id_token);
+		if (id_token_match != null)
+		{
+			this.UpdateIdToken(id_token_match[1], true);
+			dirty_location = true;
+		}
+
+		let access_token_match = window.location.toString().match(rgx_access_token);
+		if (access_token_match != null)
+		{
+			this.UpdateAccessToken(access_token_match[1], true);
+			dirty_location = true;
+		}
+
+		return dirty_location;
+	}
+
+	async DownloadAccountData()
+	{
+		DebugLog.StartGroup('downloading account data');
+		var resp = await fetch(
+			"https://graph.microsoft.com/v1.0/me",
+			{
+				method: 'get',
+				headers:
+				{
+					'Authorization': 'Bearer ' + this.access_token,
+					'Accept': 'application/json'
+				}
+			}
+		);
+
+		if (resp.status == 200)
+		{
+			this.UpdateAccountInfo(JSON.parse(await resp.text()));
+			DebugLog.SubmitGroup('#0f04');
+		}
+		else
+		{
+			DebugLog.SubmitGroup('#f004');
+		}
+	}
+
+	UpdateAccountInfo(info_obj = {})
+	{
+		let id_at = info_obj.mail.indexOf("@");
+
+		UserAccountInfo.account_info.user_id = id_at > -1 ? info_obj.mail.substring(0, id_at) : info_obj.mail;
+		UserAccountInfo.account_info.display_name = info_obj.displayName;
+		UserAccountInfo.account_info.email = info_obj.mail;
+
+		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.account_info));
+
+		DebugLog.Log("...account: " + UserAccountInfo.account_info.user_id);
+	}
+
+	async DownloadAccountProfilePicture()
+	{
+		try
+		{
+			var resp = await fetch(
+				"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
+				{
+					method: 'get',
+					headers: { 'Authorization': 'Bearer ' + this.access_token }
+				}
+			);
+
+			if (resp.status === 401) this.AttemptReauthorize('unauthorized');
+
+			this.account_profile_picture_url = window.URL.createObjectURL(await resp.blob());
+			document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
+		}
+		catch (e)
+		{
+			this.AttemptReauthorize(e);
+		}
+	}
+}
+
+export class UserAccountManager
+{
+	static account_provider = new MSAccountProvider();
+
+	static IsValidString(str)
+	{
+		return str !== undefined && str !== null && typeof str === 'string' && str !== 'undefined' && str !== 'null';
+	}
+
+	static KeyString(str)
+	{
+		return str.substring(0, 32).split('').map(x => (Math.random() > 0.42) ? x : '*').join('') + '...';
+	}
+
+	static GetNonce() { return Math.floor(Math.random() * 8999999) + 1000000; }
 
 	static GetRedirectUri(force_secure_protocol = false)
 	{
@@ -109,122 +320,28 @@ export class UserAccountManager
 
 	static async AttemptAutoLogin()
 	{
-		DebugLog.StartGroup('autologin');
-		UserAccountInfo.LoadCachedUserData();
-		UserAccountManager.LoadExistingAccessToken();
-
-		if (UserAccountManager.access_token_found)
-		{
-			if (!UserAccountInfo.account_info.user_id)
-				await UserAccountInfo.GetCurrentAccountInfo();
-
-			await UserAccountInfo.RefreshCurrentUserProfilePhoto();
-
-			localStorage.removeItem(lskey_login_attempts);
-			localStorage.removeItem(lskey_login_forced);
-
-			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
-			document.getElementById('action-bar-btn-logout').style.display = 'block';
-			DebugLog.SubmitGroup('#0f04');
-		}
-		else
-		{
-			DebugLog.Log('! authorization required');
-			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
-			document.getElementById('action-bar-btn-logout').style.display = 'none';
-			DebugLog.SubmitGroup('#f004');
-		}
+		await UserAccountManager.account_provider.AttemptAutoLogin();
 	}
 
 	static RequestLogin()
 	{
-		var auth_url = UserAccountManager.GetAuthURL();
-		console.warn('redirect: ' + UserAccountManager.GetRedirectUri());
-		window.open(auth_url, "_self");
+		UserAccountManager.account_provider.InitiateLogin();
 	}
 
 	static MaybeAttemptReauthorize(reason = '')
 	{
-		const max_login_attempts = 1;
-
-		let login_attempts = localStorage.getItem(lskey_login_attempts);
-		if (!login_attempts) login_attempts = 0;
-
-		if (login_attempts < max_login_attempts)
-		{
-			let login_attempts_new = login_attempts ? (login_attempts + 1) : 1;
-			localStorage.setItem(lskey_login_attempts, login_attempts_new);
-			DebugLog.Log('reauthorize attempt ' + login_attempts_new + ' :: ' + (reason ? reason : 'no reason given'));
-			UserAccountManager.RequestLogin();
-		}
+		return;
+		UserAccountManager.account_provider.AttemptReauthorize(reason);
 	}
 
 	static ForceLogOut()
 	{
-		DebugLog.Log('Forced logout');
-		UserAccountManager.access_token = '';
-		UserAccountManager.access_token_found = false;
-		localStorage.setItem(lskey_login_forced, 1);
-		localStorage.removeItem(lskey_user_data);
-		localStorage.removeItem(lskey_access_token);
-		window.open(UserAccountManager.GetRedirectUri(), "_self");
-	}
-
-	static async RequestAccessToken()
-	{
-		DebugLog.StartGroup('requesting access token');
-		try
-		{
-			let resp = await fetch(
-				url_mo_token,
-				{
-					method: 'post',
-					body: new URLSearchParams(
-						{
-							client_id: CLIENT_ID,
-							grant_type: 'authorization_code',
-							code: UserAccountManager.oauth_code,
-							scope: CLIENT_SCOPES,
-							redirect_uri: UserAccountManager.GetRedirectUri()
-						}
-					),
-					headers:
-					{
-						'Content-Type': 'application/x-www-form-urlencoded'
-					}
-				}
-			);
-
-			let resp_obj = await resp.json();
-			UserAccountManager.UpdateAccessToken(resp_obj.access_token);
-			DebugLog.SubmitGroup('green');
-		}
-		catch (e)
-		{
-			console.error(e);
-			DebugLog.SubmitGroup('red');
-		}
+		UserAccountManager.account_provider.InitiateAccountSelection();
 	}
 
 	static async CheckWindowLocationForCodes()
 	{
-		let dirty_location = false;
-
-		let id_token_match = window.location.toString().match(rgx_id_token);
-		if (id_token_match != null)
-		{
-			UserAccountManager.UpdateIdToken(id_token_match[1]);
-			dirty_location = true;
-		}
-
-		let access_token_match = window.location.toString().match(rgx_access_token);
-		if (access_token_match != null)
-		{
-			UserAccountManager.UpdateAccessToken(access_token_match[1], true);
-			dirty_location = true;
-		}
-
-		if (dirty_location)
+		if (UserAccountManager.account_provider.GatherLocationTokens())
 		{
 			let windowloc = window.location.toString();
 			if (windowloc.indexOf('?') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('?'));
@@ -239,44 +356,10 @@ export class UserAccountInfo
 	static account_info = {}; // O365 account info
 	static user_info = {}; // internal user info
 
-	static async GetCurrentAccountInfo()
-	{
-		DebugLog.StartGroup('downloading account info');
-		var resp = await fetch(
-			"https://graph.microsoft.com/v1.0/me",
-			{
-				method: 'get',
-				headers:
-				{
-					'Authorization': 'Bearer ' + UserAccountManager.access_token,
-					'Accept': 'application/json'
-				}
-			}
-		);
-
-		if (resp.status == 200)
-		{
-			var resp_obj = await resp.json();
-			UserAccountInfo.UpdateAccountInfo(resp_obj);
-			DebugLog.SubmitGroup('#0f04');
-		}
-	}
-
-	static UpdateAccountInfo(info_obj = {})
-	{
-		let id_at = info_obj.mail.indexOf("@");
-
-		UserAccountInfo.account_info.user_id = id_at > -1 ? info_obj.mail.substring(0, id_at) : info_obj.mail;
-		UserAccountInfo.account_info.display_name = info_obj.displayName;
-		UserAccountInfo.account_info.email = info_obj.mail;
-
-		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.account_info));
-
-		DebugLog.Log("...account: " + UserAccountInfo.account_info.user_id);
-	}
-
 	static UpdateUserInfo()
 	{
+		if (!SharedData.users || SharedData.users.length < 1) return;
+		if (!UserAccountInfo.account_info) return;
 		UserAccountInfo.user_info = SharedData.users.find(x => x.fields.Title == UserAccountInfo.account_info.user_id).fields;
 	}
 
@@ -297,30 +380,6 @@ export class UserAccountInfo
 			DebugLog.SubmitGroup('#ff04');
 		}
 	}
-
-	static async RefreshCurrentUserProfilePhoto()
-	{
-		try
-		{
-			var resp = await fetch(
-				"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
-				{
-					method: 'get',
-					headers: { 'Authorization': 'Bearer ' + UserAccountManager.access_token }
-				}
-			);
-
-			if (resp.status === 401) UserAccountManager.MaybeAttemptReauthorize();
-
-			let imgUrl = window.URL.createObjectURL(await resp.blob());
-			document.getElementById('action-bar-profile-picture').src = imgUrl;
-		}
-		catch (e)
-		{
-			UserAccountManager.MaybeAttemptReauthorize();
-		}
-	}
-
 }
 
 SharedData.onLoaded.RequestSubscription(() => { UserAccountInfo.UpdateUserInfo(); });

@@ -16,6 +16,8 @@ export class PageMyData extends PageBase
 		this.sub_SharedDataRefresh = {};
 
 		this.CreateBody();
+		this.e_body.style.minWidth = '300px';
+
 		this.e_content.style.flexWrap = 'wrap';
 		this.e_content.style.flexDirection = 'row';
 

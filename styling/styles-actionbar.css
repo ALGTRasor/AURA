@@ -19,7 +19,7 @@
 
 	transition-property: height, box-shadow;
 	transition-delay: 0.2s;
-	transition-duration: 0.3s;
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 .action-bar:hover,
@@ -27,7 +27,7 @@
 {
 	box-shadow: 0px 1rem 1rem #0008;
 	height: calc(var(--action-bar-height) * 2);
-	transition-duration: 0.1s;
+	transition-duration: var(--trans-dur-on-slow);
 	transition-delay: 0s;
 }
 
@@ -62,7 +62,7 @@
 	letter-spacing: calc(0.5 * var(--font-size));
 
 	transition-property: transform, opacity, text-shadow;
-	transition-duration: 0.3s;
+	transition-duration: var(--trans-dur-off-slow);
 	transition-delay: 0.25s;
 	transition-timing-function: ease-in-out;
 }
@@ -73,7 +73,7 @@
 	opacity: 100%;
 	transform: translate(0%, calc(-0.5 * var(--action-bar-height)));
 	transition-delay: 0s;
-	transition-duration: 0.1s;
+	transition-duration: var(--trans-dur-on-slow);
 }
 
 .action-bar-button-container
@@ -93,7 +93,7 @@
 
 	transition-property: opacity;
 	transition-delay: 0.2s;
-	transition-duration: 0.3s;
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 .action-bar:hover > .action-bar-button-container,
@@ -101,7 +101,7 @@
 {
 	opacity: 100%;
 	transition-delay: 0s;
-	transition-duration: 0.1s;
+	transition-duration: var(--trans-dur-on-slow);
 }
 
 
@@ -148,7 +148,7 @@
 
 	transition-property: --action-bar-button-hover, color, scale, box-shadow;
 	transition-delay: 0.1s;
-	transition-duration: 0.2s;
+	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
 .action-bar-button:hover
@@ -156,7 +156,7 @@
 	--action-bar-button-hover: 1.0;
 	color: var(--theme-color-text);
 	box-shadow: 0px 0px 0.5rem #0002;
-	transition-duration: 0.05s;
+	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
 .action-bar-button:active
@@ -165,7 +165,7 @@
 	scale: 90%;
 	color: var(--theme-color-text-50);
 	box-shadow: 0px 0px 0.25rem #000a;
-	transition-duration: 0.05s;
+	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
 
@@ -182,7 +182,7 @@
 
 	transition-property: text-shadow, transform;
 	transition-delay: 0.1s;
-	transition-duration: 0.3s;
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 
@@ -193,7 +193,7 @@
 	transform: translate(0%, -90%);
 
 	text-shadow: 0px 0px 0.7rem var(--theme-color), 0px 5px 2px #0009;
-	transition-duration: 0.05s;
+	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
 
@@ -233,7 +233,7 @@
 	scale: 80%;
 
 	transition-property: width, height;
-	transition-duration: 0.3s;
+	transition-duration: var(--trans-dur-off-fast);
 	transition-delay: 0.2s;
 }
 .action-bar:hover > * > .action-bar-profile-picture,
@@ -241,6 +241,6 @@
 {
 	width: calc(var(--action-bar-height) * 2.0);
 	height: calc(var(--action-bar-height) * 2.0);
-	transition-duration: 0.1s;
+	transition-duration: var(--trans-dur-on-slow);
 	transition-delay: 0s;
 }
