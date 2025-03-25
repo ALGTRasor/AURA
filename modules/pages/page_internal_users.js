@@ -7,7 +7,7 @@ export class PageInternalUsers extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.e_content.innerText = 'internal users will be here';
+		this.SetContentBodyLabel("internal users will be here");
 		this.FinalizeBody(parent);
 	}
 }

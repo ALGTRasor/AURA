@@ -17,16 +17,33 @@ export class PageBase
 
 	GetTitle() { return '' }
 
+	SetContentBodyLabel(text)
+	{
+		if (!this.e_content) return;
+		this.e_content.innerHTML = "<div style='position:absolute;inset:0;text-align:center;align-content:center;'>" + text + "</div>";
+	}
+
 	CreateBody(create_close_button = true)
 	{
 		this.e_body = document.createElement('div');
 		this.e_body.className = 'page-root';
 		this.e_body.style.opacity = 0.0;
-		window.setTimeout(() => { this.e_body.style.opacity = 0.5; }, 5);
+		this.e_body.style.scale = 0.7;
+		window.setTimeout(() => { this.e_body.style.opacity = 0.5; this.e_body.style.scale = 1.0; }, 5);
 
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';
-		this.e_title_bar.innerText = this.GetTitle();
+
+		if (this.icon)
+		{
+			let e_title_icon = document.createElement('i');
+			e_title_icon.className = 'material-symbols icon';
+			e_title_icon.innerText = this.icon;
+			this.e_title_bar.appendChild(e_title_icon);
+			this.e_title_bar.innerHTML += this.GetTitle().toUpperCase();
+			this.e_title_bar.appendChild(e_title_icon);
+		}
+		else this.e_title_bar.innerHTML = this.GetTitle().toUpperCase();
 
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
@@ -85,6 +102,7 @@ export class PageBase
 		PageManager.RemoveFromCurrent(this);
 		this.e_body.style.pointerEvents = 'none';
 		this.e_body.style.opacity = 0.0;
+		this.e_body.style.scale = 0.7;
 		if (immediate) this.e_body.remove();
 		else window.setTimeout(() => { this.e_body.remove(); }, 250);
 	}
@@ -110,7 +128,7 @@ export class PageBase
 	{
 		if (PageManager.currentPages.length < 2)
 		{
-			if (this.e_btn_close) this.e_btn_close.style.display = (this.title == 'home') ? 'none' : 'block';
+			if (this.e_btn_close) this.e_btn_close.style.display = (this.title == 'nav menu') ? 'none' : 'block';
 			this.e_btn_move_l.style.display = 'none';
 			this.e_btn_move_r.style.display = 'none';
 		}

@@ -1,6 +1,5 @@
 import "./modules/windowfxn.js";
 import "./modules/remotedata.js";
-import { SharePoint } from "./modules/sharepoint.js";
 import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
 import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
@@ -30,13 +29,7 @@ async function CheckIdentity()
 
 async function OnAuraInit()
 {
-	AppEvents.onToggleLightMode.RequestSubscription(UpdateLightMode);
-	AppEvents.onToggleSpotlight.RequestSubscription(UpdateSpotlight);
-	AppEvents.onToggleHideSensitiveInfo.RequestSubscription(UpdateHideSensitiveInfo);
-	AppEvents.onToggleLimitWidth.RequestSubscription(UpdateLimitContentWidth);
-	AppEvents.onToggleDebugLog.RequestSubscription(UpdateDebugLog);
-	AppEvents.onSetAnimSpeed.RequestSubscription(UpdateAnimSpeed);
-	AppEvents.onSetThemeColor.RequestSubscription(UpdateThemeColor);
+	UserSettings.HookOptionEvents();
 
 	UserSettings.LoadFromStorage();
 	await UserAccountManager.CheckWindowLocationForCodes();
@@ -64,13 +57,7 @@ async function OnAuraInit()
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
 
-	UpdateLightMode();
-	UpdateSpotlight();
-	UpdateHideSensitiveInfo();
-	UpdateLimitContentWidth();
-	UpdateDebugLog();
-	UpdateAnimSpeed();
-	UpdateThemeColor();
+	UserSettings.UpdateOptionEffects();
 
 	DebugLog.SubmitGroup('#fff4');
 }
@@ -142,68 +129,17 @@ function RefreshGlobalTooltip(e)
 	}
 }
 
-
-function UpdateLightMode()
-{
-	let is_light_mode = UserSettings.GetOptionValue('light-mode') === true;
-	document.documentElement.style.setProperty('--theme-invert', is_light_mode ? 1.0 : 0.0);
-
-	if (is_light_mode) e_tgl_lightmode.innerHTML = "Light Mode<i class='material-symbols icon'>light_mode</i>";
-	else e_tgl_lightmode.innerHTML = "Dark Mode<i class='material-symbols icon'>dark_mode</i>";
-}
-
-
-function UpdateSpotlight()
-{
-	let use_spotlight = UserSettings.GetOptionValue('spotlight') === true;
-	if (e_spotlight) e_spotlight.style.display = use_spotlight ? 'block' : 'none';
-}
-
-function UpdateHideSensitiveInfo()
-{
-	let hide_sensitive = UserSettings.GetOptionValue('hide-sensitive-info') === true;
-	document.documentElement.style.setProperty('--sensitive-info-cover', hide_sensitive ? 1.0 : 0.0);
-}
-
-function UpdateLimitContentWidth()
-{
-	let limit = UserSettings.GetOptionValue('limit-content-width') === true;
-	document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
-}
-
-function UpdateDebugLog()
-{
-	let show = UserSettings.GetOptionValue('show-debug-log') === true;
-	DebugLog.ui.e_root.style.display = show ? 'block' : 'none';
-}
-
-function UpdateAnimSpeed()
-{
-	let anim_speed = UserSettings.GetOptionValue('anim-speed');
-	document.documentElement.style.setProperty('--trans-dur-mult', 2.0 * Math.pow(1.0 - anim_speed, 2));
-}
-
-function UpdateThemeColor()
-{
-	let theme_hue = UserSettings.GetOptionValue('theme-hue');
-	let theme_sat = UserSettings.GetOptionValue('theme-saturation');
-
-	document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, 80%)');
-}
-
 // any time the mouse moves while over the page
 document.body.addEventListener('mousemove', RefreshGlobalTooltip);
 document.body.addEventListener('mouseout', RefreshGlobalTooltip);
 document.body.addEventListener('mouseup', e => { window.setTimeout(() => { RefreshGlobalTooltip(e); }, 50); });
 document.body.addEventListener('scroll', RefreshGlobalTooltip);
 
-const e_tgl_lightmode = document.getElementById('action-bar-btn-lightmode');
-
 window.fxn.ToggleLightMode = () =>
 {
 	const option_id = 'light-mode';
 	UserSettings.SetOptionValue(option_id, !UserSettings.GetOptionValue(option_id));
-	UpdateLightMode();
+	UserSettings.UpdateLightMode();
 };
 
 window.fxn.OpenHomePage = () =>
@@ -220,13 +156,6 @@ window.fxn.OpenPageById = (page_id) =>
 		case 'settings': PageManager.OpenPageDirectly(new PageSettings()); break;
 		case 'mydata': PageManager.OpenPageDirectly(new PageMyData()); break;
 	}
-};
-
-
-window.fxn.DoTestSPList = async () =>
-{
-	var list_data = await DataSource.ALGUsers.GetData();
-	DebugLog.Log("ALGUsers: " + list_data.value.length);
 };
 
 

@@ -8,8 +8,13 @@ export class PageSettings extends PageBase
 	CreateElements(parent)
 	{
 		if (!parent) return;
+
+		this.icon = 'settings';
+
 		this.CreateBody();
-		this.e_body.style.maxWidth = '500px';
+
+		this.e_body.style.minWidth = '500px';
+		this.e_body.style.maxWidth = '600px';
 
 		this.e_options_root = document.createElement('div');
 		this.e_options_root.className = 'settings-options-root';
@@ -20,16 +25,30 @@ export class PageSettings extends PageBase
 		this.e_toggle_hidesensitive = this.AddToggle('hide sensitive info', 'visibility_lock', 'Toggle hiding sensitive info', 'hide-sensitive-info', () => { AppEvents.onToggleHideSensitiveInfo.Invoke(); });
 		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
 
-		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', () => { AppEvents.onSetAnimSpeed.Invoke(); });
-		this.e_slider_themehue = this.AddSlider('theme hue', 'palette', 'UI theme hue', 'theme-hue', () => { AppEvents.onSetThemeColor.Invoke(); });
-		this.e_slider_themesat = this.AddSlider('theme saturation', 'opacity', 'UI theme saturation', 'theme-saturation', () => { AppEvents.onSetThemeColor.Invoke(); });
+		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, () => { AppEvents.onSetAnimSpeed.Invoke(); });
+		this.e_slider_themehue = this.AddSlider(
+			'theme hue', 'palette', 'UI theme hue', 'theme-hue', 0.01,
+			data =>
+			{
+				data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+				AppEvents.onSetThemeColor.Invoke();
+			}
+		);
+		this.e_slider_themesat = this.AddSlider(
+			'theme saturation', 'opacity', 'UI theme saturation', 'theme-saturation', 0.01,
+			data => 
+			{
+				data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h s 50%)';
+				AppEvents.onSetThemeColor.Invoke();
+			}
+		);
 
 		this.e_content.appendChild(this.e_options_root);
 
 		this.FinalizeBody(parent);
 	}
 
-	AddToggle(label = '', icon = '', tooltip = '', option_id = '', extra = () => { })
+	AddToggle(label = '', icon = '', tooltip = '', option_id = '', extra = data => { })
 	{
 		let toggled_og = UserSettings.GetOptionValue(option_id) === true;
 
@@ -51,7 +70,7 @@ export class PageSettings extends PageBase
 		return e;
 	}
 
-	AddSlider(label = '', icon = '', tooltip = '', option_id = '', extra = () => { })
+	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { })
 	{
 		let val_og = UserSettings.GetOptionValue(option_id);
 
@@ -91,6 +110,7 @@ export class PageSettings extends PageBase
 			let click_phase = (e.pageX - slider_rect.x) / slider_rect.width;
 			click_phase = (click_phase - 0.5) * 1.025 + 0.5;
 			click_phase = Math.max(0.0, Math.min(1.0, click_phase));
+			if (step > 0.0) click_phase = Math.round(click_phase / step) * step;
 			let new_value = click_phase;
 
 			UserSettings.SetOptionValue(option_id, new_value);
@@ -101,7 +121,19 @@ export class PageSettings extends PageBase
 				e_slider_icon.style.color = 'rgba(255, 255, 255, ' + (new_value * 0.6 + 0.4) + ')';
 				e_slider_icon.style.textShadow = '0px 0px 6px rgba(255, 255, 255, ' + new_value + ')';
 			}
-			if (extra) extra();
+			if (extra)
+			{
+				extra(
+					{
+						e_slider: e_slider,
+						e_slider_label: e_slider_label,
+						e_slider_icon: e_slider_icon,
+						e_slider_fill: e_slider_fill,
+						og_value: val_og,
+						new_value: new_value
+					}
+				);
+			}
 		};
 
 

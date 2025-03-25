@@ -7,7 +7,7 @@ export class PageProjectHub extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.e_content.innerText = 'projects will be here';
+		this.SetContentBodyLabel('projects will be here');
 		this.FinalizeBody(parent);
 	}
 }

@@ -43,7 +43,7 @@ export class UserAccountProvider
 		this.has_access_token = false;
 		this.access_token = '';
 
-		this.account_profile_picture_url = [];
+		this.account_profile_picture_url = '';
 	}
 
 	GatherLocationTokens() { return false; } // checks the window location for query or hash provided auth tokens
@@ -101,7 +101,12 @@ export class MSAccountProvider extends UserAccountProvider
 		else success = false;
 
 		let tmp_account_info = localStorage.getItem(lskey_user_data);
-		if (tmp_account_info) UserAccountInfo.account_info = JSON.parse(tmp_account_info);
+		if (tmp_account_info)
+		{
+			let tmp_account_info_parsed = JSON.parse(tmp_account_info);
+			if (tmp_account_info_parsed) UserAccountInfo.account_info = tmp_account_info_parsed;
+			else success = false;
+		}
 		else success = false;
 
 		if (success)
@@ -118,9 +123,9 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async AttemptAutoLogin()
 	{
-		UserAccountManager.account_provider.logging_in =
+		UserAccountManager.account_provider.logging_in = true;
 
-			DebugLog.StartGroup('autologin');
+		DebugLog.StartGroup('autologin');
 		this.LoadCachedData();
 
 		if (this.has_access_token)
@@ -133,15 +138,18 @@ export class MSAccountProvider extends UserAccountProvider
 			localStorage.removeItem(lskey_login_attempts);
 			localStorage.removeItem(lskey_login_forced);
 
-			document.getElementById('action-bar-btn-login').innerText = 'Renew Login';
+			document.getElementById('action-bar-btn-login').style.display = 'none';
+			//document.getElementById('action-bar-btn-login-label').innerText = 'Renew Login';
 			document.getElementById('action-bar-btn-logout').style.display = 'block';
+
 			DebugLog.SubmitGroup('#0f04');
 			UserAccountManager.account_provider.logged_in = true;
 		}
 		else
 		{
 			DebugLog.Log('! authorization required');
-			document.getElementById('action-bar-btn-login').innerText = 'Login To O365';
+			document.getElementById('action-bar-btn-login').style.display = 'block';
+			//document.getElementById('action-bar-btn-login-label').innerText = 'Login To O365';
 			document.getElementById('action-bar-btn-logout').style.display = 'none';
 			DebugLog.SubmitGroup('#f004');
 			UserAccountManager.account_provider.logged_in = false;
@@ -353,32 +361,25 @@ export class UserAccountManager
 
 export class UserAccountInfo
 {
-	static account_info = {}; // O365 account info
-	static user_info = {}; // internal user info
+	static account_info = {}; // auth account info
+	static user_info = {}; // internal user / employee info
 
 	static UpdateUserInfo()
 	{
-		if (!SharedData.users || SharedData.users.length < 1) return;
-		if (!UserAccountInfo.account_info) return;
-		UserAccountInfo.user_info = SharedData.users.find(x => x.fields.Title == UserAccountInfo.account_info.user_id).fields;
-	}
+		if (!SharedData.users || SharedData.users.length < 1)
+		{
+			DebugLog.Log('SharedData.users invalid');
+			return;
+		}
+		if (!UserAccountInfo.account_info) 
+		{
+			DebugLog.Log('UserAccountInfo.account_info invalid');
+			return;
+		}
 
-	static LoadCachedUserData()
-	{
-		DebugLog.StartGroup('loading cached account info');
-		let tmp = JSON.parse(localStorage.getItem(lskey_user_data));
-		if (tmp)
-		{
-			UserAccountInfo.user_info = tmp;
-			DebugLog.Log('...found info');
-			DebugLog.SubmitGroup('#0f04');
-		}
-		else
-		{
-			UserAccountInfo.user_info = {};
-			DebugLog.Log('...info not found');
-			DebugLog.SubmitGroup('#ff04');
-		}
+		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
+		DebugLog.Log('internal user data match: ' + got.display_name_full);
+		UserAccountInfo.user_info = got;
 	}
 }
 

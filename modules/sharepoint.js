@@ -1,3 +1,4 @@
+import { DataSource } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
@@ -38,7 +39,7 @@ export class SharePoint
 	}
 	*/
 
-	static async GetListData(source = SharePointDataSource.Nothing)
+	static async GetListData(source = DataSource.Nothing)
 	{
 		let field_str = source.fields.join(',');
 		try
@@ -55,9 +56,15 @@ export class SharePoint
 				}
 			);
 
-			if (resp.status == 401) UserAccountManager.MaybeAttemptReauthorize();
+			if (resp.status == 401)
+			{
+				UserAccountManager.MaybeAttemptReauthorize();
+				return;
+			}
 
 			let result = await resp.json();
+
+			if (Array.isArray(result.value)) return result.value.map(x => { return x.fields ? x.fields : x; });
 			return result.value;
 		}
 		catch (e)

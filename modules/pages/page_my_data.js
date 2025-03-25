@@ -15,8 +15,10 @@ export class PageMyData extends PageBase
 
 		this.sub_SharedDataRefresh = {};
 
+		this.icon = 'person';
+
 		this.CreateBody();
-		this.e_body.style.minWidth = '300px';
+		this.e_body.style.minWidth = '600px';
 
 		this.e_content.style.flexWrap = 'wrap';
 		this.e_content.style.flexDirection = 'row';
@@ -54,17 +56,22 @@ export class PageMyData extends PageBase
 		this.UpdateUserInfoBlock();
 		this.e_content.appendChild(this.e_user_info);
 	}
+
 	UpdateUserInfoBlock()
 	{
 		if (UserAccountInfo.user_info)
 		{
+			let propCount = 0;
 			this.e_user_info.innerHTML = `<div style='text-align:center;opacity:60%;'>User Info</div>`;
 			for (let pid in UserAccountInfo.user_info) 
 			{
 				if (pid.startsWith('@')) continue;
 				if (pid == 'id') continue;
 				this.e_user_info.innerHTML += PageMyData.GetInfoRow(pid, UserAccountInfo.user_info[pid]);
+				propCount++;
 			}
+
+			DebugLog.Log(propCount + ' user info items')
 		}
 		else
 		{
@@ -172,7 +179,7 @@ export class PageMyData extends PageBase
 
 	OnOpen()
 	{
-		this.sub_SharedDataRefresh = SharedData.onLoaded.RequestSubscription(() => { this.UpdateBlocks(); });
+		this.sub_SharedDataRefresh = SharedData.onLoaded.RequestSubscription(() => { window.setTimeout(() => { this.UpdateBlocks(); }, 50) });
 	}
 
 	OnClose()

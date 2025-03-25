@@ -21,9 +21,10 @@
 	flex-grow: 1.0;
 
 	opacity: 0.0;
+	scale: 0.7;
 
 	margin: 0.5rem;
-	min-width: calc(100% * 0.2);
+	min-width: 20%;
 
 	border-radius: 0.5rem;
 	clip-path: stroke-box;
@@ -34,7 +35,7 @@
 	box-shadow: -1px 1px 3px #0003;
 	background-color: rgba(from var(--theme-color) r g b / 0.1);
 
-	transition-property: background-color, box-shadow, opacity, outline-color;
+	transition-property: background-color, box-shadow, opacity, outline-color, scale;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
@@ -48,6 +49,9 @@
 	background-color: rgba(from var(--theme-color) r g b / 0.12);
 	transition-delay: 0s;
 }
+
+
+
 
 .page-move-button
 {
@@ -169,7 +173,7 @@
 	border-radius: 0.35rem;
 	border: solid 2px #ffffff05;
 
-	background-color: #aaaaaa05;
+	background-color: #aaaaaa02;
 	box-shadow: -1px 1px 3px #0003;
 
 	transition-property: border, background-color, box-shadow;
@@ -179,27 +183,45 @@
 
 .page-content-root-block:hover
 {
-	background-color: #aaa1;
+	background-color: #aaaaaa05;
 	border: solid 2px #fff1;
 	box-shadow: -2px 2px 6px #0006;
 }
 
 
 
+.page-root:hover > .page-title-bar
+{
+	color: var(--theme-color-80);
+}
 .page-title-bar
 {
+	position: static;
 	user-select: none;
 	height: 2rem;
 	line-height: 2rem;
 
 	color: var(--theme-color-40);
-	font-variant: small-caps;
 	letter-spacing: 4px;
 	text-align: center;
+	align-content: center;
 	font-weight: bold;
-	font-size: 120%;
+	font-size: 90%;
 
 	background: #0002;
+}
+
+.page-title-bar > i
+{
+	display: inline;
+	position: static;
+	font-variant: unset;
+	color: inherit;
+	padding-right: 1.3rem;
+	padding-left: 1rem;
+	width: 1rem;
+	font-size: 120%;
+	line-height: 2rem;
 }
 
 
@@ -213,6 +235,8 @@
 	padding: 0rem;
 	inset: 3rem 1rem 1rem 1rem;
 	border-radius: 1rem;
+
+	overflow: hidden;
 	clip-path: stroke-box;
 
 	background-color: #0002;
@@ -229,6 +253,8 @@
 	align-content: center;
 	font-weight: bold;
 
+	min-height: 0;
+	flex-shrink: 1.0;
 	flex-grow: 1.0;
 
 	padding-left: 0.5rem;
@@ -295,7 +321,7 @@
 	margin-right: 0.25rem;
 	text-align: right;
 	color: var(--theme-color-text);
-	background-color: #f803;
+	background-color: hsl(from var(--theme-color) h s 25%);
 
 	font-size: 110%;
 	font-variant: small-caps;
@@ -450,7 +476,9 @@
 .setting-root-slider
 {
 	min-width: 70%;
-	min-height: 4rem;
+	min-height: 3.5rem;
+
+	clip-path: stroke-box;
 }
 
 .setting-slider-fill
@@ -460,6 +488,10 @@
 	top: 0;
 	left: 0;
 	bottom: 0;
+
+	border-width: 0px 6px 0px 0px;
+	border-style: solid;
+	border-color: rgba(from var(--theme-color) r g b / 0.15);
 
 	max-width: 100%;
 

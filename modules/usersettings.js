@@ -1,8 +1,11 @@
+import { AppEvents } from "./appevents.js";
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 
 const lskey_usersettings = 'blob_user_settings';
+const e_spotlight = document.getElementById('spotlight');
+//const e_tgl_lightmode = document.getElementById('action-bar-btn-lightmode');
 
 export class UserSettingsOption
 {
@@ -19,6 +22,7 @@ export class UserSettingsOption
 		this.defaultValue = defaultValue;
 	}
 }
+
 export class UserSettings
 {
 	static options = [];
@@ -87,12 +91,84 @@ export class UserSettings
 		}
 		DebugLog.SubmitGroup();
 	}
+
+	static HookOptionEvents()
+	{
+		AppEvents.onToggleLightMode.RequestSubscription(UserSettings.UpdateLightMode);
+		AppEvents.onToggleSpotlight.RequestSubscription(UserSettings.UpdateSpotlight);
+		AppEvents.onToggleHideSensitiveInfo.RequestSubscription(UserSettings.UpdateHideSensitiveInfo);
+		AppEvents.onToggleLimitWidth.RequestSubscription(UserSettings.UpdateLimitContentWidth);
+		AppEvents.onToggleDebugLog.RequestSubscription(UserSettings.UpdateDebugLog);
+		AppEvents.onSetAnimSpeed.RequestSubscription(UserSettings.UpdateAnimSpeed);
+		AppEvents.onSetThemeColor.RequestSubscription(UserSettings.UpdateThemeColor);
+	}
+
+	static UpdateOptionEffects()
+	{
+		UserSettings.UpdateLightMode();
+		UserSettings.UpdateSpotlight();
+		UserSettings.UpdateHideSensitiveInfo();
+		UserSettings.UpdateLimitContentWidth();
+		UserSettings.UpdateDebugLog();
+		UserSettings.UpdateAnimSpeed();
+		UserSettings.UpdateThemeColor();
+	}
+
+	static UpdateLightMode()
+	{
+		let is_light_mode = UserSettings.GetOptionValue('light-mode') === true;
+		document.documentElement.style.setProperty('--theme-invert', is_light_mode ? 1.0 : 0.0);
+		//if (is_light_mode) e_tgl_lightmode.innerHTML = "Light Mode<i class='material-symbols icon'>light_mode</i>";
+		//else e_tgl_lightmode.innerHTML = "Dark Mode<i class='material-symbols icon'>dark_mode</i>";
+	}
+
+	static UpdateSpotlight()
+	{
+		let use_spotlight = UserSettings.GetOptionValue('spotlight') === true;
+		if (e_spotlight) e_spotlight.style.display = use_spotlight ? 'block' : 'none';
+	}
+
+	static UpdateHideSensitiveInfo()
+	{
+		let hide_sensitive = UserSettings.GetOptionValue('hide-sensitive-info') === true;
+		document.documentElement.style.setProperty('--sensitive-info-cover', hide_sensitive ? 1.0 : 0.0);
+	}
+
+	static UpdateLimitContentWidth()
+	{
+		let limit = UserSettings.GetOptionValue('limit-content-width') === true;
+		document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
+	}
+
+	static UpdateDebugLog()
+	{
+		let show = UserSettings.GetOptionValue('show-debug-log') === true;
+		DebugLog.ui.e_root.style.display = show ? 'block' : 'none';
+	}
+
+	static UpdateAnimSpeed()
+	{
+		let anim_speed = UserSettings.GetOptionValue('anim-speed');
+		document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * Math.pow(1.0 - anim_speed, 2));
+	}
+
+	static UpdateThemeColor()
+	{
+		let theme_hue = UserSettings.GetOptionValue('theme-hue');
+		let theme_sat = UserSettings.GetOptionValue('theme-saturation');
+
+		document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, 70%)');
+	}
 }
 
-Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });
-UserSettings.RegisterOption('theme-color', '#f0f');
-UserSettings.RegisterOption('light-mode', false);
-UserSettings.RegisterOption('spotlight', false);
-UserSettings.RegisterOption('show-debug-log', true);
-UserSettings.RegisterOption('anim-speed', 0.5);
+//UserSettings.RegisterOption('theme-color', '#f0f');
+//UserSettings.RegisterOption('light-mode', false);
+//UserSettings.RegisterOption('spotlight', false);
+//UserSettings.RegisterOption('show-debug-log', true);
+//UserSettings.RegisterOption('anim-speed', 0.5);
+//UserSettings.RegisterOption('theme-hue', 0.0);
+//UserSettings.RegisterOption('theme-saturation', 1.0);
+
 Modules.Report("User Settings");
+
+Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });

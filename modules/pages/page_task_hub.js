@@ -7,7 +7,7 @@ export class PageTaskHub extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.e_content.innerText = 'tasks will be here';
+		this.SetContentBodyLabel('tasks will be here');
 		this.FinalizeBody(parent);
 	}
 }

@@ -7,12 +7,24 @@ import { EventSource } from "./eventsource.js";
 
 export class SharedDataTable
 {
-	static Nothing = new SharedDataTable();
+	static Nothing = new SharedDataTable('nothing', DataSource.Nothing);
 
-	constructor(title = 'null_shared_data', data = [])
+	constructor(key = '', source = DataSource.Nothing, data = [])
 	{
-		this.title = title;
-		this.items = data;
+		this.key = key;
+		this.data = data;
+		this.source = source;
+	}
+
+	async Download()
+	{
+		let result = await this.source.GetData();
+		if (result && result.length)
+		{
+			this.data = result;
+			DebugLog.Log('loaded ' + result.length + ' ' + this.key, false, '#0f0');
+		}
+		else DebugLog.Log('loaded ' + result + ' ' + this.key, false, '#f00');
 	}
 }
 
@@ -23,18 +35,28 @@ export class SharedData
 	static loading = false;
 	static loaded = false;
 
-	static roles = [];
-	static teams = [];
-	static permissions = [];
-	static users = [];
-	static contacts = [];
-	static projects = [];
-	static tasks = [];
-
 	static onLoaded = new EventSource();
 	static onLoadedFromCache = new EventSource();
 	static onSavedToCache = new EventSource();
 	static onDownloaded = new EventSource();
+
+	static roles = new SharedDataTable('roles', DataSource.Roles);
+	static teams = new SharedDataTable('teams', DataSource.Teams);
+	static users = new SharedDataTable('users', DataSource.Users);
+	static tasks = new SharedDataTable('tasks', DataSource.Tasks);
+	static contacts = new SharedDataTable('contacts', DataSource.Contacts);
+	static projects = new SharedDataTable('projects', DataSource.Projects);
+	static permissions = new SharedDataTable('permissions', DataSource.Permissions);
+
+	static all_tables = [
+		SharedData.roles,
+		SharedData.teams,
+		SharedData.users,
+		SharedData.tasks,
+		SharedData.contacts,
+		SharedData.projects,
+		SharedData.permissions
+	];
 
 	static async LoadData(useCache = true)
 	{
@@ -51,9 +73,10 @@ export class SharedData
 			{
 				DebugLog.Log('using cached shared data');
 				DebugLog.Log('load delta: ' + Timers.Stop('shared data load') + 'ms');
+				DebugLog.SubmitGroup();
+
 				SharedData.loaded = true;
 				SharedData.loading = false;
-				DebugLog.SubmitGroup();
 
 				await SharedData.onLoaded.InvokeAsync();
 				await SharedData.onLoadedFromCache.InvokeAsync();
@@ -61,22 +84,11 @@ export class SharedData
 			}
 		}
 
-		const updates =
-			[
-				{ table: SharedData.roles, source: DataSource.Roles, label: 'roles' },
-				{ table: SharedData.teams, source: DataSource.Teams, label: 'teams' },
-				{ table: SharedData.users, source: DataSource.Users, label: 'users' },
-				{ table: SharedData.tasks, source: DataSource.Tasks, label: 'tasks' },
-				{ table: SharedData.contacts, source: DataSource.Contacts, label: 'contacts' },
-				{ table: SharedData.projects, source: DataSource.Projects, label: 'projects' },
-				{ table: SharedData.permissions, source: DataSource.Permissions, label: 'permissions' },
-			];
-
-		let update_targets = updates.map(x => x.table);
-		update_targets = await Promise.all(updates.map(x => SharedData.LoadTable(x.source, x.label)));
+		let promises = SharedData.all_tables.map(async x => await x.Download());
+		await Promise.allSettled(promises);
 
 		DebugLog.Log('caching shared data');
-		updates.forEach(x => SharedData.SaveToStorage(x.label, x.table));
+		SharedData.all_tables.forEach(x => SharedData.SaveToStorage(x.key, x.data));
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop('shared data load') + 'ms');
@@ -91,31 +103,30 @@ export class SharedData
 
 	static AttemptLoadCache()
 	{
-		SharedData.roles = SharedData.TryLoadFromCache('roles');
-		SharedData.teams = SharedData.TryLoadFromCache('teams');
-		SharedData.permissions = SharedData.TryLoadFromCache('permissions');
-		SharedData.users = SharedData.TryLoadFromCache('users');
-		return SharedData.roles && SharedData.teams && SharedData.permissions && SharedData.users;
+		let full = true;
+		SharedData.all_tables.forEach(
+			x =>
+			{
+				let got = SharedData.TryLoadFromCache(x.key);
+				if (got) x.data = got;
+				else full = false;
+			}
+		);
+		return full;
 	}
 
 	static TryLoadFromCache(key = '')
 	{
-		if (!key || key.length < 1) return;
-		return SharedData.LoadFromStorage('cache_shared_data_' + key);
+		if (!key || key.length < 1) return null;
+		return SharedData.LoadFromStorage(key);
 	}
 
-	static async LoadTable(source = DataSource.Nothing, label = '????')
+	static async LoadTable(source = DataSource.Nothing, key = '????')
 	{
 		let result = [];
-		try
-		{
-			result = await source.GetData();
-			DebugLog.Log('loaded ' + result.length + ' ' + label, false, '#0f0');
-		}
-		catch (e)
-		{
-			DebugLog.Log('! ' + e, true, '#f00');
-		}
+		result = await source.GetData();
+		if (result && result.length) DebugLog.Log('loaded ' + result.length + ' ' + key, false, '#0f0');
+		else DebugLog.Log('loaded ' + result + ' ' + key, false, '#f00');
 		return result;
 	}
 
@@ -124,7 +135,7 @@ export class SharedData
 	{
 		if (key && key.length > 0)
 		{
-			let got = localStorage.getItem(key);
+			let got = localStorage.getItem('cache_shared_data_' + key);
 			if (got)
 			{
 				DebugLog.Log('from cache: ' + key)
@@ -140,12 +151,20 @@ export class SharedData
 
 	static GetData(table = [], user_id = '')
 	{
-		let rec = table.find(x => x && x.fields && (x.fields.Title == user_id));
-		return (rec && rec.fields) ? rec.fields : null;
+		user_id = user_id.trim().toLowerCase();
+		return table.find(
+			x =>
+			{
+				if (!x) return false;
+				if (!x.Title) return false;
+				let this_user_id = x.Title.trim().toLowerCase();
+				return this_user_id === user_id;
+			}
+		);
 	}
-	static GetUserData(id = '') { return SharedData.GetData(SharedData.users, id); }
-	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles, id); }
-	static GetTeamData(id = '') { return SharedData.GetData(SharedData.teams, id); }
+	static GetUserData(id = '') { return SharedData.GetData(SharedData.users.data, id); }
+	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles.data, id); }
+	static GetTeamData(id = '') { return SharedData.GetData(SharedData.teams.data, id); }
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);

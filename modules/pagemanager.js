@@ -3,7 +3,7 @@ import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageBase } from "./pages/pagebase.js";
 
-const e_actionbar_title_label = document.getElementById('action-bar-title');
+//const e_actionbar_title_label = document.getElementById('action-bar-title');
 const e_pages_root = document.getElementById('content-pages-root');
 
 export class PageManager
@@ -51,7 +51,7 @@ export class PageManager
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);
 		console.info("Set Page: " + page.title);
-		e_actionbar_title_label.innerText = page.title.toUpperCase();
+		//e_actionbar_title_label.innerText = page.title.toUpperCase();
 
 		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();
