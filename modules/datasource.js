@@ -1,28 +1,38 @@
-import { Modules } from "./modules.js";
 import { SharePoint } from "./sharepoint.js";
+import { ExternalContact } from "./datamodels/external_contact.js";
+import { Permission } from "./datamodels/user_permission.js";
+import { InternalUser } from "./datamodels/internal_user.js";
+import { Role } from "./datamodels/role.js";
+import { Task } from "./datamodels/task.js";
+import { Team } from "./datamodels/team.js";
+import { Modules } from "./modules.js";
+import { Project } from "./datamodels/project.js";
+
+const DEF_TABLE_SITE = 'ALGInternal';
+
+const TABLENAME_TEAMS = 'ALGTeams';
+const TABLENAME_ROLES = 'ALGRoles';
+const TABLENAME_PERMS = 'ALGPerms';
+const TABLENAME_USERS = 'ALGUsers';
+const TABLENAME_TASKS = 'ALGTasks';
+const TABLENAME_CONTACTS = 'ALGContacts';
+const TABLENAME_PROJECTS = 'ALGProjects';
+
+const DEF_TABLE_FIELDS = ['id', 'title'];
 
 export class DataSource
 {
 	static Nothing = new DataSource(null, null, null);
 
-	static Teams = new DataSource('ALGTeams', 'ALGInternal', ['id', 'title', 'team_name', 'team_desc']);
-	static Roles = new DataSource('ALGRoles', 'ALGInternal', ['id', 'title', 'role_name_short', 'role_name', 'role_desc', 'role_flags', 'role_level']);
-	static Permissions = new DataSource('ALGPerms', 'ALGInternal', ['id', 'title', 'permission_name', 'permission_desc', 'permission_app_icon', 'permission_flags']);
+	static Teams = new DataSource(TABLENAME_TEAMS, Team.table_fields);
+	static Roles = new DataSource(TABLENAME_ROLES, Role.table_fields);
+	static Permissions = new DataSource(TABLENAME_PERMS, Permission.table_fields);
+	static Users = new DataSource(TABLENAME_USERS, InternalUser.table_fields);
+	static Tasks = new DataSource(TABLENAME_TASKS, Task.table_fields);
+	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.table_fields);
+	static Projects = new DataSource(TABLENAME_PROJECTS, Project.table_fields);
 
-	static Users = new DataSource(
-		'ALGUsers', 'ALGInternal',
-		[
-			'id', 'title', 'display_name_full', 'user_role', 'user_team', 'user_manager_id', 'date_start', 'date_end',
-			'email_work', 'email_home', 'phone_work', 'phone_home', 'phone_ext', 'address_home', 'address_work',
-			'user_birthdate', 'user_permissions', 'user_notes', 'first_login_ts'
-		]
-	);
-
-	static Contacts = new DataSource('ALGContacts', 'ALGInternal', ['id', 'title', 'contact_name']);
-
-	static Tasks = new DataSource('ALGTasks', 'ALGInternal', ['id', 'title', 'task_id', 'task_title', 'task_desc', 'task_comments', 'subtask_ids', 'task_due_date', 'task_date_completed', 'owner_user_id']);
-
-	constructor(list_title, site_name = 'ALGInternal', fields = ['id', 'title'])
+	constructor(list_title, fields = DEF_TABLE_FIELDS, site_name = DEF_TABLE_SITE)
 	{
 		this.list_title = list_title;
 		this.site_name = site_name;
@@ -32,4 +42,4 @@ export class DataSource
 	async GetData() { return await SharePoint.GetListData(this); }
 }
 
-Modules.Report("SharePoint");
+Modules.Report("Data Sources");

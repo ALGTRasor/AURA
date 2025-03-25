@@ -3,8 +3,9 @@
 	--font-size: 1rem;
 	--action-bar-height: 3rem;
 	--info-bar-height: 2rem;
+	--limit-content-width: 1.0;
 
-	--theme-color: hsl(214, 100%, 61%);
+	--theme-color: hsl(197, 100%, 50%);
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);
 	--theme-color-30: rgba(from var(--theme-color) r g b / 0.3);
@@ -74,6 +75,7 @@ body
 	position: absolute;
 	inset: 0;
 	width: calc(100vw - 4rem);
+	max-width: calc(180vh * var(--limit-content-width) + 100vw * calc(1.0 - var(--limit-content-width)));
 	margin: 0.5rem;
 	padding: 1rem;
 	justify-self: center;

@@ -4,6 +4,7 @@ export class AppEvents
 {
 	static onAccountLogin = new EventSource();
 	static onAccountLoginFailed = new EventSource();
+
 	static onToggleLightMode = new EventSource();
 	static onToggleLimitWidth = new EventSource();
 	static onToggleSpotlight = new EventSource();

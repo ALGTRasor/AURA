@@ -33,6 +33,7 @@ async function OnAuraInit()
 	AppEvents.onToggleLightMode.RequestSubscription(UpdateLightMode);
 	AppEvents.onToggleSpotlight.RequestSubscription(UpdateSpotlight);
 	AppEvents.onToggleHideSensitiveInfo.RequestSubscription(UpdateHideSensitiveInfo);
+	AppEvents.onToggleLimitWidth.RequestSubscription(UpdateLimitContentWidth);
 
 	UserSettings.LoadFromStorage();
 	await UserAccountManager.CheckWindowLocationForCodes();
@@ -63,6 +64,7 @@ async function OnAuraInit()
 	UpdateLightMode();
 	UpdateSpotlight();
 	UpdateHideSensitiveInfo();
+	UpdateLimitContentWidth();
 
 	DebugLog.SubmitGroup('#ff04');
 }
@@ -155,6 +157,12 @@ function UpdateHideSensitiveInfo()
 {
 	let hide_sensitive = UserSettings.GetOptionValue('hide-sensitive-info') === true;
 	document.documentElement.style.setProperty('--sensitive-info-cover', hide_sensitive ? 1.0 : 0.0);
+}
+
+function UpdateLimitContentWidth()
+{
+	let limit = UserSettings.GetOptionValue('limit-content-width') === true;
+	document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
 }
 
 // any time the mouse moves while over the page

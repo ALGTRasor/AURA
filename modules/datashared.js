@@ -27,6 +27,9 @@ export class SharedData
 	static teams = [];
 	static permissions = [];
 	static users = [];
+	static contacts = [];
+	static projects = [];
+	static tasks = [];
 
 	static onLoaded = new EventSource();
 	static onLoadedFromCache = new EventSource();
@@ -58,25 +61,22 @@ export class SharedData
 			}
 		}
 
-		[
-			SharedData.roles,
-			SharedData.teams,
-			SharedData.permissions,
-			SharedData.users,
-		] = await Promise.all(
+		const updates =
 			[
-				SharedData.LoadTable(DataSource.Roles, 'roles'),
-				SharedData.LoadTable(DataSource.Teams, 'teams'),
-				SharedData.LoadTable(DataSource.Permissions, 'permissions'),
-				SharedData.LoadTable(DataSource.Users, 'users')
-			]
-		);
+				{ table: SharedData.roles, source: DataSource.Roles, label: 'roles' },
+				{ table: SharedData.teams, source: DataSource.Teams, label: 'teams' },
+				{ table: SharedData.users, source: DataSource.Users, label: 'users' },
+				{ table: SharedData.tasks, source: DataSource.Tasks, label: 'tasks' },
+				{ table: SharedData.contacts, source: DataSource.Contacts, label: 'contacts' },
+				{ table: SharedData.projects, source: DataSource.Projects, label: 'projects' },
+				{ table: SharedData.permissions, source: DataSource.Permissions, label: 'permissions' },
+			];
+
+		let update_targets = updates.map(x => x.table);
+		update_targets = await Promise.all(updates.map(x => SharedData.LoadTable(x.source, x.label)));
 
 		DebugLog.Log('caching shared data');
-		SharedData.SaveToStorage('roles', SharedData.roles);
-		SharedData.SaveToStorage('teams', SharedData.teams);
-		SharedData.SaveToStorage('permissions', SharedData.permissions);
-		SharedData.SaveToStorage('users', SharedData.users);
+		updates.forEach(x => SharedData.SaveToStorage(x.label, x.table));
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop('shared data load') + 'ms');
