@@ -21,6 +21,8 @@
 	max-height: 8rem;
 
 	border-radius: 0.5rem;
+	clip-path: stroke-box;
+
 	background: var(--theme-color-background);
 	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.25));
 	outline-offset: -1px;
@@ -52,6 +54,14 @@
 	transition-duration: var(--trans-dur-off-slow);
 	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.5));
 }
+
+
+.debug-log-root::-webkit-scrollbar
+{
+	display: none;
+}
+
+
 
 .debug-log-item
 {

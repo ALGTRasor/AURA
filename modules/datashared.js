@@ -149,6 +149,19 @@ export class SharedData
 
 
 
+	static GetDatum(table = [], user_ids = [])
+	{
+		user_ids = user_ids.map(x => x.trim().toLowerCase());
+		return table.filter(
+			x =>
+			{
+				if (!x) return false;
+				if (!x.Title) return false;
+				let this_user_id = x.Title.trim().toLowerCase();
+				return user_ids.indexOf(this_user_id) > -1;
+			}
+		);
+	}
 	static GetData(table = [], user_id = '')
 	{
 		user_id = user_id.trim().toLowerCase();
@@ -162,9 +175,22 @@ export class SharedData
 			}
 		);
 	}
+
+	static GetUserDatum(ids = []) { return SharedData.GetDatum(SharedData.users.data, ids); }
+	static GetRoleDatum(ids = []) { return SharedData.GetDatum(SharedData.roles.data, ids); }
+	static GetTeamDatum(ids = []) { return SharedData.GetDatum(SharedData.teams.data, ids); }
+	static GetTaskDatum(ids = []) { return SharedData.GetDatum(SharedData.tasks.data, ids); }
+	static GetPermDatum(ids = []) { return SharedData.GetDatum(SharedData.permissions.data, ids); }
+	static GetContactDatum(ids = []) { return SharedData.GetDatum(SharedData.contacts.data, ids); }
+	static GetProjectDatum(ids = []) { return SharedData.GetDatum(SharedData.projects.data, ids); }
+
 	static GetUserData(id = '') { return SharedData.GetData(SharedData.users.data, id); }
 	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles.data, id); }
 	static GetTeamData(id = '') { return SharedData.GetData(SharedData.teams.data, id); }
+	static GetTaskData(id = '') { return SharedData.GetData(SharedData.tasks.data, id); }
+	static GetPermData(id = '') { return SharedData.GetData(SharedData.permissions.data, id); }
+	static GetContactData(id = '') { return SharedData.GetData(SharedData.contacts.data, id); }
+	static GetProjectData(id = '') { return SharedData.GetData(SharedData.projects.data, id); }
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);

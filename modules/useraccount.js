@@ -363,6 +363,7 @@ export class UserAccountInfo
 {
 	static account_info = {}; // auth account info
 	static user_info = {}; // internal user / employee info
+	static user_permissions = []; // internal user aura permissions
 
 	static UpdateUserInfo()
 	{
@@ -378,8 +379,16 @@ export class UserAccountInfo
 		}
 
 		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
-		DebugLog.Log('internal user data match: ' + got.display_name_full);
-		UserAccountInfo.user_info = got;
+		if (got.display_name_full)
+		{
+			DebugLog.Log('internal user data match: ' + got.display_name_full);
+			UserAccountInfo.user_info = got;
+			UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+		}
+		else
+		{
+			DebugLog.Log('no internal user data match', "#f00");
+		}
 	}
 }
 

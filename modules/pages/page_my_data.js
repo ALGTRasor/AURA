@@ -70,13 +70,12 @@ export class PageMyData extends PageBase
 				this.e_user_info.innerHTML += PageMyData.GetInfoRow(pid, UserAccountInfo.user_info[pid]);
 				propCount++;
 			}
-
-			DebugLog.Log(propCount + ' user info items')
+			this.e_user_info.innerHTML += PageMyData.GetInfoRow('permissions', UserAccountInfo.user_permissions.length + ' valid', false);
 		}
 		else
 		{
 			let div_title = `<div style='text-align:center;opacity:60%;'>User Info</div>`;
-			this.e_user_info.innerHTML = div_title + `<div>? ? ?</div>`;
+			this.e_user_info.innerHTML = div_title + `<div style='color:red;font-size:125%;font-weight:bold;'>USER INFO MISSING</div>`;
 		}
 	}
 
@@ -102,7 +101,7 @@ export class PageMyData extends PageBase
 			'address_work': { label: 'work address', sensitive: false, exclude: false, format_mode: null },
 			'address_home': { label: 'home address', sensitive: true, exclude: false, format_mode: null },
 			'user_birthdate': { label: 'date of birth', sensitive: false, exclude: false, format_mode: 'date' },
-			'user_permissions': { label: 'permissions', sensitive: false, exclude: false, format_mode: 'list' },
+			'user_permissions': { label: 'permissions', sensitive: false, exclude: true, format_mode: 'list' },
 			'user_notes': { label: 'notes', sensitive: true, exclude: false, format_mode: null },
 			'first_login_ts': { label: 'first login', sensitive: false, exclude: true, format_mode: 'datetime' },
 		};
@@ -112,7 +111,7 @@ export class PageMyData extends PageBase
 		if (!label_raw || typeof label_raw !== 'string') return PageMyData.ValueOptionsDefault;
 
 		let got_opts = PageMyData.ValueOptions[label_raw];
-		return got_opts ? got_opts : PageMyData.ValueOptionsDefault;
+		return got_opts ? got_opts : { label: label_raw, sensitive: false, exclude: false, format_mode: null };
 	}
 
 	static GetInfoRow(label = '', value = '', format = true)

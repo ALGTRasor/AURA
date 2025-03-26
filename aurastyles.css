@@ -38,8 +38,8 @@
 	--trans-dur-off-slow: calc(0.3s * var(--trans-dur-mult));
 	--trans-dur-off-veryslow: calc(0.5s * var(--trans-dur-mult));
 	--trans-dur-on-fast: calc(0.05s * var(--trans-dur-mult));
-	--trans-dur-on-slow: calc(0.1s * var(--trans-dur-mult));
-	--trans-dur-on-veryslow: calc(0.2s * var(--trans-dur-mult));
+	--trans-dur-on-slow: calc(0.15s * var(--trans-dur-mult));
+	--trans-dur-on-veryslow: calc(0.3s * var(--trans-dur-mult));
 }
 
 
@@ -158,6 +158,10 @@ body
 	padding: 0;
 	margin: 0;
 	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
+
+	transition-property: backdrop-filter;
+	transition-duration: var(--trans-dur-off-veryslow);
+	transition-timing-function: ease-in-out;
 }
 
 .spotlight

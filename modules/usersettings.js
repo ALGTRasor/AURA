@@ -149,7 +149,7 @@ export class UserSettings
 	static UpdateAnimSpeed()
 	{
 		let anim_speed = UserSettings.GetOptionValue('anim-speed');
-		document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * Math.pow(1.0 - anim_speed, 2));
+		document.documentElement.style.setProperty('--trans-dur-mult', (1.0 - anim_speed));
 	}
 
 	static UpdateThemeColor()
@@ -161,13 +161,6 @@ export class UserSettings
 	}
 }
 
-//UserSettings.RegisterOption('theme-color', '#f0f');
-//UserSettings.RegisterOption('light-mode', false);
-//UserSettings.RegisterOption('spotlight', false);
-//UserSettings.RegisterOption('show-debug-log', true);
-//UserSettings.RegisterOption('anim-speed', 0.5);
-//UserSettings.RegisterOption('theme-hue', 0.0);
-//UserSettings.RegisterOption('theme-saturation', 1.0);
 
 Modules.Report("User Settings");
 
