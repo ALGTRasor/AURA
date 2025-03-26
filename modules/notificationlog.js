@@ -60,6 +60,9 @@ export class NotificationLog
 		ui.e_root = document.createElement('div');
 		ui.e_root.id = 'debug-log-root';
 		ui.e_root.className = 'debug-log-root';
+		ui.e_root.style.bottom = 'unset';
+		ui.e_root.style.transformOrigin = '0% 0%';
+		ui.e_root.style.top = 'calc(1rem + var(--action-bar-height))';
 
 		document.body.appendChild(ui.e_root);
 	}

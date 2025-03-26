@@ -23,17 +23,17 @@ export class PageHome extends PageBase
 		this.e_body.style.minWidth = '300px';
 		this.e_body.style.maxWidth = '500px';
 
-		this.AddMenuButton('PROJECT HUB', () => { this.OpenPage(new PageProjectHub()); });
-		this.AddMenuButton('TASK HUB', () => { this.OpenPage(new PageTaskHub()); });
-		this.AddMenuButton('CONTACT LOGS', () => { this.OpenPage(new PageMyData()); });
-		this.AddMenuButton('INTERNAL USERS', () => { this.OpenPage(new PageInternalUsers()); });
-		this.AddMenuButton('EXTERNAL CONTACTS', () => { this.OpenPage(new PageExternalContacts()); });
-		this.AddMenuButton('REPORTS', () => { this.OpenPage(new PageMyData()); });
-		this.AddMenuButton('TIME LOG', () => { this.OpenPage(new PageTimekeep()); });
-		this.AddMenuButton('MY DATA', () => { this.OpenPage(new PageMyData()); });
-		this.AddMenuButton('HR', () => { this.OpenPage(new PageHR()); });
-		this.AddMenuButton('SETTINGS', () => { this.OpenPage(new PageSettings()); });
-		this.AddMenuButton('APP EVENTS', () => { this.OpenPage(new PageMyData()); });
+		this.AddMenuButton('PROJECT HUB', () => PageManager.TogglePageByTitle('project hub'));
+		this.AddMenuButton('TASK HUB', () => PageManager.TogglePageByTitle('task hub'));
+		this.AddMenuButton('CONTACT LOGS', () => PageManager.TogglePageByTitle('contact logs'));
+		this.AddMenuButton('INTERNAL USERS', () => PageManager.TogglePageByTitle('internal users'));
+		this.AddMenuButton('EXTERNAL CONTACTS', () => PageManager.TogglePageByTitle('external contacts'));
+		this.AddMenuButton('REPORTS', () => PageManager.TogglePageByTitle('reports'));
+		this.AddMenuButton('TIME LOG', () => PageManager.TogglePageByTitle('timekeep'));
+		this.AddMenuButton('MY DATA', () => PageManager.TogglePageByTitle('my data'));
+		this.AddMenuButton('HR', () => PageManager.TogglePageByTitle('hr'));
+		this.AddMenuButton('SETTINGS', () => PageManager.TogglePageByTitle('settings'));
+		this.AddMenuButton('APP EVENTS', () => PageManager.TogglePageByTitle('app events'));
 
 		this.e_content.className = 'page-content-root menu-root';
 		this.e_content.style.justifyContent = 'center';
@@ -49,12 +49,6 @@ export class PageHome extends PageBase
 		e_btn_menu.title = text;
 		e_btn_menu.addEventListener('click', onclick);
 		this.e_content.appendChild(e_btn_menu);
-	}
-
-	OpenPage(page)
-	{
-		let willOpen = PageManager.OpenPageDirectly(page);
-		//if (willOpen && PageManager.currentPages && PageManager.currentPages.length > 6) this.Close(true);
 	}
 }
 

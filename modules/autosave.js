@@ -5,8 +5,9 @@ import { Modules } from "./modules.js";
 
 export class Autosave
 {
+	static e_lastsaved = document.getElementById('info-bar-lastsaved');
 	static source = new EventSource();
-	static delay_seconds = 30.0;
+	static delay_seconds = 15.0;
 
 	static Invoke()
 	{
@@ -28,6 +29,9 @@ export class Autosave
 	static StepLoop(dt)
 	{
 		DebugLog.Log('~ Autosave', false);
+		Autosave.e_lastsaved.style.color = '#0f08';
+		let d = new Date();
+		Autosave.e_lastsaved.innerText = 'Last saved @' + d.toLocaleTimeString();
 		Autosave.Invoke();
 	}
 }
