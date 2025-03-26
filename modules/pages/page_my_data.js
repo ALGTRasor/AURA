@@ -189,4 +189,4 @@ export class PageMyData extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageMyData());
+PageManager.RegisterPage(new PageMyData('my data'));

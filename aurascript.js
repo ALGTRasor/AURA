@@ -78,9 +78,16 @@ async function OnAuraInit()
 
 function CheckHotkey(e)
 {
-	if (e.key == 's') PageManager.OpenPageByTitle('settings');
+	if (e.key === 's') PageManager.TogglePageByTitle('settings');
+	else if (e.key === 'n') PageManager.TogglePageByTitle('nav menu');
+	else if (e.key === 'm') PageManager.TogglePageByTitle('my data');
+	else if (e.key === 'h') PageManager.TogglePageByTitle('hr');
+	else if (e.key === 'i') PageManager.TogglePageByTitle('internal users');
+	else if (e.key === 'o') PageManager.TogglePageByTitle('external contacts');
+	else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
+	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 }
-window.addEventListener('keypress', CheckHotkey);
+window.addEventListener('keydown', CheckHotkey);
 
 const get_grad = (deg, ca, pa, cb, pb) =>
 {

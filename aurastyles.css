@@ -45,11 +45,6 @@
 }
 
 
-*::-webkit-scrollbar
-{
-	width: 1rem;
-}
-
 html
 {
 	background: var(--theme-color-background);

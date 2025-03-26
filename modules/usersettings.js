@@ -2,6 +2,7 @@ import { AppEvents } from "./appevents.js";
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
+import { PageManager } from "./pagemanager.js";
 
 const lskey_usersettings = 'blob_user_settings';
 const e_spotlight = document.getElementById('spotlight');
@@ -148,6 +149,8 @@ export class UserSettings
 	{
 		let limit = UserSettings.GetOptionValue('limit-content-width') === true;
 		document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
+
+		PageManager.onLayoutChange.Invoke();
 	}
 
 	static UpdateDebugLog()

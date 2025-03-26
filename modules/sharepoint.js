@@ -8,73 +8,41 @@ export class SharePoint
 {
 	static async GetSiteUrl(site_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name; }
 	static async GetListUrl(site_name, list_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static async GetItemsUrl(site_name, list_name, item_id) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
 
-	/*
-	static async GetSiteData(site_name)
+	static async GetData(url)
 	{
-		console.info('Requesting SP Site data...');
-		try
+		const def_headers =
 		{
-			let resp = await fetch(
-				SharePoint.GetSiteUrl(site_name),
-				{
-					method: 'get',
-					headers:
-					{
-						'Authorization': 'Bearer ' + UserAccountManager.access_token,
-						'Accept': 'application/json'
-					}
-				}
-			);
+			'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
+			'Accept': 'application/json'
+		};
 
-			console.info('...got SP Site data: ' + resp);
-			return resp;
-		}
-		catch (e)
-		{
-			console.warn('...Error requesting SP Site data: ' + resp);
-			console.error(e);
-			return null;
-		}
+		let resp = await fetch(url, { method: 'get', headers: def_headers });
+		if (resp.status == 200) return await resp.json();
+		return null;
 	}
-	*/
 
 	static async GetListData(source = DataSource.Nothing)
 	{
 		let field_str = source.fields.join(',');
-		try
+		let url = await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id&expand=fields(select=' + field_str + ')';
+		let result = await SharePoint.GetData(url);
+
+		if (result && result.value)
 		{
-			let resp = await fetch(
-				await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id&expand=fields(select=' + field_str + ')',
-				{
-					method: 'get',
-					headers:
-					{
-						'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
-						'Accept': 'application/json'
-					}
-				}
-			);
-
-			if (resp.status == 401)
+			if (Array.isArray(result.value)) 
 			{
-				UserAccountManager.MaybeAttemptReauthorize();
-				return;
+				let table = result.value.map(x => { return x.fields ? x.fields : x; });
+				DebugLog.Log('...collected sharepoint ' + table.length + ' list items', '#0f03');
+				return table;
 			}
-
-			let result = await resp.json();
-
-			if (Array.isArray(result.value)) return result.value.map(x => { return x.fields ? x.fields : x; });
+			DebugLog.Log('...collected sharepoint list data', '#0ff3');
 			return result.value;
 		}
-		catch (e)
-		{
-			DebugLog.StartGroup('collecting sharepoint list items');
-			console.warn('...Error requesting list items');
-			console.error(e);
-			DebugLog.SubmitGroup('#f003');
-			return null;
-		}
+
+		DebugLog.Log('...failed to collect sharepoint list items', '#ff03');
+		return result;
 	}
 }
 

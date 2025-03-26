@@ -1,0 +1,114 @@
+.record-viewer-root
+{
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: row;
+
+	overflow: hidden;
+}
+
+.record-viewer-list-root
+{
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 1.0;
+	flex-grow: 1.0;
+
+	width: 20rem;
+	max-width: 28rem;
+
+	background: hsl(from var(--theme-color) h s 12%);
+
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	padding: 1rem;
+	border-radius: 0.5rem;
+
+	clip-path: stroke-box;
+
+	outline: solid 2px hsl(from var(--theme-color) h s 30%);
+	outline-offset: -2px;
+
+	margin: 0.5rem;
+	justify-items: center;
+
+	scrollbar-width: 0;
+}
+
+.record-viewer-list-item
+{
+	cursor: pointer;
+
+	padding: 0.5rem 0.25rem 0.5rem 0.25rem;
+	line-height: 1rem;
+	min-height: 1rem;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-break: break-all;
+	font-size: 0.9rem;
+	text-wrap: nowrap;
+
+	border-style: solid;
+	border-color: rgba(from var(--theme-color) r g b / 0.1);
+	border-width: 2px 0px 2px 0px;
+
+	color: var(--theme-color-text-50);
+
+	letter-spacing: normal;
+
+	transition-property: padding-left, min-height, background-color, color, text-shadow;
+	transition-delay: 0.1s;
+	transition-duration: var(--trans-dur-on-slow);
+	transition-timing-function: ease-in-out;
+}
+
+
+.record-viewer-list-item:hover
+{
+	min-height: 3rem;
+	padding-left: 0.5rem;
+	background-color: rgba(from var(--theme-color) r g b / 0.2);
+	color: var(--theme-color-text);
+	transition-duration: var(--trans-dur-on-slow);
+
+	text-shadow: -3px 3px 2px rgba(from var(--shadow-color) r g b / 0.2);
+}
+
+.record-viewer-list-item:active
+{
+	padding-left: 0.666rem;
+	color: var(--theme-color-text-80);
+	text-shadow: -1px 1px 1px rgba(from var(--shadow-color) r g b / 0.3);
+	background-color: rgba(from var(--theme-color) r g b / 0.1);
+	transition-delay: 0s;
+}
+
+.record-viewer-view-root
+{
+	display: flex;
+	flex-direction: column;
+
+	flex-shrink: 1.0;
+	flex-grow: 4.0;
+
+	background: hsl(from var(--theme-color) h s 12%);
+
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	padding: 1rem;
+	border-radius: 0.5rem;
+
+	clip-path: stroke-box;
+
+	outline: solid 2px hsl(from var(--theme-color) h s 30%);
+	outline-offset: -2px;
+
+	margin: 0.5rem;
+	justify-items: center;
+
+	scrollbar-width: 0;
+}

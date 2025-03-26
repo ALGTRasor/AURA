@@ -1,3 +1,4 @@
+import { PageManager } from "../pagemanager.js";
 import { PageBase } from "./pagebase.js";
 
 export class PageProjectHub extends PageBase
@@ -11,3 +12,5 @@ export class PageProjectHub extends PageBase
 		this.FinalizeBody(parent);
 	}
 }
+
+PageManager.RegisterPage(new PageProjectHub('project hub'));

@@ -39,6 +39,25 @@ export class PageManager
 			if (p.title.toLowerCase().trim() === target_title) PageManager.OpenPageDirectly(p);
 		}
 	}
+	static TogglePageByTitle(title)
+	{
+		title = title.toLowerCase().trim();
+		let existing_page_id = PageManager.GetPageIndexFromTitle(title);
+
+		if (existing_page_id > -1)
+		{
+			if (title !== 'nav menu' || PageManager.currentPages.length > 1)
+				PageManager.currentPages[existing_page_id].Close();
+		}
+		else
+		{
+			for (let pid in PageManager.all_pages)
+			{
+				let p = PageManager.all_pages[pid];
+				if (p.title.toLowerCase().trim() === title) PageManager.OpenPageDirectly(p);
+			}
+		}
+	}
 
 
 	static OpenPageDirectly(page = PageBase.Default(), force_new = false)
@@ -61,13 +80,15 @@ export class PageManager
 		return true;
 	}
 
-	static RemoveFromCurrent(page = PageBase.Default)
+	static RemoveFromCurrent(page = PageBase.Default, layoutEventDelay = 0)
 	{
 		let i = PageManager.currentPages.indexOf(page);
 		if (i < 0) return;
 		PageManager.currentPages.splice(i, 1);
 		if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('nav menu'); }, 420);
-		PageManager.onLayoutChange.Invoke();
+
+		if (layoutEventDelay <= 0) PageManager.onLayoutChange.Invoke();
+		else window.setTimeout(() => PageManager.onLayoutChange.Invoke(), layoutEventDelay);
 	}
 }
 

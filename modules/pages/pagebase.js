@@ -97,14 +97,22 @@ export class PageBase
 
 	Close(immediate = false)
 	{
-		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
 		this.OnClose();
-		PageManager.RemoveFromCurrent(this);
+
 		this.e_body.style.pointerEvents = 'none';
+		this.e_body.style.transitionDelay = '0s';
 		this.e_body.style.opacity = 0.0;
 		this.e_body.style.scale = 0.7;
-		if (immediate) this.e_body.remove();
-		else window.setTimeout(() => { this.e_body.remove(); }, 250);
+
+		let finalize = () =>
+		{
+			PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
+			PageManager.RemoveFromCurrent(this, 30);
+			this.e_body.remove();
+		};
+
+		if (immediate) finalize();
+		else window.setTimeout(() => { finalize(); }, 250);
 	}
 
 	FinalizeBody(parent)
@@ -138,12 +146,15 @@ export class PageBase
 			this.e_btn_move_l.style.display = this.e_body.previousElementSibling ? 'block' : 'none';
 			this.e_btn_move_r.style.display = this.e_body.nextElementSibling ? 'block' : 'none';
 		}
+
+		this.OnLayoutChange();
 	}
 
 
 
 	OnOpen() { }
 	OnClose() { }
+	OnLayoutChange() { }
 }
 
 Modules.Report("Pages");

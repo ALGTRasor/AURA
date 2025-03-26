@@ -42,7 +42,7 @@
 	padding-right: 0.5rem;
 	border-radius: 0.25rem;
 
-	color: var(--theme-color-text-80);
+	color: hsl(from var(--theme-color) h 50% 60%);
 
 	font-size: 90%;
 	font-weight: normal;
