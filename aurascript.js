@@ -87,7 +87,7 @@ function CheckHotkey(e)
 	else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
 	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 }
-window.addEventListener('keydown', CheckHotkey);
+window.addEventListener('keyup', CheckHotkey);
 
 const get_grad = (deg, ca, pa, cb, pb) =>
 {
