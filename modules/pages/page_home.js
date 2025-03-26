@@ -58,4 +58,4 @@ export class PageHome extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageHome());
+PageManager.RegisterPage(new PageHome('nav menu'));

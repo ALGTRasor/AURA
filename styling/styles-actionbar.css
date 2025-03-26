@@ -22,10 +22,11 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .action-bar:hover,
 .action-bar:active
 {
-	box-shadow: 0px 1rem 1rem #0008;
+	box-shadow: 0px 1rem 1rem rgba(from var(--shadow-color) r g b / 0.24);
 	height: calc(var(--action-bar-height) * 2);
 	transition-duration: var(--trans-dur-on-slow);
 	transition-delay: 0s;
@@ -58,7 +59,7 @@
 	user-select: none;
 	color: var(--theme-color);
 
-	text-shadow: 0px 0px 0px #fff0;
+	text-shadow: 0px 0px 0px transparent;
 	letter-spacing: calc(0.5 * var(--font-size));
 
 	transition-property: transform, opacity, text-shadow;
@@ -66,10 +67,11 @@
 	transition-delay: 0.25s;
 	transition-timing-function: ease-in-out;
 }
+
 .action-bar:hover > .action-bar-title,
 .action-bar:active > .action-bar-title
 {
-	text-shadow: 0px 0.4rem 3px #0007;
+	text-shadow: 0px 0.4rem 3px rgba(from var(--shadow-color) r g b / 0.2);
 	opacity: 50%;
 	transform: translate(0%, calc(-0.5 * var(--action-bar-height)));
 	transition-delay: 0s;
@@ -96,6 +98,7 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .action-bar:hover > .action-bar-button-container,
 .action-bar:active > .action-bar-button-container
 {
@@ -112,6 +115,7 @@
 	inherits: false;
 	initial-value: 0.0;
 }
+
 .action-bar-button
 {
 	position: relative;
@@ -151,20 +155,22 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
+
 .action-bar-button:hover
 {
 	--action-bar-button-hover: 1.0;
 	color: var(--theme-color-text);
-	box-shadow: 0px 0px 0.5rem #0002;
+	box-shadow: 0px 0px 0.5rem rgba(from var(--shadow-color) r g b / 0.1);
 	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
+
 .action-bar-button:active
 {
 	--action-bar-button-hover: 0.8;
 	scale: 90%;
 	color: var(--theme-color-text-50);
-	box-shadow: 0px 0px 0.25rem #000a;
+	box-shadow: 0px 0px 0.25rem rgba(from var(--shadow-color) r g b / 0.25);
 	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
@@ -178,7 +184,7 @@
 .action-bar-button > .icon
 {
 	z-index: 20;
-	text-shadow: 0px 0px 0rem #fff0;
+	text-shadow: 0px 0px 0rem transparent;
 
 	transition-property: text-shadow, transform;
 	transition-delay: 0.1s;
@@ -192,7 +198,7 @@
 	z-index: -10;
 	transform: translate(0%, -90%);
 
-	text-shadow: 0px 0px 0.7rem var(--theme-color), 0px 5px 2px #0009;
+	text-shadow: 0px 0px 0.7rem var(--theme-color), 0px 5px 2px rgba(from var(--shadow-color) r g b / 0.25);
 	transition-duration: var(--trans-dur-on-fast);
 	transition-delay: 0s;
 }
@@ -236,6 +242,7 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-delay: 0.2s;
 }
+
 .action-bar:hover > * > .action-bar-profile-picture,
 .action-bar:active > * > .action-bar-profile-picture
 {

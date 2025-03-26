@@ -66,7 +66,7 @@ export class PageManager
 		let i = PageManager.currentPages.indexOf(page);
 		if (i < 0) return;
 		PageManager.currentPages.splice(i, 1);
-		if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('home'); }, 420);
+		if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('nav menu'); }, 420);
 		PageManager.onLayoutChange.Invoke();
 	}
 }

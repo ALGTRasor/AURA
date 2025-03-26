@@ -29,7 +29,7 @@ export class PageBase
 		this.e_body.className = 'page-root';
 		this.e_body.style.opacity = 0.0;
 		this.e_body.style.scale = 0.7;
-		window.setTimeout(() => { this.e_body.style.opacity = 0.5; this.e_body.style.scale = 1.0; }, 5);
+		window.setTimeout(() => { this.e_body.style.opacity = 0.85; this.e_body.style.scale = 1.0; }, 5);
 
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';

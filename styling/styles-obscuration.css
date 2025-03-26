@@ -13,7 +13,7 @@
 	font-variant: small-caps;
 	letter-spacing: 1rem;
 	font-size: 400%;
-	text-shadow: 0px 0.666rem 6px #0005, 0px 1rem 6px #0003, 0px 1.666rem 6px #0002, -1px 1px 0.3rem var(--theme-color);
+	text-shadow: 0px 0.666rem 6px rgba(from var(--shadow-color) r g b / 0.06), 0px 1rem 6px rgba(from var(--shadow-color) r g b / 0.1), 0px 1.666rem 6px rgba(from var(--shadow-color) r g b / 0.06), -1px 1px 0.3rem var(--theme-color);
 	font-family: AtkinsonHyperlegibleBold;
 	color: transparent;
 

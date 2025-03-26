@@ -379,7 +379,7 @@ export class UserAccountInfo
 		}
 
 		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
-		if (got.display_name_full)
+		if (got && got.display_name_full)
 		{
 			DebugLog.Log('internal user data match: ' + got.display_name_full);
 			UserAccountInfo.user_info = got;

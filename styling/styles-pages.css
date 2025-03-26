@@ -8,7 +8,7 @@
 	flex-direction: row;
 
 	justify-content: center;
-	box-shadow: inset -2px 2px 6px #0005;
+	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.2);
 
 }
 
@@ -32,7 +32,7 @@
 	outline: solid 3px #fff0;
 	outline-offset: -2px;
 
-	box-shadow: -1px 1px 3px #0003;
+	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: rgba(from var(--theme-color) r g b / 0.1);
 
 	transition-property: background-color, box-shadow, opacity, outline-color, scale;
@@ -45,7 +45,7 @@
 	outline-color: #fff2;
 	opacity: 1.0 !important;
 
-	box-shadow: -2px 2px 6px #0006;
+	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.2);
 	background-color: rgba(from var(--theme-color) r g b / 0.12);
 	transition-delay: 0s;
 }
@@ -67,8 +67,8 @@
 	background-color: #f803;
 	border-radius: 0.2rem;
 
-	box-shadow: 0px 0px 0px #0000;
-	text-shadow: -2px 2px 2px #0007;
+	box-shadow: 0px 0px 0px rgba(from var(--shadow-color) r g b / 0);
+	text-shadow: -2px 2px 2px rgba(from var(--shadow-color) r g b / 0.2);
 
 	scale: 90%;
 }
@@ -111,22 +111,22 @@
 	background-color: #f003;
 	border-radius: 0.2rem;
 
-	box-shadow: 0px 0px 0px #0000;
-	text-shadow: -2px 2px 2px #0007;
+	box-shadow: 0px 0px 0px rgba(from var(--shadow-color) r g b / 0);
+	text-shadow: -2px 2px 2px rgba(from var(--shadow-color) r g b / 0.2);
 
 	scale: 90%;
 }
 
 .page-close-button:hover
 {
-	box-shadow: -2px 2px 1px #0007;
+	box-shadow: -2px 2px 1px rgba(from var(--shadow-color) r g b / 0.2);
 	background-color: #f006;
 	scale: 100%;
 }
 
 .page-close-button:active
 {
-	box-shadow: -1px 1px 0px #0009;
+	box-shadow: -1px 1px 0px rgba(from var(--shadow-color) r g b / 0.25);
 	background-color: #f004;
 	scale: 95%;
 }
@@ -174,7 +174,7 @@
 	border: solid 2px #ffffff05;
 
 	background-color: #aaaaaa02;
-	box-shadow: -1px 1px 3px #0003;
+	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
 
 	transition-property: border, background-color, box-shadow;
 	transition-duration: var(--trans-dur-off-fast);
@@ -185,7 +185,7 @@
 {
 	background-color: #aaaaaa05;
 	border: solid 2px #fff1;
-	box-shadow: -2px 2px 6px #0006;
+	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.1);
 }
 
 
@@ -194,6 +194,7 @@
 {
 	color: var(--theme-color-80);
 }
+
 .page-title-bar
 {
 	position: static;
@@ -241,7 +242,7 @@
 
 	background-color: #0002;
 
-	box-shadow: inset -2px 2px 6px #0009;
+	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.25);
 }
 
 .menu-button
@@ -272,7 +273,7 @@
 	padding-left: calc(0.5rem + 4px);
 	padding-right: calc(0.5rem - 4px);
 
-	text-shadow: -4px 4px 2px #0007;
+	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	color: var(--theme-color-text-80);
 	background-color: #fff1;
 
@@ -397,13 +398,15 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
+
 .setting-root:active
 {}
+
 .setting-root:hover
 {
 	opacity: 100%;
-	text-shadow: 0px 0px 6px #000a;
-	box-shadow: 0px 0px 6px #0007;
+	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
+	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.2);
 	background-color: rgba(from var(--theme-color) r g b / 0.1);
 }
 
@@ -443,11 +446,12 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .setting-root:hover > span
 {
 	color: var(--theme-color);
 	bottom: 4px;
-	text-shadow: 0px 4px 2px #0008;
+	text-shadow: 0px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	transition-duration: var(--trans-dur-on-slow);
 }
 
@@ -457,15 +461,18 @@
 	background-color: var(--theme-color-30);
 	border: solid 2px rgba(from var(--theme-color) r g b / 0.05);
 }
+
 .setting-root-on > span
 {
 	color: var(--theme-color);
 }
+
 .setting-root-on > i
 {
 	color: var(--theme-color);
 	text-shadow: 0px 0px 6px var(--theme-color);
 }
+
 .setting-root-on:hover > span
 {
 	color: var(--theme-color);
@@ -497,10 +504,12 @@
 
 	background-color: rgba(from var(--theme-color) r g b / 0.15);
 }
+
 .setting-root-slider:active
 {
 	border: solid 2px var(--theme-color);
 }
+
 .setting-root-slider:hover > .setting-slider-fill
 {
 	background-color: rgba(from var(--theme-color) r g b / 0.2);
@@ -517,12 +526,12 @@
 .setting-root-toggle:hover
 {
 	opacity: 100%;
-	text-shadow: 0px 0px 6px #000a;
-	box-shadow: 0px 0px 6px #0007;
-	background-color: #fff1;
+	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
+	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.2);
+	background-color: rgba(from var(--theme-color) r g b / 0.2);
 }
 
 .setting-root-toggle:active
 {
-	box-shadow: 0px 0px 2px #000a;
+	box-shadow: 0px 0px 2px rgba(from var(--shadow-color) r g b / 0.25);
 }

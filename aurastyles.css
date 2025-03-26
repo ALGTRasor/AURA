@@ -30,6 +30,8 @@
 	--theme-color-text-90: rgba(from var(--theme-color-text) r g b / 0.9);
 
 	--theme-invert: 0.0;
+	--shadow-color: hsl(0deg 0% calc(var(--theme-invert) * 100%));
+	--glow-color: hsl(from var(--shadow-color) h s calc(100% - l));
 
 	--sensitive-info-cover: 1.0;
 
@@ -42,6 +44,11 @@
 	--trans-dur-on-veryslow: calc(0.3s * var(--trans-dur-mult));
 }
 
+
+*::-webkit-scrollbar
+{
+	width: 1rem;
+}
 
 html
 {
@@ -89,7 +96,7 @@ body
 	justify-self: center;
 
 	border-radius: 0.5rem;
-	box-shadow: 0px 0px 0.25rem black;
+	box-shadow: 0px 0px 0.25rem var(--shadow-color);
 
 	background-color: hsl(from var(--theme-color) h s 6);
 
@@ -160,7 +167,7 @@ body
 	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
 
 	transition-property: backdrop-filter;
-	transition-duration: var(--trans-dur-off-veryslow);
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 

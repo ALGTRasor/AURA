@@ -103,6 +103,16 @@ export class UserSettings
 		AppEvents.onSetThemeColor.RequestSubscription(UserSettings.UpdateThemeColor);
 	}
 
+	static InitializeDefaults()
+	{
+		UserSettings.RegisterOption('anim-speed', 0.5);
+		UserSettings.RegisterOption('theme-hue', 0.98);
+		UserSettings.RegisterOption('theme-saturation', 0.5);
+
+		UserSettings.RegisterOption('spotlight', true);
+		UserSettings.RegisterOption('hide-sensitive-info', true);
+	}
+
 	static UpdateOptionEffects()
 	{
 		UserSettings.UpdateLightMode();
@@ -163,5 +173,7 @@ export class UserSettings
 
 
 Modules.Report("User Settings");
+
+UserSettings.UpdateOptionEffects();
 
 Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });

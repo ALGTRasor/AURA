@@ -3,6 +3,7 @@ import "./modules/remotedata.js";
 import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
 import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
+import "./modules/notificationlog.js";
 
 import { PageManager } from "./modules/pagemanager.js";
 import { Fax } from "./modules/fax.js";
@@ -17,6 +18,7 @@ import { PageMyData } from "./modules/pages/page_my_data.js";
 import { PageHome } from "./modules/pages/page_home.js";
 import { PageHR } from "./modules/pages/page_hr.js";
 import { PageSettings } from "./modules/pages/page_settings.js";
+import { Notification, NotificationLog } from "./modules/notificationlog.js";
 
 
 async function CheckIdentity()
@@ -46,7 +48,7 @@ async function OnAuraInit()
 
 		await AppEvents.onAccountLogin.InvokeAsync();
 
-		PageManager.OpenPageDirectly(new PageHome());
+		PageManager.OpenPageByTitle('nav menu');
 		await Fax.RefreshFact();
 	}
 	else
@@ -59,8 +61,26 @@ async function OnAuraInit()
 
 	UserSettings.UpdateOptionEffects();
 
+	let stacked = new Notification('hello A', 'there X', true);
+	let diffA = new Notification('hello B', 'there Y', true);
+	let diffB = new Notification('hello C', 'there Z', true);
+	NotificationLog.Log(stacked);
+	NotificationLog.Log(stacked);
+	NotificationLog.Log(stacked);
+	NotificationLog.Log(diffA);
+	NotificationLog.Log(diffB);
+	NotificationLog.Log(diffB);
+	NotificationLog.Log(diffA);
+	NotificationLog.Log(diffB);
+
 	DebugLog.SubmitGroup('#fff4');
 }
+
+function CheckHotkey(e)
+{
+	if (e.key == 's') PageManager.OpenPageByTitle('settings');
+}
+window.addEventListener('keypress', CheckHotkey);
 
 const get_grad = (deg, ca, pa, cb, pb) =>
 {
@@ -147,16 +167,7 @@ window.fxn.OpenHomePage = () =>
 	PageManager.OpenPageDirectly(new PageHome());
 };
 
-window.fxn.OpenPageById = (page_id) =>
-{
-	switch (page_id)
-	{
-		case 'home': PageManager.OpenPageDirectly(new PageHome()); break;
-		case 'hr': PageManager.OpenPageDirectly(new PageHR()); break;
-		case 'settings': PageManager.OpenPageDirectly(new PageSettings()); break;
-		case 'mydata': PageManager.OpenPageDirectly(new PageMyData()); break;
-	}
-};
+window.fxn.OpenPageById = (page_id) => { return PageManager.OpenPageByTitle(page_id); };
 
 
 window.fxn.RefreshManual = async () =>

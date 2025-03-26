@@ -27,6 +27,8 @@ export class PageMyData extends PageBase
 		this.CreateUserInfoBlock();
 
 		this.FinalizeBody(parent);
+
+		this.UpdateBlocks();
 	}
 
 	CreateAccountInfoBlock()

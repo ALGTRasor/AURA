@@ -1,4 +1,5 @@
 import { AppEvents } from "../appevents.js";
+import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
 
@@ -20,27 +21,36 @@ export class PageSettings extends PageBase
 		this.e_options_root.className = 'settings-options-root';
 
 		this.e_toggle_limitwidth = this.AddToggle('limit width', 'width_wide', 'Toggle limit content width', 'limit-content-width', () => { AppEvents.onToggleLimitWidth.Invoke(); });
-		this.e_toggle_lightmode = this.AddToggle('invert', 'invert_colors', 'Toggle light mode', 'light-mode', () => { AppEvents.onToggleLightMode.Invoke(); });
+		this.e_toggle_lightmode = this.AddToggle('light mode', 'invert_colors', 'Toggle light mode', 'light-mode', () => { AppEvents.onToggleLightMode.Invoke(); });
 		this.e_toggle_spotlight = this.AddToggle('spotlight', 'highlight', 'Toggle spotlight', 'spotlight', () => { AppEvents.onToggleSpotlight.Invoke(); });
 		this.e_toggle_hidesensitive = this.AddToggle('hide sensitive info', 'visibility_lock', 'Toggle hiding sensitive info', 'hide-sensitive-info', () => { AppEvents.onToggleHideSensitiveInfo.Invoke(); });
 		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
 
-		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, () => { AppEvents.onSetAnimSpeed.Invoke(); });
+		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
+
+		const updateHueSlider = (data = {}, triggerSetEvent = false) =>
+		{
+			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
+			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
+		};
+
+		const updateSatSlider = (data = {}, triggerSetEvent = false) =>
+		{
+			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h s 50%)';
+			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h s 50%)';
+			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
+		};
+
 		this.e_slider_themehue = this.AddSlider(
 			'theme hue', 'palette', 'UI theme hue', 'theme-hue', 0.01,
-			data =>
-			{
-				data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
-				AppEvents.onSetThemeColor.Invoke();
-			}
+			data => updateHueSlider(data, false),
+			data => updateHueSlider(data, true)
 		);
 		this.e_slider_themesat = this.AddSlider(
 			'theme saturation', 'opacity', 'UI theme saturation', 'theme-saturation', 0.01,
-			data => 
-			{
-				data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h s 50%)';
-				AppEvents.onSetThemeColor.Invoke();
-			}
+			data => updateSatSlider(data, false),
+			data => updateSatSlider(data, true)
 		);
 
 		this.e_content.appendChild(this.e_options_root);
@@ -70,7 +80,7 @@ export class PageSettings extends PageBase
 		return e;
 	}
 
-	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { })
+	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { }, extraOnDrag = data => { })
 	{
 		let val_og = UserSettings.GetOptionValue(option_id);
 
@@ -102,6 +112,20 @@ export class PageSettings extends PageBase
 
 		let isclicking = false;
 
+		if (extra)
+		{
+			extra(
+				{
+					e_slider: e_slider,
+					e_slider_label: e_slider_label,
+					e_slider_icon: e_slider_icon,
+					e_slider_fill: e_slider_fill,
+					og_value: val_og,
+					new_value: val_og
+				}
+			);
+		}
+
 		const handleMouse = e =>
 		{
 			if (!isclicking) return;
@@ -121,9 +145,9 @@ export class PageSettings extends PageBase
 				e_slider_icon.style.color = 'rgba(255, 255, 255, ' + (new_value * 0.6 + 0.4) + ')';
 				e_slider_icon.style.textShadow = '0px 0px 6px rgba(255, 255, 255, ' + new_value + ')';
 			}
-			if (extra)
+			if (extraOnDrag)
 			{
-				extra(
+				extraOnDrag(
 					{
 						e_slider: e_slider,
 						e_slider_label: e_slider_label,
@@ -160,3 +184,6 @@ export class PageSettings extends PageBase
 		return e_slider;
 	}
 }
+
+
+PageManager.RegisterPage(new PageSettings('settings'));

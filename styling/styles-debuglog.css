@@ -43,9 +43,10 @@
 	transition-delay: 1s;
 	transition-timing-function: ease-in-out;
 }
+
 .debug-log-root:hover
 {
-	box-shadow: inset 2px 2px 8px black, -5px 5px 12px #000f;
+	box-shadow: inset 2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25), -5px 5px 12px rgba(from var(--shadow-color) r g b / 0.5);
 	overflow-y: auto;
 	transform: scale(99.9%);
 	max-height: 80vh;
@@ -90,6 +91,7 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .debug-log-item:hover
 {
 	border-color: #fff;
