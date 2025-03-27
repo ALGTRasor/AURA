@@ -60,7 +60,7 @@
 	letter-spacing: normal;
 
 	transition-property: padding-left, min-height, background-color, color, text-shadow;
-	transition-delay: 0.1s;
+	transition-delay: 0.05s;
 	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
 }

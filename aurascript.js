@@ -61,17 +61,7 @@ async function OnAuraInit()
 
 	UserSettings.UpdateOptionEffects();
 
-	let stacked = new Notification('hello A', 'there X', true);
-	let diffA = new Notification('hello B', 'there Y', true);
-	let diffB = new Notification('hello C', 'there Z', true);
-	NotificationLog.Log(stacked);
-	NotificationLog.Log(stacked);
-	NotificationLog.Log(stacked);
-	NotificationLog.Log(diffA);
-	NotificationLog.Log(diffB);
-	NotificationLog.Log(diffB);
-	NotificationLog.Log(diffA);
-	NotificationLog.Log(diffB);
+	NotificationLog.Log(new Notification('notification', 'this is a notification', true));
 
 	DebugLog.SubmitGroup('#fff4');
 

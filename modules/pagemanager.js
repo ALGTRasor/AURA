@@ -69,8 +69,6 @@ export class PageManager
 
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);
-		console.info("Set Page: " + page.title);
-		//e_actionbar_title_label.innerText = page.title.toUpperCase();
 
 		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();

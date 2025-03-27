@@ -125,7 +125,7 @@ export class SharedData
 	{
 		let result = [];
 		result = await source.GetData();
-		if (result && result.length) DebugLog.Log('loaded ' + result.length + ' ' + key, false, '#0f0');
+		if (result && result.length) { }
 		else DebugLog.Log('loaded ' + result + ' ' + key, false, '#f00');
 		return result;
 	}

@@ -34,7 +34,7 @@ export class SharePoint
 			if (Array.isArray(result.value)) 
 			{
 				let table = result.value.map(x => { return x.fields ? x.fields : x; });
-				DebugLog.Log('...collected sharepoint ' + table.length + ' list items', '#0f03');
+				DebugLog.Log('...collected ' + table.length + ' items from ' + source.list_title, '#0f03');
 				return table;
 			}
 			DebugLog.Log('...collected sharepoint list data', '#0ff3');

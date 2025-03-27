@@ -195,7 +195,8 @@ export class PageBase
 		let label = row_opts ? row_opts.label : desc_id;
 		let labelUpper = label.toUpperCase();
 
-		let value_raw = value.trim();
+		let value_raw = value ? value.toString().trim() : '';
+		value = value_raw;
 
 		if (row_opts.format_mode && format) value = PageBase.FormatValueString(value_raw, row_opts.format_mode);
 

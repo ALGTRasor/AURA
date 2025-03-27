@@ -29,11 +29,11 @@
 	border-radius: 0.5rem;
 	clip-path: stroke-box;
 
-	outline: solid 3px #fff0;
+	outline: solid 3px transparent;
 	outline-offset: -2px;
 
 	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
-	background-color: rgba(from var(--theme-color) r g b / 0.1);
+	background-color: hsl(from var(--theme-color) h s 14%);
 
 	transition-property: background-color, box-shadow, opacity, outline-color, scale;
 	transition-duration: var(--trans-dur-off-fast);
@@ -42,11 +42,11 @@
 
 .page-root:hover
 {
-	outline-color: #fff2;
+	outline-color: hsl(from var(--theme-color) h s 20%);
 	opacity: 1.0 !important;
 
-	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.2);
-	background-color: rgba(from var(--theme-color) r g b / 0.12);
+	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.15);
+	background-color: hsl(from var(--theme-color) h s 15%);
 	transition-delay: 0s;
 }
 
@@ -171,10 +171,11 @@
 	flex-basis: 0;
 
 	border-radius: 0.35rem;
-	border: solid 2px #ffffff05;
+	border: solid 2px hsl(from var(--theme-color) h s 20%);
 
-	background-color: #aaaaaa02;
+	background-color: rgba(from var(--theme-color) r g b / 8%);
 	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
+	color: hsl(from var(--theme-color) h s 50%);
 
 	transition-property: border, background-color, box-shadow;
 	transition-duration: var(--trans-dur-off-fast);
@@ -183,16 +184,17 @@
 
 .page-content-root-block:hover
 {
-	background-color: #aaaaaa05;
+	background-color: rgba(from var(--theme-color) r g b / 4%);
 	border: solid 2px #fff1;
 	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.1);
+	color: hsl(from var(--theme-color) h s 70%);
 }
 
 
 
 .page-root:hover > .page-title-bar
 {
-	color: var(--theme-color-80);
+	color: hsl(from var(--theme-color) h s 70%);
 }
 
 .page-title-bar
@@ -202,7 +204,7 @@
 	height: 2rem;
 	line-height: 2rem;
 
-	color: var(--theme-color-40);
+	color: hsl(from var(--theme-color) h s 50%);
 	letter-spacing: 4px;
 	text-align: center;
 	align-content: center;
@@ -292,10 +294,10 @@
 	word-spacing: -3px;
 
 	align-content: start;
-	line-height: 1.25rem;
-	min-height: 1.25rem;
-	margin-top: 2px;
-	margin-bottom: 2px;
+	line-height: 1.333rem;
+	min-height: 1.333rem;
+	margin-top: 1px;
+	margin-bottom: 1px;
 
 	overflow: hidden;
 	border-radius: 0.3rem;
@@ -333,10 +335,6 @@
 	font-size: 110%;
 	font-variant: small-caps;
 	letter-spacing: 1px;
-
-	transition-property: margin-right;
-	transition-timing-function: ease-in-out;
-	transition-duration: var(--trans-dur-off-fast);
 }
 
 .info-value > a
@@ -367,7 +365,7 @@
 	font-size: 100%;
 	align-content: start;
 
-	transition-property: margin-right;
+	transition-property: padding;
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
 }
@@ -482,12 +480,12 @@
 	opacity: 100%;
 	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
 	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.2);
-	background-color: rgba(from var(--theme-color) r g b / 0.0);
+	background-color: rgba(from var(--theme-color) r g b / 0.1);
 }
 
 .setting-root:active
 {
-	background-color: hsl(from var(--theme-color) h s 20%);
+	background-color: hsl(from var(--theme-color) h s 25%);
 }
 
 
@@ -543,6 +541,16 @@
 {
 	background-color: hsl(from var(--theme-color) h s 30%);
 	border: solid 2px hsl(from var(--theme-color) h s 40%);
+}
+
+.setting-root-on:hover
+{
+	background-color: hsl(from var(--theme-color) h s 20%);
+}
+
+.setting-root-on:active
+{
+	background-color: hsl(from var(--theme-color) h s 15%);
 }
 
 .setting-root-on > span

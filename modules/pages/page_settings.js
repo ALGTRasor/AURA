@@ -1,4 +1,5 @@
 import { AppEvents } from "../appevents.js";
+import { Autosave } from "../autosave.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
@@ -74,6 +75,8 @@ export class PageSettings extends PageBase
 				UserSettings.SetOptionValue(option_id, new_value);
 				e.className = new_value ? 'setting-root setting-root-toggle setting-root-on' : 'setting-root setting-root-toggle ';
 				if (extra) extra();
+
+				Autosave.InvokeSoon();
 			}
 		);
 		this.e_options_root.appendChild(e);
@@ -158,6 +161,7 @@ export class PageSettings extends PageBase
 					}
 				);
 			}
+			Autosave.InvokeSoon();
 		};
 
 
