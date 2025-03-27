@@ -170,7 +170,7 @@ export class UserSettings
 		let theme_hue = UserSettings.GetOptionValue('theme-hue');
 		let theme_sat = UserSettings.GetOptionValue('theme-saturation');
 
-		document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, 50%)');
+		document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, ' + (100 - Math.round(theme_sat * 50)) + '%)');
 	}
 }
 

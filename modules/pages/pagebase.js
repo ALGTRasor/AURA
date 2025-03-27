@@ -6,6 +6,8 @@ import { PageManager } from "../pagemanager.js";
 
 const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
 
+const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
+
 export class PageBase
 {
 	static Default = new PageBase(null);
@@ -157,13 +159,27 @@ export class PageBase
 
 
 
-	CreateRecordInfoList(parent = {}, record = {}, descs = [])
+	CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'primary info')
 	{
+		let leftovers = [];
+		for (let field_id in record)
+		{
+			if (!(field_id in descs)) leftovers.push(field_id);
+		}
+
+		addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = info_title);
+
 		for (let desc_id in descs) 
 		{
-			//if (desc_id == 'id') continue;
 			if (desc_id.startsWith('@')) continue;
 			this.CreateRecordInfoListItem(parent, descs, desc_id, record[desc_id]);
+		}
+
+		addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = 'extra info');
+
+		for (let leftover_id in leftovers) 
+		{
+			this.CreateRecordInfoListItem(parent, descs, leftover_id, record[leftover_id], false);
 		}
 	}
 
@@ -176,13 +192,16 @@ export class PageBase
 		let sens_txt = sens ? ' [ SENSITIVE ]' : '';
 		let sens_ind = sens ? '*' : '';
 
-		let label = field_descs[desc_id].label;
+		let label = row_opts ? row_opts.label : desc_id;
 		let labelUpper = label.toUpperCase();
 
-		if (row_opts.format_mode && format) value = PageBase.FormatValueString(value, row_opts.format_mode);
+		let value_raw = value.trim();
+
+		if (row_opts.format_mode && format) value = PageBase.FormatValueString(value_raw, row_opts.format_mode);
 
 		if (row_opts.multiline)
 		{
+			value = value.replaceAll('\n\n', '<br>');
 			value = value.replaceAll('\n', '<br>');
 		}
 
@@ -192,6 +211,22 @@ export class PageBase
 			{
 				addElement(e, 'span', 'info-label', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = `${label}${sens_ind}`; });
 				addElement(e, 'span', sens ? 'info-value sensitive-info' : 'info-value', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = value; });
+				if (value_raw && value_raw.length > 0)
+					addElement(
+						e, 'div', 'info-value-button', '',
+						btn => 
+						{
+							addElement(
+								btn, 'i', 'material-symbols icon', 'font-variant:normal;',
+								x =>
+								{
+									x.innerText = 'content_copy';
+									x.title = 'Copy value';
+								}
+							);
+							btn.addEventListener('click', clickevent => navigator.clipboard.writeText(value_raw));
+						}
+					);
 			}
 		);
 	}
@@ -219,6 +254,26 @@ export class PageBase
 			case 'list':
 				let parts = valstr.split(';');
 				if (parts.length > 3) valstr = parts.length + ' selected';
+				break;
+			case 'url':
+				if (valstr && valstr.length > 0) valstr = `<a href='${valstr}' target='_blank'>${valstr}</a>`
+				break;
+			case 'address':
+				if (valstr && valstr.length > 0) valstr = `<a href='${url_maps}${encodeURI(valstr)}' target='_blank'>${valstr}</a>`
+				break;
+			case 'email':
+				if (valstr && valstr.length > 0) valstr = `<a href='mailto:${valstr}' target='_blank'>${valstr}</a>`
+				break;
+			case 'phone':
+				let nums = [0, 1, 2, 3, 4];
+				nums = valstr.replaceAll(/[^\d]/g, '');
+				if (nums.length >= 7)
+				{
+					nums = nums.insertFromEnd(4, '-');
+					nums = nums.insertFromEnd(8, ') ');
+					nums = nums.insertFromEnd(13, '(');
+					valstr = nums.length > 14 ? '+' + nums.insertFromEnd(14, ' ') : nums;
+				}
 				break;
 			case 'date':
 				let dmatch = valstr.match(rgx_datetime);

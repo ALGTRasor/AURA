@@ -74,6 +74,8 @@ async function OnAuraInit()
 	NotificationLog.Log(diffB);
 
 	DebugLog.SubmitGroup('#fff4');
+
+	window.addEventListener('keyup', CheckHotkey);
 }
 
 function CheckHotkey(e)
@@ -88,7 +90,21 @@ function CheckHotkey(e)
 	else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
 	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 }
-window.addEventListener('keyup', CheckHotkey);
+
+String.prototype.insert = function (index, string)
+{
+	if (index < 1) return string + this;
+	if (index >= this.length) return this + string;
+	return this.substring(0, index) + string + this.substring(index, this.length);
+};
+
+String.prototype.insertFromEnd = function (index, string)
+{
+	index = this.length - index;
+	if (index < 1) return string + this;
+	if (index >= this.length) return this + string;
+	return this.substring(0, index) + string + this.substring(index, this.length);
+};
 
 const get_grad = (deg, ca, pa, cb, pb) =>
 {

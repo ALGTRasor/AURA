@@ -1,3 +1,4 @@
+import { AccountUser } from "../datamodels/account_user.js";
 import { DataFieldDesc } from "../datamodels/datafield_desc.js";
 import { InternalUser } from "../datamodels/internal_user.js";
 import { SharedData } from "../datashared.js";
@@ -42,7 +43,7 @@ export class PageMyData extends PageBase
 	UpdateAccountInfoBlock()
 	{
 		this.e_account_info.innerHTML = `<div style='text-align:center;opacity:60%;'>Account Info</div>`;
-		this.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info);
+		this.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info, AccountUser.field_descs);
 	}
 
 	CreateUserInfoBlock()
@@ -61,7 +62,6 @@ export class PageMyData extends PageBase
 		{
 			this.e_user_info.innerHTML = `<div style='text-align:center;opacity:60%;'>User Info</div>`;
 			this.CreateRecordInfoList(this.e_user_info, UserAccountInfo.user_info, InternalUser.field_descs);
-			this.e_user_info.innerHTML += this.CreateRecordInfoListItem([], 'permissions', UserAccountInfo.user_permissions.length + ' valid', false);
 		}
 		else
 		{

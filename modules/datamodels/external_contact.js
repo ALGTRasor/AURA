@@ -16,11 +16,11 @@ export class ExternalContact
 			'contact_name': new DataFieldDesc('contact_name', 'contact name'),
 			'contact_type': new DataFieldDesc('contact_type', 'contact type', false, false, 'upper'),
 			'contact_title': new DataFieldDesc('contact_title', 'contact title'),
-			'mailing_address': new DataFieldDesc('mailing_address', 'mailing address', true),
-			'contact_email': new DataFieldDesc('contact_email', 'email'),
-			'contact_phone': new DataFieldDesc('contact_phone', 'phone', true),
-			'contact_website': new DataFieldDesc('contact_website', 'website'),
-			'contact_notes': new DataFieldDesc('contact_notes', 'notes', true, false, null, true),
+			'mailing_address': new DataFieldDesc('mailing_address', 'mailing address', false, false, 'address'),
+			'contact_email': new DataFieldDesc('contact_email', 'email', false, false, 'email'),
+			'contact_phone': new DataFieldDesc('contact_phone', 'phone', false, false, 'phone'),
+			'contact_website': new DataFieldDesc('contact_website', 'website', false, false, 'url'),
+			'contact_notes': new DataFieldDesc('contact_notes', 'notes', false, false, null, true),
 		};
 }
 
