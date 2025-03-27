@@ -275,7 +275,7 @@
 
 	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	color: var(--theme-color-text-80);
-	background-color: #fff1;
+	background-color: var(--theme-color-30);
 
 	transition-duration: 0s;
 }
@@ -283,6 +283,7 @@
 
 .info-row
 {
+	position: relative;
 	cursor: default;
 
 	font-size: 0.75rem;
@@ -290,14 +291,11 @@
 	letter-spacing: 0px;
 	word-spacing: -3px;
 
-	align-content: center;
+	align-content: start;
 	line-height: 1.25rem;
-	height: 1.25rem;
+	min-height: 1.25rem;
 	margin-top: 2px;
 	margin-bottom: 2px;
-
-	text-wrap: nowrap;
-	text-overflow: ellipsis;
 
 	overflow: hidden;
 	border-radius: 0.3rem;
@@ -309,20 +307,28 @@
 
 .info-row:hover
 {
-
 	background-color: rgba(from var(--theme-color) r g b / 0.1);
 }
 
 .info-label
 {
-	display: inline-block;
-	min-width: 8rem;
+	display: block;
+	position: absolute;
+
+	top: 0;
+	bottom: 0;
+	width: 8rem;
+	height: 100%;
+
 	padding-left: 0.25rem;
 	padding-right: 0.25rem;
 	margin-right: 0.25rem;
-	text-align: right;
 	color: var(--theme-color-text);
 	background-color: hsl(from var(--theme-color) h s 25%);
+
+	text-align: right;
+	text-wrap: nowrap;
+	text-overflow: ellipsis;
 
 	font-size: 110%;
 	font-variant: small-caps;
@@ -333,9 +339,30 @@
 	transition-duration: var(--trans-dur-off-fast);
 }
 
-.info-row:hover > .info-label
+.info-value
 {
-	margin-right: 0.5rem;
+	display: block;
+	position: absolute;
+
+	left: 8.5rem;
+	width: calc(100% - 8.5rem);
+	top: 0;
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+	text-align: left;
+	color: var(--theme-color-text);
+
+	font-size: 100%;
+	align-content: start;
+
+	transition-property: margin-right;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.info-row:hover > .info-value
+{
+	padding-left: 0.5rem;
 }
 
 
@@ -394,21 +421,25 @@
 
 	opacity: 90%;
 
-	transition-property: opacity, background-color;
+	transition-property: opacity, background-color, box-shadow;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
-
-.setting-root:active
-{}
 
 .setting-root:hover
 {
 	opacity: 100%;
 	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
 	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.2);
-	background-color: rgba(from var(--theme-color) r g b / 0.1);
+	background-color: rgba(from var(--theme-color) r g b / 0.0);
 }
+
+.setting-root:active
+{
+	background-color: hsl(from var(--theme-color) h s 20%);
+}
+
+
 
 
 .setting-root > i
@@ -456,10 +487,11 @@
 }
 
 
+
 .setting-root-on
 {
-	background-color: var(--theme-color-30);
-	border: solid 2px rgba(from var(--theme-color) r g b / 0.05);
+	background-color: hsl(from var(--theme-color) h s 30%);
+	border: solid 2px hsl(from var(--theme-color) h s 40%);
 }
 
 .setting-root-on > span
@@ -517,13 +549,7 @@
 
 
 
-
-.setting-root-toggle.setting-root-on
-{
-	border: solid 2px var(--theme-color);
-}
-
-.setting-root-toggle:hover
+.setting-root:hover > .setting-root-toggle
 {
 	opacity: 100%;
 	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
@@ -531,7 +557,7 @@
 	background-color: rgba(from var(--theme-color) r g b / 0.2);
 }
 
-.setting-root-toggle:active
+.setting-root:active > .setting-root-toggle
 {
 	box-shadow: 0px 0px 2px rgba(from var(--shadow-color) r g b / 0.25);
 }

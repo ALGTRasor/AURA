@@ -1,4 +1,5 @@
 import { PageManager } from "../pagemanager.js";
+import { UserAccountInfo } from "../useraccount.js";
 import { PageExternalContacts } from "./page_external_contacts.js";
 import { PageHR } from "./page_hr.js";
 import { PageInternalUsers } from "./page_internal_users.js";
@@ -41,8 +42,17 @@ export class PageHome extends PageBase
 		this.FinalizeBody(parent);
 	}
 
-	AddMenuButton(text = '', onclick = () => { })
+	AddMenuButton(text = '', onclick = () => { }, permissions_required = [])
 	{
+		if (permissions_required && permissions_required.length > 0)
+		{
+			for (let perm_id in permissions_required)
+			{
+				let perm_id_granted = UserAccountInfo.user_permissions.findIndex(x => x === perm_id);
+				if (perm_id_granted < 0) return;
+			}
+		}
+
 		let e_btn_menu = document.createElement('div');
 		e_btn_menu.className = 'menu-button';
 		e_btn_menu.innerText = text ? text : '???';

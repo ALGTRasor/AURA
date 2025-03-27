@@ -1,3 +1,4 @@
+import { InternalUser } from "../datamodels/internal_user.js";
 import { SharedData } from "../datashared.js";
 import { addElement } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
@@ -21,10 +22,8 @@ export class PageInternalUsers extends PageBase
 			return 0;
 		};
 		this.viewer.SetListItemSorter(sort);
-		this.viewer.SetListItemBuilder((table, x, e) =>
-		{
-			addElement(e, 'span', '', '', c => { c.innerText = table[x].display_name_full });
-		});
+		this.viewer.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].display_name_full }); });
+		this.viewer.SetViewBuilder(x => { this.CreateRecordInfoList(this.viewer.e_view_root, x, InternalUser.field_descs); });
 		this.viewer.CreateElements(this.e_content);
 
 		this.FinalizeBody(parent);

@@ -10,7 +10,8 @@ export class RecordViewer
         this.created = false;
 
         this.sorter = (record) => { return true; };
-        this.builder = (table, record, element) => { };
+        this.listItemBuilder = (table, record, element) => { };
+        this.viewBuilder = (record) => { };
 
         this.e_root = {};
         this.e_list_root = {};
@@ -27,7 +28,12 @@ export class RecordViewer
 
     SetListItemBuilder(builder = (table, record, element) => { })
     {
-        this.builder = builder;
+        this.listItemBuilder = builder;
+    }
+
+    SetViewBuilder(builder = (record) => { })
+    {
+        this.viewBuilder = builder;
     }
 
     SetData(data = [])
@@ -44,6 +50,12 @@ export class RecordViewer
     SelectData(selector = record => { return true; })
     {
         this.selected_record = this.data.find(selector);
+        this.RefreshElementVisibility();
+    }
+
+    SelectRecord(record = {})
+    {
+        this.selected_record = record;
         this.RefreshElementVisibility();
     }
 
@@ -83,7 +95,7 @@ export class RecordViewer
     {
         this.e_list_root.innerHTML = '';
 
-        if (!this.builder)
+        if (!this.listItemBuilder)
         {
             this.e_list_root.innerHTML = 'invalid items';
             return;
@@ -93,12 +105,19 @@ export class RecordViewer
         for (let id in data_sorted)
         {
             let this_item = data_sorted[id];
-            const select_this = e => { this.SelectData(x => x.Title == this_item.Title); };
+            const select_this = e => { this.SelectRecord(this_item); this.RefreshViewerElements() };
             let e_listitem = addElement(this.e_list_root, 'div', 'record-viewer-list-item', '', e => { e.addEventListener('click', select_this) });
-            this.builder(data_sorted, id, e_listitem);
+            this.listItemBuilder(data_sorted, id, e_listitem);
         }
     }
-    RefreshViewerElements() { }
+    RefreshViewerElements()
+    {
+        if (this.viewBuilder && this.selected_record)
+        {
+            this.e_view_root.innerHTML = '';
+            this.viewBuilder(this.selected_record);
+        }
+    }
 
     RefreshElementVisibility()
     {

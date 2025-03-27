@@ -1,5 +1,10 @@
+import { DataFieldDesc } from "../datamodels/datafield_desc.js";
+import { SharedData } from "../datashared.js";
+import { addElement } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
+
+const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
 
 export class PageBase
 {
@@ -149,6 +154,93 @@ export class PageBase
 
 		this.OnLayoutChange();
 	}
+
+
+
+	CreateRecordInfoList(parent = {}, record = {}, descs = [])
+	{
+		for (let desc_id in descs) 
+		{
+			//if (desc_id == 'id') continue;
+			if (desc_id.startsWith('@')) continue;
+			this.CreateRecordInfoListItem(parent, descs, desc_id, record[desc_id]);
+		}
+	}
+
+	CreateRecordInfoListItem(parent = {}, field_descs = [], desc_id = '', value = '', format = true)
+	{
+		let row_opts = DataFieldDesc.Lookup(field_descs, desc_id);
+		if (row_opts.exclude) return '';
+
+		let sens = row_opts.sensitive === true;
+		let sens_txt = sens ? ' [ SENSITIVE ]' : '';
+		let sens_ind = sens ? '*' : '';
+
+		let label = field_descs[desc_id].label;
+		let labelUpper = label.toUpperCase();
+
+		if (row_opts.format_mode && format) value = PageBase.FormatValueString(value, row_opts.format_mode);
+
+		if (row_opts.multiline)
+		{
+			value = value.replaceAll('\n', '<br>');
+		}
+
+		addElement(
+			parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:3rem; height:-webkit-fill-available; text-wrap:pretty;' : '',
+			e =>
+			{
+				addElement(e, 'span', 'info-label', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = `${label}${sens_ind}`; });
+				addElement(e, 'span', sens ? 'info-value sensitive-info' : 'info-value', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = value; });
+			}
+		);
+	}
+
+
+	static FormatValueString(valstr, format_mode = '')
+	{
+		switch (format_mode)
+		{
+			case 'upper':
+				valstr = valstr.toUpperCase();
+				break;
+			case 'team':
+				let got_team = SharedData.GetTeamData(valstr);
+				if (got_team) valstr = got_team.team_name;
+				break;
+			case 'role':
+				let got_role = SharedData.GetRoleData(valstr);
+				if (got_role) valstr = got_role.role_name;
+				break;
+			case 'user':
+				let got_user = SharedData.GetUserData(valstr);
+				if (got_user) valstr = got_user.display_name_full;
+				break;
+			case 'list':
+				let parts = valstr.split(';');
+				if (parts.length > 3) valstr = parts.length + ' selected';
+				break;
+			case 'date':
+				let dmatch = valstr.match(rgx_datetime);
+				if (dmatch) valstr = `${dmatch[1]}-${dmatch[2]}-${dmatch[3]}`;
+				break;
+			case 'datetime':
+				let dtmatch = valstr.match(rgx_datetime);
+				if (dtmatch)
+				{
+					let year = dtmatch[1];
+					let month = dtmatch[2];
+					let day = dtmatch[3];
+					let time = dtmatch[4];
+
+					valstr = `${year}-${month}-${day} @${time}`;
+				}
+				break;
+		}
+		return valstr;
+	}
+
+
 
 
 
