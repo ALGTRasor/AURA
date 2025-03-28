@@ -86,7 +86,7 @@ function CheckHotkey(e)
 	else if (e.key === 'm') PageManager.TogglePageByTitle('my data');
 	else if (e.key === 'h') PageManager.TogglePageByTitle('hr');
 	else if (e.key === 'i') PageManager.TogglePageByTitle('internal users');
-	else if (e.key === 'o') PageManager.TogglePageByTitle('external contacts');
+	else if (e.key === 'e') PageManager.TogglePageByTitle('external contacts');
 	else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
 	else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
 	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');

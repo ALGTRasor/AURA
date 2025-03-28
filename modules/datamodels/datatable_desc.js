@@ -4,9 +4,13 @@ export class DataTableDesc
 {
     static Nothing = new DataTableDesc(null);
 
+    fields = [];
+    field_descs = {};
+
     constructor(field_descs = {})
     {
-        this.fields = field_descs ? Array.prototype.slice.apply(field_descs).map(x => x.key) : [];
+        this.fields = [];
+        for (let id in field_descs) this.fields.push(id);
         this.field_descs = field_descs;
     }
 }

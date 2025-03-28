@@ -16,8 +16,8 @@ export class PageSettings extends PageBase
 
 		this.CreateBody();
 
-		this.e_body.style.minWidth = '500px';
-		this.e_body.style.maxWidth = '600px';
+		this.e_body.style.minWidth = '420px';
+		this.e_body.style.maxWidth = '540px';
 
 		this.e_options_root = document.createElement('div');
 		this.e_options_root.className = 'settings-options-root';
@@ -37,7 +37,8 @@ export class PageSettings extends PageBase
 			let hue = UserSettings.GetOptionValue('theme-hue');
 			let sat = UserSettings.GetOptionValue('theme-saturation');
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
-			else if ((hue > 0.55 && hue < 0.75) && sat > 0.75) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
+				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
 			else this.e_theme_color_warning.innerText = '';
 		};
 

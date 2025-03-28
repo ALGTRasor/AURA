@@ -3,10 +3,12 @@ import { ExternalContact } from "./datamodels/external_contact.js";
 import { Permission } from "./datamodels/user_permission.js";
 import { InternalUser } from "./datamodels/internal_user.js";
 import { Role } from "./datamodels/role.js";
-import { Task } from "./datamodels/task.js";
 import { Team } from "./datamodels/team.js";
 import { Modules } from "./modules.js";
-import "./datamodels/project_data.js";
+
+import { TaskData } from "./datamodels/task_data.js";
+import { ProjectData } from "./datamodels/project_data.js";
+import { ProjectCoreData } from "./datamodels/project_data_core.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -18,7 +20,7 @@ const TABLENAME_TASKS = 'ALGTasks';
 const TABLENAME_CONTACTS = 'ALGContacts';
 const TABLENAME_PROJECTS = 'ALGProjects';
 
-const DEF_TABLE_FIELDS = ['id', 'title'];
+const DEF_TABLE_FIELDS = ['id', 'Title'];
 
 export class DataSource
 {
@@ -28,9 +30,9 @@ export class DataSource
 	static Roles = new DataSource(TABLENAME_ROLES, Role.table_fields);
 	static Permissions = new DataSource(TABLENAME_PERMS, Permission.table_fields);
 	static Users = new DataSource(TABLENAME_USERS, InternalUser.table_fields);
-	static Tasks = new DataSource(TABLENAME_TASKS, Task.table_fields);
+	static Tasks = new DataSource(TABLENAME_TASKS, TaskData.data_model.fields);
 	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.table_fields);
-	static Projects = new DataSource(TABLENAME_PROJECTS, window.data_models.project_data.table_fields);
+	static Projects = new DataSource(TABLENAME_PROJECTS, ProjectCoreData.data_model.fields);
 
 	constructor(list_title, fields = DEF_TABLE_FIELDS, site_name = DEF_TABLE_SITE)
 	{

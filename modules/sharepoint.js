@@ -23,26 +23,42 @@ export class SharePoint
 		return null;
 	}
 
+
+
 	static async GetListData(source = DataSource.Nothing)
 	{
 		let field_str = source.fields.join(',');
 		let url = await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id&expand=fields(select=' + field_str + ')';
 		let result = await SharePoint.GetData(url);
 
-		if (result && result.value)
+		let all_items = [];
+
+		if (result)
 		{
-			if (Array.isArray(result.value)) 
+			const collect_items = (item_list = [], new_items = []) =>
 			{
-				let table = result.value.map(x => { return x.fields ? x.fields : x; });
-				DebugLog.Log('...collected ' + table.length + ' items from ' + source.list_title, '#0f03');
-				return table;
+				let valid_items = new_items && Array.isArray(new_items);
+				if (!valid_items) return item_list;
+
+				DebugLog.Log(' + ' + new_items.length + ' items', '#0ff3');
+				return item_list.concat(new_items);
 			}
-			DebugLog.Log('...collected sharepoint list data', '#0ff3');
-			return result.value;
+
+			all_items = collect_items(all_items, result.value);
+			while ('@odata.nextLink' in result)
+			{
+				let next_url = result['@odata.nextLink'];
+				result = await SharePoint.GetData(next_url);
+				DebugLog.Log('...followed pagination');
+				all_items = collect_items(all_items, result.value);
+			}
+		}
+		else
+		{
+			DebugLog.Log('...failed to collect sharepoint list items', '#ff03');
 		}
 
-		DebugLog.Log('...failed to collect sharepoint list items', '#ff03');
-		return result;
+		return all_items.map(x => { return x.fields ? x.fields : x; });
 	}
 }
 

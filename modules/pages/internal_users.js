@@ -25,10 +25,22 @@ export class PageInternalUsers extends PageBase
 		};
 		this.viewer.SetListItemSorter(sort);
 		this.viewer.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].display_name_full }); });
-		this.viewer.SetViewBuilder(x => { RecordFormUtils.CreateRecordInfoList(this.viewer.e_view_root, x, InternalUser.field_descs); });
+		this.viewer.SetViewBuilder(records => this.BuildRecordView(records));
 		this.viewer.CreateElements(this.e_content);
 
 		this.FinalizeBody(parent);
+	}
+
+	BuildRecordView(records)
+	{
+		if (!records || records.length < 1) return;
+
+		for (let id in records)
+		{
+			let record = records[id];
+			let e_info_root = addElement(this.viewer.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.display_name_full; }) });
+			RecordFormUtils.CreateRecordInfoList(e_info_root, record, InternalUser.field_descs, null, records.length < 2);
+		}
 	}
 
 	OnLayoutChange()

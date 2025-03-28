@@ -9,14 +9,8 @@ const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=
 
 export class RecordFormUtils
 {
-    static CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'info')
+    static CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'info', show_extras = false)
     {
-        let leftovers = [];
-        for (let field_id in record)
-        {
-            if (!(field_id in descs)) leftovers.push(field_id);
-        }
-
         addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = info_title);
 
         for (let desc_id in descs) 
@@ -25,11 +19,20 @@ export class RecordFormUtils
             RecordFormUtils.CreateRecordInfoListItem(parent, descs, desc_id, record[desc_id]);
         }
 
-        addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = 'extra');
-
-        for (let leftover_id in leftovers) 
+        if (show_extras)
         {
-            RecordFormUtils.CreateRecordInfoListItem(parent, descs, leftover_id, record[leftover_id], false);
+            let leftovers = [];
+            for (let field_id in record)
+            {
+                if (!(field_id in descs)) leftovers.push(field_id);
+            }
+
+            addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = 'extra');
+
+            for (let leftover_id in leftovers) 
+            {
+                RecordFormUtils.CreateRecordInfoListItem(parent, descs, leftover_id, record[leftover_id], false);
+            }
         }
     }
 
@@ -48,7 +51,7 @@ export class RecordFormUtils
         let value_raw = value ? value.toString().trim() : '';
         value = value_raw;
 
-        if (row_opts.format_mode && format) value = RecordFormUtils.FormatValueString(value_raw, row_opts.format_mode);
+        if (format) value = RecordFormUtils.FormatValueString(value_raw, row_opts);
 
         if (row_opts.multiline)
         {
@@ -57,7 +60,7 @@ export class RecordFormUtils
         }
 
         addElement(
-            parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:5rem; text-wrap:pretty; flex-grow:0.0;' : '',
+            parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:3rem; text-wrap:pretty; flex-grow:0.0;' : '',
             e =>
             {
                 let str_tip = `${labelUpper}${sens_txt}`;
@@ -73,7 +76,7 @@ export class RecordFormUtils
                     e, 'span', sens ? 'info-value sensitive-info' : 'info-value', null,
                     lbl =>
                     {
-                        lbl.title = str_tip;
+                        lbl.title = value_raw;
                         lbl.innerHTML = value;
                         lbl.style.lineHeight = row_opts.multiline ? '1rem' : 'inherit';
                         lbl.style.overflowY = row_opts.multiline ? 'auto' : 'hidden';
@@ -101,9 +104,13 @@ export class RecordFormUtils
     }
 
 
-    static FormatValueString(valstr, format_mode = '')
+    static FormatValueString(valstr = '', row_opts = {})
     {
-        switch (format_mode)
+        if (!row_opts) return valstr;
+        if (!row_opts.format_mode) return valstr;
+        if (row_opts.format_mode.length < 1) return valstr;
+
+        switch (row_opts.format_mode)
         {
             case 'upper':
                 valstr = valstr.toUpperCase();
@@ -121,8 +128,9 @@ export class RecordFormUtils
                 if (got_user) valstr = got_user.display_name_full;
                 break;
             case 'list':
-                let parts = valstr.split(';');
-                if (parts.length > 3) valstr = parts.length + ' selected';
+                if (row_opts.list_separator) DebugLog.Log('splitting by ' + row_opts.list_separator);
+                let parts = valstr.split(row_opts.list_separator ? row_opts.list_separator : ';');
+                if (parts.length > 1) valstr = parts.length + ' ' + row_opts.label;
                 break;
             case 'url':
                 if (valstr && valstr.length > 0) valstr = `<a href='${valstr}' target='_blank'>${valstr}</a>`
