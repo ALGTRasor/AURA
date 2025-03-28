@@ -1,3 +1,4 @@
+import { DebugLog } from "../debuglog.js";
 import { PageManager } from "../pagemanager.js";
 import { QuickMenu } from "../ui/quickmenu.js";
 import { UserAccountInfo } from "../useraccount.js";
@@ -21,7 +22,17 @@ export class PageHome extends PageBase
 
 		this.menu = new QuickMenu();
 
-		let ButtonOptions = (id, label) => { return { label: (label ? label : id).toUpperCase(), on_click: () => { PageManager.TogglePageByTitle(id); } } };
+		let ButtonOptions = (id, label) => 
+		{
+			return {
+				label: (label ? label : id).toUpperCase(),
+				on_click: () =>
+				{
+					DebugLog.Log('nav attempt -> ' + id);
+					PageManager.TogglePageByTitle(id);
+				}
+			}
+		};
 
 		let buttons = [
 			ButtonOptions('project hub'),

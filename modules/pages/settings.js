@@ -1,5 +1,6 @@
 import { AppEvents } from "../appevents.js";
 import { Autosave } from "../autosave.js";
+import { addElement } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
@@ -30,11 +31,22 @@ export class PageSettings extends PageBase
 
 		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
+		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
+
+		const updateColorWarning = () =>
+		{
+			let hue = UserSettings.GetOptionValue('theme-hue');
+			let sat = UserSettings.GetOptionValue('theme-saturation');
+			if ((hue < 0.43 || hue > 0.95) && sat > 0.25) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+			else this.e_theme_color_warning.innerText = '';
+		};
+
 		const updateHueSlider = (data = {}, triggerSetEvent = false) =>
 		{
 			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
 			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
 			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
+			updateColorWarning();
 		};
 
 		const updateSatSlider = (data = {}, triggerSetEvent = false) =>
@@ -42,6 +54,7 @@ export class PageSettings extends PageBase
 			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h s 50%)';
 			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h s 50%)';
 			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
+			updateColorWarning();
 		};
 
 		this.e_slider_themehue = this.AddSlider(
@@ -54,6 +67,7 @@ export class PageSettings extends PageBase
 			data => updateSatSlider(data, false),
 			data => updateSatSlider(data, true)
 		);
+		this.e_options_root.appendChild(this.e_theme_color_warning);
 
 		this.e_content.appendChild(this.e_options_root);
 

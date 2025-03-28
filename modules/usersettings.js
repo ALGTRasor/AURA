@@ -164,7 +164,7 @@ export class UserSettings
 	static UpdateAnimSpeed()
 	{
 		let anim_speed = UserSettings.GetOptionValue('anim-speed');
-		document.documentElement.style.setProperty('--trans-dur-mult', (1.0 - anim_speed));
+		document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * (1.0 - anim_speed));
 	}
 
 	static UpdateThemeColor()

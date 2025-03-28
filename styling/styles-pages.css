@@ -304,8 +304,8 @@
 	word-spacing: -3px;
 
 	align-content: start;
-	line-height: 1.333rem;
-	min-height: 1.333rem;
+	line-height: 1.5rem;
+	min-height: 1.5rem;
 	margin-top: 1px;
 	margin-bottom: 1px;
 
@@ -347,17 +347,6 @@
 	letter-spacing: 1px;
 }
 
-.info-value > a
-{
-	color: hsl(from var(--theme-color) h s 55%);
-	padding: 0.125rem;
-}
-
-.info-value > a:hover
-{
-	color: hsl(from var(--theme-color) h s 80%);
-	background: hsl(from var(--theme-color) h s 10%);
-}
 
 .info-value
 {
@@ -365,11 +354,12 @@
 	position: absolute;
 
 	left: 8.5rem;
-	width: auto;
+	right: 0;
 	top: 0;
 	height: 100%;
-	padding-left: 0.25rem;
-	padding-right: 0.25rem;
+
+	padding: 0 0 0 0.5rem;
+
 	text-align: left;
 	color: var(--theme-color-text);
 
@@ -380,12 +370,22 @@
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
 }
-
-.info-row:hover > .info-value
+.info-row:hover .info-value
 {
-	padding-left: 0.5rem;
+	padding-left: 1rem;
 }
 
+.info-value a
+{
+	color: hsl(from var(--theme-color) h s 55%);
+	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+	border-radius: 0.5rem;
+}
+.info-value a:hover
+{
+	color: hsl(from var(--theme-color) h s 80%);
+	background: hsl(from var(--theme-color) h s 10%);
+}
 
 
 .info-row-separator
@@ -582,6 +582,23 @@
 }
 
 
+
+
+
+.setting-root-warning
+{
+	pointer-events: none;
+	justify-self: center;
+	align-content: center;
+	text-align: center;
+	min-width: 100%;
+	font-size: 70%;
+	color: orange;
+	padding: 0;
+	margin: 0;
+	letter-spacing: 0px;
+	font-weight: bold;
+}
 
 .setting-root-slider
 {

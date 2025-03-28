@@ -77,8 +77,13 @@ export class PageManager
 			for (let pid in PageManager.all_pages)
 			{
 				let p = PageManager.all_pages[pid];
-				if (p.title.toLowerCase().trim() === title) PageManager.OpenPageDirectly(p);
+				if (p.title.toLowerCase().trim() === title)
+				{
+					PageManager.OpenPageDirectly(p);
+					return;
+				}
 			}
+			DebugLog.Log('nav failed: ' + title);
 		}
 	}
 
