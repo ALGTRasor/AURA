@@ -35,13 +35,13 @@
 
 	transition-property: filter;
 	transition-duration: var(--trans-dur-off-slow);
-	transition-delay: 0.15s;
+	transition-delay: 0.5s;
+	transition-timing-function: ease-in-out;
 }
 
 *:hover > .sensitive-info
 {
 	user-select: text;
 	transition-duration: var(--trans-dur-off-fast);
-	transition-delay: 0.333s;
 	filter: none;
 }

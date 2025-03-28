@@ -112,6 +112,8 @@ export class UserSettings
 
 		UserSettings.RegisterOption('spotlight', true);
 		UserSettings.RegisterOption('hide-sensitive-info', true);
+
+		UserSettings.RegisterOption('pagemanager-restore-layout', true);
 	}
 
 	static UpdateOptionEffects()

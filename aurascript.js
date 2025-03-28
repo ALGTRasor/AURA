@@ -14,11 +14,20 @@ import { DataSource } from "./modules/datasource.js";
 import { SharedData } from "./modules/datashared.js";
 import { AppEvents } from "./modules/appevents.js";
 
-import { PageMyData } from "./modules/pages/page_my_data.js";
-import { PageHome } from "./modules/pages/page_home.js";
-import { PageHR } from "./modules/pages/page_hr.js";
-import { PageSettings } from "./modules/pages/page_settings.js";
 import { Notification, NotificationLog } from "./modules/notificationlog.js";
+
+
+import './modules/pages/home.js';
+import './modules/pages/settings.js';
+import './modules/pages/internal_users.js';
+import './modules/pages/external_contacts.js';
+import './modules/pages/project_hub.js';
+import './modules/pages/task_hub.js';
+import './modules/pages/timekeep.js';
+import './modules/pages/my_data.js';
+import './modules/pages/hr.js';
+import './modules/pages/database_probe.js';
+
 
 
 async function CheckIdentity()
@@ -31,6 +40,7 @@ async function CheckIdentity()
 
 async function OnAuraInit()
 {
+	SetErrorProxy();
 	UserSettings.HookOptionEvents();
 
 	UserSettings.LoadFromStorage();
@@ -48,7 +58,8 @@ async function OnAuraInit()
 
 		await AppEvents.onAccountLogin.InvokeAsync();
 
-		PageManager.OpenPageByTitle('nav menu');
+		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
+		if (!should_restore_layout || !PageManager.RestoreCachedLayout()) PageManager.OpenPageByTitle('nav menu');
 		await Fax.RefreshFact();
 	}
 	else
@@ -81,6 +92,24 @@ function CheckHotkey(e)
 	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 }
 
+
+
+
+function get_console_proxy_fxn(context, method)
+{
+	return function ()
+	{
+		let new_arguments = [].concat(Array.prototype.slice.apply(arguments));
+		DebugLog.Log(new_arguments.join(' '));
+		method.apply(context, new_arguments);
+	}
+}
+
+function SetErrorProxy()
+{
+	console.error = get_console_proxy_fxn(console, console.error);
+}
+
 String.prototype.insert = function (index, string)
 {
 	if (index < 1) return string + this;
@@ -95,6 +124,12 @@ String.prototype.insertFromEnd = function (index, string)
 	if (index >= this.length) return this + string;
 	return this.substring(0, index) + string + this.substring(index, this.length);
 };
+
+
+
+
+
+
 
 const get_grad = (deg, ca, pa, cb, pb) =>
 {
@@ -176,11 +211,7 @@ window.fxn.ToggleLightMode = () =>
 	UserSettings.UpdateLightMode();
 };
 
-window.fxn.OpenHomePage = () =>
-{
-	PageManager.OpenPageDirectly(new PageHome());
-};
-
+window.fxn.OpenHomePage = () => { PageManager.OpenPageByTitle('nav menu'); };
 window.fxn.OpenPageById = (page_id) => { return PageManager.OpenPageByTitle(page_id); };
 
 

@@ -1,12 +1,9 @@
-import { DataFieldDesc } from "../datamodels/datafield_desc.js";
-import { SharedData } from "../datashared.js";
+import { DebugLog } from "../debuglog.js";
 import { addElement } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
+import { RecordFormUtils } from "../ui/recordform.js";
 
-const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
-
-const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
 
 export class PageBase
 {
@@ -20,6 +17,11 @@ export class PageBase
 		this.e_body = {};
 		this.e_title_bar = {};
 		this.e_content = {};
+
+		let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
+		let space0 = str_const.indexOf(' ', 0);
+		let space1 = str_const.indexOf(' ', space0 + 1);
+		DebugLog.Log('created new page: ' + str_const.substring(space0, space1));
 	}
 
 	GetTitle() { return '' }
@@ -161,139 +163,7 @@ export class PageBase
 
 	CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'primary info')
 	{
-		let leftovers = [];
-		for (let field_id in record)
-		{
-			if (!(field_id in descs)) leftovers.push(field_id);
-		}
-
-		addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = info_title);
-
-		for (let desc_id in descs) 
-		{
-			if (desc_id.startsWith('@')) continue;
-			this.CreateRecordInfoListItem(parent, descs, desc_id, record[desc_id]);
-		}
-
-		addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = 'extra info');
-
-		for (let leftover_id in leftovers) 
-		{
-			this.CreateRecordInfoListItem(parent, descs, leftover_id, record[leftover_id], false);
-		}
-	}
-
-	CreateRecordInfoListItem(parent = {}, field_descs = [], desc_id = '', value = '', format = true)
-	{
-		let row_opts = DataFieldDesc.Lookup(field_descs, desc_id);
-		if (row_opts.exclude) return '';
-
-		let sens = row_opts.sensitive === true;
-		let sens_txt = sens ? ' [ SENSITIVE ]' : '';
-		let sens_ind = sens ? '*' : '';
-
-		let label = row_opts ? row_opts.label : desc_id;
-		let labelUpper = label.toUpperCase();
-
-		let value_raw = value ? value.toString().trim() : '';
-		value = value_raw;
-
-		if (row_opts.format_mode && format) value = PageBase.FormatValueString(value_raw, row_opts.format_mode);
-
-		if (row_opts.multiline)
-		{
-			value = value.replaceAll('\n\n', '<br>');
-			value = value.replaceAll('\n', '<br>');
-		}
-
-		addElement(
-			parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:3rem; height:-webkit-fill-available; text-wrap:pretty;' : '',
-			e =>
-			{
-				addElement(e, 'span', 'info-label', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = `${label}${sens_ind}`; });
-				addElement(e, 'span', sens ? 'info-value sensitive-info' : 'info-value', null, lbl => { lbl.title = `${labelUpper}${sens_txt}`; lbl.innerHTML = value; });
-				if (value_raw && value_raw.length > 0)
-					addElement(
-						e, 'div', 'info-value-button', '',
-						btn => 
-						{
-							addElement(
-								btn, 'i', 'material-symbols icon', 'font-variant:normal;',
-								x =>
-								{
-									x.innerText = 'content_copy';
-									x.title = 'Copy value';
-								}
-							);
-							btn.addEventListener('click', clickevent => navigator.clipboard.writeText(value_raw));
-						}
-					);
-			}
-		);
-	}
-
-
-	static FormatValueString(valstr, format_mode = '')
-	{
-		switch (format_mode)
-		{
-			case 'upper':
-				valstr = valstr.toUpperCase();
-				break;
-			case 'team':
-				let got_team = SharedData.GetTeamData(valstr);
-				if (got_team) valstr = got_team.team_name;
-				break;
-			case 'role':
-				let got_role = SharedData.GetRoleData(valstr);
-				if (got_role) valstr = got_role.role_name;
-				break;
-			case 'user':
-				let got_user = SharedData.GetUserData(valstr);
-				if (got_user) valstr = got_user.display_name_full;
-				break;
-			case 'list':
-				let parts = valstr.split(';');
-				if (parts.length > 3) valstr = parts.length + ' selected';
-				break;
-			case 'url':
-				if (valstr && valstr.length > 0) valstr = `<a href='${valstr}' target='_blank'>${valstr}</a>`
-				break;
-			case 'address':
-				if (valstr && valstr.length > 0) valstr = `<a href='${url_maps}${encodeURI(valstr)}' target='_blank'>${valstr}</a>`
-				break;
-			case 'email':
-				if (valstr && valstr.length > 0) valstr = `<a href='mailto:${valstr}' target='_blank'>${valstr}</a>`
-				break;
-			case 'phone':
-				let nums = [0, 1, 2, 3, 4];
-				nums = valstr.replaceAll(/[^\d]/g, '');
-				if (nums.length >= 7)
-				{
-					nums = nums.insertFromEnd(4, '-');
-					nums = nums.insertFromEnd(8, ') ');
-					nums = nums.insertFromEnd(13, '(');
-					valstr = nums.length > 14 ? '+' + nums.insertFromEnd(14, ' ') : nums;
-				}
-				break;
-			case 'date':
-				let dmatch = valstr.match(rgx_datetime);
-				if (dmatch) valstr = `${dmatch[1]}-${dmatch[2]}-${dmatch[3]}`;
-				break;
-			case 'datetime':
-				let dtmatch = valstr.match(rgx_datetime);
-				if (dtmatch)
-				{
-					let year = dtmatch[1];
-					let month = dtmatch[2];
-					let day = dtmatch[3];
-					let time = dtmatch[4];
-
-					valstr = `${year}-${month}-${day} @${time}`;
-				}
-				break;
-		}
-		return valstr;
+		return RecordFormUtils.CreateRecordInfoList(parent, record, descs, info_title);
 	}
 
 

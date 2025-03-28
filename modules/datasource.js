@@ -6,7 +6,7 @@ import { Role } from "./datamodels/role.js";
 import { Task } from "./datamodels/task.js";
 import { Team } from "./datamodels/team.js";
 import { Modules } from "./modules.js";
-import { Project } from "./datamodels/project.js";
+import "./datamodels/project_data.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -30,7 +30,7 @@ export class DataSource
 	static Users = new DataSource(TABLENAME_USERS, InternalUser.table_fields);
 	static Tasks = new DataSource(TABLENAME_TASKS, Task.table_fields);
 	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.table_fields);
-	static Projects = new DataSource(TABLENAME_PROJECTS, Project.table_fields);
+	static Projects = new DataSource(TABLENAME_PROJECTS, window.data_models.project_data.table_fields);
 
 	constructor(list_title, fields = DEF_TABLE_FIELDS, site_name = DEF_TABLE_SITE)
 	{

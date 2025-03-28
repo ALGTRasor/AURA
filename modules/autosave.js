@@ -31,7 +31,6 @@ export class Autosave
 
 	static InvokeSoon()
 	{
-		DebugLog.Log('...autosave trigger', false);
 		if (Autosave.invokesoon_tid < 0)
 		{
 			Autosave.invokesoon_tid = window.setTimeout(Autosave.InvokeNow, Autosave.invokesoon_delay);

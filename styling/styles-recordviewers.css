@@ -1,11 +1,15 @@
 .record-viewer-root
 {
 	position: absolute;
-	inset: 0;
+	inset: 0.5rem;
 	display: flex;
 	flex-direction: row;
 
 	overflow: hidden;
+}
+.record-viewer-root > div
+{
+	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.25);
 }
 
 .record-viewer-list-root
@@ -28,13 +32,17 @@
 
 	clip-path: stroke-box;
 
-	outline: solid 2px hsl(from var(--theme-color) h s 30%);
+	outline: solid 2px transparent;
 	outline-offset: -2px;
 
 	margin: 0.5rem;
 	justify-items: center;
 
 	scrollbar-width: 0;
+}
+.page-root:hover .record-viewer-list-root
+{
+	outline: solid 2px hsl(from var(--theme-color) h s 20%);
 }
 
 .record-viewer-list-item
@@ -60,7 +68,7 @@
 	letter-spacing: normal;
 
 	transition-property: padding-left, min-height, background-color, color, text-shadow;
-	transition-delay: 0.05s;
+	transition-delay: 0.01s;
 	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
 }
@@ -104,11 +112,15 @@
 
 	clip-path: stroke-box;
 
-	outline: solid 2px hsl(from var(--theme-color) h s 30%);
+	outline: solid 2px transparent;
 	outline-offset: -2px;
 
 	margin: 0.5rem;
 	justify-items: center;
 
 	scrollbar-width: 0;
+}
+.page-root:hover .record-viewer-view-root
+{
+	outline: solid 2px hsl(from var(--theme-color) h s 20%);
 }

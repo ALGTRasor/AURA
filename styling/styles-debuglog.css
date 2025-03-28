@@ -46,7 +46,7 @@
 
 .debug-log-root:hover
 {
-	box-shadow: inset 2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25), -5px 5px 12px rgba(from var(--shadow-color) r g b / 0.5);
+	box-shadow: inset -2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25);
 	overflow-y: auto;
 	transform: scale(99.9%);
 	max-height: 80vh;

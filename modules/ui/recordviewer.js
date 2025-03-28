@@ -1,5 +1,6 @@
-import { addElement } from "./domutils.js";
-import { Modules } from "./modules.js";
+import { DebugLog } from "../debuglog.js";
+import { addElement } from "../domutils.js";
+import { Modules } from "../modules.js";
 
 export class RecordViewer
 {
@@ -50,12 +51,14 @@ export class RecordViewer
     SelectData(selector = record => { return true; })
     {
         this.selected_record = this.data.find(selector);
+        if (!this.selected_record) DebugLog.Log('record not found...');
         this.RefreshElementVisibility();
     }
 
     SelectRecord(record = {})
     {
         this.selected_record = record;
+        if (!this.selected_record) DebugLog.Log('record not found...');
         this.RefreshElementVisibility();
     }
 
@@ -129,8 +132,9 @@ export class RecordViewer
         let show_list = show_both || this.selected_record === null;
         let show_view = this.selected_record !== null;
 
+        this.e_list_root.style.maxWidth = show_view ? '20rem' : 'unset';
         this.e_list_root.style.display = show_list ? 'flex' : 'none';
-        this.e_list_root.style.maxWidth = show_view ? '24rem' : 'unset';
+
         this.e_view_root.style.display = show_view ? 'flex' : 'none';
     }
 }

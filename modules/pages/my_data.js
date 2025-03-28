@@ -72,10 +72,10 @@ export class PageMyData extends PageBase
 
 	UpdateBlocks()
 	{
-		DebugLog.StartGroup('updating my data blocks');
 		this.UpdateAccountInfoBlock();
+		DebugLog.Log('...updated account info block');
 		this.UpdateUserInfoBlock();
-		DebugLog.SubmitGroup();
+		DebugLog.Log('...updated user info block');
 	}
 
 	OnOpen()

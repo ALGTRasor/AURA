@@ -1,3 +1,4 @@
+import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
@@ -6,12 +7,34 @@ import { PageBase } from "./pages/pagebase.js";
 //const e_actionbar_title_label = document.getElementById('action-bar-title');
 const e_pages_root = document.getElementById('content-pages-root');
 
+const lskey_page_layout = 'pagemanager_layout';
+
 export class PageManager
 {
 	static currentPages = [];
 	static all_pages = [];
 
 	static onLayoutChange = new EventSource();
+
+	static sub_AutosaveOnLayoutChange = PageManager.onLayoutChange.RequestSubscription(Autosave.InvokeSoon);
+
+	static CacheCurrentLayout()
+	{
+		let titles = PageManager.currentPages.map(x => x.title);
+		localStorage.setItem(lskey_page_layout, JSON.stringify({ titles: titles }));
+	}
+
+	static RestoreCachedLayout()
+	{
+		let got_titles = localStorage.getItem(lskey_page_layout);
+		if (got_titles)
+		{
+			let titles = JSON.parse(got_titles).titles;
+			for (let id in titles) PageManager.OpenPageByTitle(titles[id]);
+			return titles.length > 0;
+		}
+		return false;
+	}
 
 	static RegisterPage(page = PageBase.Default())
 	{
@@ -91,3 +114,5 @@ export class PageManager
 }
 
 Modules.Report("Page Manager");
+
+Autosave.HookSaveEvent(PageManager.CacheCurrentLayout);

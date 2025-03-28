@@ -2,7 +2,8 @@ import { ExternalContact } from "../datamodels/external_contact.js";
 import { SharedData } from "../datashared.js";
 import { addElement } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
-import { RecordViewer } from "../recordviewer.js";
+import { RecordFormUtils } from "../ui/recordform.js";
+import { RecordViewer } from "../ui/recordviewer.js";
 import { PageBase } from "./pagebase.js";
 
 export class PageExternalContacts extends PageBase
@@ -23,7 +24,7 @@ export class PageExternalContacts extends PageBase
 		};
 		this.viewer.SetListItemSorter(sort);
 		this.viewer.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].contact_name }); });
-		this.viewer.SetViewBuilder(x => { this.CreateRecordInfoList(this.viewer.e_view_root, x, ExternalContact.field_descs); });
+		this.viewer.SetViewBuilder(x => { RecordFormUtils.CreateRecordInfoList(this.viewer.e_view_root, x, ExternalContact.field_descs); });
 		this.viewer.CreateElements(this.e_content);
 
 		this.FinalizeBody(parent);

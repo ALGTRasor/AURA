@@ -21,10 +21,11 @@ export class PageSettings extends PageBase
 		this.e_options_root = document.createElement('div');
 		this.e_options_root.className = 'settings-options-root';
 
-		this.e_toggle_limitwidth = this.AddToggle('limit width', 'width_wide', 'Toggle limit content width', 'limit-content-width', () => { AppEvents.onToggleLimitWidth.Invoke(); });
+		this.e_toggle_layoutrestore = this.AddToggle('remember layout', 'restore_page', 'Remember page layout', 'pagemanager-restore-layout', () => { });
 		this.e_toggle_lightmode = this.AddToggle('light mode', 'invert_colors', 'Toggle light mode', 'light-mode', () => { AppEvents.onToggleLightMode.Invoke(); });
+		this.e_toggle_limitwidth = this.AddToggle('limit width', 'width_wide', 'Toggle limit content width', 'limit-content-width', () => { AppEvents.onToggleLimitWidth.Invoke(); });
+		this.e_toggle_hidesensitive = this.AddToggle('obscure sensitive info', 'visibility_lock', 'Toggle hiding sensitive info', 'hide-sensitive-info', () => { AppEvents.onToggleHideSensitiveInfo.Invoke(); });
 		this.e_toggle_spotlight = this.AddToggle('spotlight', 'highlight', 'Toggle spotlight', 'spotlight', () => { AppEvents.onToggleSpotlight.Invoke(); });
-		this.e_toggle_hidesensitive = this.AddToggle('hide sensitive info', 'visibility_lock', 'Toggle hiding sensitive info', 'hide-sensitive-info', () => { AppEvents.onToggleHideSensitiveInfo.Invoke(); });
 		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
 
 		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });

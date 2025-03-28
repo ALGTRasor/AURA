@@ -230,19 +230,25 @@
 
 
 
+
+
+
 .menu-root
 {
+	position: absolute;
+	inset: 0;
+
 	display: flex;
 	flex-direction: column;
 
 	padding: 0rem;
-	inset: 3rem 1rem 1rem 1rem;
+	inset: 1rem 1rem 1rem 1rem;
 	border-radius: 1rem;
 
 	overflow: hidden;
 	clip-path: stroke-box;
 
-	background-color: #0002;
+	background-color: hsl(from var(--theme-color) h s 12%);
 
 	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.25);
 }
@@ -263,7 +269,7 @@
 	padding-left: 0.5rem;
 	padding-right: 0.5rem;
 
-	color: var(--theme-color-text-30);
+	color: var(--theme-color-text-40);
 
 	transition-property: background-color, color, padding, text-shadow;
 	transition-duration: var(--trans-dur-off-fast);
@@ -276,11 +282,15 @@
 	padding-right: calc(0.5rem - 4px);
 
 	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
-	color: var(--theme-color-text-80);
-	background-color: var(--theme-color-30);
+	color: var(--theme-color-text);
+	background-color: hsl(from var(--theme-color) h s 20%);
 
 	transition-duration: 0s;
 }
+
+
+
+
 
 
 .info-row
@@ -355,8 +365,9 @@
 	position: absolute;
 
 	left: 8.5rem;
-	width: calc(100% - 8.5rem);
+	width: auto;
 	top: 0;
+	height: 100%;
 	padding-left: 0.25rem;
 	padding-right: 0.25rem;
 	text-align: left;
@@ -512,8 +523,9 @@
 	position: absolute;
 	left: 0.66rem;
 	right: 0.66rem;
-	bottom: 0px;
+	bottom: 0.5rem;
 
+	line-height: 1rem;
 	text-wrap: pretty;
 	align-content: center;
 	text-align: center;
