@@ -29,7 +29,6 @@ export class PageSettings extends PageBase
 		this.e_toggle_spotlight = this.AddToggle('spotlight', 'highlight', 'Toggle spotlight', 'spotlight', () => { AppEvents.onToggleSpotlight.Invoke(); });
 		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
 
-		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
 		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
 
@@ -38,6 +37,7 @@ export class PageSettings extends PageBase
 			let hue = UserSettings.GetOptionValue('theme-hue');
 			let sat = UserSettings.GetOptionValue('theme-saturation');
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+			else if ((hue > 0.55 && hue < 0.75) && sat > 0.75) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
 			else this.e_theme_color_warning.innerText = '';
 		};
 
@@ -68,6 +68,8 @@ export class PageSettings extends PageBase
 			data => updateSatSlider(data, true)
 		);
 		this.e_options_root.appendChild(this.e_theme_color_warning);
+
+		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
 		this.e_content.appendChild(this.e_options_root);
 
@@ -144,9 +146,16 @@ export class PageSettings extends PageBase
 			);
 		}
 
-		const handleMouse = e =>
+		let last_value_update_ts = new Date();
+		const handleMouse = (e, force = false) =>
 		{
 			if (!isclicking) return;
+
+			let now = new Date();
+			let value_update_delta = now - last_value_update_ts;
+			if (!force && value_update_delta < 70) return;
+
+			last_value_update_ts = now;
 
 			let slider_rect = e_slider.getBoundingClientRect();
 			let click_phase = (e.pageX - slider_rect.x) / slider_rect.width;
@@ -190,6 +199,7 @@ export class PageSettings extends PageBase
 				const fn_MouseMove = e => { handleMouse(e); };
 				const fn_MouseUp = e =>
 				{
+					handleMouse(e, true);
 					isclicking = false;
 					window.removeEventListener('mouseup', fn_MouseUp);
 					window.removeEventListener('mousemove', fn_MouseMove);

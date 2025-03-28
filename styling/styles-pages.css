@@ -532,7 +532,7 @@
 	font-variant: small-caps;
 	font-size: 120%;
 
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 65%);
 
 	transition-property: bottom;
 	transition-duration: var(--trans-dur-off-slow);
@@ -541,7 +541,8 @@
 
 .setting-root:hover > span
 {
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 75%);
+
 	bottom: 4px;
 	text-shadow: 0px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	transition-duration: var(--trans-dur-on-slow);
@@ -567,18 +568,18 @@
 
 .setting-root-on > span
 {
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 85%);
 }
 
 .setting-root-on > i
 {
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 95%);
 	text-shadow: 0px 0px 6px var(--theme-color);
 }
 
 .setting-root-on:hover > span
 {
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 95%);
 }
 
 
@@ -606,10 +607,17 @@
 	min-height: 3.5rem;
 
 	clip-path: stroke-box;
+	background-color: transparent;
+}
+.setting-root-slider:hover
+{
+	background-color: hsl(from var(--theme-color) h s 20%);
 }
 
 .setting-slider-fill
 {
+	z-index: -10;
+
 	pointer-events: none;
 	position: absolute;
 	top: 0;
@@ -622,7 +630,10 @@
 
 	max-width: 100%;
 
-	background-color: rgba(from var(--theme-color) r g b / 0.15);
+	background-color: hsl(from var(--theme-color) h s 25%);
+
+	transition-property: width;
+	transition-duration: var(--trans-dur-off-fast);
 }
 
 .setting-root-slider:active
@@ -632,7 +643,7 @@
 
 .setting-root-slider:hover > .setting-slider-fill
 {
-	background-color: rgba(from var(--theme-color) r g b / 0.2);
+	background-color: hsl(from var(--theme-color) h s 30%);
 }
 
 
