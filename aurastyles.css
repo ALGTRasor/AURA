@@ -45,6 +45,15 @@
 }
 
 
+.notransitions
+{
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-o-transition: none !important;
+	transition: none !important;
+}
+
+
 html
 {
 	opacity: 100%;

@@ -4,6 +4,7 @@ import { InternalUser } from "../datamodels/internal_user.js";
 import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
 import { PageManager } from "../pagemanager.js";
+import { RecordFormUtils } from "../ui/recordform.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { PageBase } from "./pagebase.js";
 
@@ -43,7 +44,7 @@ export class PageMyData extends PageBase
 	UpdateAccountInfoBlock()
 	{
 		this.e_account_info.innerHTML = `<div style='text-align:center;opacity:60%;'>Account Info</div>`;
-		this.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info, AccountUser.field_descs);
+		RecordFormUtils.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info, AccountUser.field_descs);
 	}
 
 	CreateUserInfoBlock()
@@ -61,7 +62,7 @@ export class PageMyData extends PageBase
 		if (UserAccountInfo.user_info)
 		{
 			this.e_user_info.innerHTML = `<div style='text-align:center;opacity:60%;'>User Info</div>`;
-			this.CreateRecordInfoList(this.e_user_info, UserAccountInfo.user_info, InternalUser.field_descs);
+			RecordFormUtils.CreateRecordInfoList(this.e_user_info, UserAccountInfo.user_info, InternalUser.field_descs);
 		}
 		else
 		{

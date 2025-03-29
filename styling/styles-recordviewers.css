@@ -50,11 +50,15 @@
 
 .record-viewer-list-filters
 {
-	background: red;
 	min-height: 3rem;
 	border-radius: 0.5rem;
 	min-width: 0;
+	background: hsl(from var(--theme-color) h s 14%);
+	outline: solid 2px hsl(from var(--theme-color) h s 10%);
+	margin-bottom: 0.5rem;
 }
+
+
 
 .record-viewer-list-items
 {
@@ -72,10 +76,7 @@
 	padding: 0.5rem;
 	border-radius: 0.5rem;
 
-	clip-path: stroke-box;
-
-	outline: solid 2px transparent;
-	outline-offset: -2px;
+	outline: solid 2px hsl(from var(--theme-color) h s 10%);
 
 	justify-items: center;
 }
@@ -295,7 +296,7 @@
 	flex-shrink: 0.0;
 
 	width: 8rem;
-	height: 100%;
+	height: auto;
 
 	padding-left: 0.25rem;
 	padding-right: 0.25rem;

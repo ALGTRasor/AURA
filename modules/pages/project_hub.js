@@ -15,6 +15,7 @@ export class PageProjectHub extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
+		this.e_body.style.minWidth = '32rem';
 
 		this.viewer = new RecordViewer();
 		this.viewer.SetData(SharedData.projects.data);

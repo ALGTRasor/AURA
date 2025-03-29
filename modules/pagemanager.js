@@ -108,13 +108,19 @@ export class PageManager
 
 	static RemoveFromCurrent(page = PageBase.Default, layoutEventDelay = 0)
 	{
-		let i = PageManager.currentPages.indexOf(page);
-		if (i < 0) return;
-		PageManager.currentPages.splice(i, 1);
-		if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('nav menu'); }, 420);
+		let do_remove = () =>
+		{
+			let i = PageManager.currentPages.indexOf(page);
+			if (i < 0) return;
 
-		if (layoutEventDelay <= 0) PageManager.onLayoutChange.Invoke();
-		else window.setTimeout(() => PageManager.onLayoutChange.Invoke(), layoutEventDelay);
+			PageManager.currentPages.splice(i, 1);
+			if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('nav menu'); }, 250);
+			else PageManager.onLayoutChange.Invoke();
+		};
+
+
+		if (layoutEventDelay < 1) do_remove();
+		else window.setTimeout(do_remove, layoutEventDelay);
 	}
 }
 

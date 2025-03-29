@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
@@ -36,9 +36,6 @@ export class PageBase
 	{
 		this.e_body = document.createElement('div');
 		this.e_body.className = 'page-root';
-		this.e_body.style.opacity = 0.0;
-		this.e_body.style.scale = 0.7;
-		window.setTimeout(() => { this.e_body.style.opacity = 0.85; this.e_body.style.scale = 1.0; }, 5);
 
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';
@@ -90,8 +87,14 @@ export class PageBase
 	{
 		if (this.e_body.previousSibling)
 		{
-			this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
-			PageManager.onLayoutChange.Invoke();
+			fadeTransformElement(
+				this.e_body.parentElement,
+				() =>
+				{
+					this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+					PageManager.onLayoutChange.Invoke();
+				}
+			);
 		}
 	}
 
@@ -99,8 +102,14 @@ export class PageBase
 	{
 		if (this.e_body.nextSibling)
 		{
-			this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
-			PageManager.onLayoutChange.Invoke();
+			fadeTransformElement(
+				this.e_body.parentElement,
+				() =>
+				{
+					this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+					PageManager.onLayoutChange.Invoke();
+				}
+			);
 		}
 	}
 
@@ -108,26 +117,30 @@ export class PageBase
 	{
 		this.OnClose();
 
-		this.e_body.style.pointerEvents = 'none';
-		this.e_body.style.transitionDelay = '0s';
-		this.e_body.style.opacity = 0.0;
-		this.e_body.style.scale = 0.7;
-
-		let finalize = () =>
+		if (immediate)
 		{
 			PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
-			PageManager.RemoveFromCurrent(this, 30);
+			PageManager.RemoveFromCurrent(this, 20);
 			this.e_body.remove();
-		};
-
-		if (immediate) finalize();
-		else window.setTimeout(() => { finalize(); }, 250);
+		}
+		else
+		{
+			fadeRemoveElement(
+				this.e_body,
+				() =>
+				{
+					PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
+					PageManager.RemoveFromCurrent(this, 20);
+				}
+			);
+		}
 	}
 
 	FinalizeBody(parent)
 	{
 		if (!parent) return;
-		parent.appendChild(this.e_body);
+
+		fadeAppendChild(parent, this.e_body);
 
 		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
 		this.OnOpen();
@@ -158,15 +171,6 @@ export class PageBase
 
 		this.OnLayoutChange();
 	}
-
-
-
-	CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'primary info')
-	{
-		return RecordFormUtils.CreateRecordInfoList(parent, record, descs, info_title);
-	}
-
-
 
 
 

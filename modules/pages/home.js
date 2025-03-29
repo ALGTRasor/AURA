@@ -16,7 +16,8 @@ export class PageHome extends PageBase
 		this.CreateBody();
 
 		this.e_body.style.minWidth = '260px';
-		this.e_body.style.maxWidth = '400px';
+		//this.e_body.style.maxWidth = '400px';
+		this.e_body.style.flexGrow = '0.25';
 
 		//this.e_content.className = 'page-content-root menu-root';
 

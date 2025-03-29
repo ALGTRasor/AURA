@@ -164,7 +164,15 @@ export class UserSettings
 	static UpdateAnimSpeed()
 	{
 		let anim_speed = UserSettings.GetOptionValue('anim-speed');
-		document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * (1.0 - anim_speed));
+		if (anim_speed >= 1.0)
+		{
+			document.body.classList.add('notransitions');
+		}
+		else
+		{
+			document.body.classList.remove('notransitions');
+			document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * (1.0 - anim_speed));
+		}
 	}
 
 	static UpdateThemeColor()

@@ -17,7 +17,8 @@ export class PageSettings extends PageBase
 		this.CreateBody();
 
 		this.e_body.style.minWidth = '420px';
-		this.e_body.style.maxWidth = '540px';
+		this.e_body.style.maxWidth = '48rem';
+		this.e_body.style.flexGrow = '0.25';
 
 		this.e_options_root = document.createElement('div');
 		this.e_options_root.className = 'settings-options-root';
