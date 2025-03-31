@@ -1,12 +1,12 @@
 .record-viewer-root
 {
-	position: absolute;
 	inset: 0.5rem;
 	display: flex;
 	flex-direction: row;
 
 	overflow: hidden;
 }
+
 .record-viewer-root > div
 {
 	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.25);
@@ -40,6 +40,7 @@
 	justify-items: center;
 
 }
+
 .page-root:hover .record-viewer-list-root
 {
 	outline: solid 2px hsl(from var(--theme-color) h s 20%);
@@ -136,6 +137,7 @@
 	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .record-viewer-list-item:hover
 {
 	min-height: 3rem;
@@ -146,6 +148,7 @@
 
 	text-shadow: -3px 3px 2px rgba(from var(--shadow-color) r g b / 0.2);
 }
+
 .record-viewer-list-item:active
 {
 	padding-left: 0.666rem;
@@ -164,6 +167,7 @@
 {
 	background-color: hsl(from var(--theme-color) h s 40%);
 }
+
 .record-viewer-list-item:active.selected
 {
 	background-color: hsl(from var(--theme-color) h s 36%);
@@ -202,6 +206,7 @@
 
 	scrollbar-width: 0;
 }
+
 .page-root:hover .record-viewer-view-root
 {
 	outline: solid 2px hsl(from var(--theme-color) h s 20%);
@@ -226,6 +231,7 @@
 
 	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 15%);
 }
+
 .record-viewer-view-block:hover
 {
 	box-shadow: -2px 2px 4px rgba(from var(--shadow-color) r g b / 50%);
@@ -242,6 +248,7 @@
 	color: hsl(from var(--theme-color) h s 50%);
 	text-shadow: -2px 2px 2px rgba(from var(--shadow-color) r g b / 0.3);
 }
+
 .record-viewer-view-block:hover > span
 {
 	color: hsl(from var(--theme-color) h s 70%);
@@ -326,7 +333,7 @@
 	padding: 0 0 0 0.5rem;
 
 	text-align: left;
-	color: var(--theme-color-text);
+	color: var(--theme-color-text-60);
 
 	font-size: 100%;
 	align-content: start;
@@ -335,9 +342,10 @@
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
 }
+
 .info-row:hover .info-value
 {
-	padding-left: 1rem;
+	color: var(--theme-color-text);
 }
 
 .info-value a
@@ -346,6 +354,7 @@
 	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
 	border-radius: 0.5rem;
 }
+
 .info-value a:hover
 {
 	color: hsl(from var(--theme-color) h s 80%);

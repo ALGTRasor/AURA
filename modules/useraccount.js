@@ -365,6 +365,8 @@ export class UserAccountInfo
 	static user_info = {}; // internal user / employee info
 	static user_permissions = []; // internal user aura permissions
 
+	static hr_info = {}; // internal user hr data
+
 	static UpdateUserInfo()
 	{
 		if (!SharedData.users || SharedData.users.length < 1)
@@ -389,6 +391,9 @@ export class UserAccountInfo
 		{
 			DebugLog.Log('no internal user data match', "#f00");
 		}
+
+		UserAccountInfo.hr_info.requests = SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
+		DebugLog.Log("Collected " + UserAccountInfo.hr_info.requests.length + " hr requests");
 	}
 }
 

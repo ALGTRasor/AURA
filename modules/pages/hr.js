@@ -1,4 +1,9 @@
+import { HrRequest } from "../datamodels/hr_request.js";
+import { SharedData } from "../datashared.js";
+import { addElement } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
+import { RecordFormUtils } from "../ui/recordform.js";
+import { RecordViewer } from "../ui/recordviewer.js";
 import { PageBase } from "./pagebase.js";
 
 export class PageHR extends PageBase
@@ -8,8 +13,42 @@ export class PageHR extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.SetContentBodyLabel('hr will be here');
+		this.e_body.style.minWidth = '32rem';
+		this.CreateHrRequestBlock();
 		this.FinalizeBody(parent);
+	}
+
+	BuildRecordView_HrReqs(records = [])
+	{
+		if (!records || records.length < 1) return;
+
+		for (let id in records)
+		{
+			let record = records[id];
+			let e_info_root = addElement(this.viewer_hr_requests.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.request_name; }) });
+			RecordFormUtils.CreateRecordInfoList(e_info_root, record, HrRequest.data_model.field_descs, null, records.length < 2);
+		}
+	}
+
+	CreateHrRequestBlock()
+	{
+		this.viewer_hr_requests = new RecordViewer();
+		const sort = (x, y) =>
+		{
+			if (x.request_name < y.request_name) return -1;
+			if (x.request_name > y.request_name) return 1;
+			return 0;
+		};
+		this.viewer_hr_requests.SetListItemSorter(sort);
+		this.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
+		this.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(records));
+		this.viewer_hr_requests.SetData(SharedData.hrRequests.data);
+		this.viewer_hr_requests.CreateElements(this.e_content);
+	}
+
+	OnLayoutChange()
+	{
+		this.viewer_hr_requests.RefreshElementVisibility();
 	}
 }
 

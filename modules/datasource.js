@@ -7,8 +7,8 @@ import { Team } from "./datamodels/team.js";
 import { Modules } from "./modules.js";
 
 import { TaskData } from "./datamodels/task_data.js";
-import { ProjectData } from "./datamodels/project_data.js";
 import { ProjectCoreData } from "./datamodels/project_data_core.js";
+import { HrRequest } from "./datamodels/hr_request.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -19,6 +19,7 @@ const TABLENAME_USERS = 'ALGUsers';
 const TABLENAME_TASKS = 'ALGTasks';
 const TABLENAME_CONTACTS = 'ALGContacts';
 const TABLENAME_PROJECTS = 'ALGProjects';
+const TABLENAME_HR_REQUESTS = 'ALGHRRequests';
 
 const DEF_TABLE_FIELDS = ['id', 'Title'];
 
@@ -33,6 +34,7 @@ export class DataSource
 	static Tasks = new DataSource(TABLENAME_TASKS, TaskData.data_model.fields);
 	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.table_fields);
 	static Projects = new DataSource(TABLENAME_PROJECTS, ProjectCoreData.data_model.fields);
+	static HrRequests = new DataSource(TABLENAME_HR_REQUESTS, HrRequest.data_model.fields);
 
 	constructor(list_title, fields = DEF_TABLE_FIELDS, site_name = DEF_TABLE_SITE)
 	{
