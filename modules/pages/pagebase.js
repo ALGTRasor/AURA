@@ -172,6 +172,14 @@ export class PageBase
 		this.OnLayoutChange();
 	}
 
+	CreatePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
+	{
+		let classes = 'page-panel';
+		if (inset) classes += ' inset-box';
+		if (tiles) classes += ' page-panel-tiles';
+		return addElement(parent, 'div', classes, styling, prep);
+	}
+
 
 
 	OnOpen() { }

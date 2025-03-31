@@ -40,19 +40,103 @@
 	background-color: hsl(from var(--theme-color) h s 14%);
 
 	transition-property: background-color, box-shadow, opacity, outline-color, scale;
-	transition-duration: var(--trans-dur-off-fast);
+	transition-duration: var(--trans-dur-on-fast);
 	transition-timing-function: ease-in-out;
 }
 
 .page-root:hover
 {
-	outline-color: hsl(from var(--theme-color) h s 20%);
+	outline-color: hsl(from var(--theme-color) h s 25%);
 	opacity: 100%;
 
 	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 15%);
-	transition-delay: 0s;
 }
+
+
+.page-panel
+{
+	position: relative;
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+	flex-basis: 0.0;
+
+	overflow: hidden auto;
+
+	min-width: 1rem;
+	min-height: 1rem;
+	margin: 0.25rem;
+	padding: 1rem;
+
+	color: var(--theme-color-text-40);
+	letter-spacing: 0px;
+	font-size: 95%;
+	user-select: none;
+
+	background-color: hsl(from var(--theme-color) h s 14%);
+	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 0.4);
+
+	border-radius: 0.5rem;
+	outline: solid 2px transparent;
+	outline-offset: -2px;
+
+	transition-property: outline, background-color;
+	transition-duration: var(--trans-dur-on-slow);
+	transition-timing-function: ease-in-out;
+}
+
+.page-panel:hover
+{
+	color: var(--theme-color);
+	background-color: hsl(from var(--theme-color) h s 20%);
+	transition-duration: var(--trans-dur-on-fast);
+}
+
+.page-root:hover .page-panel
+{
+	outline-color: hsl(from var(--theme-color) h s 18%);
+}
+
+.page-root:hover .page-panel:hover
+{
+	outline-color: hsl(from var(--theme-color) h s 30%);
+}
+
+
+.page-panel.inset-box
+{
+	background-color: hsl(from var(--theme-color) h s 12%);
+	box-shadow: inset -2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25);
+	clip-path: stroke-box;
+}
+
+.page-panel.inset-box:hover
+{
+	background-color: hsl(from var(--theme-color) h s 10%);
+}
+
+.page-panel-tiles
+{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	flex-basis: 0.0;
+}
+
+.page-panel .page-panel-tiles > .page-panel
+{
+	display: inline-block;
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+	flex-basis: 0.0;
+	min-width: min(75%, 10rem);
+	margin: 0.125rem;
+	border-radius: 0.25rem;
+}
+
+.page-panel .page-panel-tiles > .page-panel:hover
+{}
+
 
 
 
