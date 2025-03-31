@@ -22,6 +22,7 @@
 
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
+	flex-basis: 0;
 
 	opacity: 100%;
 	scale: 100%;
@@ -474,6 +475,7 @@
 	clip-path: stroke-box;
 	background-color: transparent;
 }
+
 .setting-root-slider:hover
 {
 	background-color: hsl(from var(--theme-color) h s 20%);

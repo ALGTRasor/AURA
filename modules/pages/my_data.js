@@ -45,6 +45,7 @@ export class PageMyData extends PageBase
 	{
 		this.e_account_info = document.createElement('div');
 		this.e_account_info.className = 'page-content-root-block';
+		this.e_account_info.style.minHeight = '20rem';
 		this.e_account_info.style.minWidth = '42rem';
 		this.UpdateAccountInfoBlock();
 		this.e_content.appendChild(this.e_account_info);
@@ -59,6 +60,7 @@ export class PageMyData extends PageBase
 	{
 		this.e_user_info = document.createElement('div');
 		this.e_user_info.className = 'page-content-root-block';
+		this.e_user_info.style.minHeight = '20rem';
 		this.e_user_info.style.minWidth = '42rem';
 
 		this.UpdateUserInfoBlock();
@@ -83,6 +85,7 @@ export class PageMyData extends PageBase
 	{
 		this.e_hr = document.createElement('div');
 		this.e_hr.className = 'page-content-root-block';
+		this.e_hr.style.minHeight = '20rem';
 		this.e_hr.style.minWidth = '42rem';
 
 		this.viewer_hr_requests.CreateElements(this.e_hr);
