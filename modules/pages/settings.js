@@ -22,7 +22,7 @@ export class PageSettings extends PageBase
 		this.e_body.style.flexGrow = '0.25';
 
 		this.e_options_root = CreatePagePanel(
-			this.e_content, true, true, 'flex-basis:100%;min-height:1.5rem;overflow:hidden;align-content:flex-start;',
+			this.e_content, true, true, 'flex-basis:100%;min-height:1.5rem;align-content:flex-start;',
 			x =>
 			{
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'SETTINGS'; });
@@ -82,7 +82,7 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-basis:100%;max-height:1.5rem;min-height:1.5rem;overflow:hidden;',
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;',
 			x =>
 			{
 				x.className += ' expanding-panel';
