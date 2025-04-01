@@ -477,8 +477,8 @@
 	flex-grow: 1.0;
 	flex-shrink: 0.0;
 
-	min-width: 7rem;
-	min-height: 7rem;
+	min-width: 8rem;
+	min-height: 8rem;
 	margin: 0.25rem;
 
 	background-color: transparent;
@@ -488,7 +488,7 @@
 	font-size: 90%;
 	font-variant: small-caps;
 	outline: solid 2px rgba(from var(--theme-color) r g b / 0.1);
-	outline-offset: -4px;
+	outline-offset: -2px;
 
 	opacity: 90%;
 
@@ -564,7 +564,7 @@
 .setting-root-on
 {
 	background-color: hsl(from var(--theme-color) h s 30%);
-	border: solid 2px hsl(from var(--theme-color) h s 40%);
+	outline: solid 2px hsl(from var(--theme-color) h s 40%);
 }
 
 .setting-root-on:hover

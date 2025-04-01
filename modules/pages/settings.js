@@ -22,7 +22,7 @@ export class PageSettings extends PageBase
 		this.e_body.style.flexGrow = '0.25';
 
 		this.e_options_root = CreatePagePanel(
-			this.e_content, true, true, 'flex-basis:100%;min-height:1.5rem;align-content:flex-start;',
+			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
 			x =>
 			{
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'SETTINGS'; });
@@ -82,7 +82,7 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;',
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.className += ' expanding-panel';
@@ -99,6 +99,20 @@ export class PageSettings extends PageBase
 						}
 					);
 				}
+			}
+		);
+
+
+		CreatePagePanel(
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			x =>
+			{
+				x.className += ' expanding-panel';
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'ABOUT AURA'; });
+				const addAbout = (text = '') => CreatePagePanel(x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;', _ => { _.innerText = text; });
+				addAbout('AURA stands for Arrow User & Resource Assistant.');
+				addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
+				addAbout('AURA uses a Microsoft login, but is built to accomodate database backends other than just SharePoint.');
 			}
 		);
 
