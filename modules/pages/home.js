@@ -46,8 +46,9 @@ export class PageHome extends PageBase
 			ButtonOptions('my data'),
 			ButtonOptions('hr'),
 			ButtonOptions('settings'),
-			ButtonOptions('app events'),
+			ButtonOptions('external links'),
 			ButtonOptions('database probe'),
+			ButtonOptions('app events'),
 		];
 		this.menu.CreateElements(this.e_content, buttons);
 

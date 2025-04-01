@@ -27,6 +27,7 @@ import './modules/pages/timekeep.js';
 import './modules/pages/my_data.js';
 import './modules/pages/hr.js';
 import './modules/pages/database_probe.js';
+import './modules/pages/external_links.js';
 
 
 
