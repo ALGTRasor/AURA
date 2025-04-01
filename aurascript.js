@@ -28,6 +28,7 @@ import './modules/pages/my_data.js';
 import './modules/pages/hr.js';
 import './modules/pages/database_probe.js';
 import './modules/pages/external_links.js';
+import './modules/pages/demo_panel.js';
 
 
 
@@ -45,6 +46,7 @@ async function OnAuraInit()
 	UserSettings.HookOptionEvents();
 
 	UserSettings.LoadFromStorage();
+
 	await UserAccountManager.CheckWindowLocationForCodes();
 
 	window.e_content_root = document.getElementById('content-body');
@@ -91,6 +93,7 @@ function CheckHotkey(e)
 	else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
 	else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
 	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
+	else if (e.key === '`') window.fxn.ToggleLightMode();
 }
 
 

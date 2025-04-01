@@ -56,29 +56,30 @@
 
 html
 {
-	opacity: 100%;
-
-	background: var(--theme-color-background);
-	color: var(--theme-color-text);
 	position: absolute;
 	inset: 0;
 
-	font-family: AtkinsonHyperlegible;
-	font-size: var(--font-size);
-
-	letter-spacing: calc(0.15 * var(--font-size));
 	overflow: hidden;
+
+	background: var(--theme-color-background);
+	color: var(--theme-color-text);
 }
 
 body
 {
+	opacity: 100%;
+
 	position: absolute;
 	inset: 0;
 	margin: 0.5rem;
-	border-radius: 0.5rem;
 
 	overflow: hidden;
-	clip-path: fill-box;
+	clip-path: padding-box;
+	border-radius: 0.5rem;
+
+	font-family: AtkinsonHyperlegible;
+	font-size: var(--font-size);
+	letter-spacing: calc(0.15 * var(--font-size));
 }
 
 .content-root

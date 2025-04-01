@@ -280,7 +280,7 @@ export class MSAccountProvider extends UserAccountProvider
 		try
 		{
 			var resp = await fetch(
-				"https://graph.microsoft.com/v1.0/me/photos/432x432/$value",
+				"https://graph.microsoft.com/v1.0/me/photos/240x240/$value",
 				{
 					method: 'get',
 					headers: { 'Authorization': 'Bearer ' + this.access_token }

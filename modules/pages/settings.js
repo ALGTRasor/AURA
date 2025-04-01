@@ -1,6 +1,7 @@
 import { AppEvents } from "../appevents.js";
 import { Autosave } from "../autosave.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
+import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
@@ -71,6 +72,20 @@ export class PageSettings extends PageBase
 		this.e_options_root.appendChild(this.e_theme_color_warning);
 
 		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
+
+		CreatePagePanel(
+			this.e_options_root, true, true, 'flex-basis:100%;max-height:1.5rem;min-height:1.5rem;overflow:hidden;',
+			x =>
+			{
+				x.className += ' expanding-panel';
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'LOADED MODULES'; });
+				for (let report_id in Modules.reported)
+				{
+					let module_name = Modules.reported[report_id];
+					CreatePagePanel(x, false, false, 'text-align:center;margin:2px;font-size:0.8rem;', _ => { _.innerText = module_name; });
+				}
+			}
+		);
 
 		this.e_content.appendChild(this.e_options_root);
 

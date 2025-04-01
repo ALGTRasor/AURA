@@ -21,7 +21,6 @@ export class PageBase
 		let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
 		let space0 = str_const.indexOf(' ', 0);
 		let space1 = str_const.indexOf(' ', space0 + 1);
-		DebugLog.Log('created new page: ' + str_const.substring(space0, space1));
 	}
 
 	GetTitle() { return '' }

@@ -13,6 +13,8 @@
 	transition-property: opacity, filter;
 	transition-duration: 120ms;
 	transition-timing-function: ease-in;
+
+	scrollbar-color: hsl(from var(--theme-color) h s 30%) hsl(from var(--theme-color) h s 8%);
 }
 
 .page-root
@@ -162,6 +164,36 @@
 {
 	scale: 100%;
 	background-color: hsl(from var(--theme-color) h s 16%);
+}
+
+.page-panel.expanding-panel::after
+{
+	content: '▶';
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 2rem;
+	height: 2rem;
+	text-align: center;
+	align-content: center;
+	color: var(--theme-text-color);
+	rotate: 270deg;
+	opacity: 50%;
+}
+.page-panel.expanding-panel:hover::after
+{
+	opacity: 100%;
+	rotate: 90deg;
+}
+.page-panel.expanding-panel
+{
+	transition-property: max-height;
+	transition-duration: var(--trans-dur-off-veryslow);
+	transition-timing-function: ease-in-out;
+}
+.page-panel.expanding-panel:hover
+{
+	max-height: 100vh !important;
 }
 
 

@@ -54,4 +54,4 @@ export class QuickMenu
     }
 }
 
-Modules.Report('Record Forms');
+Modules.Report('Quick Menus');

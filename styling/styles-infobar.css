@@ -2,11 +2,17 @@
 {
 	z-index: 10000010;
 
+	display: flex;
+	flex-direction: row;
+
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	height: var(--info-bar-height);
+
+	padding-left: 1rem;
+	padding-right: 1rem;
 
 	font-size: 90%;
 	font-weight: bold;
@@ -18,23 +24,33 @@
 
 .info-bar-marquee
 {
-	top: 0;
 	height: 100%;
+
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+
 	align-content: center;
 	font-size: 90%;
 
+	text-align: left;
+	text-wrap: nowrap;
+
 	user-select: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .info-bar-marquee > div
 {
 	display: inline;
-	position: absolute;
 
 	cursor: pointer;
 	pointer-events: none;
 
 	inset: 0;
+
+
+	background-color: #0002;
 
 	padding-top: 0.3rem;
 	padding-bottom: 0.3rem;
@@ -42,7 +58,7 @@
 	padding-right: 0.5rem;
 	border-radius: 0.25rem;
 
-	color: hsl(from var(--theme-color) h 50% 60%);
+	color: hsl(from var(--theme-color) h s 70%);
 
 	font-size: 90%;
 	font-weight: normal;
@@ -57,11 +73,13 @@
 
 .info-bar-lastsaved
 {
-	position: absolute;
-	right: 1rem;
-	text-align: right;
-	align-content: center;
 	height: 100%;
+	width: fit-content;
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
+
+	align-content: center;
+	text-align: right;
 	font-size: 80%;
 	font-weight: normal;
 	letter-spacing: normal;
