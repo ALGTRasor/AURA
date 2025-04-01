@@ -17,6 +17,7 @@
 	scrollbar-color: hsl(from var(--theme-color) h s 30%) hsl(from var(--theme-color) h s 8%);
 }
 
+
 .page-root
 {
 	position: relative;
@@ -476,17 +477,18 @@
 	flex-grow: 1.0;
 	flex-shrink: 0.0;
 
-	min-width: 8rem;
-	min-height: 8rem;
-	margin: 0.333rem;
+	min-width: 6rem;
+	min-height: 6rem;
+	margin: 0.25rem;
 
 	background-color: transparent;
-	border-radius: 0.5rem;
+	border-radius: 0.75rem;
 	text-align: center;
 	align-content: center;
 	font-size: 90%;
 	font-variant: small-caps;
-	border: solid 2px rgba(from var(--theme-color) r g b / 0.1);
+	outline: solid 2px rgba(from var(--theme-color) r g b / 0.1);
+	outline-offset: -4px;
 
 	opacity: 90%;
 
@@ -612,10 +614,10 @@
 
 .setting-root-slider
 {
-	min-width: 70%;
-	min-height: 3.5rem;
+	flex-basis: 90%;
+	min-height: 4rem;
 
-	clip-path: stroke-box;
+	clip-path: padding-box;
 	background-color: transparent;
 }
 
@@ -641,9 +643,6 @@
 	max-width: 100%;
 
 	background-color: hsl(from var(--theme-color) h s 25%);
-
-	transition-property: width;
-	transition-duration: var(--trans-dur-off-fast);
 }
 
 .setting-root-slider:active

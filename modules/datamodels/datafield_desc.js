@@ -24,4 +24,4 @@ export class DataFieldDesc
     }
 }
 
-Modules.Report('DataField Descriptors');
+Modules.Report('DataField Descriptors', 'This module adds a reusable code component that describes one field from a database table.');

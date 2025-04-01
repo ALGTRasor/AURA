@@ -17,11 +17,17 @@ export class PageSettings extends PageBase
 
 		this.CreateBody();
 
-		this.e_body.style.minWidth = '24rem';
+		this.e_body.style.minWidth = '16rem';
+		this.e_body.style.flexBasis = '12rem';
 		this.e_body.style.flexGrow = '0.25';
 
-		this.e_options_root = document.createElement('div');
-		this.e_options_root.className = 'settings-options-root';
+		this.e_options_root = CreatePagePanel(
+			this.e_content, true, true, 'flex-basis:100%;min-height:1.5rem;overflow:hidden;align-content:flex-start;',
+			x =>
+			{
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'SETTINGS'; });
+			}
+		);
 
 		this.e_toggle_layoutrestore = this.AddToggle('remember layout', 'restore_page', 'Remember page layout', 'pagemanager-restore-layout', () => { });
 		this.e_toggle_lightmode = this.AddToggle('light mode', 'invert_colors', 'Toggle light mode', 'light-mode', () => { AppEvents.onToggleLightMode.Invoke(); });
@@ -73,21 +79,29 @@ export class PageSettings extends PageBase
 
 		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
+
+
 		CreatePagePanel(
-			this.e_options_root, true, true, 'flex-basis:100%;max-height:1.5rem;min-height:1.5rem;overflow:hidden;',
+			this.e_content, true, true, 'flex-basis:100%;max-height:1.5rem;min-height:1.5rem;overflow:hidden;',
 			x =>
 			{
 				x.className += ' expanding-panel';
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'LOADED MODULES'; });
 				for (let report_id in Modules.reported)
 				{
-					let module_name = Modules.reported[report_id];
-					CreatePagePanel(x, false, false, 'text-align:center;margin:2px;font-size:0.8rem;', _ => { _.innerText = module_name; });
+					let module_info = Modules.reported[report_id];
+					CreatePagePanel(
+						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
+						_ =>
+						{
+							_.innerText = module_info.name;
+							_.title = module_info.desc;
+						}
+					);
 				}
 			}
 		);
 
-		this.e_content.appendChild(this.e_options_root);
 
 		this.FinalizeBody(parent);
 	}

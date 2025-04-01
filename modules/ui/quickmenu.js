@@ -54,4 +54,4 @@ export class QuickMenu
     }
 }
 
-Modules.Report('Quick Menus');
+Modules.Report('Quick Menus', 'This module adds a reusable quick menu component, for example on the nav menu page.');

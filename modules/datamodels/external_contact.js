@@ -1,4 +1,3 @@
-import { Modules } from "../modules.js";
 import { DataFieldDesc } from "./datafield_desc.js";
 
 export class ExternalContact
@@ -23,5 +22,3 @@ export class ExternalContact
 			'contact_notes': new DataFieldDesc('contact_notes', 'notes', false, false, null, true),
 		};
 }
-
-Modules.Report("External Contacts");

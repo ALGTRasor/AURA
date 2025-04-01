@@ -65,4 +65,4 @@ export class EventSource
 	}
 }
 
-Modules.Report("Event Sources");
+Modules.Report('Event Sources', 'This module adds a reusable code component for connecting app functionality via invoked event emitters.');

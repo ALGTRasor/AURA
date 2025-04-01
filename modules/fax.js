@@ -48,6 +48,6 @@ export class Fax
 	}
 }
 
-Modules.Report("Fax");
+Modules.Report('Fax', 'This module adds some fun(ish) facts to the info bar. Maybe one of them will make you think.');
 if (!window.fxn) window.fxn = {};
 window.fxn.RefreshFact = Fax.RefreshFact;

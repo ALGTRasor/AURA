@@ -125,6 +125,6 @@ export class PageManager
 	}
 }
 
-Modules.Report("Page Manager");
+Modules.Report('Page Manager', 'This module opens and closes pages and remembers their layout (if you have that option enabled).');
 
 Autosave.HookSaveEvent(PageManager.CacheCurrentLayout);

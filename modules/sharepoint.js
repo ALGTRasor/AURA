@@ -62,4 +62,4 @@ export class SharePoint
 	}
 }
 
-Modules.Report("SharePoint");
+Modules.Report('SharePoint', 'This module adds a shared SharePoint API layer.');

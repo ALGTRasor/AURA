@@ -189,4 +189,4 @@ export class RecordViewer
     }
 }
 
-Modules.Report('Record Viewers');
+Modules.Report('Record Viewers', 'This module adds a reusable ui component for viewing lists of records and selecting one or more to view or edit.');

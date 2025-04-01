@@ -15,4 +15,4 @@ export class DataTableDesc
     }
 }
 
-Modules.Report('DataTable Descriptors');
+Modules.Report('DataTable Descriptors', 'This module adds a reusable code component that describes one database table and its fields.');

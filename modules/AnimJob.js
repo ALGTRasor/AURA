@@ -59,4 +59,4 @@ export class AnimJob
 	RequestNextTick() { this.animReqId = requestAnimationFrame(ts => this.Tick(ts)); }
 }
 
-Modules.Report("AnimJobs");
+Modules.Report("Animations Jobs", 'This module adds a reusable code component that handles operations that happen repeatedly, but only while the site is in the foreground.');

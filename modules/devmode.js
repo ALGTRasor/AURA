@@ -39,4 +39,4 @@ export class DevMode
 	static RemoveDeactivateAction(action_sub) { DevMode.onDeactivate.RemoveSubscription(action_sub); }
 }
 
-Modules.Report("DevMode");
+Modules.Report('DevMode', 'This module adds debug functionality, if you have the expected permissions.');

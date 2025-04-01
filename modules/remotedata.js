@@ -60,5 +60,3 @@ export class RemoteDataConnection
 		this.afterRefreshData();
 	}
 }
-
-Modules.Report("Remote Data");

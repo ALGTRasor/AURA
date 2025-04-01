@@ -40,4 +40,4 @@ export class ProjectViewer
     }
 }
 
-Modules.Report('Project Viewers');
+Modules.Report('Project Viewers', "This module adds ui components for project related views.");

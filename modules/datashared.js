@@ -207,4 +207,4 @@ export class SharedData
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);
 
-Modules.Report("Shared Data");
+Modules.Report('Shared Data', 'This module acts as an entrypoint for many aspects of AURA which need access to the same online data.');

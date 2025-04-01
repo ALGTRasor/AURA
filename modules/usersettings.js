@@ -185,7 +185,7 @@ export class UserSettings
 }
 
 
-Modules.Report("User Settings");
+Modules.Report('User Settings', 'This module stores users options that affect general aspects of AURA.');
 
 UserSettings.UpdateOptionEffects();
 

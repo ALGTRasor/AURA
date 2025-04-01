@@ -229,4 +229,4 @@ export class RecordForm
     }
 }
 
-Modules.Report('Record Forms');
+Modules.Report('Record Forms', 'This module adds a reusable record field form and utility methods for creating record field forms.');

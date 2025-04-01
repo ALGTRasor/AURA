@@ -59,4 +59,4 @@ export class Timers
 	}
 }
 
-Modules.Report('Timers');
+Modules.Report('Timers', 'This module adds a shared timer system for tracking the network or computation time for specific aspects of AURA. Used to debug.');

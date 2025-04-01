@@ -1,4 +1,3 @@
-import { Modules } from "../modules.js";
 import { DataFieldDesc } from "./datafield_desc.js";
 
 export class InternalUser
@@ -34,5 +33,3 @@ export class InternalUser
 			'first_login_ts': new DataFieldDesc('first_login_ts', 'first login', false, true, 'datetime'),
 		};
 }
-
-Modules.Report("Internal Users");

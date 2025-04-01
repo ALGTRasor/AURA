@@ -399,7 +399,7 @@ export class UserAccountInfo
 
 SharedData.onLoaded.RequestSubscription(() => { UserAccountInfo.UpdateUserInfo(); });
 
-Modules.Report("User Account");
+Modules.Report('User Account', 'This module downloads and caches data for your tenant / company account.');
 if (!window.fxn) window.fxn = {};
 window.fxn.AttemptLogin = UserAccountManager.RequestLogin;
 window.fxn.ForceLogOut = UserAccountManager.ForceLogOut;

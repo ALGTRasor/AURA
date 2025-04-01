@@ -1,4 +1,3 @@
-import { Modules } from "../modules.js";
 import { DataFieldDesc } from "./datafield_desc.js";
 
 export class AccountUser
@@ -11,5 +10,3 @@ export class AccountUser
 			'email': new DataFieldDesc('email', 'email', false, false, null),
 		};
 }
-
-Modules.Report("Account Users");

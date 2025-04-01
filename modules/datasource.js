@@ -46,4 +46,4 @@ export class DataSource
 	async GetData() { return await SharePoint.GetListData(this); }
 }
 
-Modules.Report("Data Sources");
+Modules.Report('Data Sources', 'This module adds a reusable code component to keep references to database tables.');

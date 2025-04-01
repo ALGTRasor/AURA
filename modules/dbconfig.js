@@ -30,4 +30,4 @@ export class DBConfig
 	}
 }
 
-Modules.Report("DB Config");
+Modules.Report("Database Config", "This module works as an abstraction layer for an interchangeable database backend.");
