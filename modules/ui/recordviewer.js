@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, AddPagePanelInsetShadow, CreatePagePanel } from "../domutils.js";
 import { Modules } from "../modules.js";
 
 export class RecordViewer
@@ -42,8 +42,11 @@ export class RecordViewer
     SelectData(selector = record => { return true; })
     {
         if (!record) DebugLog.Log('record not found...');
-        else this.selected_records.push(this.data.find(selector));
-        this.RefreshElementVisibility();
+        else
+        {
+            this.selected_records.push(this.data.find(selector));
+            this.RefreshElementVisibility();
+        }
     }
 
     SelectRecord(record = {}, click_event = e => { })
@@ -75,19 +78,21 @@ export class RecordViewer
     {
         if (this.created) return;
 
-        this.e_root = addElement(
-            parent, 'div', 'record-viewer-root', '',
+        this.e_root = CreatePagePanel(
+            parent, false, false, 'display:flex;flex-direction:row;flex-wrap:nowrap;flex-basis:100%;',
             e =>
             {
-                this.e_list_root = addElement(e, 'div', 'record-viewer-list-root', '', _ =>
+                this.e_list_root = CreatePagePanel(e, true, true, 'display:flex;flex-direction:column;flex-wrap:nowrap;flex-grow:1.0;flex-shrink:1.0;overflow:hidden;', e =>
                 {
-                    this.e_list_filters = addElement(_, 'div', 'record-viewer-list-filters', '', x => { });
-                    this.e_list_items = addElement(_, 'div', 'record-viewer-list-items', '', x => { });
-                    this.e_list_tip = addElement(_, 'div', 'record-viewer-list-tip', '', x => { x.innerText = 'hold ctrl for multiselect' });
+                    this.e_list_filters = CreatePagePanel(e, false, false, 'flex-basis:4rem;', x => { });
+                    this.e_list_items = CreatePagePanel(e, false, true, 'flex-direction:column;flex-wrap:nowrap;flex-grow:1.0;flex-shrink:1.0;flex-basis:100%;overflow-y:auto;clip-path:padding-box;', x => { });
+                    this.e_list_tip = addElement(e, 'div', 'record-viewer-list-tip', '', x => { x.innerText = 'hold ctrl for multiselect'; });
                 });
-                this.e_view_root = addElement(e, 'div', 'record-viewer-view-root', '', _ => { });
+
+                this.e_view_root = CreatePagePanel(e, true, true, 'min-width:20rem;', e => { e.innerText = 'hold ctrl for multiselect'; });
             }
         );
+
 
         this.created = true;
         this.RefreshAllElements();
@@ -133,7 +138,7 @@ export class RecordViewer
                 this.SelectRecord(this_item, event);
                 this.RefreshViewerElements();
             };
-            let e_listitem = addElement(this.e_list_items, 'div', 'record-viewer-list-item', '', e => { e.addEventListener('click', event => select_this(event, e)) });
+            let e_listitem = addElement(this.e_list_items, 'div', 'record-viewer-list-item', 'font-size:0.8rem;', e => { e.addEventListener('click', event => select_this(event, e)) });
             this.listItemBuilder(data_sorted, id, e_listitem);
 
             this.listitems.push(
@@ -149,23 +154,9 @@ export class RecordViewer
         if (!this.created) return;
 
         this.e_view_root.innerHTML = '';
+
         if (this.viewBuilder && this.selected_records && this.selected_records.length > 0)
-        {
-            if (this.selected_records.length > 1 && false)
-            {
-                addElement(
-                    this.e_view_root, 'div', 'info-row-separator', null,
-                    e =>
-                    {
-                        e.innerText = `${this.selected_records.length} SELECTED`;
-                        e.style.backgroundColor = 'rgba(from hsl(from var(--theme-color) calc(h + 180) s 50%) r g b / 0.5)';
-                        e.style.color = 'hsl(from var(--theme-color) h s 90%)';
-                        e.style.fontWeight = 'bold';
-                    }
-                );
-            }
             this.viewBuilder(this.selected_records);
-        }
     }
 
     RefreshElementVisibility()

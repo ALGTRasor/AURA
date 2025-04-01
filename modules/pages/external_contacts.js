@@ -1,6 +1,6 @@
 import { ExternalContact } from "../datamodels/external_contact.js";
 import { SharedData } from "../datashared.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
 import { RecordViewer } from "../ui/recordviewer.js";
@@ -38,8 +38,12 @@ export class PageExternalContacts extends PageBase
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = addElement(this.viewer.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.contact_name; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, record, ExternalContact.field_descs);
+
+			let e_info_root = CreatePagePanel(this.viewer.e_view_root, false, false, 'min-width:28rem;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.contact_name; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, ExternalContact.field_descs);
 		}
 	}
 

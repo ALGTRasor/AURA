@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { Modules } from "../modules.js";
 
 export class QuickMenu
@@ -13,13 +13,7 @@ export class QuickMenu
     {
         if (this.created) return;
 
-        this.e_root = addElement(
-            parent, 'div', 'menu-root', '',
-            e =>
-            {
-
-            }
-        );
+        this.e_root = CreatePagePanel(parent, true, false, 'letter-spacing:0.15rem;', x => { x.className += ' menu-root'; });
 
         for (let item_id in items)
         {

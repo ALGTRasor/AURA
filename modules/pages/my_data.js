@@ -10,7 +10,7 @@ import { UserAccountInfo } from "../useraccount.js";
 import { PageBase } from "./pagebase.js";
 
 import { RecordViewer } from "../ui/recordviewer.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 
 
 export class PageMyData extends PageBase
@@ -43,12 +43,9 @@ export class PageMyData extends PageBase
 
 	CreateAccountInfoBlock()
 	{
-		this.e_account_info = document.createElement('div');
-		this.e_account_info.className = 'page-content-root-block';
-		this.e_account_info.style.minHeight = '20rem';
-		this.e_account_info.style.minWidth = '42rem';
+		this.e_account_info = CreatePagePanel(this.e_content, true, false, '', e => { });
+		this.e_account_info.style.minWidth = '20rem';
 		this.UpdateAccountInfoBlock();
-		this.e_content.appendChild(this.e_account_info);
 	}
 	UpdateAccountInfoBlock()
 	{
@@ -58,10 +55,8 @@ export class PageMyData extends PageBase
 
 	CreateUserInfoBlock()
 	{
-		this.e_user_info = document.createElement('div');
-		this.e_user_info.className = 'page-content-root-block';
-		this.e_user_info.style.minHeight = '20rem';
-		this.e_user_info.style.minWidth = '42rem';
+		this.e_user_info = CreatePagePanel(this.e_content, true, false, '', e => { });
+		this.e_user_info.style.minWidth = '20rem';
 
 		this.UpdateUserInfoBlock();
 		this.e_content.appendChild(this.e_user_info);
@@ -83,10 +78,9 @@ export class PageMyData extends PageBase
 
 	CreateHrBlock()
 	{
-		this.e_hr = document.createElement('div');
-		this.e_hr.className = 'page-content-root-block';
-		this.e_hr.style.minHeight = '20rem';
-		this.e_hr.style.minWidth = '42rem';
+		this.e_hr = CreatePagePanel(this.e_content, true, true, '', e => { });
+		this.e_hr.style.minWidth = '80%';
+		this.e_hr.style.minHeight = '36rem';
 
 		this.viewer_hr_requests.CreateElements(this.e_hr);
 		this.UpdateHrBlock();
@@ -128,8 +122,10 @@ export class PageMyData extends PageBase
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = addElement(this.viewer_hr_requests.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.request_name; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, record, HrRequest.data_model.field_descs, null, records.length < 2);
+			let e_info_root = CreatePagePanel(this.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.request_name; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, HrRequest.data_model.field_descs, 'info', records.length < 2);
 		}
 	}
 

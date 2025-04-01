@@ -1,7 +1,7 @@
 import { DataFieldDesc } from "../datamodels/datafield_desc.js";
 import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { Modules } from "../modules.js";
 
 const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
@@ -60,7 +60,7 @@ export class RecordFormUtils
         }
 
         addElement(
-            parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:3rem; text-wrap:pretty; flex-grow:0.0;' : '',
+            parent, 'div', 'info-row', row_opts.multiline === true ? 'min-height:3rem; flex-grow:0.0;' : '',
             e =>
             {
                 let str_tip = `${labelUpper}${sens_txt}`;
@@ -73,7 +73,8 @@ export class RecordFormUtils
                     }
                 );
                 let e_lbl_value = addElement(
-                    e, 'span', sens ? 'info-value sensitive-info' : 'info-value', null,
+                    e, 'span', sens ? 'info-value sensitive-info' : 'info-value',
+                    row_opts.multiline === true ? 'min-height:3rem; text-wrap:pretty; flex-grow:0.0; padding:0.5rem;' : '',
                     lbl =>
                     {
                         lbl.title = value_raw;
@@ -189,10 +190,7 @@ export class RecordForm
     {
         if (this.created) return;
 
-        this.e_root = addElement(
-            parent, 'div', 'record-form-root', '',
-            e => { }
-        );
+        this.e_root = CreatePagePanel(parent, false, false, '', e => { });
 
         this.created = true;
         this.RefreshAllElements();

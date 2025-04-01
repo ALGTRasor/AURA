@@ -2,7 +2,7 @@ import { ProjectCoreData } from "../datamodels/project_data_core.js";
 import { ProjectData } from "../datamodels/project_data.js";
 import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
 import { RecordViewer } from "../ui/recordviewer.js";
@@ -51,8 +51,11 @@ export class PageProjectHub extends PageBase
 			project_data.name = record.project_name;
 			project_data.scope = record.project_scope;
 
-			let e_info_root = addElement(this.viewer.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = project_data.name; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, project_data, ProjectData.data_model.field_descs);
+
+			let e_info_root = CreatePagePanel(this.viewer.e_view_root, false, false, 'min-width:20vw;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.project_name; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+			RecordFormUtils.CreateRecordInfoList(e_info_body, project_data, ProjectData.data_model.field_descs);
 		}
 
 	}

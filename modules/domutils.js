@@ -8,6 +8,24 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
     return e;
 };
 
+
+export function CreatePagePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
+{
+    let classes = 'page-panel';
+    if (inset) classes += ' inset-box';
+    if (tiles) classes += ' page-panel-tiles';
+    let e = addElement(parent, 'div', classes, styling, prep);
+    return e;
+}
+
+export function AddPagePanelInsetShadow(e_panel)
+{
+    addElement(e_panel, 'div', 'page-panel-inset-shadow');
+}
+
+
+
+
 const fade_duration_ms = 250;
 const fade_duration_quick_ms = 120;
 export function fadeAppendChild(parent = {}, child = {}, min_scale = '95%')

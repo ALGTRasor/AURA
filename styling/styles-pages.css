@@ -54,19 +54,19 @@
 }
 
 
+
 .page-panel
 {
 	position: relative;
+	overflow: hidden;
+
 	flex-grow: 1.0;
 	flex-shrink: 1.0;
-	flex-basis: 0.0;
-
-	overflow: hidden auto;
 
 	min-width: 1rem;
 	min-height: 1rem;
 	margin: 0.25rem;
-	padding: 1rem;
+	padding: 0.25rem;
 
 	color: var(--theme-color-text-40);
 	letter-spacing: 0px;
@@ -77,10 +77,9 @@
 	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 0.4);
 
 	border-radius: 0.5rem;
-	outline: solid 2px transparent;
-	outline-offset: -2px;
+	border: solid 2px transparent;
 
-	transition-property: outline, background-color;
+	transition-property: border, background-color;
 	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
 }
@@ -88,26 +87,43 @@
 .page-panel:hover
 {
 	color: var(--theme-color);
-	background-color: hsl(from var(--theme-color) h s 20%);
+	background-color: hsl(from var(--theme-color) h s 16%);
 	transition-duration: var(--trans-dur-on-fast);
 }
 
 .page-root:hover .page-panel
 {
-	outline-color: hsl(from var(--theme-color) h s 18%);
+	border-color: hsl(from var(--theme-color) h s 18%);
 }
 
 .page-root:hover .page-panel:hover
 {
-	outline-color: hsl(from var(--theme-color) h s 30%);
+	border-color: hsl(from var(--theme-color) h s 30%);
 }
 
 
 .page-panel.inset-box
 {
 	background-color: hsl(from var(--theme-color) h s 12%);
-	box-shadow: inset -2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25);
-	clip-path: stroke-box;
+	box-shadow: inset -2px 2px 1rem rgba(from var(--shadow-color) r g b / 0.5);
+	clip-path: padding-box;
+
+	border: solid 2px black;
+}
+
+.page-panel-inset-shadow
+{
+	z-index: 10;
+	pointer-events: none;
+	user-select: none;
+	position: absolute;
+
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	box-shadow: inset 0px 0px 2rem red;
 }
 
 .page-panel.inset-box:hover
@@ -117,25 +133,36 @@
 
 .page-panel-tiles
 {
+	overflow: hidden auto;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	flex-basis: 0.0;
+	align-content: stretch;
+	justify-content: stretch;
 }
 
 .page-panel .page-panel-tiles > .page-panel
 {
-	display: inline-block;
 	flex-grow: 1.0;
 	flex-shrink: 1.0;
 	flex-basis: 0.0;
-	min-width: min(75%, 10rem);
-	margin: 0.125rem;
-	border-radius: 0.25rem;
+	min-width: min(75%, 4rem);
 }
 
 .page-panel .page-panel-tiles > .page-panel:hover
 {}
+
+.page-panel.panel-button
+{
+	cursor: pointer;
+	scale: 95%;
+}
+.page-panel.panel-button:hover
+{
+	scale: 100%;
+	background-color: hsl(from var(--theme-color) h s 16%);
+}
 
 
 

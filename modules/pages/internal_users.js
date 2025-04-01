@@ -1,7 +1,7 @@
 import { InternalUser } from "../datamodels/internal_user.js";
 import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
 import { RecordViewer } from "../ui/recordviewer.js";
@@ -15,6 +15,7 @@ export class PageInternalUsers extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 		this.e_body.style.minWidth = '32rem';
+		this.e_body.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
 
 		this.viewer = new RecordViewer();
 		this.viewer.SetData(SharedData.users.data);
@@ -39,8 +40,12 @@ export class PageInternalUsers extends PageBase
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = addElement(this.viewer.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.display_name_full; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, record, InternalUser.field_descs, null, records.length < 2);
+
+			let e_info_root = CreatePagePanel(this.viewer.e_view_root, false, false, 'min-width:28rem;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.display_name_full; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, InternalUser.field_descs, 'info', records.length < 2);
 		}
 	}
 

@@ -1,6 +1,6 @@
 import { HrRequest } from "../datamodels/hr_request.js";
 import { SharedData } from "../datashared.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
 import { RecordViewer } from "../ui/recordviewer.js";
@@ -25,8 +25,10 @@ export class PageHR extends PageBase
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = addElement(this.viewer_hr_requests.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.request_name; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, record, HrRequest.data_model.field_descs, null, records.length < 2);
+			let e_info_root = CreatePagePanel(this.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.request_name; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, HrRequest.data_model.field_descs, null, records.length < 2);
 		}
 	}
 

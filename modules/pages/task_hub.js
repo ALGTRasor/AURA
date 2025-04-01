@@ -1,6 +1,6 @@
 import { TaskData } from "../datamodels/task_data.js";
 import { SharedData } from "../datashared.js";
-import { addElement } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
 import { RecordViewer } from "../ui/recordviewer.js";
@@ -39,8 +39,10 @@ export class PageTaskHub extends PageBase
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = addElement(this.viewer.e_view_root, 'div', 'record-viewer-view-block', '', e => { addElement(e, 'span', '', '', x => { x.innerText = record.task_title; }) });
-			RecordFormUtils.CreateRecordInfoList(e_info_root, record, TaskData.data_model.field_descs);
+			let e_info_root = CreatePagePanel(this.viewer.e_view_root, false, false, 'min-width:20vw;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.task_title; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, TaskData.data_model.field_descs);
 		}
 	}
 

@@ -172,10 +172,6 @@ body
 	padding: 0;
 	margin: 0;
 	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
-
-	transition-property: backdrop-filter;
-	transition-duration: var(--trans-dur-off-slow);
-	transition-timing-function: ease-in-out;
 }
 
 .spotlight
