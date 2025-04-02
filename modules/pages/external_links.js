@@ -1,4 +1,4 @@
-import { CreatePagePanel } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { PageBase } from "./pagebase.js";
 
@@ -9,21 +9,35 @@ export class PageExternalLinks extends PageBase
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.e_body.style.maxWidth = '20rem';
+		this.e_body.style.maxWidth = '22rem';
+
 		let e_body_root = CreatePagePanel(this.e_content, true, true, null, x => { x.style.flexDirection = 'column'; });
-		let style_button = 'flex-grow:0.0; flex-shrink:1.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold;';
-		let AddButton = (label = '', link = '') =>
+
+		const style_button = 'flex-grow:0.0; flex-shrink:1.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
+		const style_icon = 'position:absolute;top:0.5rem;right:0.5rem;aspect-ratio:1.0;align-content:center;height:calc(100% - 1rem);object-fit:contain;';
+		const style_icon_full = 'position:absolute;inset:0.5rem;aspect-ratio:1.0;align-content:center;object-fit:contain;';
+
+		let AddButton = (label = '', link = '', icon = '') =>
 		{
-			let e_btn = CreatePagePanel(e_body_root, false, false, style_button, x => { x.className += ' panel-button'; x.innerText = label });
+			let e_btn = CreatePagePanel(e_body_root, false, false, style_button, _ => { _.className += ' panel-button'; _.innerText = label });
 			e_btn.title = link;
-			e_btn.addEventListener('click', e => { window.open(link, '_blank') });
+			e_btn.addEventListener('click', _ => { window.open(link, '_blank') });
+			if (icon && icon.length > 0) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
 		};
-		AddButton('AURA GITHUB', 'https://github.com/ALGTRasor/AURA');
-		AddButton('ARROW LAND GROUP', 'https://www.arrowlandgroup.com/');
-		AddButton('AURA POWERAPP (DEPRECATED)', 'https://apps.powerapps.com/play/e/default-af0df1fe-2a14-4718-8660-84733b9b72bc/a/01db799c-da90-49c5-a69e-c4d12d8375f0');
-		AddButton('GOOGLE MAPS', 'https://www.google.com/maps');
-		AddButton('OUTLOOK', 'https://outlook.office.com/mail/');
-		AddButton('TEAMS', 'https://teams.microsoft.com/v2/');
+		AddButton('AURA GITHUB', 'https://github.com/ALGTRasor/AURA', '/resources/images/thirdparty/favicon_github.svg');
+		AddButton('ARROW LAND GROUP', 'https://www.arrowlandgroup.com/', '/resources/images/alg-favicon-32x32.png');
+		AddButton('AURA POWERAPP', 'https://apps.powerapps.com/play/e/default-af0df1fe-2a14-4718-8660-84733b9b72bc/a/01db799c-da90-49c5-a69e-c4d12d8375f0', '/resources/images/thirdparty/favicon_powerapps.ico');
+		AddButton('GOOGLE MAPS', 'https://www.google.com/maps', '/resources/images/thirdparty/favicon_google_maps.ico');
+		AddButton('OUTLOOK', 'https://outlook.office.com/mail/', '/resources/images/thirdparty/favicon_outlook.ico');
+		AddButton('TEAMS', 'https://teams.microsoft.com/v2/', '/resources/images/thirdparty/favicon_teams.ico');
+
+		addElement(
+			e_body_root, 'div', '', 'position:absolute;left:0.5rem;right:0.5rem;bottom:0.5rem;height:4rem;font-size:0.65rem;text-align:center;opacity:50%;',
+			_ => 
+			{
+				_.innerText = 'Warning: Following any link allows the site to read or write cookies to your browser, so make sure you know and trust where links will take you!'
+			}
+		);
 		this.FinalizeBody(parent);
 	}
 }
