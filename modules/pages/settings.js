@@ -17,9 +17,10 @@ export class PageSettings extends PageBase
 
 		this.CreateBody();
 
-		this.e_body.style.minWidth = '16rem';
+		this.e_body.style.minWidth = '18rem';
+		this.e_body.style.maxWidth = '32rem';
 		this.e_body.style.flexBasis = '12rem';
-		this.e_body.style.flexGrow = '0.25';
+		this.e_body.style.flexGrow = '1.0';
 
 		this.e_options_root = CreatePagePanel(
 			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
@@ -116,12 +117,12 @@ export class PageSettings extends PageBase
 					x, false, false, about_style,
 					_ =>
 					{
-						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:70%;align-content:center;">' + key.toUpperCase() + '</span>'
-							+ '<span style="position:absolute;display:block;inset:0;left:30%;align-content:center;text-align:left;">' + effect + '</span>';
+						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
+							+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
 						_.title = tooltip;
 					}
 				);
-				addKey('` ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
+				addKey('` or ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
 				addKey('e', 'Toggle External Contacts');
 				addKey('h', 'Toggle HR');
 				addKey('i', 'Toggle Internal Users');

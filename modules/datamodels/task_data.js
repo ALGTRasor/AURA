@@ -6,8 +6,8 @@ export class TaskData
 	static data_model = DataTableDesc.Build(
 		[
 			{ key: 'id', label: 'id', exclude: true },
-			{ key: 'Title', label: 'permission id' },
-			{ key: 'task_title', label: 'title name' },
+			{ key: 'Title', label: 'task id' },
+			{ key: 'task_title', label: 'task name' },
 			{ key: 'task_desc', label: 'description', multiline: true },
 			{ key: 'task_comments', label: 'comments', format: 'list' },
 			{ key: 'subtask_ids', label: 'subtasks', format: 'list' },

@@ -10,6 +10,7 @@ export class PageExternalLinks extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 		this.e_body.style.maxWidth = '22rem';
+		this.e_body.style.minWidth = '16rem';
 
 		let e_body_root = CreatePagePanel(this.e_content, true, true, null, x => { x.style.flexDirection = 'column'; });
 
@@ -31,14 +32,21 @@ export class PageExternalLinks extends PageBase
 		AddButton('OUTLOOK', 'https://outlook.office.com/mail/', '/resources/images/thirdparty/favicon_outlook.ico');
 		AddButton('TEAMS', 'https://teams.microsoft.com/v2/', '/resources/images/thirdparty/favicon_teams.ico');
 
-		addElement(
-			e_body_root, 'div', '', 'position:absolute;left:0.5rem;right:0.5rem;bottom:0.5rem;height:4rem;font-size:0.65rem;text-align:center;opacity:50%;',
+		this.e_cookie_warning = addElement(
+			e_body_root, 'div', '', 'pointer-events:none;position:absolute;left:0.25rem;right:0.25rem;bottom:0.25rem;height:3.25rem;font-size:0.65rem;text-align:center;opacity:50%;',
 			_ => 
 			{
 				_.innerText = 'Warning: Following any link allows the site to read or write cookies to your browser, so make sure you know and trust where links will take you!'
 			}
 		);
 		this.FinalizeBody(parent);
+	}
+
+	OnLayoutChange()
+	{
+		let body_rect = this.e_body.getBoundingClientRect();
+		if (body_rect.height > 400) this.e_cookie_warning.style.display = 'block';
+		else this.e_cookie_warning.style.display = 'none';
 	}
 }
 

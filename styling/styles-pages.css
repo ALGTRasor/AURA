@@ -211,6 +211,7 @@
 {
 	transition-property: max-height;
 	transition-duration: var(--trans-dur-off-slow);
+	transition-delay: 0.2s;
 	transition-timing-function: ease-in-out;
 }
 .page-panel.expanding-panel:hover
