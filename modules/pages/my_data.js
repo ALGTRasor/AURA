@@ -50,7 +50,7 @@ export class PageMyData extends PageBase
 	UpdateAccountInfoBlock()
 	{
 		this.e_account_info.innerHTML = `<div style='text-align:center;opacity:60%;'>Account Info</div>`;
-		RecordFormUtils.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info, AccountUser.field_descs);
+		RecordFormUtils.CreateRecordInfoList(this.e_account_info, UserAccountInfo.account_info, AccountUser.data_model.field_descs);
 	}
 
 	CreateUserInfoBlock()
@@ -67,7 +67,7 @@ export class PageMyData extends PageBase
 		if (UserAccountInfo.user_info)
 		{
 			this.e_user_info.innerHTML = `<div style='text-align:center;opacity:60%;'>User Info</div>`;
-			RecordFormUtils.CreateRecordInfoList(this.e_user_info, UserAccountInfo.user_info, InternalUser.field_descs);
+			RecordFormUtils.CreateRecordInfoList(this.e_user_info, UserAccountInfo.user_info, InternalUser.data_model.field_descs);
 		}
 		else
 		{

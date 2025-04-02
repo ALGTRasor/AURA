@@ -74,7 +74,7 @@ export class RecordFormUtils
                 );
                 let e_lbl_value = addElement(
                     e, 'span', sens ? 'info-value sensitive-info' : 'info-value',
-                    row_opts.multiline === true ? 'min-height:3rem; text-wrap:pretty; flex-grow:0.0; padding:0.5rem;' : '',
+                    row_opts.multiline === true ? 'min-height:1.5rem; text-wrap:pretty; flex-grow:0.0; padding:0.5rem;' : '',
                     lbl =>
                     {
                         lbl.title = value_raw;
@@ -94,7 +94,7 @@ export class RecordFormUtils
                                 x =>
                                 {
                                     x.innerText = 'content_copy';
-                                    x.title = 'Copy value';
+                                    x.title = row_opts.sensitive === true ? 'Copy value' : 'Copy value: "' + value_raw + '"';
                                 }
                             );
                             btn.addEventListener('click', clickevent => navigator.clipboard.writeText(value_raw));
