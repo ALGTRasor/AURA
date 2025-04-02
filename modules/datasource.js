@@ -32,7 +32,7 @@ export class DataSource
 	static Nothing = new DataSource(null, null, null);
 
 	static Teams = new DataSource(TABLENAME_TEAMS, Team.data_model, 'team_name', 'team_name');
-	static Roles = new DataSource(TABLENAME_ROLES, Role.table_fields);
+	static Roles = new DataSource(TABLENAME_ROLES, Role.data_model, 'role_name', 'role_name');
 	static Permissions = new DataSource(TABLENAME_PERMS, Permission.data_model);
 	static Users = new DataSource(TABLENAME_USERS, InternalUser.data_model, 'display_name_full', 'display_name_full');
 	static Tasks = new DataSource(TABLENAME_TASKS, TaskData.data_model, 'task_title', 'task_title');

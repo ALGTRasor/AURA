@@ -43,7 +43,7 @@ export class PageExternalContacts extends PageBase
 			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.contact_name; });
 			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
 
-			RecordFormUtils.CreateRecordInfoList(e_info_body, record, ExternalContact.field_descs);
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, ExternalContact.data_model.field_descs);
 		}
 	}
 

@@ -45,7 +45,7 @@ export class PageInternalUsers extends PageBase
 			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.display_name_full; });
 			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
 
-			RecordFormUtils.CreateRecordInfoList(e_info_body, record, InternalUser.field_descs, 'info', records.length < 2);
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, InternalUser.data_model.field_descs, 'info', records.length < 2);
 		}
 	}
 
