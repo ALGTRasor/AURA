@@ -54,6 +54,8 @@ export class SharedData
 	static projects = new SharedDataTable('projects', DataSource.Projects);
 	static permissions = new SharedDataTable('permissions', DataSource.Permissions);
 	static hrRequests = new SharedDataTable('hr requests', DataSource.HrRequests);
+	static timekeepEvents = new SharedDataTable('timekeep events', DataSource.TimekeepEvents);
+	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSource.TimekeepStatuses);
 
 	static all_tables = [
 		SharedData.roles,
@@ -63,7 +65,9 @@ export class SharedData
 		SharedData.contacts,
 		SharedData.projects,
 		SharedData.permissions,
-		SharedData.hrRequests
+		SharedData.hrRequests,
+		SharedData.timekeepEvents,
+		SharedData.timekeepStatuses
 	];
 
 	static async LoadData(useCache = true)
@@ -194,6 +198,8 @@ export class SharedData
 	static GetContactDatum(ids = []) { return SharedData.GetDatum(SharedData.contacts.data, ids); }
 	static GetProjectDatum(ids = []) { return SharedData.GetDatum(SharedData.projects.data, ids); }
 	static GetHrRequestDatum(ids = []) { return SharedData.GetDatum(SharedData.hrRequests.data, ids, 'requestee_id'); }
+	static GetTimekeepEventDatum(ids = []) { return SharedData.GetDatum(SharedData.timekeepEvents.data, ids, 'user_id'); }
+	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetDatum(SharedData.timekeepStatuses.data, ids); }
 
 	static GetUserData(id = '') { return SharedData.GetData(SharedData.users.data, id); }
 	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles.data, id); }
@@ -203,6 +209,8 @@ export class SharedData
 	static GetContactData(id = '') { return SharedData.GetData(SharedData.contacts.data, id); }
 	static GetProjectData(id = '') { return SharedData.GetData(SharedData.projects.data, id); }
 	static GetHrRequestData(id = '') { return SharedData.GetData(SharedData.hrRequests.data, id, 'requestee_id'); }
+	static GetTimekeepEventData(id = '') { return SharedData.GetData(SharedData.timekeepEvents.data, id, 'user_id'); }
+	static GetTimekeepStatusData(id = '') { return SharedData.GetData(SharedData.timekeepStatuses.data, id); }
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);

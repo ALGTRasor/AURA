@@ -1,28 +1,27 @@
-import { DataFieldDesc } from "./datafield_desc.js";
 import { DataTableDesc } from "./datatable_desc.js";
 
 export class HrRequest
 {
-	static data_model = new DataTableDesc(
-		{
-			'id': new DataFieldDesc('id', 'id', false, true),
-			'Title': new DataFieldDesc('Title', 'request guid', false, true),
+	static data_model = DataTableDesc.Build(
+		[
+			{ key: 'id', label: 'Table Index', exclude: true },
+			{ key: 'Title', label: 'Record GUID', exclude: true },
+			{ key: 'request_name', label: 'name' },
+			{ key: 'request_group', label: 'group' },
+			{ key: 'request_desc', label: 'description', multiline: true },
 
-			'request_name': new DataFieldDesc('request_name', 'name'),
-			'request_group': new DataFieldDesc('request_group', 'group'),
-			'request_desc': new DataFieldDesc('request_desc', 'description', false, false, false, true),
+			{ key: 'requestee_id', label: 'requestee', format: 'user' },
+			{ key: 'requester_id', label: 'requester', format: 'user' },
 
-			'requestee_id': new DataFieldDesc('requestee_id', 'requestee', false, false, 'user'),
-			'requester_id': new DataFieldDesc('requester_id', 'requester', false, false, 'user'),
+			{ key: 'file_type_requested', label: 'file type requested' },
+			{ key: 'file_upload_path', label: 'file upload path' },
+			{ key: 'file_expires', label: 'file expires' },
 
-			'file_type_requested': new DataFieldDesc('file_type_requested', 'file type requested'),
-			'file_upload_path': new DataFieldDesc('file_upload_path', 'file upload path'),
-			'file_expires': new DataFieldDesc('file_expires', 'file expires'),
+			{ key: 'date_uploaded', label: 'upload date', format: 'date' },
+			{ key: 'date_discarded', label: 'discard date', format: 'date' },
+			{ key: 'date_completed', label: 'completed date', format: 'date' },
+			{ key: 'date_approved', label: 'approved date', format: 'date' },
 
-			'date_uploaded': new DataFieldDesc('date_uploaded', 'upload date', false, false, 'date'),
-			'date_discarded': new DataFieldDesc('date_discarded', 'discard date', false, false, 'date'),
-			'date_completed': new DataFieldDesc('date_completed', 'completed date', false, false, 'date'),
-			'date_approved': new DataFieldDesc('date_approved', 'approved date', false, false, 'date')
-		}
+		]
 	);
 }

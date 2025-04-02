@@ -18,46 +18,20 @@ export class PageTimekeep extends PageBase
 			e =>
 			{
 				this.e_root_list = this.CreatePanel(
-					e, false, true, 'max-width:16rem; flex-direction:column; align-content:stretch;',
+					e, false, true, 'flex-direction:column; align-content:stretch;',
 					e =>
 					{
 						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "All Items" });
-						this.CreatePanel(e, true, false, 'flex-grow:0.0; flex-shrink:0.0; min-height:4rem;', e => { });
 						this.CreatePanel(
 							e, true, false, 'flex-grow:1.0; overflow-y:auto; padding:0.5rem 0.25rem 0.5rem 0.25rem;',
 							e =>
 							{
 								for (let ii = 0; ii < 29; ii++)
 									this.CreatePanel(
-										e, false, false, 'margin:0rem;border-radius:0.3333rem;',
+										e, false, false, 'border-radius:0.3333rem;',
 										e =>
 										{
-											e.className += ' panel-button';
 											addElement(e, 'div', '', style_panel_label, e => { e.innerText = "Item " + ii });
-										}
-									);
-							}
-						);
-						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "The end" });
-					}
-				);
-				this.e_root_view = this.CreatePanel(
-					e, false, true, 'flex-direction:column; align-content:stretch;',
-					e =>
-					{
-						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "All Items" });
-						this.CreatePanel(
-							e, true, true, 'align-content:stretch;',
-							e =>
-							{
-								for (let ii = 0; ii < 29; ii++)
-									this.CreatePanel(
-										e, false, false, 'flex-grow:1.0; flex-shrink:1.0;',
-										x =>
-										{
-											x.style.minWidth = (Math.random() * 10 + 10) + 'rem';
-											x.style.minHeight = (Math.random() * 3 + 3) + 'rem';
-											addElement(x, 'div', '', style_panel_label, e => { e.innerText = "Item " + ii });
 										}
 									);
 							}

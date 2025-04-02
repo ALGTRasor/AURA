@@ -9,6 +9,8 @@ import { Modules } from "./modules.js";
 import { TaskData } from "./datamodels/task_data.js";
 import { ProjectCoreData } from "./datamodels/project_data_core.js";
 import { HrRequest } from "./datamodels/hr_request.js";
+import { TimekeepEvent, TimekeepStatus } from "./datamodels/timekeep.js";
+import { DataTableDesc } from "./datamodels/datatable_desc.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -20,27 +22,34 @@ const TABLENAME_TASKS = 'ALGTasks';
 const TABLENAME_CONTACTS = 'ALGContacts';
 const TABLENAME_PROJECTS = 'ALGProjects';
 const TABLENAME_HR_REQUESTS = 'ALGHRRequests';
+const TABLENAME_TK_EVENTS = 'ALGTimekeepEvents';
+const TABLENAME_TK_STATUSES = 'ALGTimekeepStatuses';
 
-const DEF_TABLE_FIELDS = ['id', 'Title'];
+const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
 
 export class DataSource
 {
 	static Nothing = new DataSource(null, null, null);
 
-	static Teams = new DataSource(TABLENAME_TEAMS, Team.table_fields);
+	static Teams = new DataSource(TABLENAME_TEAMS, Team.data_model, 'team_name', 'team_name');
 	static Roles = new DataSource(TABLENAME_ROLES, Role.table_fields);
-	static Permissions = new DataSource(TABLENAME_PERMS, Permission.table_fields);
-	static Users = new DataSource(TABLENAME_USERS, InternalUser.table_fields);
-	static Tasks = new DataSource(TABLENAME_TASKS, TaskData.data_model.fields);
-	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.table_fields);
-	static Projects = new DataSource(TABLENAME_PROJECTS, ProjectCoreData.data_model.fields);
-	static HrRequests = new DataSource(TABLENAME_HR_REQUESTS, HrRequest.data_model.fields);
+	static Permissions = new DataSource(TABLENAME_PERMS, Permission.data_model);
+	static Users = new DataSource(TABLENAME_USERS, InternalUser.data_model, 'display_name_full', 'display_name_full');
+	static Tasks = new DataSource(TABLENAME_TASKS, TaskData.data_model, 'task_title', 'task_title');
+	static Contacts = new DataSource(TABLENAME_CONTACTS, ExternalContact.data_model, 'contact_name', 'contact_name');
+	static Projects = new DataSource(TABLENAME_PROJECTS, ProjectCoreData.data_model, 'project_name', 'project_name');
+	static HrRequests = new DataSource(TABLENAME_HR_REQUESTS, HrRequest.data_model, 'request_name', 'request_name');
+	static TimekeepEvents = new DataSource(TABLENAME_TK_EVENTS, TimekeepEvent.data_model);
+	static TimekeepStatuses = new DataSource(TABLENAME_TK_STATUSES, TimekeepStatus.data_model);
 
-	constructor(list_title, fields = DEF_TABLE_FIELDS, site_name = DEF_TABLE_SITE)
+	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', site_name = DEF_TABLE_SITE)
 	{
 		this.list_title = list_title;
+		this.label_field = label_field;
+		this.sorting_field = sorting_field;
 		this.site_name = site_name;
-		this.fields = fields;
+		this.data_model = data_model;
+		this.fields = (data_model && data_model.fields) ? data_model.fields : [];
 	}
 
 	async GetData() { return await SharePoint.GetListData(this); }

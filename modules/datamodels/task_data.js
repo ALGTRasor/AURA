@@ -3,20 +3,22 @@ import { DataTableDesc } from "./datatable_desc.js";
 
 export class TaskData
 {
-	static data_model = new DataTableDesc(
-		{
-			'id': new DataFieldDesc('id', 'id', false, true),
-			'Title': new DataFieldDesc('Title', 'task guid', false, true),
-			'task_title': new DataFieldDesc('task_title', 'title'),
-			'task_desc': new DataFieldDesc('task_desc', 'description'),
-			'task_comments': new DataFieldDesc('task_comments', 'comments', false, false, 'list'),
-			'subtask_ids': new DataFieldDesc('subtask_ids', 'subtasks', false, false, 'list'),
-			'task_date_due': new DataFieldDesc('task_date_due', 'due date', false, false, 'date'),
-			'task_date_completed': new DataFieldDesc('task_date_completed', 'completed date', false, false, 'date'),
-			'owner_user_id': new DataFieldDesc('owner_user_id', 'owner', false, false, 'user'),
-			'assigned_user_ids': new DataFieldDesc('assigned_user_ids', 'assigned users', false, false, 'list'),
-			'task_project_id': new DataFieldDesc('task_project_id', 'project')
-		}
+	static data_model = DataTableDesc.Build(
+		[
+			{ key: 'id', label: 'id', exclude: true },
+			{ key: 'Title', label: 'permission id' },
+			{ key: 'task_title', label: 'title name' },
+			{ key: 'task_desc', label: 'description', multiline: true },
+			{ key: 'task_comments', label: 'comments', format: 'list' },
+			{ key: 'subtask_ids', label: 'subtasks', format: 'list' },
+
+			{ key: 'task_date_due', label: 'due date', format: 'date' },
+			{ key: 'task_date_completed', label: 'completed date', format: 'date' },
+
+			{ key: 'owner_user_id', label: 'owner', format: 'user' },
+			{ key: 'assigned_user_ids', label: 'assigned users', format: 'list' },
+			{ key: 'task_project_id', label: 'project', format: 'project' },
+		]
 	);
 }
 TaskData.data_model.field_descs['task_comments'].list_separator = '}:|:{';

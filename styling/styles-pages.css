@@ -134,6 +134,27 @@
 	background-color: hsl(from var(--theme-color) h s 10%);
 }
 
+
+
+
+
+.page-panel a
+{
+	color: hsl(from var(--theme-color) h s 55%);
+	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+	border-radius: 0.5rem;
+}
+
+.page-panel a:hover
+{
+	color: hsl(from var(--theme-color) h s 80%);
+	background: hsl(from var(--theme-color) h s 10%);
+}
+
+
+
+
+
 .page-panel-tiles
 {
 	overflow: hidden auto;
@@ -189,7 +210,7 @@
 .page-panel.expanding-panel
 {
 	transition-property: max-height;
-	transition-duration: var(--trans-dur-off-veryslow);
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 .page-panel.expanding-panel:hover

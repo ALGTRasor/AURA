@@ -108,10 +108,10 @@ export class RecordFormUtils
     static FormatValueString(valstr = '', row_opts = {})
     {
         if (!row_opts) return valstr;
-        if (!row_opts.format_mode) return valstr;
-        if (row_opts.format_mode.length < 1) return valstr;
+        if (!row_opts.format) return valstr;
+        if (row_opts.format.length < 1) return valstr;
 
-        switch (row_opts.format_mode)
+        switch (row_opts.format)
         {
             case 'upper':
                 valstr = valstr.toUpperCase();

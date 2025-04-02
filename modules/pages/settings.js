@@ -108,11 +108,49 @@ export class PageSettings extends PageBase
 			x =>
 			{
 				x.className += ' expanding-panel';
-				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'ABOUT AURA'; });
-				const addAbout = (text = '') => CreatePagePanel(x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;', _ => { _.innerText = text; });
+				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
+				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
+
+				const about_style = 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
+				const addKey = (key = '', effect = '', tooltip = '') => CreatePagePanel(
+					x, false, false, about_style,
+					_ =>
+					{
+						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:70%;align-content:center;">' + key.toUpperCase() + '</span>'
+							+ '<span style="position:absolute;display:block;inset:0;left:30%;align-content:center;text-align:left;">' + effect + '</span>';
+						_.title = tooltip;
+					}
+				);
+				addKey('` ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
+				addKey('e', 'Toggle External Contacts');
+				addKey('h', 'Toggle HR');
+				addKey('i', 'Toggle Internal Users');
+				addKey('k', 'Toggle Timekeep');
+				addKey('m', 'Toggle My Data');
+				addKey('n', 'Toggle Nav Menu');
+				addKey('p', 'Toggle Project Hub');
+				addKey('s', 'Toggle Settings');
+				addKey('t', 'Toggle Task Hub');
+			}
+		);
+
+
+		CreatePagePanel(
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			x =>
+			{
+				x.className += ' expanding-panel';
+				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
+				addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
+
+				const about_style = 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
+				const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });
 				addAbout('AURA stands for Arrow User & Resource Assistant.');
 				addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
-				addAbout('AURA uses a Microsoft login, but is built to accomodate database backends other than just SharePoint.');
+				addAbout('AURA utilizes a Microsoft account for login, but is prepared to accomodate database backends outside of the Microsoft ecosystem.');
+				addAbout('AURA itself has no external dependencies, thus it can run in any standard web browser and could be made portable to run locally on any device with a standard browser. This also means AURA avoids any vulnerabilities that might be introduced by commonly used web dependencies like <a href="https://www.upguard.com/blog/critical-middleware-bypass-vulnerability-in-next-js-cve-2025-29927" target="_blank">Next.js</a>.');
+				addAbout('AURA is a static site, meaning it runs entirely on your device aside from external service calls like SharePoint.');
+				addAbout('© 2025 Arrow Land Group LLC');
 			}
 		);
 

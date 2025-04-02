@@ -27,7 +27,7 @@ export class RecordViewer
         this.DeselectData();
     }
 
-    SetData(data = []) { this.data = data; }
+    SetData(data = []) { this.data = data; this.DeselectData(); }
     SetfilterBuilder(builder = () => { }) { this.filterBuilder = builder; }
     SetListItemBuilder(builder = (table, record, element) => { }) { this.listItemBuilder = builder; }
     SetListItemSorter(sorter = (record) => { return true; }) { this.sorter = sorter; }
