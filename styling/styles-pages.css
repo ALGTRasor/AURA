@@ -203,12 +203,12 @@
 	opacity: 50%;
 	transition-property: rotate, opacity;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: 0.25s;
+	transition-delay: 0.2s;
 	transition-timing-function: ease-in-out;
 }
 .page-panel.expanding-panel:hover::after
 {
-	transition-delay: 0s;
+	transition-delay: 0.1s;
 	opacity: 100%;
 	rotate: 90deg;
 }

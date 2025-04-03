@@ -3,6 +3,7 @@ import { Autosave } from "../autosave.js";
 import { addElement, CreatePagePanel } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
+import { UserAccountInfo } from "../useraccount.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
 
@@ -26,7 +27,7 @@ export class PageSettings extends PageBase
 			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
 			x =>
 			{
-				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'SETTINGS'; });
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY SETTINGS'; });
 			}
 		);
 
@@ -81,6 +82,27 @@ export class PageSettings extends PageBase
 		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
 
+
+		CreatePagePanel(
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			x =>
+			{
+				x.className += ' expanding-panel';
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY PERMISSIONS'; });
+				for (let pid in UserAccountInfo.user_permissions)
+				{
+					let info = UserAccountInfo.user_permissions[pid];
+					CreatePagePanel(
+						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
+						_ =>
+						{
+							_.innerText = info.permission_name;
+							_.title = info.permission_desc;
+						}
+					);
+				}
+			}
+		);
 
 		CreatePagePanel(
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',

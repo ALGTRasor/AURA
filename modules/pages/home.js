@@ -37,15 +37,15 @@ export class PageHome extends PageBase
 		};
 
 		let buttons = [];
-		if (DevMode.active || UserAccountInfo.HasPermission('projects.view')) buttons.push(ButtonOptions('project hub'));
-		if (DevMode.active || UserAccountInfo.HasPermission('tasks.view')) buttons.push(ButtonOptions('task hub'));
-		if (DevMode.active || UserAccountInfo.HasPermission('contact.logs.view')) buttons.push(ButtonOptions('contact logs'));
-		if (DevMode.active || UserAccountInfo.HasPermission('users.view')) buttons.push(ButtonOptions('internal users'));
-		if (DevMode.active || UserAccountInfo.HasPermission('contacts.view')) buttons.push(ButtonOptions('external contacts'));
-		if (DevMode.active || UserAccountInfo.HasPermission('reports.access')) buttons.push(ButtonOptions('reports'));
-		if (DevMode.active || UserAccountInfo.HasPermission('time.keep')) buttons.push(ButtonOptions('timekeep'));
+		if (UserAccountInfo.HasPermission('projects.view')) buttons.push(ButtonOptions('project hub'));
+		if (UserAccountInfo.HasPermission('tasks.view')) buttons.push(ButtonOptions('task hub'));
+		if (UserAccountInfo.HasPermission('contact.logs.view')) buttons.push(ButtonOptions('contact logs'));
+		if (UserAccountInfo.HasPermission('users.view')) buttons.push(ButtonOptions('internal users'));
+		if (UserAccountInfo.HasPermission('contacts.view')) buttons.push(ButtonOptions('external contacts'));
+		if (UserAccountInfo.HasPermission('reports.access')) buttons.push(ButtonOptions('reports'));
+		if (UserAccountInfo.HasPermission('time.keep')) buttons.push(ButtonOptions('timekeep'));
 		buttons.push(ButtonOptions('my data'));
-		if (DevMode.active || UserAccountInfo.HasPermission('hr.access')) buttons.push(ButtonOptions('hr'));
+		if (UserAccountInfo.HasPermission('hr.access')) buttons.push(ButtonOptions('hr'));
 		buttons.push(ButtonOptions('settings'));
 		buttons.push(ButtonOptions('external links'));
 		if (DevMode.active)

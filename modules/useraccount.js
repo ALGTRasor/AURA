@@ -372,7 +372,7 @@ export class UserAccountInfo
 		if (typeof permission_id !== 'string' || permission_id.length < 1) return -1;
 		for (let pid in UserAccountInfo.user_permissions)
 		{
-			if (UserAccountInfo.user_permissions[pid] === permission_id) return pid;
+			if (UserAccountInfo.user_permissions[pid].Title === permission_id) return pid;
 		}
 		return -1;
 	}
