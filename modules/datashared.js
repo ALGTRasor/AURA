@@ -4,6 +4,7 @@ import { DebugLog } from "./debuglog.js";
 import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
+import { UserAccountInfo } from "./useraccount.js";
 
 const SanitizeString = (str = '') =>
 {
@@ -75,6 +76,11 @@ export class SharedData
 		if (SharedData.loading) return;
 
 		const timer_shareddataload = 'shared data load';
+
+
+		DataSource.TimekeepEvents.view_filter = `fields/user_id eq '${UserAccountInfo.account_info.user_id}'`;
+		DataSource.TimekeepStatuses.view_filter = `fields/Title eq '${UserAccountInfo.account_info.user_id}'`;
+		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
 
 		SharedData.loading = true;
 		Timers.Start(timer_shareddataload);

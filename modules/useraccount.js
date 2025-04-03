@@ -367,6 +367,23 @@ export class UserAccountInfo
 
 	static hr_info = {}; // internal user hr data
 
+	static IndexOfPermission(permission_id = '')
+	{
+		if (typeof permission_id !== 'string' || permission_id.length < 1) return -1;
+		for (let pid in UserAccountInfo.user_permissions)
+		{
+			if (UserAccountInfo.user_permissions[pid] === permission_id) return pid;
+		}
+		return -1;
+	}
+
+	static HasPermission(permission_id = '')
+	{
+		if (typeof permission_id !== 'string' || permission_id.length < 1) return true;
+		let existing_id = UserAccountInfo.IndexOfPermission(permission_id);
+		return existing_id > -1;
+	}
+
 	static UpdateUserInfo()
 	{
 		if (!SharedData.users || SharedData.users.length < 1)
@@ -383,9 +400,10 @@ export class UserAccountInfo
 		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
 		if (got && got.display_name_full)
 		{
-			DebugLog.Log('internal user data match: ' + got.display_name_full);
 			UserAccountInfo.user_info = got;
 			UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+			DebugLog.Log('internal user data match: ' + got.display_name_full);
+			DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
 		}
 		else
 		{

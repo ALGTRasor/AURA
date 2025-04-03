@@ -32,6 +32,41 @@ export class DataTableDesc
         }
         return new DataTableDesc(descs_expanded);
     }
+
+    static RandInt() { return Math.round(Math.random() * 10); }
+    static RandInts(count = 1)
+    {
+        let res = '';
+        for (let ii = 0; ii < count; ii++) res += Math.round(Math.random() * 9);
+        return res;
+    }
+
+    SpoofRecord()
+    {
+        let result = {};
+        for (let desc_id in this.field_descs)
+        {
+            let desc = this.field_descs[desc_id];
+            if (desc.format)
+            {
+                switch (desc.format)
+                {
+                    case 'user': result[desc.key] = 'Employee ' + Math.round(Math.random() * 89999 + 10000); break;
+                    case 'contact': result[desc.key] = 'Contact ' + Math.round(Math.random() * 89999 + 10000); break;
+                    case 'address': result[desc.key] = DataTableDesc.RandInts(Math.round(3 + Math.random() * 3)) + ' Street Road, City, TX ' + DataTableDesc.RandInts(5); break;
+                    case 'phone': result[desc.key] = `(${DataTableDesc.RandInts(3)}) ${DataTableDesc.RandInts(3)}-${DataTableDesc.RandInts(4)}`; break;
+                    case 'email': result[desc.key] = 'username' + DataTableDesc.RandInts(5) + '@domain.com'; break;
+                    case 'date': result[desc.key] = '01-01-2025'; break;
+                    default: result[desc.key] = desc.key + ' ' + Math.round(Math.random() * 89999 + 10000); break;
+                }
+            }
+            else
+            {
+                result[desc.key] = desc.key + ' ' + Math.round(Math.random() * 89999 + 10000);
+            }
+        }
+        return result;
+    }
 }
 
 Modules.Report('DataTable Descriptors', 'This module adds a reusable code component that describes one database table and its fields.');

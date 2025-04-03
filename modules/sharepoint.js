@@ -29,6 +29,10 @@ export class SharePoint
 	{
 		let field_str = source.fields.join(',');
 		let url = await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id&expand=fields(select=' + field_str + ')';
+		if (source.view_filter)
+		{
+			url += '&$filter=' + source.view_filter;
+		}
 		let result = await SharePoint.GetData(url);
 
 		let all_items = [];
@@ -40,7 +44,7 @@ export class SharePoint
 				let valid_items = new_items && Array.isArray(new_items);
 				if (!valid_items) return item_list;
 
-				DebugLog.Log(' + ' + new_items.length + ' items', '#0ff3');
+				//DebugLog.Log(' + ' + new_items.length + ' items', '#0ff3');
 				return item_list.concat(new_items);
 			}
 
@@ -49,7 +53,7 @@ export class SharePoint
 			{
 				let next_url = result['@odata.nextLink'];
 				result = await SharePoint.GetData(next_url);
-				DebugLog.Log('...followed pagination');
+				//DebugLog.Log('...followed pagination');
 				all_items = collect_items(all_items, result.value);
 			}
 		}

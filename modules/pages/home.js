@@ -1,4 +1,5 @@
 import { DebugLog } from "../debuglog.js";
+import { DevMode } from "../devmode.js";
 import { PageManager } from "../pagemanager.js";
 import { QuickMenu } from "../ui/quickmenu.js";
 import { UserAccountInfo } from "../useraccount.js";
@@ -35,21 +36,24 @@ export class PageHome extends PageBase
 			}
 		};
 
-		let buttons = [
-			ButtonOptions('project hub'),
-			ButtonOptions('task hub'),
-			ButtonOptions('contact logs'),
-			ButtonOptions('internal users'),
-			ButtonOptions('external contacts'),
-			ButtonOptions('reports'),
-			ButtonOptions('timekeep'),
-			ButtonOptions('my data'),
-			ButtonOptions('hr'),
-			ButtonOptions('settings'),
-			ButtonOptions('external links'),
-			ButtonOptions('database probe'),
-			ButtonOptions('demo panel'),
-		];
+		let buttons = [];
+		if (DevMode.active || UserAccountInfo.HasPermission('projects.view')) buttons.push(ButtonOptions('project hub'));
+		if (DevMode.active || UserAccountInfo.HasPermission('tasks.view')) buttons.push(ButtonOptions('task hub'));
+		if (DevMode.active || UserAccountInfo.HasPermission('contact.logs.view')) buttons.push(ButtonOptions('contact logs'));
+		if (DevMode.active || UserAccountInfo.HasPermission('users.view')) buttons.push(ButtonOptions('internal users'));
+		if (DevMode.active || UserAccountInfo.HasPermission('contacts.view')) buttons.push(ButtonOptions('external contacts'));
+		if (DevMode.active || UserAccountInfo.HasPermission('reports.access')) buttons.push(ButtonOptions('reports'));
+		if (DevMode.active || UserAccountInfo.HasPermission('time.keep')) buttons.push(ButtonOptions('timekeep'));
+		buttons.push(ButtonOptions('my data'));
+		if (DevMode.active || UserAccountInfo.HasPermission('hr.access')) buttons.push(ButtonOptions('hr'));
+		buttons.push(ButtonOptions('settings'));
+		buttons.push(ButtonOptions('external links'));
+		if (DevMode.active)
+		{
+			buttons.push(ButtonOptions('database probe'));
+			buttons.push(ButtonOptions('demo panel'));
+		}
+
 		this.menu.CreateElements(this.e_content, buttons);
 
 		this.e_content.style.justifyContent = 'center';

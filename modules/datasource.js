@@ -11,6 +11,7 @@ import { ProjectCoreData } from "./datamodels/project_data_core.js";
 import { HrRequest } from "./datamodels/hr_request.js";
 import { TimekeepEvent, TimekeepStatus } from "./datamodels/timekeep.js";
 import { DataTableDesc } from "./datamodels/datatable_desc.js";
+import { UserAccountInfo } from "./useraccount.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -42,7 +43,7 @@ export class DataSource
 	static TimekeepEvents = new DataSource(TABLENAME_TK_EVENTS, TimekeepEvent.data_model);
 	static TimekeepStatuses = new DataSource(TABLENAME_TK_STATUSES, TimekeepStatus.data_model);
 
-	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', site_name = DEF_TABLE_SITE)
+	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{
 		this.list_title = list_title;
 		this.label_field = label_field;
@@ -50,6 +51,7 @@ export class DataSource
 		this.site_name = site_name;
 		this.data_model = data_model;
 		this.fields = (data_model && data_model.fields) ? data_model.fields : [];
+		this.view_filter = view_filter;
 	}
 
 	async GetData() { return await SharePoint.GetListData(this); }
