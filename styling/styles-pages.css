@@ -83,7 +83,7 @@
 	border: solid 2px transparent;
 
 	transition-property: border, background-color;
-	transition-duration: var(--trans-dur-on-slow);
+	transition-duration: var(--trans-dur-on-fast);
 	transition-timing-function: ease-in-out;
 }
 

@@ -10,8 +10,16 @@ export class InternalUserSummary extends PanelBase
 	info_name = null;
 	info_emailCompany = null;
 	info_emailPersonal = null;
+	info_addressCompany = null;
+	info_addressPersonal = null;
+	info_phoneCompany = null;
+	info_phonePersonal = null;
 	info_team = null;
 	info_role = null;
+	info_manager = null;
+	info_birthDate = null;
+	info_startDate = null;
+	info_endDate = null;
 
 	OnCreate()
 	{
@@ -67,6 +75,14 @@ export class InternalUserSummary extends PanelBase
 		this.info_birthDate = this.PushChild(new FieldValuePanel());
 		this.info_birthDate.label = "birth date";
 		this.info_birthDate.Create(this.e_block);
+
+		this.info_startDate = this.PushChild(new FieldValuePanel());
+		this.info_startDate.label = "tenure start";
+		this.info_startDate.Create(this.e_block);
+
+		this.info_endDate = this.PushChild(new FieldValuePanel());
+		this.info_endDate.label = "tenure end";
+		this.info_endDate.Create(this.e_block);
 	}
 
 	OnRefresh()
@@ -88,6 +104,8 @@ export class InternalUserSummary extends PanelBase
 			this.info_phonePersonal.value = this.user_data.phone_home;
 
 			this.info_birthDate.value = this.user_data.user_birthdate;
+			this.info_startDate.value = this.user_data.date_start;
+			this.info_endDate.value = this.user_data.date_end === undefined ? '-' : this.user_data.date_end;
 		}
 		else
 		{
@@ -106,8 +124,39 @@ export class InternalUserSummary extends PanelBase
 			this.info_phonePersonal.value = undefined;
 
 			this.info_birthDate.value = undefined;
+			this.info_startDate.value = undefined;
+			this.info_endDate.value = undefined;
 		}
 	}
 
-	OnRemove() { this.e_root.remove(); }
+	OnRemove()
+	{
+		this.ReleaseReferences();
+		this.e_title.remove();
+		this.e_block.remove();
+		this.e_root.remove();
+		this.e_title = null;
+		this.e_block = null;
+		this.e_root = null;
+	}
+
+	ReleaseReferences()
+	{
+		this.info_id = null;
+		this.info_name = null;
+		this.info_team = null;
+		this.info_role = null;
+		this.info_manager = null;
+
+		this.info_emailCompany = null;
+		this.info_emailPersonal = null;
+		this.info_addressCompany = null;
+		this.info_addressPersonal = null;
+		this.info_phoneCompany = null;
+		this.info_phonePersonal = null;
+
+		this.info_birthDate = null;
+		this.info_startDate = null;
+		this.info_endDate = null;
+	}
 }

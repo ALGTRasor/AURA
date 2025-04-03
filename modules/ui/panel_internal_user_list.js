@@ -14,8 +14,8 @@ export class InternalUserList extends PanelBase
 	}
 	OnRefresh()
 	{
-		for (let eid in this.panels_summary) this.panels_summary[eid].Remove();
-		this.panels_summary = [];
+		for (let cid in this.children) this.children[cid].Remove();
+		this.children = [];
 
 		if (this.users && this.users.length > 0)
 		{
@@ -27,7 +27,7 @@ export class InternalUserList extends PanelBase
 				this.PushChild(panel_summary);
 			}
 		}
-		else
+		else // spoof records
 		{
 			for (let ii = 0; ii < 15; ii++)
 			{
@@ -41,8 +41,6 @@ export class InternalUserList extends PanelBase
 	}
 	OnRemove()
 	{
-		for (let eid in this.panels_summary) this.panels_summary[eid].Remove();
-		this.panels_summary = [];
 		this.e_root.remove();
 	}
 }

@@ -6,7 +6,6 @@ import { ProjectSummary } from "./panel_project_summary.js";
 
 export class ProjectList extends PanelBase
 {
-	panels_summary = [];
 	projects = [];
 
 	OnCreate()
@@ -15,17 +14,14 @@ export class ProjectList extends PanelBase
 	}
 	OnRefresh()
 	{
-		for (let eid in this.panels_summary) this.panels_summary[eid].Remove();
-		this.panels_summary = [];
-
 		if (this.projects && this.projects.length > 0)
 		{
 			for (let ii = 0; ii < this.projects.length; ii++)
 			{
 				let panel_summary = new ProjectSummary();
-				panel_summary.project_data = projects[ii];
+				panel_summary.project_data = this.projects[ii];
 				panel_summary.Create(this.e_root);
-				this.panels_summary.push(panel_summary);
+				this.PushChild(panel_summary);
 			}
 		}
 		else
@@ -36,14 +32,12 @@ export class ProjectList extends PanelBase
 				panel_summary.project_data = ProjectCoreData.data_model.SpoofRecord();
 				panel_summary.Create(this.e_root);
 				panel_summary.e_root.style.setProperty('--theme-color', '#fed');
-				this.panels_summary.push(panel_summary);
+				this.PushChild(panel_summary);
 			}
 		}
 	}
 	OnRemove()
 	{
-		for (let eid in this.panels_summary) this.panels_summary[eid].Remove();
-		this.panels_summary = [];
 		this.e_root.remove();
 	}
 }

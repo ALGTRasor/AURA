@@ -121,6 +121,7 @@ export class PageBase
 			PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
 			PageManager.RemoveFromCurrent(this, 20);
 			this.e_body.remove();
+			this.e_body = null;
 		}
 		else
 		{
@@ -130,6 +131,7 @@ export class PageBase
 				{
 					PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
 					PageManager.RemoveFromCurrent(this, 20);
+					this.e_body = null;
 				}
 			);
 		}

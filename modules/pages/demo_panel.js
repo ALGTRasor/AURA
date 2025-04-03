@@ -28,6 +28,7 @@ export class PageDemoPanel extends PageBase
 					() =>
 					{
 						this.demo_panel = new ProjectList();
+						//this.demo_panel.projects = SharedData.projects.data.slice(0, 5);
 						this.demo_panel.Create(this.e_panel);
 					},
 				onRemove: () =>
@@ -45,7 +46,7 @@ export class PageDemoPanel extends PageBase
 					() =>
 					{
 						this.demo_panel = new InternalUserList();
-						this.demo_panel.users = SharedData.users.data.slice(0, 7);
+						//this.demo_panel.users = SharedData.users.data.slice(0, 7);
 						this.demo_panel.Create(this.e_panel);
 					},
 				onRemove: () =>

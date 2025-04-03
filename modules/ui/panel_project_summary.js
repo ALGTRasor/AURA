@@ -20,23 +20,27 @@ export class ProjectSummary extends PanelBase
 
 		this.e_blocks = addElement(this.e_root, 'div', '', 'flex-basis:100%;flex-wrap:nowrap;overflow:hidden;flex-direction:row;display:flex;');
 
-		const style_block = 'display:flex;flex-basis:0.0;flex-wrap:nowrap;flex-direction:column;padding:2px;';
+		const style_block = 'display:flex; flex-basis:0.0; flex-direction:column; flex-wrap:nowrap; padding:2px;';
 		this.e_block_left = CreatePagePanel(this.e_blocks, true, false, style_block);
 		this.e_block_right = CreatePagePanel(this.e_blocks, true, false, style_block);
 
 		this.info_client = this.PushChild(new FieldValuePanel());
+		this.info_client.minWidth = '6rem';
 		this.info_client.label = "client";
 		this.info_client.Create(this.e_block_left);
 
 		this.info_location = this.PushChild(new FieldValuePanel());
+		this.info_location.minWidth = '6rem';
 		this.info_location.label = "location";
 		this.info_location.Create(this.e_block_left);
 
 		this.info_scope = this.PushChild(new FieldValuePanel());
+		this.info_scope.minWidth = '6rem';
 		this.info_scope.label = "scope";
 		this.info_scope.Create(this.e_block_left);
 
 		this.info_status = this.PushChild(new FieldValuePanel());
+		this.info_status.minWidth = '6rem';
 		this.info_status.label = "status";
 		this.info_status.Create(this.e_block_left);
 	}

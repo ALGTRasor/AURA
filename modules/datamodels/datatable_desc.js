@@ -33,6 +33,12 @@ export class DataTableDesc
         return new DataTableDesc(descs_expanded);
     }
 
+    static RandDate()
+    {
+        let d = new Date();
+        d.setDate(d.getDate() - Math.random() * 5000);
+        return d.toISOString().substring(0, 10);
+    }
     static RandInt() { return Math.round(Math.random() * 10); }
     static RandInts(count = 1)
     {
@@ -56,7 +62,7 @@ export class DataTableDesc
                     case 'address': result[desc.key] = DataTableDesc.RandInts(Math.round(3 + Math.random() * 3)) + ' Street Road, City, TX ' + DataTableDesc.RandInts(5); break;
                     case 'phone': result[desc.key] = `(${DataTableDesc.RandInts(3)}) ${DataTableDesc.RandInts(3)}-${DataTableDesc.RandInts(4)}`; break;
                     case 'email': result[desc.key] = 'username' + DataTableDesc.RandInts(5) + '@domain.com'; break;
-                    case 'date': result[desc.key] = '01-01-2025'; break;
+                    case 'date': result[desc.key] = DataTableDesc.RandDate(); break;
                     default: result[desc.key] = desc.key + ' ' + Math.round(Math.random() * 89999 + 10000); break;
                 }
             }
