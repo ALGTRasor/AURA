@@ -42,6 +42,8 @@ async function CheckIdentity()
 
 async function OnAuraInit()
 {
+	window.use_mobile_layout = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 	SetErrorProxy();
 	UserSettings.HookOptionEvents();
 
@@ -53,8 +55,14 @@ async function OnAuraInit()
 
 	await UserAccountManager.AttemptAutoLogin();
 
-	if (UserAccountManager.account_provider.logged_in) 
+	let has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
+	let is_alg_account = has_ms_account && UserAccountInfo.account_info.email.endsWith('arrowlandgroup.com');
+
+	if (UserAccountManager.account_provider.logged_in && is_alg_account === true) 
 	{
+		DebugLog.Log(' MS: ' + has_ms_account);
+		DebugLog.Log('ALG: ' + is_alg_account);
+
 		document.getElementById('content-body-obscurer').style.display = 'none';
 
 		await CheckIdentity();
@@ -68,7 +76,7 @@ async function OnAuraInit()
 	else
 	{
 		document.getElementById('content-body-obscurer').style.display = 'block';
-		document.getElementById('content-body-obscurer').innerText = 'PLEASE LOG IN';
+		document.getElementById('content-body-obscurer').innerText = 'RESTRICTED';
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}

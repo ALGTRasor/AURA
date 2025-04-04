@@ -50,7 +50,7 @@ export class UserSettings
 		{
 			if (!addIfNew) return;
 			UserSettings.options.push(new UserSettingsOption(option_key, value));
-			DebugLog.Log('cfg: +' + option_key + ' ( ' + value + ' )');
+			//DebugLog.Log('cfg: +' + option_key + ' ( ' + value + ' )');
 		}
 		else if (UserSettings.options[existing_index].value != value)
 		{

@@ -38,7 +38,7 @@ export class PageManager
 
 	static RegisterPage(page = PageBase.Default())
 	{
-		DebugLog.Log('+page: ' + page.title.toUpperCase());
+		//DebugLog.Log('+page: ' + page.title.toUpperCase());
 		PageManager.all_pages.push(page);
 	}
 

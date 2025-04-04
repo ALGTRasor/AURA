@@ -21,8 +21,8 @@ export class ProjectSummary extends PanelBase
 		this.e_blocks = addElement(this.e_root, 'div', '', 'flex-basis:100%;flex-wrap:nowrap;overflow:hidden;flex-direction:row;display:flex;');
 
 		const style_block = 'display:flex; flex-basis:0.0; flex-direction:column; flex-wrap:nowrap; padding:2px;';
-		this.e_block_left = CreatePagePanel(this.e_blocks, true, false, style_block);
-		this.e_block_right = CreatePagePanel(this.e_blocks, true, false, style_block);
+		this.e_block_left = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:2.0;');
+		this.e_block_right = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:3.0;');
 
 		this.info_client = this.PushChild(new FieldValuePanel());
 		this.info_client.minWidth = '6rem';
@@ -49,12 +49,12 @@ export class ProjectSummary extends PanelBase
 	{
 		if (this.project_data)
 		{
-			this.e_title.innerText = this.project_data.project_name;
+			this.e_title.innerText = this.project_data.name;
 
 			this.info_client.value = this.project_data.client_id;
-			this.info_location.value = this.project_data.project_location;
-			this.info_scope.value = this.project_data.project_scope;
-			this.info_status.value = this.project_data.project_status;
+			this.info_location.value = this.project_data.location;
+			this.info_scope.value = this.project_data.scope;
+			this.info_status.value = this.project_data.status;
 
 			this.e_block_right.innerHTML = '';
 			let aspect_count = Math.random() * 9 + 3;
