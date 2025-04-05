@@ -309,7 +309,7 @@ export class UserAccountManager
 
 	static GetRedirectUri(force_secure_protocol = false)
 	{
-		let n = window.location.hostname;//.toString();
+		let n = window.location.host;//.toString();
 		//n = n.replace(window.location.search, "");
 		//n = n.replace('?', '');
 		//n = n.replace(window.location.hash, "");
@@ -330,7 +330,6 @@ export class UserAccountManager
 
 	static MaybeAttemptReauthorize(reason = '')
 	{
-		return;
 		UserAccountManager.account_provider.AttemptReauthorize(reason);
 	}
 
