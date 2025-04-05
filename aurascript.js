@@ -71,7 +71,7 @@ async function OnAuraInit()
 	ActionBar.UpdateAccountButton();
 
 	let has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
-	let is_alg_account = has_ms_account && UserAccountInfo.account_info.email.endsWith('arrowlandgroup.com');
+	let is_alg_account = has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
 
 	if (UserAccountManager.account_provider.logged_in === true && is_alg_account === true) 
 	{
