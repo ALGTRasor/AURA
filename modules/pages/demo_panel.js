@@ -2,6 +2,7 @@ import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
 import { CreatePagePanel } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
+import { ExternalContactList } from "../ui/panel_external_contact_list.js";
 import { InternalUserList } from "../ui/panel_internal_user_list.js";
 import { ProjectList } from "../ui/panel_project_list.js";
 import { PageBase } from "./pagebase.js";
@@ -38,7 +39,6 @@ export class PageDemoPanel extends PageBase
 				}
 			},
 			{ name: 'PROJECT DETAILS', onCreate: () => { }, onRemove: () => { } },
-			{ name: 'PROJECT TRACTS', onCreate: () => { }, onRemove: () => { } },
 			{ name: 'TRACT DETAILS', onCreate: () => { }, onRemove: () => { } },
 			{
 				name: 'INTERNAL USER',
@@ -46,6 +46,21 @@ export class PageDemoPanel extends PageBase
 					() =>
 					{
 						this.demo_panel = new InternalUserList();
+						//this.demo_panel.users = SharedData.users.data.slice(0, 7);
+						this.demo_panel.Create(this.e_panel);
+					},
+				onRemove: () =>
+				{
+					this.demo_panel.Remove();
+					this.demo_panel = null;
+				}
+			},
+			{
+				name: 'EXTERNAL CONTACT',
+				onCreate:
+					() =>
+					{
+						this.demo_panel = new ExternalContactList();
 						//this.demo_panel.users = SharedData.users.data.slice(0, 7);
 						this.demo_panel.Create(this.e_panel);
 					},

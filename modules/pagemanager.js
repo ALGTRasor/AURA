@@ -115,7 +115,7 @@ export class PageManager
 			if (i < 0) return;
 
 			PageManager.currentPages.splice(i, 1);
-			if (PageManager.currentPages.length < 1) window.setTimeout(() => { fxn.OpenPageById('nav menu'); }, 250);
+			if (PageManager.currentPages.length < 1) window.setTimeout(() => { PageManager.OpenPageByTitle('nav menu'); }, 250);
 			else PageManager.onLayoutChange.Invoke();
 		};
 

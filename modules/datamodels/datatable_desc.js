@@ -60,7 +60,7 @@ export class DataTableDesc
                     case 'user': result[desc.key] = 'Employee ' + Math.round(Math.random() * 89999 + 10000); break;
                     case 'contact': result[desc.key] = 'Contact ' + Math.round(Math.random() * 89999 + 10000); break;
                     case 'address': result[desc.key] = DataTableDesc.RandInts(Math.round(3 + Math.random() * 3)) + ' Street Road, City, TX ' + DataTableDesc.RandInts(5); break;
-                    case 'phone': result[desc.key] = `(${DataTableDesc.RandInts(3)}) ${DataTableDesc.RandInts(3)}-${DataTableDesc.RandInts(4)}`; break;
+                    case 'phone': result[desc.key] = `(555) ${DataTableDesc.RandInts(3)}-${DataTableDesc.RandInts(4)}`; break;
                     case 'email': result[desc.key] = 'username' + DataTableDesc.RandInts(5) + '@domain.com'; break;
                     case 'date': result[desc.key] = DataTableDesc.RandDate(); break;
                     default: result[desc.key] = desc.key + ' ' + Math.round(Math.random() * 89999 + 10000); break;

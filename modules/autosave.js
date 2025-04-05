@@ -31,27 +31,14 @@ export class Autosave
 
 	static InvokeSoon()
 	{
-		if (Autosave.invokesoon_tid < 0)
-		{
-			Autosave.invokesoon_tid = window.setTimeout(Autosave.InvokeNow, Autosave.invokesoon_delay);
-			return;
-		}
-		window.clearTimeout(Autosave.invokesoon_tid);
+		if (Autosave.invokesoon_tid > -1) window.clearTimeout(Autosave.invokesoon_tid);
 		Autosave.invokesoon_tid = window.setTimeout(Autosave.InvokeNow, Autosave.invokesoon_delay);
 	}
 
-	static HookSaveEvent(save_action = () => { })
-	{
-		return Autosave.source.RequestSubscription(save_action);
-	}
+	static HookSaveEvent(save_action = () => { }) { return Autosave.source.RequestSubscription(save_action); }
+	static ReleaseSaveEvent(save_action_sub) { Autosave.source.RemoveSubscription(save_action_sub); }
 
-	static ReleaseSaveEvent(save_action_sub)
-	{
-		Autosave.source.RemoveSubscription(save_action_sub);
-	}
-
-	static loop = new AnimJob(5000, Autosave.StepLoop); // checks for autosave every 5 seconds, might be interrupted by manual Invokes
-
+	static loop = new AnimJob(4000, Autosave.StepLoop); // checks for autosave every 5 seconds, might be interrupted by manual Invokes
 	static StepLoop(dt)
 	{
 		let ts_now = new Date();

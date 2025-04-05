@@ -5,16 +5,19 @@ import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
 import "./modules/notificationlog.js";
 
-import { PageManager } from "./modules/pagemanager.js";
-import { Fax } from "./modules/fax.js";
-import { DebugLog } from "./modules/debuglog.js";
-import { UserSettings } from "./modules/usersettings.js";
+import { AnimJob } from "./modules/AnimJob.js";
+import { RunningTimeout } from "./modules/utils/running_timeout.js";
+import { Notification, NotificationLog } from "./modules/notificationlog.js";
 import { DevMode } from "./modules/devmode.js";
+import { DebugLog } from "./modules/debuglog.js";
+import { ActionBar } from "./modules/actionbar.js";
+import { PageManager } from "./modules/pagemanager.js";
+import { UserSettings } from "./modules/usersettings.js";
 import { DataSource } from "./modules/datasource.js";
 import { SharedData } from "./modules/datashared.js";
 import { AppEvents } from "./modules/appevents.js";
+import { Fax } from "./modules/fax.js";
 
-import { Notification, NotificationLog } from "./modules/notificationlog.js";
 
 
 import './modules/pages/home.js';
@@ -32,34 +35,50 @@ import './modules/pages/demo_panel.js';
 
 
 
-async function CheckIdentity()
+
+function CheckWindowSizeChanged()
 {
-	DebugLog.StartGroup('validating identity');
-	DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
-	if (DevMode.active) DebugLog.SubmitGroup('#f0f3');
-	else DebugLog.SubmitGroup();
+	let changedW = window.lastViewportW !== window.visualViewport.width;
+	let changedH = window.lastViewportH !== window.visualViewport.height;
+	let changed = changedW || changedH;
+
+	if (changed)
+	{
+		window.lastViewportW = window.visualViewport.width;
+		window.lastViewportH = window.visualViewport.height;
+		if (window.timeout_WindowSizeChange) window.timeout_WindowSizeChange.ExtendTimer();
+	}
 }
+
+function OnWindowSizeChanged() { PageManager.onLayoutChange.Invoke(); }
 
 async function OnAuraInit()
 {
-	window.use_mobile_layout = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
+	window.loop_detectWindowSizeChange = new AnimJob(100, CheckWindowSizeChanged);
+	window.loop_detectWindowSizeChange.Start();
+
+	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
+	window.e_content_root = document.getElementById('content-body');
 
 	SetErrorProxy();
-	UserSettings.HookOptionEvents();
 
+	UserSettings.HookOptionEvents();
 	UserSettings.LoadFromStorage();
 
 	await UserAccountManager.CheckWindowLocationForCodes();
-
-	window.e_content_root = document.getElementById('content-body');
-
 	await UserAccountManager.AttemptAutoLogin();
+	ActionBar.UpdateAccountButton();
 
 	let has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 	let is_alg_account = has_ms_account && UserAccountInfo.account_info.email.endsWith('arrowlandgroup.com');
 
-	if (UserAccountManager.account_provider.logged_in && is_alg_account === true) 
+	if (UserAccountManager.account_provider.logged_in === true && is_alg_account === true) 
 	{
+		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
+		ActionBar.AddMenuButton('refresh', 'refresh', _ => RequestSharedDataRefresh());
+		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
+
 		DebugLog.Log(' MS: ' + has_ms_account);
 		DebugLog.Log('ALG: ' + is_alg_account);
 
@@ -72,6 +91,10 @@ async function OnAuraInit()
 		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
 		if (!should_restore_layout || !PageManager.RestoreCachedLayout()) PageManager.OpenPageByTitle('nav menu');
 		await Fax.RefreshFact();
+
+		NotificationLog.Log(new Notification('notification', 'this is a notification', true));
+		window.addEventListener('keyup', CheckHotkey);
+		DebugLog.Log('userAgent: ' + navigator.userAgent);
 	}
 	else
 	{
@@ -83,11 +106,7 @@ async function OnAuraInit()
 
 	UserSettings.UpdateOptionEffects();
 
-	NotificationLog.Log(new Notification('notification', 'this is a notification', true));
-
 	DebugLog.SubmitGroup('#fff4');
-
-	window.addEventListener('keyup', CheckHotkey);
 }
 
 function CheckHotkey(e)
@@ -117,10 +136,7 @@ function get_console_proxy_fxn(context, method)
 	}
 }
 
-function SetErrorProxy()
-{
-	console.error = get_console_proxy_fxn(console, console.error);
-}
+function SetErrorProxy() { console.error = get_console_proxy_fxn(console, console.error); }
 
 String.prototype.insert = function (index, string)
 {
@@ -223,11 +239,15 @@ window.fxn.ToggleLightMode = () =>
 	UserSettings.UpdateLightMode();
 };
 
-window.fxn.OpenHomePage = () => { PageManager.OpenPageByTitle('nav menu'); };
-window.fxn.OpenPageById = (page_id) => { return PageManager.OpenPageByTitle(page_id); };
+async function CheckIdentity()
+{
+	DebugLog.StartGroup('validating identity');
+	DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
+	if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');
+	else DebugLog.SubmitGroup();
+}
 
-
-window.fxn.RefreshManual = async () =>
+async function RequestSharedDataRefresh()
 {
 	DebugLog.StartGroup('manual refresh');
 	await UserAccountManager.account_provider.DownloadAccountData();
@@ -236,4 +256,8 @@ window.fxn.RefreshManual = async () =>
 	DebugLog.SubmitGroup("#f808");
 }
 
+
+
+
+//(() => { (() => { (() => { (() => { OnAuraInit(); })(); })(); })(); })();
 OnAuraInit();

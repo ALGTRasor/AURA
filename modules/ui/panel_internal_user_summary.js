@@ -107,26 +107,7 @@ export class InternalUserSummary extends PanelBase
 			this.info_startDate.value = this.user_data.date_start;
 			this.info_endDate.value = this.user_data.date_end === undefined ? '-' : this.user_data.date_end;
 		}
-		else
-		{
-			this.e_title.innerText = undefined;
-			this.info_id.value = undefined;
-			this.info_name.value = undefined;
-			this.info_team.value = undefined;
-			this.info_role.value = undefined;
-			this.info_manager.value = undefined;
-
-			this.info_emailCompany.value = undefined;
-			this.info_emailPersonal.value = undefined;
-			this.info_addressCompany.value = undefined;
-			this.info_addressPersonal.value = undefined;
-			this.info_phoneCompany.value = undefined;
-			this.info_phonePersonal.value = undefined;
-
-			this.info_birthDate.value = undefined;
-			this.info_startDate.value = undefined;
-			this.info_endDate.value = undefined;
-		}
+		else this.ClearValues();
 	}
 
 	OnRemove()
@@ -138,6 +119,26 @@ export class InternalUserSummary extends PanelBase
 		this.e_title = null;
 		this.e_block = null;
 		this.e_root = null;
+	}
+
+	ClearValues()
+	{
+		this.info_id.value = undefined;
+		this.info_name.value = undefined;
+		this.info_team.value = undefined;
+		this.info_role.value = undefined;
+		this.info_manager.value = undefined;
+
+		this.info_emailCompany.value = undefined;
+		this.info_emailPersonal.value = undefined;
+		this.info_addressCompany.value = undefined;
+		this.info_addressPersonal.value = undefined;
+		this.info_phoneCompany.value = undefined;
+		this.info_phonePersonal.value = undefined;
+
+		this.info_birthDate.value = undefined;
+		this.info_startDate.value = undefined;
+		this.info_endDate.value = undefined;
 	}
 
 	ReleaseReferences()

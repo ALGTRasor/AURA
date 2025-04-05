@@ -133,18 +133,21 @@ export class UserSettings
 		document.documentElement.style.setProperty('--theme-invert', is_light_mode ? 1.0 : 0.0);
 		//if (is_light_mode) e_tgl_lightmode.innerHTML = "Light Mode<i class='material-symbols icon'>light_mode</i>";
 		//else e_tgl_lightmode.innerHTML = "Dark Mode<i class='material-symbols icon'>dark_mode</i>";
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateSpotlight()
 	{
 		let use_spotlight = UserSettings.GetOptionValue('spotlight') === true;
 		if (e_spotlight) e_spotlight.style.display = use_spotlight ? 'block' : 'none';
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateHideSensitiveInfo()
 	{
 		let hide_sensitive = UserSettings.GetOptionValue('hide-sensitive-info') === true;
 		document.documentElement.style.setProperty('--sensitive-info-cover', hide_sensitive ? 1.0 : 0.0);
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateLimitContentWidth()
@@ -153,12 +156,14 @@ export class UserSettings
 		document.documentElement.style.setProperty('--limit-content-width', limit ? 1.0 : 0.0);
 
 		PageManager.onLayoutChange.Invoke();
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateDebugLog()
 	{
 		let show = UserSettings.GetOptionValue('show-debug-log') === true;
 		DebugLog.ui.e_root.style.display = show ? 'block' : 'none';
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateAnimSpeed()
@@ -173,6 +178,7 @@ export class UserSettings
 			document.body.classList.remove('notransitions');
 			document.documentElement.style.setProperty('--trans-dur-mult', 1.5 * (1.0 - anim_speed));
 		}
+		Autosave.InvokeSoon();
 	}
 
 	static UpdateThemeColor()
@@ -181,6 +187,8 @@ export class UserSettings
 		let theme_sat = UserSettings.GetOptionValue('theme-saturation');
 
 		document.documentElement.style.setProperty('--theme-color', 'hsl(' + Math.round(theme_hue * 360) + 'deg, ' + Math.round(theme_sat * 100) + '%, ' + (100 - Math.round(theme_sat * 50)) + '%)');
+
+		Autosave.InvokeSoon();
 	}
 }
 

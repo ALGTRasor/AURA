@@ -89,9 +89,50 @@ export class PageSettings extends PageBase
 			{
 				x.className += ' expanding-panel';
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY PERMISSIONS'; });
-				for (let pid in UserAccountInfo.user_permissions)
+
+				//const get_key = _ => _.Title.split('.')[0];
+				const get_key = _ =>
 				{
-					let info = UserAccountInfo.user_permissions[pid];
+					let last_dot_id = _.Title.split('').reverse().indexOf('.');
+					if (last_dot_id < 0) return 'global';
+					return _.Title.substring(0, _.Title.length - last_dot_id);
+				};
+				const match_first_index = (v, i, self) => self.indexOf(v) === i;
+				const not_deprecated = _ => _.permission_flags === undefined || _.permission_flags.indexOf('deprecated') < 0;
+				const group_from_key = (_, permissions) => { return { key: _, perms: permissions.filter(p => p.Title.startsWith(_)) }; };
+
+				let perms = UserAccountInfo.user_permissions.filter(not_deprecated);
+				let perm_groups = perms.map(get_key).filter(match_first_index).map(_ => group_from_key(_, perms));
+				let base_hue = Math.random();
+				for (let gid in perm_groups)
+				{
+					let hue = base_hue;
+					base_hue += 0.45;
+					perm_groups[gid].color = `hsl(${Math.round(hue * 3600) * 0.1}deg 30% 100%)`;
+				}
+
+				for (let pid in perms)
+				{
+					let info = perms[pid];
+					let group = perm_groups.find(x => info.Title.startsWith(x.key));
+					CreatePagePanel(
+						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
+						y =>
+						{
+							y.innerText = info.permission_name;
+							y.title = info.permission_desc;
+							y.style.setProperty('--theme-color', group.color);
+						}
+					);
+				}
+				return;
+
+
+
+
+				for (let pid in perms)
+				{
+					let info = perms[pid];
 					CreatePagePanel(
 						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
 						_ =>
@@ -145,15 +186,15 @@ export class PageSettings extends PageBase
 					}
 				);
 				addKey('` or ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
-				addKey('e', 'Toggle External Contacts');
-				addKey('h', 'Toggle HR');
-				addKey('i', 'Toggle Internal Users');
-				addKey('k', 'Toggle Timekeep');
+				if (UserAccountInfo.HasPermission('contacts.view')) addKey('e', 'Toggle External Contacts');
+				if (UserAccountInfo.HasPermission('hr.access')) addKey('h', 'Toggle HR');
+				if (UserAccountInfo.HasPermission('users.view')) addKey('i', 'Toggle Internal Users');
+				if (UserAccountInfo.HasPermission('keep.time')) addKey('k', 'Toggle Timekeep');
 				addKey('m', 'Toggle My Data');
 				addKey('n', 'Toggle Nav Menu');
-				addKey('p', 'Toggle Project Hub');
+				if (UserAccountInfo.HasPermission('projects.view')) addKey('p', 'Toggle Project Hub');
 				addKey('s', 'Toggle Settings');
-				addKey('t', 'Toggle Task Hub');
+				if (UserAccountInfo.HasPermission('tasks.view')) addKey('t', 'Toggle Task Hub');
 			}
 		);
 

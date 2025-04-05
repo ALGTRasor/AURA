@@ -138,19 +138,12 @@ export class MSAccountProvider extends UserAccountProvider
 			localStorage.removeItem(lskey_login_attempts);
 			localStorage.removeItem(lskey_login_forced);
 
-			document.getElementById('action-bar-btn-login').style.display = 'none';
-			//document.getElementById('action-bar-btn-login-label').innerText = 'Renew Login';
-			document.getElementById('action-bar-btn-logout').style.display = 'block';
-
 			DebugLog.SubmitGroup('#0f04');
 			UserAccountManager.account_provider.logged_in = true;
 		}
 		else
 		{
 			DebugLog.Log('! authorization required');
-			document.getElementById('action-bar-btn-login').style.display = 'block';
-			//document.getElementById('action-bar-btn-login-label').innerText = 'Login To O365';
-			document.getElementById('action-bar-btn-logout').style.display = 'none';
 			DebugLog.SubmitGroup('#f004');
 			UserAccountManager.account_provider.logged_in = false;
 		}
