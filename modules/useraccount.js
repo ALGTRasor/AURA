@@ -309,7 +309,7 @@ export class UserAccountManager
 
 	static GetRedirectUri(force_secure_protocol = false)
 	{
-		let n = window.location.host;//.toString();
+		let n = window.location.origin;//toString();
 		//n = n.replace(window.location.search, "");
 		//n = n.replace('?', '');
 		//n = n.replace(window.location.hash, "");
