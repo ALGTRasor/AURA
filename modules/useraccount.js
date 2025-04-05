@@ -280,7 +280,6 @@ export class MSAccountProvider extends UserAccountProvider
 				}
 			);
 
-			if (resp.status === 401) this.AttemptReauthorize('unauthorized');
 
 			this.account_profile_picture_url = window.URL.createObjectURL(await resp.blob());
 			document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
@@ -310,11 +309,11 @@ export class UserAccountManager
 
 	static GetRedirectUri(force_secure_protocol = false)
 	{
-		let n = window.location.toString();
-		n = n.replace(window.location.search, "");
-		n = n.replace('?', '');
-		n = n.replace(window.location.hash, "");
-		n = n.replace('#', '');
+		let n = window.location.hostname;//.toString();
+		//n = n.replace(window.location.search, "");
+		//n = n.replace('?', '');
+		//n = n.replace(window.location.hash, "");
+		//n = n.replace('#', '');
 		if (force_secure_protocol) n = n.replace("http://", "https://");
 		return n;
 	}
