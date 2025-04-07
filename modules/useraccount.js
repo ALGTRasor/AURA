@@ -22,7 +22,7 @@ const CLIENT_ID = "ea723209-ebaa-402a-8ff0-ffe4a49b3282";
 const CLIENT_SCOPES = [
 	'openid',
 	'user.read',
-	'AllSites.FullControl'
+	'Sites.ReadWrite.All'
 ].join(' ');
 
 export class UserAccountProvider
@@ -307,8 +307,11 @@ export class UserAccountManager
 
 	static GetNonce() { return Math.floor(Math.random() * 8999999) + 1000000; }
 
-	static GetRedirectUri(force_secure_protocol = false)
+	static GetRedirectUri()
 	{
+		if (window.location.origin.startsWith('http://localhost')) return window.location.origin;
+		return 'https://algtrasor.github.io/AURA/';
+
 		let n = window.location.origin;//toString();
 		//n = n.replace(window.location.search, "");
 		//n = n.replace('?', '');
