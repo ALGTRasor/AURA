@@ -26,7 +26,7 @@ export class Autosave
 		Autosave.last_invoke_ts = new Date();
 		DebugLog.Log('~ Autosave', false);
 		Autosave.e_lastsaved.style.color = '#3f3a';
-		Autosave.e_lastsaved.innerText = 'Last saved @' + Autosave.last_invoke_ts.toLocaleTimeString();
+		Autosave.e_lastsaved.innerText = 'Autosaved @' + Autosave.last_invoke_ts.toLocaleTimeString();
 	}
 
 	static InvokeSoon()

@@ -27,7 +27,7 @@
 .action-bar:active
 {
 	box-shadow: 0px 1rem 1rem rgba(from var(--shadow-color) r g b / 0.24);
-	height: calc(var(--action-bar-height) * 2);
+	height: calc(var(--action-bar-height) * 3);
 	transition-duration: var(--trans-dur-on-slow);
 	transition-delay: 0s;
 }
@@ -73,7 +73,7 @@
 {
 	text-shadow: 0px 0.4rem 3px rgba(from var(--shadow-color) r g b / 0.2);
 	opacity: 50%;
-	transform: translate(0%, calc(-0.5 * var(--action-bar-height)));
+	transform: translate(0%, calc(-0.75 * var(--action-bar-height)));
 	transition-delay: 0s;
 	transition-duration: var(--trans-dur-on-slow);
 }
@@ -134,8 +134,8 @@
 	min-width: calc(var(--action-bar-height) * 2);
 	width: auto;
 
-	flex-grow: false;
-	flex-shrink: false;
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
 	padding-left: 1rem;
 	padding-right: 1rem;
 
@@ -146,7 +146,7 @@
 
 	background: linear-gradient(180deg, rgba(from var(--theme-color) r g b / calc(0.2 * var(--action-bar-button-hover))), transparent);
 
-	color: transparent;
+	color: rgba(from var(--theme-color) r g b / 0.3);
 	font-size: 80%;
 	letter-spacing: 2px;
 
@@ -185,6 +185,8 @@
 {
 	z-index: 20;
 	text-shadow: 0px 0px 0rem transparent;
+
+	transform: translate(0%, -100%);
 
 	transition-property: text-shadow, transform;
 	transition-delay: 0.1s;

@@ -103,5 +103,3 @@ export class NotificationLog
 
 if (!window.fxn) window.fxn = {};
 window.fxn.LogNotification = NotificationLog.Log;
-
-NotificationLog.Create();

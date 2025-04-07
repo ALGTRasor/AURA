@@ -61,6 +61,9 @@ async function OnAuraInit()
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
 
+	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
+	window.e_account_profile_picture.style.display = 'none';
+
 	SetErrorProxy();
 
 	UserSettings.HookOptionEvents();
@@ -75,6 +78,8 @@ async function OnAuraInit()
 
 	if (UserAccountManager.account_provider.logged_in === true && is_alg_account === true) 
 	{
+		window.e_account_profile_picture.style.display = 'block';
+
 		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
 		ActionBar.AddMenuButton('refresh', 'refresh', _ => RequestSharedDataRefresh());
 		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
@@ -92,7 +97,9 @@ async function OnAuraInit()
 		if (!should_restore_layout || !PageManager.RestoreCachedLayout()) PageManager.OpenPageByTitle('nav menu');
 		await Fax.RefreshFact();
 
+		NotificationLog.Create();
 		NotificationLog.Log(new Notification('notification', 'this is a notification', true));
+
 		window.addEventListener('keyup', CheckHotkey);
 		DebugLog.Log('userAgent: ' + navigator.userAgent);
 	}
