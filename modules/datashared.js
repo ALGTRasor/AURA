@@ -5,6 +5,7 @@ import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
 import { UserAccountInfo } from "./useraccount.js";
+import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
 
 const SanitizeString = (str = '') =>
 {
@@ -29,9 +30,9 @@ export class SharedDataTable
 		if (result && result.length)
 		{
 			this.data = result;
-			DebugLog.Log('loaded ' + result.length + ' ' + this.key, false, '#0f0');
+			DebugLog.Log('loaded ' + result.length + ' ' + this.key, true, '#0f0');
 		}
-		else DebugLog.Log('loaded ' + result + ' ' + this.key, false, '#f00');
+		else DebugLog.Log('loaded ' + result + ' ' + this.key, true, '#f00');
 	}
 }
 
@@ -77,7 +78,6 @@ export class SharedData
 
 		const timer_shareddataload = 'shared data load';
 
-
 		DataSource.TimekeepEvents.view_filter = `fields/user_id eq '${UserAccountInfo.account_info.user_id}'`;
 		DataSource.TimekeepStatuses.view_filter = `fields/Title eq '${UserAccountInfo.account_info.user_id}'`;
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
@@ -104,11 +104,29 @@ export class SharedData
 			}
 		}
 
-		let promises = SharedData.all_tables.map(async x => await x.Download());
-		await Promise.allSettled(promises);
+		DebugLog.Log('downloading shared data (' + SharedData.all_tables.length + ' tables) ...');
 
-		DebugLog.Log('caching shared data');
-		SharedData.all_tables.forEach(x => SharedData.SaveToStorage(x.key, x.data));
+		let batch_downloads = new RequestBatch();
+		for (let table_id in this.all_tables)
+		{
+			let table = SharedData.all_tables[table_id];
+			let url = await SharePoint.GetBatchURL_GetList(table.source);
+			let table_req = new RequestBatchRequest(
+				'get',
+				url,
+				_ =>
+				{
+					const expand_fields = x => { return x.fields ? x.fields : x; };
+					table.data = _.body.value.map(expand_fields);
+					DebugLog.Log(`loaded ${table.data.length} items from ${table.key}`);
+					SharedData.SaveToStorage(table.key, table.data)
+				},
+				_ => { }
+			);
+			batch_downloads.PushRequest(table_req);
+		}
+
+		await SharePoint.ProcessBatchRequests(batch_downloads);
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');

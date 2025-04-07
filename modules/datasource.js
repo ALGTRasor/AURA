@@ -55,6 +55,12 @@ export class DataSource
 	}
 
 	async GetData() { return await SharePoint.GetListData(this); }
+
+
+	async SetData(instructions = {})
+	{
+		return await SharePoint.SetListData(this, instructions);
+	}
 }
 
 Modules.Report('Data Sources', 'This module adds a reusable code component to keep references to database tables.');

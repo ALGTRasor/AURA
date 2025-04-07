@@ -28,6 +28,12 @@ export class DBConfig
 		if (!DBConfig.loaded) await DBConfig.Load();
 		return url_ms_graph_sites + DBConfig.web_name;
 	}
+
+	static async GetWebBatchURL()
+	{
+		if (!DBConfig.loaded) await DBConfig.Load();
+		return '/sites/' + DBConfig.web_name;
+	}
 }
 
 Modules.Report("Database Config", "This module works as an abstraction layer for an interchangeable database backend.");

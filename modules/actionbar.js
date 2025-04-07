@@ -22,9 +22,9 @@ export class ActionBar
 			ActionBar.e_button_root, 'div', 'action-bar-button', null,
 			_ =>
 			{
-				_.innerHTML = label;//`<span id='action-bar-btn-login-label'>${label}</span>`;
+				_.innerHTML = label.toUpperCase();//`<span id='action-bar-btn-login-label'>${label}</span>`;
 				if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
-				_.title = label;
+				_.title = label.toUpperCase();
 
 				if (on_click) _.addEventListener('click', on_click);
 				if (post_prep) post_prep(_);

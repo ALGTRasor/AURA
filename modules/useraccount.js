@@ -2,6 +2,7 @@ import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { EventSource, EventSourceSubscription } from "./eventsource.js";
 import { SharedData } from "./datashared.js";
+import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -128,12 +129,31 @@ export class MSAccountProvider extends UserAccountProvider
 		DebugLog.StartGroup('autologin');
 		this.LoadCachedData();
 
-		if (this.has_access_token)
+		if (this.has_access_token) // may still be invalid or expired
 		{
-			DebugLog.Log('downloading account data...');
-			await this.DownloadAccountData();
-			DebugLog.Log('downloading account profile picture...');
-			await this.DownloadAccountProfilePicture();
+			let reqs = [
+				new RequestBatchRequest(
+					'get', '/me/',
+					_ => { this.UpdateAccountInfo(_.body); },
+					_ => { }
+				),
+				new RequestBatchRequest(
+					'get', '/me/photos/240x240/$value',
+					_ => { this.UpdateAccountProfilePicture(_); },
+					_ =>
+					{
+						_.headers = SharePoint.GetAuthOnlyHeaders();
+						_.headers['Content-Type'] = 'application/json';
+					}
+				),
+			];
+
+			await SharePoint.ProcessBatchRequests(new RequestBatch(reqs));
+
+			//DebugLog.Log('downloading account data...');
+			//await this.DownloadAccountData();
+			//DebugLog.Log('downloading account profile picture...');
+			//await this.DownloadAccountProfilePicture();
 
 			localStorage.removeItem(lskey_login_attempts);
 			localStorage.removeItem(lskey_login_forced);
@@ -280,7 +300,6 @@ export class MSAccountProvider extends UserAccountProvider
 				}
 			);
 
-
 			this.account_profile_picture_url = window.URL.createObjectURL(await resp.blob());
 			document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
 		}
@@ -288,6 +307,16 @@ export class MSAccountProvider extends UserAccountProvider
 		{
 			this.AttemptReauthorize(e);
 		}
+	}
+
+	async UpdateAccountProfilePicture(resp)
+	{
+		document.getElementById('action-bar-profile-picture').src = 'data:image/jpeg;base64,' + resp.body;
+		return;
+
+		let blob = new Blob([resp.body], { type: 'image/png' });
+		this.account_profile_picture_url = window.URL.createObjectURL(blob);
+		document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
 	}
 }
 

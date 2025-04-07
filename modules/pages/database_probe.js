@@ -32,6 +32,7 @@ export class DatabaseProbe extends PageBase
 				{
 					x.className += ' panel-button';
 					x.innerHTML = sd.key;
+					if (sd.data && sd.data.length) x.innerHTML += ` (${sd.data.length})`;
 					x.addEventListener('click', _ => this.SetTableData(sd.source.list_title, sd.data, sd.source.data_model.field_descs, x => x[sd.source.label_field], x => x[sd.source.sorting_field]));
 				}
 			);
