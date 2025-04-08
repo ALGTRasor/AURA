@@ -13,13 +13,13 @@ export class QuickMenu
     {
         if (this.created) return;
 
-        this.e_root = CreatePagePanel(parent, true, false, 'letter-spacing:0.15rem;', x => { x.className += ' menu-root'; });
+        this.e_root = CreatePagePanel(parent, true, false, 'letter-spacing:0.15rem; gap:0;', x => { x.className += ' menu-root'; });
 
         for (let item_id in items)
         {
             let item = items[item_id];
             this.AddButton(
-                item.label ? item.label : '',
+                item.label ? item.label : '---',
                 item.on_click ? item.on_click : e => { }
             );
         };

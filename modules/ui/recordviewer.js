@@ -89,7 +89,7 @@ export class RecordViewer
                     this.e_list_tip = addElement(e, 'div', 'record-viewer-list-tip', '', x => { x.innerText = 'hold ctrl for multiselect'; });
                 });
 
-                this.e_view_root = CreatePagePanel(e, true, true, 'min-width:20rem;', e => { e.innerText = 'hold ctrl for multiselect'; });
+                this.e_view_root = CreatePagePanel(e, true, true, 'min-width:20rem; gap:0rem;', e => { });
             }
         );
 

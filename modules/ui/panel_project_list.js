@@ -9,7 +9,7 @@ export class ProjectList extends PanelBase
 
 	OnCreate()
 	{
-		this.e_root = addElement(this.e_parent, 'div', '', 'position:absolute;inset:0.25rem;display:flex;flex-direction:row;flex-wrap:wrap;overflow-y:auto;');
+		this.e_root = addElement(this.e_parent, 'div', '', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;overflow-y:auto;gap:0.5rem;');
 	}
 	OnRefresh()
 	{

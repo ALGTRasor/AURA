@@ -55,7 +55,7 @@ export class DatabaseProbe extends PageBase
 	{
 		this.e_table_view.innerHTML = '';
 
-		CreatePagePanel(this.e_table_view, false, false, 'pointer-events:none;flex-grow:0.0;flex-shrink:0.0;flex-basis:fit-content;text-align:center;align-content:center;padding:0.5rem;margin:0.25rem;', x => { x.innerText = title; });
+		CreatePagePanel(this.e_table_view, false, false, 'pointer-events:none;flex-grow:0.0;flex-shrink:0.0;flex-basis:fit-content;text-align:center;align-content:center;padding:0.5rem;', x => { x.innerText = title; });
 
 		this.viewer.RemoveElements();
 		this.viewer.SetData(data);

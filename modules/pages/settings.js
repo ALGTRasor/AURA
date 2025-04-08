@@ -24,7 +24,7 @@ export class PageSettings extends PageBase
 		this.e_body.style.flexGrow = '1.0';
 
 		this.e_options_root = CreatePagePanel(
-			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;margin:2px;',
+			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
 			x =>
 			{
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY SETTINGS'; });
@@ -84,7 +84,7 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;margin:2px;',
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.className += ' expanding-panel';
@@ -116,7 +116,7 @@ export class PageSettings extends PageBase
 					let info = perms[pid];
 					let group = perm_groups.find(x => info.Title.startsWith(x.key));
 					CreatePagePanel(
-						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
+						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
 						y =>
 						{
 							y.innerText = info.permission_name;
@@ -125,28 +125,11 @@ export class PageSettings extends PageBase
 						}
 					);
 				}
-				return;
-
-
-
-
-				for (let pid in perms)
-				{
-					let info = perms[pid];
-					CreatePagePanel(
-						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
-						_ =>
-						{
-							_.innerText = info.permission_name;
-							_.title = info.permission_desc;
-						}
-					);
-				}
 			}
 		);
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;margin:2px;',
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.className += ' expanding-panel';
@@ -155,7 +138,7 @@ export class PageSettings extends PageBase
 				{
 					let module_info = Modules.reported[report_id];
 					CreatePagePanel(
-						x, false, false, 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;',
+						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
 						_ =>
 						{
 							_.innerText = module_info.name;
@@ -168,14 +151,14 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;margin:2px;',
+			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.className += ' expanding-panel';
 				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
 
-				const about_style = 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
+				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
 				const addKey = (key = '', effect = '', tooltip = '') => CreatePagePanel(
 					x, false, false, about_style,
 					_ =>
@@ -207,7 +190,7 @@ export class PageSettings extends PageBase
 				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
 
-				const about_style = 'text-align:center;margin:2px;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
+				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
 				const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });
 				addAbout('AURA stands for Arrow User & Resource Assistant.');
 				addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
