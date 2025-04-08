@@ -62,10 +62,8 @@ export class ActionBar
 				'Log In', 'login',
 				_ => 
 				{
-					OverlayManager.ShowChoiceDialog(
-						'You will be prompted to select an account on the following screen.',
-						[{ label: 'OKAY', on_click: _ => { fxn.AttemptLogin(); _.Remove(); }, color: '#dfe' }]
-					)
+					const prompt_login = 'You will be prompted to select an account on the following screen.';
+					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => fxn.AttemptLogin())])
 				},
 				_ => _.id = 'action-bar-btn-login'
 			);

@@ -170,6 +170,11 @@ export class MSAccountProvider extends UserAccountProvider
 		UserAccountManager.account_provider.logging_in = false;
 	}
 
+	async AfterAuthenticationError()
+	{
+
+	}
+
 
 	AttemptReauthorize(reason = '')
 	{

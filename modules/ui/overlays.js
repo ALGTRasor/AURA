@@ -6,8 +6,11 @@ export class Overlay
 {
     static Nothing = new Overlay();
 
-    created = false;
     e_root = {};
+
+    created = false;
+    dismissable = false; // can be dismissed by clicking outside the popup
+
     createOverlay = _ => { };
     removeOverlay = _ => { };
 
@@ -57,10 +60,13 @@ export class OverlayManager
     static e_overlays_root = {};
     static overlays = [];
 
+    static OkayChoice = (beforeRemove = _ => { }) => { return { label: 'OKAY', on_click: _ => { beforeRemove(); _.Remove(); }, color: '#dfe' }; };
+
     static TryFindRootElement()
     {
         if (OverlayManager.created_root) return;
         OverlayManager.e_overlays_root = addElement(document.body, 'div', 'overlays-root', '', _ => { _.id = 'overlays-root'; });
+        OverlayManager.e_overlays_root.addEventListener('click', _ => { OverlayManager.HideAll(true) });
         OverlayManager.created_root = true;
     }
 
@@ -103,14 +109,25 @@ export class OverlayManager
         OverlayManager.overlays.splice(existing_id, 1);
     }
 
-    static HideAll()
+    static HideAll(dismissable_only = false)
     {
-        OverlayManager.overlays.forEach((x, i, a) => x.Remove());
-        OverlayManager.overlays = [];
+        if (dismissable_only)
+        {
+            let dismissables = OverlayManager.overlays.filter(_ => _.dismissable === true);
+            dismissables.forEach((x, i, a) => x.Remove());
+            OverlayManager.overlays = OverlayManager.overlays.filter(_ => _.dismissable !== true);
+        }
+        else
+        {
+            OverlayManager.overlays.forEach((x, i, a) => x.Remove());
+            OverlayManager.overlays = [];
+        }
+
+        OverlayManager.RefreshVisibility();
     }
 
     // adds y / n hotkeys
-    static ShowConfirmDialog(on_confirm = () => { }, on_deny = () => { }, prompt = 'Are you sure?', label_confirm = 'YES', label_deny = 'NO')
+    static ShowConfirmDialog(on_confirm = _ => { }, on_deny = _ => { }, prompt = 'Are you sure?', label_confirm = 'YES', label_deny = 'NO')
     {
         let o = OverlayManager.ShowChoiceDialog(
             prompt,
@@ -121,17 +138,18 @@ export class OverlayManager
         );
         o.handleHotkeys = e =>
         {
-            if (e.key === 'y') { on_confirm(); o.Remove(); }
-            else if (e.key === 'n') { on_deny(); o.Remove(); }
-            else if (e.key === 'Enter') { on_confirm(); o.Remove(); }
-            else if (e.key === 'Escape') { on_deny(); o.Remove(); }
+            if (e.key === 'y') { on_confirm(o); o.Remove(); }
+            else if (e.key === 'n') { on_deny(o); o.Remove(); }
+            else if (e.key === 'Enter') { on_confirm(o); o.Remove(); }
+            else if (e.key === 'Escape') { on_deny(o); o.Remove(); }
         };
         return o;
     }
 
     static ShowChoiceDialog(prompt = 'Are you sure?', choices = [{ label: 'YES', on_click: _ => { }, color: '#fff' }])
     {
-        const create = (_, o = Overlay.Nothing) =>
+        let o = new Overlay('choice', _ => { }, _ => { });
+        o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
                 + 'min-height:8rem; width:min(100% - 1rem, 28rem);'
@@ -164,10 +182,6 @@ export class OverlayManager
                 }
             );
         };
-        const remove = _ => { };
-
-        let o = new Overlay('choice', _ => { }, remove);
-        o.createOverlay = _ => { create(_, o); };
         OverlayManager.overlays.push(o);
         o.Create();
         return o;

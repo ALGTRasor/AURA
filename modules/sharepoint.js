@@ -3,11 +3,12 @@ import { DataSource } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
+import { OverlayManager } from "./ui/overlays.js";
 import { UserAccountManager } from "./useraccount.js";
 
 export class RequestBatchRequest
 {
-	static Nothing = new RequestBatchRequest('get', '', {}, _ => { }, _ => { });
+	static Nothing = new RequestBatchRequest('get', '', _ => { }, _ => { }, {});
 
 	constructor(method = 'get', url = '', with_result = _ => { }, prep = _ => { }, headers = SharePoint.GetDefaultHeaders())
 	{
@@ -51,6 +52,52 @@ export class SharePoint
 	static async GetListBatchUrl(site_name, list_name) { return await DBConfig.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
 	static async GetItemsBatchUrl(site_name, list_name, item_id) { return await DBConfig.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
 
+	static intervalId_ProcessQueue = -1;
+	static processingBatch = false;
+	static batchQueue = [];
+
+	static StartProcessingQueue()
+	{
+		if (SharePoint.intervalId_ProcessQueue !== -1) return;
+		SharePoint.intervalId_ProcessQueue = window.setInterval(_ => { SharePoint.CheckProcessQueue(); }, 500);
+	}
+
+	static Enqueue(req = RequestBatchRequest.Nothing)
+	{
+		SharePoint.batchQueue.push(req);
+	}
+
+	static CheckProcessQueue()
+	{
+		if (SharePoint.processingBatch) return;
+		if (SharePoint.batchQueue.length < 1) return;
+		SharePoint.DoProcessQueue();
+	}
+
+	static async DoProcessQueue()
+	{
+		if (!SharePoint.processingBatch)
+		{
+			SharePoint.processingBatch = true;
+
+			while (SharePoint.batchQueue.length > 0)
+			{
+				let new_batch_count = SharePoint.batchQueue.length;
+				let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
+				DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
+				await SharePoint.ProcessBatchRequests(new_batch); // processing may enqueue additional requests, especially from pagination
+				DebugLog.SubmitGroup('#0ff4');
+			}
+
+			SharePoint.processingBatch = false;
+		}
+	}
+
+	static async WaitUntilQueueEmpty()
+	{
+		await SharePoint.DoProcessQueue();
+	}
+
 	static GetDefaultHeaders()
 	{
 		return {
@@ -73,6 +120,8 @@ export class SharePoint
 		for (let req_index in requests) requests[req_index].id = req_index;
 	}
 
+	static url_api = 'https://graph.microsoft.com/v1.0';
+	static url_batch = 'https://graph.microsoft.com/v1.0/$batch';
 	static async ProcessBatchRequests(batchRequest = {})
 	{
 		const url_ms_graph_batch = 'https://graph.microsoft.com/v1.0/$batch';
@@ -113,7 +162,7 @@ export class SharePoint
 			{
 				DebugLog.Log('authentication required! auth error status from batch request');
 				UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
-				fxn.ForceLogOut();
+				OverlayManager.ShowConfirmDialog(_ => { UserAccountManager.ForceLogOut(); }, _ => { }, 'Account token expired or invalid! Authentication required.');
 			}
 		}
 	}

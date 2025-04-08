@@ -6,6 +6,7 @@ import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
+import { DBConfig } from "./dbconfig.js";
 
 const SanitizeString = (str = '') =>
 {
@@ -106,27 +107,32 @@ export class SharedData
 
 		DebugLog.Log('downloading shared data (' + SharedData.all_tables.length + ' tables) ...');
 
-		let batch_downloads = new RequestBatch();
+		const after_download = (table, result) =>
+		{
+			const expand_fields = x => { return x.fields ? x.fields : x; };
+			let page_items = result.body.value.map(expand_fields);
+			table.data = table.data.concat(page_items);
+			DebugLog.Log(`+ ${page_items.length} items from ${table.key}`);
+
+			let next_page_url = result.body['@odata.nextLink'];
+			if (next_page_url)
+			{
+				next_page_url = next_page_url.replace(SharePoint.url_api, '');
+				let next_page_req = new RequestBatchRequest('get', next_page_url, _ => { after_download(table, _); });
+				SharePoint.Enqueue(next_page_req);
+			}
+		};
+
 		for (let table_id in this.all_tables)
 		{
 			let table = SharedData.all_tables[table_id];
+			table.data = [];
 			let url = await SharePoint.GetBatchURL_GetList(table.source);
-			let table_req = new RequestBatchRequest(
-				'get',
-				url,
-				_ =>
-				{
-					const expand_fields = x => { return x.fields ? x.fields : x; };
-					table.data = _.body.value.map(expand_fields);
-					DebugLog.Log(`loaded ${table.data.length} items from ${table.key}`);
-					SharedData.SaveToStorage(table.key, table.data)
-				},
-				_ => { }
-			);
-			batch_downloads.PushRequest(table_req);
+			let first_page_req = new RequestBatchRequest('get', url, _ => { after_download(table, _); });
+			SharePoint.Enqueue(first_page_req);
 		}
 
-		await SharePoint.ProcessBatchRequests(batch_downloads);
+		await SharePoint.WaitUntilQueueEmpty();
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');

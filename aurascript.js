@@ -34,6 +34,8 @@ import './modules/pages/external_links.js';
 import './modules/pages/demo_panel.js';
 import { Autosave } from "./modules/autosave.js";
 import { OverlayManager } from "./modules/ui/overlays.js";
+import { Timers } from "./modules/timers.js";
+import { SharePoint } from "./modules/sharepoint.js";
 
 
 
@@ -83,9 +85,17 @@ async function OnAuraInit()
 		window.e_account_profile_picture.style.display = 'block';
 
 		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
-		ActionBar.AddMenuButton('refresh', 'refresh', _ => RequestSharedDataRefresh());
+		ActionBar.AddMenuButton('refresh', 'refresh', _ =>
+		{
+			OverlayManager.ShowConfirmDialog(
+				_ => { RequestSharedDataRefresh(); },
+				_ => { },
+				'Refresh all shared data?', '[Y]ES', '[N]o'
+			)
+		});
 		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
 
+		SharePoint.StartProcessingQueue();
 		await CheckIdentity();
 		await AppEvents.onAccountLogin.InvokeAsync();
 
@@ -148,7 +158,7 @@ function CheckHotkey(e)
 		else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
 		else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
 		else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
-		else if (e.key === '`') window.fxn.ToggleLightMode();
+		else if (e.key === '`') ToggleLightMode();
 	}
 }
 
@@ -261,7 +271,7 @@ document.body.addEventListener('mouseout', RefreshGlobalTooltip);
 document.body.addEventListener('mouseup', e => { window.setTimeout(() => { RefreshGlobalTooltip(e); }, 50); });
 document.body.addEventListener('scroll', RefreshGlobalTooltip);
 
-window.fxn.ToggleLightMode = () =>
+function ToggleLightMode()
 {
 	const option_id = 'light-mode';
 	UserSettings.SetOptionValue(option_id, !UserSettings.GetOptionValue(option_id));
@@ -283,6 +293,12 @@ async function RequestSharedDataRefresh()
 	await CheckIdentity();
 	await SharedData.LoadData(false);
 	DebugLog.SubmitGroup("#f808");
+
+	const timer_shareddataload = 'shared data load';
+	let load_delta_str = Timers.GetElapsed(timer_shareddataload) + 'ms';
+
+	let o = OverlayManager.ShowChoiceDialog('Shared Data Refreshed in ' + load_delta_str, [OverlayManager.OkayChoice()]);
+	o.dismissable = true;
 }
 
 
