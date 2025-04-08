@@ -60,7 +60,13 @@ export class ActionBar
 		{
 			ActionBar.e_button_login = ActionBar.AddMenuButton(
 				'Log In', 'login',
-				_ => fxn.AttemptLogin(),
+				_ => 
+				{
+					OverlayManager.ShowChoiceDialog(
+						'You will be prompted to select an account on the following screen.',
+						[{ label: 'OKAY', on_click: _ => { fxn.AttemptLogin(); _.Remove(); }, color: '#dfe' }]
+					)
+				},
 				_ => _.id = 'action-bar-btn-login'
 			);
 		}

@@ -1,5 +1,6 @@
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../domutils.js";
+import { Modules } from "../modules.js";
 
 export class Overlay
 {
@@ -175,3 +176,6 @@ export class OverlayManager
 
 OverlayManager.TryFindRootElement();
 OverlayManager.RefreshVisibility();
+
+
+Modules.Report('Overlays', 'This module provides a reusable code component for screen overlays such as confirmation dialogs.');
