@@ -205,3 +205,17 @@ img
 {
 	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
 }
+
+
+
+.overlays-root
+{
+	position: absolute;
+	inset: 0;
+
+	backdrop-filter: blur(6px) contrast(70%) brightness(70%);
+	z-index: 110000;
+
+	transition-property: opacity;
+	transition-duration: var(--trans-dur-off-slow);
+}

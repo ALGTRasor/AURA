@@ -1,5 +1,6 @@
 import { addElement } from "./domutils.js";
 import { Modules } from "./modules.js";
+import { OverlayManager } from "./ui/overlays.js";
 import { UserAccountInfo, UserAccountManager, UserAccountProvider } from "./useraccount.js";
 
 export class ActionBar
@@ -39,8 +40,28 @@ export class ActionBar
 	static UpdateAccountButton()
 	{
 		if (ActionBar.e_button_login && ActionBar.e_button_login.remove) ActionBar.e_button_login.remove();
-		if (UserAccountManager.account_provider.logged_in) ActionBar.e_button_login = ActionBar.AddMenuButton('Log Out', 'logout', _ => fxn.ForceLogOut(), _ => _.id = 'action-bar-btn-logout');
-		else ActionBar.e_button_login = ActionBar.AddMenuButton('Log In', 'login', _ => fxn.AttemptLogin(), _ => _.id = 'action-bar-btn-login');
+
+		if (UserAccountManager.account_provider.logged_in)
+		{
+			ActionBar.e_button_login = ActionBar.AddMenuButton(
+				'Log Out', 'logout',
+				_ => OverlayManager.ShowConfirmDialog(
+					() => { fxn.ForceLogOut(); },
+					() => { },
+					'Are you sure you want to log out?<br><br>'
+					+ '<span style="opacity:50%;font-size:0.9rem;">You will be prompted to select an account to log in with.</span>'
+				),
+				_ => { _.id = 'action-bar-btn-logout'; }
+			);
+		}
+		else
+		{
+			ActionBar.e_button_login = ActionBar.AddMenuButton(
+				'Log In', 'login',
+				_ => fxn.AttemptLogin(),
+				_ => _.id = 'action-bar-btn-login'
+			);
+		}
 	}
 }
 

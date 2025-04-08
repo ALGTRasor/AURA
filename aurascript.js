@@ -32,6 +32,8 @@ import './modules/pages/hr.js';
 import './modules/pages/database_probe.js';
 import './modules/pages/external_links.js';
 import './modules/pages/demo_panel.js';
+import { Autosave } from "./modules/autosave.js";
+import { OverlayManager } from "./modules/ui/overlays.js";
 
 
 
@@ -84,13 +86,7 @@ async function OnAuraInit()
 		ActionBar.AddMenuButton('refresh', 'refresh', _ => RequestSharedDataRefresh());
 		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
 
-		DebugLog.Log(' MS: ' + has_ms_account);
-		DebugLog.Log('ALG: ' + is_alg_account);
-
-		document.getElementById('content-body-obscurer').style.display = 'none';
-
 		await CheckIdentity();
-
 		await AppEvents.onAccountLogin.InvokeAsync();
 
 		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
@@ -100,6 +96,7 @@ async function OnAuraInit()
 		NotificationLog.Create();
 		NotificationLog.Log(new Notification('notification', 'this is a notification', true));
 
+		document.getElementById('content-body-obscurer').style.display = 'none';
 		window.addEventListener('keyup', CheckHotkey);
 		DebugLog.Log('userAgent: ' + navigator.userAgent);
 	}
@@ -118,16 +115,41 @@ async function OnAuraInit()
 
 function CheckHotkey(e)
 {
-	if (e.key === 's') PageManager.TogglePageByTitle('settings');
-	else if (e.key === 'n') PageManager.TogglePageByTitle('nav menu');
-	else if (e.key === 'm') PageManager.TogglePageByTitle('my data');
-	else if (e.key === 'h') PageManager.TogglePageByTitle('hr');
-	else if (e.key === 'i') PageManager.TogglePageByTitle('internal users');
-	else if (e.key === 'e') PageManager.TogglePageByTitle('external contacts');
-	else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
-	else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
-	else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
-	else if (e.key === '`') window.fxn.ToggleLightMode();
+	if (OverlayManager.visible && OverlayManager.overlays.length > 0) 
+	{
+		let o = OverlayManager.overlays[OverlayManager.overlays.length - 1];
+		if (o && o.handleHotkeys) o.handleHotkeys(e);
+		return;
+	}
+
+	let anyModifier = e.ctrlKey || e.altKey || e.shiftKey;
+	let allModifiers = e.ctrlKey && e.altKey && e.shiftKey;
+	let someModifiers = anyModifier && !allModifiers;
+	let ctrlShift = someModifiers && e.ctrlKey && e.shiftKey;
+	let ctrlAlt = someModifiers && e.ctrlKey && e.altKey;
+	let shiftAlt = someModifiers && e.shiftKey && e.altKey;
+
+	if (anyModifier)
+	{
+		if (e.key === 's')
+		{
+			NotificationLog.Log(new Notification('save triggered', 'save triggered', true, '#0ff', '#0ff'));
+			Autosave.InvokeSoon();
+		}
+	}
+	else
+	{
+		if (e.key === 's') PageManager.TogglePageByTitle('settings');
+		else if (e.key === 'n') PageManager.TogglePageByTitle('nav menu');
+		else if (e.key === 'm') PageManager.TogglePageByTitle('my data');
+		else if (e.key === 'h') PageManager.TogglePageByTitle('hr');
+		else if (e.key === 'i') PageManager.TogglePageByTitle('internal users');
+		else if (e.key === 'e') PageManager.TogglePageByTitle('external contacts');
+		else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
+		else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
+		else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
+		else if (e.key === '`') window.fxn.ToggleLightMode();
+	}
 }
 
 

@@ -182,6 +182,7 @@
 	cursor: pointer;
 	scale: 95%;
 }
+
 .page-panel.panel-button:hover
 {
 	scale: 100%;
@@ -203,22 +204,25 @@
 	opacity: 50%;
 	transition-property: rotate, opacity;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: 0.2s;
+	transition-delay: 0.5s;
 	transition-timing-function: ease-in-out;
 }
+
 .page-panel.expanding-panel:hover::after
 {
-	transition-delay: 0.1s;
+	transition-delay: 0s;
 	opacity: 100%;
 	rotate: 90deg;
 }
+
 .page-panel.expanding-panel
 {
 	transition-property: max-height;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: 0.5s;
+	transition-delay: 0.1s;
 	transition-timing-function: ease-in-out;
 }
+
 .page-panel.expanding-panel:hover
 {
 	transition-duration: var(--trans-dur-off-veryslow);

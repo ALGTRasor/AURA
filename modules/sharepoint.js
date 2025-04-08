@@ -1,3 +1,4 @@
+import { ActionBar } from "./actionbar.js";
 import { DataSource } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 import { DebugLog } from "./debuglog.js";
@@ -108,10 +109,11 @@ export class SharePoint
 				}
 			}
 			// unauthorized to perform batch
-			else if (resp.status >= 400 && resp.status <= 499)
+			else if (resp.status >= 401 && resp.status <= 499)
 			{
 				DebugLog.Log('authentication required! auth error status from batch request');
 				UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
+				fxn.ForceLogOut();
 			}
 		}
 	}
