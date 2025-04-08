@@ -23,6 +23,16 @@ export class DatabaseProbe extends PageBase
 		this.e_content.style.alignContent = 'flex-start';
 		this.e_content.style.setProperty('--theme-color', 'white');
 		this.e_table_buttons = CreatePagePanel(this.e_content, true, true, 'flex-grow:0.0;flex-shrink:0.0;flex-basis:fit-content;', x => { });
+
+		this.CreateTableButtons();
+		this.e_table_view = CreatePagePanel(this.e_content, true, true, 'flex-grow:1.0;flex-shrink:1.0;flex-direction:column;flex-wrap:nowrap;', x => { });
+
+		this.FinalizeBody(parent);
+	}
+
+	CreateTableButtons()
+	{
+		this.e_table_buttons.innerHTML = '';
 		for (var sdi in SharedData.all_tables)
 		{
 			let sd = SharedData.all_tables[sdi];
@@ -33,13 +43,12 @@ export class DatabaseProbe extends PageBase
 					x.className += ' panel-button';
 					x.innerHTML = sd.key;
 					if (sd.data && sd.data.length) x.innerHTML += ` (${sd.data.length})`;
-					x.addEventListener('click', _ => this.SetTableData(sd.source.list_title, sd.data, sd.source.data_model.field_descs, x => x[sd.source.label_field], x => x[sd.source.sorting_field]));
+
+					const view_this_table = _ => { this.SetTableData(sd.source.list_title, sd.data, sd.source.data_model.field_descs, x => x[sd.source.label_field], x => x[sd.source.sorting_field]); };
+					x.addEventListener('click', view_this_table);
 				}
 			);
 		}
-		this.e_table_view = CreatePagePanel(this.e_content, true, true, 'flex-grow:1.0;flex-shrink:1.0;flex-direction:column;flex-wrap:nowrap;', x => { });
-
-		this.FinalizeBody(parent);
 	}
 
 	SetTableData(title = '', data = [], field_descs = {}, getLabel = x => x.Title, getSortingField = x => x.Title)
@@ -85,6 +94,23 @@ export class DatabaseProbe extends PageBase
 	OnLayoutChange()
 	{
 		this.viewer.RefreshElementVisibility();
+	}
+
+	OnOpen()
+	{
+		this.sub_sharedDataCached = SharedData.onSavedToCache.RequestSubscription(_ => { this.RefeshTablesData(); });
+	}
+
+	OnClose()
+	{
+		SharedData.onSavedToCache.RemoveSubscription(this.sub_sharedDataCached);
+	}
+
+	RefeshTablesData()
+	{
+		this.viewer.RemoveElements();
+		this.e_table_view.innerHTML = '';
+		this.CreateTableButtons();
 	}
 }
 

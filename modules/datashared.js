@@ -133,6 +133,11 @@ export class SharedData
 		}
 
 		await SharePoint.WaitUntilQueueEmpty();
+		for (let table_id in this.all_tables)
+		{
+			let table = this.all_tables[table_id];
+			SharedData.SaveToStorage(table.key, table.data);
+		}
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');

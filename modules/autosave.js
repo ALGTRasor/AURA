@@ -5,11 +5,11 @@ import { Modules } from "./modules.js";
 
 export class Autosave
 {
-	static invokesoon_delay = 600;
+	static invokesoon_delay = 1000;
 
 	static e_lastsaved = document.getElementById('info-bar-lastsaved');
 	static source = new EventSource();
-	static delay_seconds = 15.0;
+	static delay_seconds = 45.0;
 
 	static last_invoke_ts;
 	static invokesoon_tid;

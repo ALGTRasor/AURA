@@ -33,7 +33,6 @@ export class Overlay
         if (this.createOverlay) this.createOverlay(this);
         this.created = true;
 
-        DebugLog.Log('created overlay: ' + this.kind);
         OverlayManager.RefreshVisibility();
     }
 
@@ -48,7 +47,6 @@ export class Overlay
         let existing_id = OverlayManager.GetOverlayIndex(this);
         if (existing_id > -1) OverlayManager.overlays.splice(existing_id, 1);
 
-        DebugLog.Log('removed overlay: ' + this.kind);
         OverlayManager.RefreshVisibility();
     }
 }
@@ -149,6 +147,7 @@ export class OverlayManager
     static ShowChoiceDialog(prompt = 'Are you sure?', choices = [{ label: 'YES', on_click: _ => { }, color: '#fff' }])
     {
         let o = new Overlay('choice', _ => { }, _ => { });
+        o.dismissable = choices.length < 2;
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'

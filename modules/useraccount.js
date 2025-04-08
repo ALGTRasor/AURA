@@ -3,6 +3,7 @@ import { Modules } from "./modules.js";
 import { EventSource, EventSourceSubscription } from "./eventsource.js";
 import { SharedData } from "./datashared.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
+import { OverlayManager } from "./ui/overlays.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -149,11 +150,6 @@ export class MSAccountProvider extends UserAccountProvider
 			];
 
 			await SharePoint.ProcessBatchRequests(new RequestBatch(reqs));
-
-			//DebugLog.Log('downloading account data...');
-			//await this.DownloadAccountData();
-			//DebugLog.Log('downloading account profile picture...');
-			//await this.DownloadAccountProfilePicture();
 
 			localStorage.removeItem(lskey_login_attempts);
 			localStorage.removeItem(lskey_login_forced);
@@ -383,6 +379,7 @@ export class UserAccountManager
 			if (windowloc.indexOf('?') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('?'));
 			if (windowloc.indexOf('#') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('#'));
 			window.history.replaceState(null, '', windowloc);
+			window.setTimeout(() => { OverlayManager.ShowChoiceDialog(`Logged in as ${UserAccountInfo.account_info.display_name}!`, [OverlayManager.OkayChoice()]); }, 500);
 		}
 	}
 }

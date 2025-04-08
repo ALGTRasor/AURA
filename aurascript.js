@@ -90,7 +90,10 @@ async function OnAuraInit()
 			OverlayManager.ShowConfirmDialog(
 				_ => { RequestSharedDataRefresh(); },
 				_ => { },
-				'Refresh all shared data?', '[Y]ES', '[N]o'
+				'Refresh all shared data?<br><br>'
+				+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
+				'[Y]ES',
+				'[N]o'
 			)
 		});
 		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
@@ -108,7 +111,6 @@ async function OnAuraInit()
 
 		document.getElementById('content-body-obscurer').style.display = 'none';
 		window.addEventListener('keyup', CheckHotkey);
-		DebugLog.Log('userAgent: ' + navigator.userAgent);
 	}
 	else
 	{
