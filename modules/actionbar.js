@@ -49,7 +49,9 @@ export class ActionBar
 					() => { fxn.ForceLogOut(); },
 					() => { },
 					'Are you sure you want to log out?<br><br>'
-					+ '<span style="opacity:50%;font-size:0.9rem;">You will be prompted to select an account to log in with.</span>'
+					+ '<span style="opacity:50%;font-size:0.85rem;">NOTE: AURA requires an active log in to function. You will be prompted to select another account.</span>',
+					'[Y]es, Change Account',
+					'[N]o'
 				),
 				_ => { _.id = 'action-bar-btn-logout'; }
 			);

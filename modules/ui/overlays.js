@@ -133,16 +133,16 @@ export class OverlayManager
         const create = (_, o = Overlay.Nothing) =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-                + 'min-height:8rem; width:min(100% - 1rem, 28rem); letter-spacing:0px;'
+                + 'min-height:8rem; width:min(100% - 1rem, 28rem);'
                 + 'display:flex; flex-direction:column; flex-wrap:nowrap;'
                 + 'outline:solid 2px orange; outline-offset:4px;';
             const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px;';
 
             let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
 
-            CreatePagePanel(e_body, true, false, style_parts + 'color:orange;padding:1.5rem;', _ => { _.innerHTML = prompt; });
+            CreatePagePanel(e_body, true, false, style_parts + 'color:orange; padding:1.5rem; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
             CreatePagePanel(
-                e_body, true, false, 'flex-grow:1.0;display:flex;flex-direction:row;flex-wrap:nowrap;',
+                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:row; flex-wrap:nowrap;',
                 _ =>
                 {
                     for (let cid in choices)
@@ -150,7 +150,7 @@ export class OverlayManager
                         let choice = choices[cid];
                         if (!choice) continue;
                         CreatePagePanel(
-                            _, false, false, style_parts + '--theme-color:' + choice.color + ';padding:0.5rem;',
+                            _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:0.5rem;',
                             _ =>
                             {
                                 _.innerHTML = choice.label;
