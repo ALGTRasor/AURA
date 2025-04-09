@@ -32,34 +32,70 @@ export class FieldValidation
         return raw;
     }
 
+    static GetMonthFromName(month_name = 'January')
+    {
+        const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',];
+        month_name = month_name.trim().toLowerCase();
+        month_name = month_name.substring(0, 3);
+        return months.indexOf(month_name) + 1;
+    }
+
     static CheckDate(raw = '')
     {
-        const rgx_date_yyyymmdd = /([\d]{4})[^\d]+([\d]{2})[^\d]+([\d]{2})/;
-        if (rgx_date_yyyymmdd.test(raw))
+        let valid_date = false;
+        let y = '0';
+        let m = '0';
+        let d = '0';
+
+        const rgx_date_yyyymmdd = /([\d]{4})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{1,2})/; // yyy-mm-dd
+        const rgx_date_mmddyyyy = /([\d]{1,2})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{4})/; // mm-dd-yyy
+        const rgx_date_mmmddyyyy = /([\w]{3,})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{4})/; // mmm dd yyyy
+        const rgx_date_ddmmmyyyy = /([\d]{1,2})[^\d\n]+([\w]{3,})[^\d\n]+([\d]{4})/; // dd mmm yyyy
+
+        if (rgx_date_yyyymmdd.test(raw) === true)
         {
             let match = raw.match(rgx_date_yyyymmdd);
-            let y = match[1];
-            let m = match[2];
-            let d = match[3];
-            y = y.padStart(4, '19');
-            m = m.padStart(2, '0');
-            d = d.padStart(2, '0');
-            return `${y}-${m}-${d}`;
+            y = match[1];
+            m = match[2];
+            d = match[3];
+            valid_date = true;
         }
-
-        const rgx_date_mmddyyyy = /([\d]{1,2})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{4})/;
-        if (rgx_date_mmddyyyy.test(raw))
+        else if (rgx_date_mmddyyyy.test(raw) === true)
         {
             let match = raw.match(rgx_date_mmddyyyy);
-            let m = match[1];
-            let d = match[2];
-            let y = match[3];
-            m = m.padStart(2, '0');
-            d = d.padStart(2, '0');
-            y = y.padStart(4, '19');
-            return `${y}-${m}-${d}`;
+            m = match[1];
+            d = match[2];
+            y = match[3];
+            valid_date = true;
+        }
+        else if (rgx_date_mmmddyyyy.test(raw) === true)
+        {
+            let match = raw.match(rgx_date_mmmddyyyy);
+            m = FieldValidation.GetMonthFromName(match[1]).toString();
+            d = match[2];
+            y = match[3];
+            valid_date = true;
+        }
+        else if (rgx_date_ddmmmyyyy.test(raw) === true)
+        {
+            let match = raw.match(rgx_date_ddmmmyyyy);
+            d = match[1];
+            m = FieldValidation.GetMonthFromName(match[2]).toString();
+            y = match[3];
+            valid_date = true;
         }
 
-        return raw;
+        if (valid_date !== true) return raw;
+
+        if (parseInt(m) > 12) m = '12';
+        if (parseInt(d) > 31) d = '31';
+
+        if (valid_date !== true) return raw;
+
+        m = m.padStart(2, '0');
+        d = d.padStart(2, '0');
+        y = y.padStart(4, '19');
+
+        return `${y}-${m}-${d}`;
     }
 }

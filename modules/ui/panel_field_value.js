@@ -16,7 +16,7 @@ export class FieldValuePanel extends PanelBase
 
 	onValueChanged = new EventSource();
 	onValueChangedDelayed = new EventSource();
-	valueChangeTimeout = new RunningTimeout(() => { this.onValueChangedDelayed.Invoke() }, 0.369, false, 50);
+	valueChangeTimeout = new RunningTimeout(() => { this.onValueChangedDelayed.Invoke() }, 0.6, false, 50);
 
 	OnCreate()
 	{
@@ -41,7 +41,24 @@ export class FieldValuePanel extends PanelBase
 					'keyup',
 					e =>
 					{
-						if (this.validator) _.value = this.validator(_.value);
+						let unvalidated_value = _.value;
+
+						if (this.validator)
+						{
+							let old_caret_pos = _.selectionStart;
+							let old_caret_character = unvalidated_value.substring(old_caret_pos, 1);
+
+							let validated_value = this.validator(unvalidated_value);
+							if (unvalidated_value !== validated_value)
+							{
+								let new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos + 1);
+								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character);
+								if (new_caret_pos < 0) new_caret_pos = old_caret_pos;
+								_.value = validated_value;
+								_.selectionStart = new_caret_pos;
+								_.selectionEnd = new_caret_pos;
+							}
+						}
 						this.value_dirty = _.value !== this.value;
 
 						this.RefreshStyling();
