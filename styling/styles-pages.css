@@ -178,9 +178,6 @@
 	min-width: min(75%, 4rem);
 }
 
-.page-panel .page-panel-tiles > .page-panel:hover
-{}
-
 .page-panel.panel-button
 {
 	cursor: pointer;
