@@ -29,7 +29,7 @@ export class InternalUserList extends PanelBase
 		}
 		else // spoof records
 		{
-			for (let ii = 0; ii < 15; ii++)
+			for (let ii = 0; ii < 7; ii++)
 			{
 				let panel_summary = new InternalUserSummary();
 				panel_summary.user_data = InternalUser.data_model.SpoofRecord();

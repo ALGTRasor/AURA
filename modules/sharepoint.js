@@ -162,7 +162,13 @@ export class SharePoint
 			{
 				DebugLog.Log('authentication required! auth error status from batch request');
 				UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
-				OverlayManager.ShowConfirmDialog(_ => { UserAccountManager.ForceLogOut(); }, _ => { }, 'Account token expired or invalid! Authentication required.');
+				OverlayManager.ShowConfirmDialog(
+					_ => { UserAccountManager.RequestLogin(); },
+					_ => { },
+					'Account token expired or invalid! Authentication required.',
+					'REAUTHENTICATE',
+					'IGNORE'
+				);
 			}
 		}
 	}

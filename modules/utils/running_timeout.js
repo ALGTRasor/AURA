@@ -15,7 +15,7 @@ export class RunningTimeout
 	{
 		this.timer = this.duration;
 
-		if (!this.ticking) 
+		if (this.ticking !== true) 
 		{
 			this.ticking = true;
 			this.tickIntervalId = window.setInterval(() => { this.Tick(); }, this.msDeltaTime);
@@ -24,7 +24,7 @@ export class RunningTimeout
 
 	Tick()
 	{
-		var deltaTime = this.msDeltaTime / 1000.0;
+		var deltaTime = this.msDeltaTime * 0.001;
 		this.timer -= deltaTime;
 		if (this.timer <= 0.0) this.Complete();
 	}

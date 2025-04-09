@@ -20,9 +20,9 @@ export class ProjectSummary extends PanelBase
 
 		this.e_blocks = addElement(this.e_root, 'div', '', 'flex-basis:100%;flex-wrap:nowrap;overflow:hidden;flex-direction:row;display:flex;');
 
-		const style_block = 'display:flex; flex-basis:0.0; flex-direction:column; flex-wrap:nowrap; padding:2px;';
-		this.e_block_left = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:2.0;');
-		this.e_block_right = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:3.0;');
+		const style_block = 'display:flex; flex-basis:0.0; flex-direction:column; flex-wrap:nowrap; padding:2px; gap:3px;';
+		this.e_block_left = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:2.0; gap:3px;');
+		this.e_block_right = CreatePagePanel(this.e_blocks, true, false, style_block + 'flex-grow:3.0; gap:3px;');
 
 		this.info_client = this.PushChild(new FieldValuePanel());
 		this.info_client.minWidth = '6rem';
@@ -60,7 +60,7 @@ export class ProjectSummary extends PanelBase
 			let aspect_count = Math.random() * 9 + 3;
 			for (let ii = 0; ii < aspect_count; ii++)
 			{
-				CreatePagePanel(this.e_block_right, false, false, 'margin:1px;', _ =>
+				CreatePagePanel(this.e_block_right, false, false, '', _ =>
 				{
 					_.innerText = 'aspect information goes here';
 					_.style.borderRadius = '0.25rem';

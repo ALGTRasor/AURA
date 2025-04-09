@@ -89,7 +89,8 @@
 	transition-timing-function: ease-in-out;
 }
 
-.page-panel:hover
+.page-panel:hover,
+.page-panel:focus-within
 {
 	color: var(--theme-color);
 	background-color: hsl(from var(--theme-color) h s 16%);

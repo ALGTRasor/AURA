@@ -17,7 +17,7 @@ export class ExternalContactSummary extends PanelBase
 		const style_title = 'flex-basis:100%;padding-left:2rem;text-align:left;height:1.5rem;line-height:1.5rem;font-weight:bold;letter-spacing:1px;';
 		this.e_title = CreatePagePanel(this.e_root, true, false, style_title);
 
-		const style_block = 'display:flex;flex-basis:0.0;flex-wrap:nowrap;flex-direction:column;padding:2px;';
+		const style_block = 'display:flex;flex-basis:0.0;flex-wrap:nowrap;flex-direction:column;padding:2px; gap:3px;';
 		this.e_block = CreatePagePanel(this.e_root, true, false, style_block);
 
 		this.info_id = this.PushChild(new FieldValuePanel());

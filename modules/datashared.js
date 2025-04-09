@@ -93,7 +93,7 @@ export class SharedData
 			if (cacheAvailable)
 			{
 				DebugLog.Log('using cached shared data');
-				DebugLog.Log('load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
+				DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
 				DebugLog.SubmitGroup();
 
 				SharedData.loaded = true;
@@ -104,8 +104,6 @@ export class SharedData
 				return;
 			}
 		}
-
-		DebugLog.Log('downloading shared data (' + SharedData.all_tables.length + ' tables) ...');
 
 		const after_download = (table, result) =>
 		{
@@ -140,7 +138,7 @@ export class SharedData
 		}
 		await SharedData.onSavedToCache.InvokeAsync();
 
-		DebugLog.Log('load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
+		DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
 		DebugLog.SubmitGroup();
 
 		SharedData.loading = false;

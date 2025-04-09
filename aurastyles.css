@@ -208,6 +208,53 @@ img
 
 
 
+
+
+
+
+div[valuechanged]
+{
+	background-color: rgb(96, 96, 0);
+	color: yellow;
+	outline-color: yellow;
+}
+
+
+body input[type="text"]
+{
+	border: unset;
+	background-color: transparent;
+	outline: solid 1px transparent;
+	outline-offset: -1px;
+}
+
+body input[type="text"][valuechanged]
+{
+	background-color: rgb(96, 96, 0);
+	color: yellow !important;
+	outline-color: yellow !important;
+}
+
+body input[type="text"][disabled]
+{
+	pointer-events: none !important;
+	user-select: none !important;
+}
+
+body input[type="text"]:not([disabled]):hover,
+body input[type="text"]:focus,
+body input[type="text"]:active
+{
+	color: white !important;
+	outline: solid white 1px !important;
+	outline-offset: -1px;
+}
+
+
+
+
+
+
 .overlays-root
 {
 	position: absolute;
