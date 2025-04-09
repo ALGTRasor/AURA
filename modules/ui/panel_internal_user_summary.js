@@ -20,11 +20,12 @@ export class InternalUserSummary extends PanelBase
 		const style_field_block = 'display:flex; flex-basis:0.0; flex-wrap:nowrap; flex-direction:column; padding:2px; gap:3px;';
 		this.e_block = CreatePagePanel(this.e_root, true, false, style_field_block);
 
-		const CreateField = (label = 'user id', validator = _ => _.trim(), read_only = false) =>
+		const CreateField = (label = 'user id', validator = _ => _.trim(), read_only = false, spellcheck = false) =>
 		{
 			let fvp = new FieldValuePanel();
 			fvp.label = label;
 			fvp.edit_mode = read_only !== true;
+			fvp.spellcheck = spellcheck;
 			fvp.validator = validator;
 			fvp.onValueChangedDelayed.RequestSubscription(_ => { this.OnAnyValueChanged(); });
 
@@ -40,8 +41,8 @@ export class InternalUserSummary extends PanelBase
 		this.fields.manager = CreateField('manager id');
 		this.fields.email_company = CreateField('company email', FieldValidation.CheckEmail);
 		this.fields.email_personal = CreateField('personal email', FieldValidation.CheckEmail);
-		this.fields.address_company = CreateField('company address');
-		this.fields.address_personal = CreateField('personal address');
+		this.fields.address_company = CreateField('company address', undefined, false, true);
+		this.fields.address_personal = CreateField('personal address', undefined, false, true);
 		this.fields.phone_company = CreateField('company phone', FieldValidation.CheckPhone);
 		this.fields.phone_personal = CreateField('personal phone', FieldValidation.CheckPhone);
 		this.fields.birth_date = CreateField('birth date', FieldValidation.CheckDate);

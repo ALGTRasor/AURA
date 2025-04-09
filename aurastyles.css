@@ -208,19 +208,38 @@ img
 
 
 
+.page-panel div:focus-within::after
+{
+	pointer-events: none;
+	user-select: none;
 
+	content: '';
+	position: absolute;
+	inset: 0;
+	outline: dashed 1px #ff06 !important;
+	outline-offset: -3px !important;
+
+	border-radius: 0.5rem;
+}
 
 
 
 div[valuechanged]
 {
-	background-color: rgb(96, 96, 0);
 	color: yellow;
-	outline-color: yellow;
+}
+
+.page-root input[valuechanged],
+.page-root input[valuechanged]:hover
+{
+	color: yellow !important;
+	outline-color: yellow !important;
+	background-color: rgb(56, 56, 0) !important;
 }
 
 
-body input[type="text"]
+.page-root input[type="text"],
+.page-root input[type="textarea"]
 {
 	border: unset;
 	background-color: transparent;
@@ -228,24 +247,22 @@ body input[type="text"]
 	outline-offset: -1px;
 }
 
-body input[type="text"][valuechanged]
-{
-	background-color: rgb(96, 96, 0);
-	color: yellow !important;
-	outline-color: yellow !important;
-}
 
-body input[type="text"][disabled]
+.page-root input[type="text"][disabled],
+.page-root input[type="textarea"][disabled]
 {
 	pointer-events: none !important;
 	user-select: none !important;
 }
 
-body input[type="text"]:not([disabled]):hover,
-body input[type="text"]:focus,
-body input[type="text"]:active
+.page-root input[type="text"]:not([disabled]):hover,
+.page-root input[type="text"]:focus,
+.page-root input[type="text"]:active,
+.page-root input[type="textarea"]:not([disabled]):hover,
+.page-root input[type="textarea"]:focus,
+.page-root input[type="textarea"]:active
 {
-	color: white !important;
+	color: white;
 	outline: solid white 1px !important;
 	outline-offset: -1px;
 }

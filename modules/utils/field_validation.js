@@ -6,7 +6,7 @@ export class FieldValidation
         if (raw.length < 7) return raw;
 
         let nums = raw.replace(/[^\d]+/g, '');
-        if (raw.length < 10) return raw;
+        if (nums.length < 10) return raw;
 
         let firstN = nums.substring(0, nums.length - 10);
         let last10 = nums.substring(nums.length - 10, nums.length);
@@ -47,7 +47,7 @@ export class FieldValidation
         let m = '0';
         let d = '0';
 
-        const rgx_date_yyyymmdd = /([\d]{4})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{1,2})/; // yyy-mm-dd
+        const rgx_date_yyyymmdd = /([\d]{4})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{1,})/; // yyy-mm-dd
         const rgx_date_mmddyyyy = /([\d]{1,2})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{4})/; // mm-dd-yyy
         const rgx_date_mmmddyyyy = /([\w]{3,})[^\d\n]+([\d]{1,2})[^\d\n]+([\d]{4})/; // mmm dd yyyy
         const rgx_date_ddmmmyyyy = /([\d]{1,2})[^\d\n]+([\w]{3,})[^\d\n]+([\d]{4})/; // dd mmm yyyy
@@ -85,8 +85,14 @@ export class FieldValidation
             valid_date = true;
         }
 
+        d = parseInt(d).toString();
+        m = parseInt(m).toString();
+        y = parseInt(y).toString();
+
         if (valid_date !== true) return raw;
 
+        if (parseInt(m) < 1) valid_date = false;
+        if (parseInt(d) < 1) valid_date = false;
         if (parseInt(m) > 12) m = '12';
         if (parseInt(d) > 31) d = '31';
 

@@ -8,6 +8,7 @@ export class FieldValuePanel extends PanelBase
 	label = '';
 	value = '';
 
+	spellcheck = false;
 	value_dirty = false;
 	validator = _ => _.trim();
 
@@ -33,25 +34,37 @@ export class FieldValuePanel extends PanelBase
 			style_shared + 'text-align:left; right:0; padding-left:0.5rem; width:calc(100% - max(' + this.minWidth + ', 25%) - 0.5rem);min-width:0;',
 			_ =>
 			{
-				_.type = 'text';
+				_.type = 'textarea';
 				_.value = this.value;
+				_.spellcheck = this.spellcheck;
+				_.autocapitalize = 'off';
+				_.autocorrect = 'off';
+				_.autocomplete = 'off';
 				_.disabled = this.edit_mode !== true;
+				_.placeholder = 'Add ' + this.label + '...';
 
 				_.addEventListener(
 					'keyup',
 					e =>
 					{
+						e.stopPropagation();
+
 						let unvalidated_value = _.value;
 
 						if (this.validator)
 						{
 							let old_caret_pos = _.selectionStart;
+							let caret_at_end = old_caret_pos >= (unvalidated_value.length - 1);
 							let old_caret_character = unvalidated_value.substring(old_caret_pos, 1);
 
 							let validated_value = this.validator(unvalidated_value);
 							if (unvalidated_value !== validated_value)
 							{
-								let new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos + 1);
+								let length_delta = validated_value.length - unvalidated_value.length;
+								let new_caret_pos = -1;
+								if (caret_at_end) new_caret_pos = validated_value.length;
+								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos + length_delta - 1);
+								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos);
 								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character);
 								if (new_caret_pos < 0) new_caret_pos = old_caret_pos;
 								_.value = validated_value;
@@ -62,7 +75,6 @@ export class FieldValuePanel extends PanelBase
 						this.value_dirty = _.value !== this.value;
 
 						this.RefreshStyling();
-						e.stopPropagation();
 
 						this.onValueChanged.Invoke({ value_original: this.value, value_current: _.value });
 						this.valueChangeTimeout.ExtendTimer();
