@@ -58,7 +58,6 @@ export class PageMap extends PageBase
 
 	UpdateQuery()
 	{
-		//const url_map_embed = 'https://www.openstreetmap.org/export/embed.html?bbox=-62.04673002474011%2C16.95487694424327%2C-61.60521696321666%2C17.196751341562923&amp;layer=mapnik';
 		const url_map_embed = 'https://maps.google.com/maps?hl=en&t=k&ie=UTF8&iwloc=B&output=embed';
 		this.e_map_iframe.src = url_map_embed + '&q=' + this.input_query.e_value.value;
 	}
