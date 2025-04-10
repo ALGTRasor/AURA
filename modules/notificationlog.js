@@ -66,10 +66,28 @@ export class NotificationLog
 		ui.e_root.style.top = 'calc(1rem + var(--action-bar-height))';
 
 		document.body.appendChild(ui.e_root);
+
+		NotificationLog.Hide();
 	}
 
-	static Hide() { if (NotificationLog.ui.e_root) NotificationLog.ui.e_root.style.display = 'none'; }
-	static Show() { if (NotificationLog.ui.e_root) NotificationLog.ui.e_root.style.display = 'flex'; }
+	static Hide()
+	{
+		if (NotificationLog.ui.e_root)
+		{
+			NotificationLog.ui.e_root.style.display = 'none';
+			NotificationLog.ui.e_root.style.pointerEvents = 'none';
+			NotificationLog.ui.e_root.style.opacity = '0%';
+		}
+	}
+	static Show()
+	{
+		if (NotificationLog.ui.e_root)
+		{
+			NotificationLog.ui.e_root.style.display = 'flex';
+			NotificationLog.ui.e_root.style.pointerEvents = 'all';
+			NotificationLog.ui.e_root.style.removeAttribute('opacity');
+		}
+	}
 
 	static Log(notification = Notification.Nothing)
 	{
@@ -84,6 +102,7 @@ export class NotificationLog
 		{
 			NotificationLog.Push(notification);
 		}
+		NotificationLog.Show();
 	}
 
 	static Push(notification = Notification.Nothing)

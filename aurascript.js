@@ -5,21 +5,25 @@ import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
 import "./modules/notificationlog.js";
 
+import { Timers } from "./modules/timers.js";
 import { AnimJob } from "./modules/AnimJob.js";
+import { Autosave } from "./modules/autosave.js";
 import { RunningTimeout } from "./modules/utils/running_timeout.js";
 import { Notification, NotificationLog } from "./modules/notificationlog.js";
 import { DevMode } from "./modules/devmode.js";
 import { DebugLog } from "./modules/debuglog.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { PageManager } from "./modules/pagemanager.js";
+import { OverlayManager } from "./modules/ui/overlays.js";
 import { UserSettings } from "./modules/usersettings.js";
-import { DataSource } from "./modules/datasource.js";
-import { SharedData } from "./modules/datashared.js";
 import { AppEvents } from "./modules/appevents.js";
+import { SharedData } from "./modules/datashared.js";
+import { SharePoint } from "./modules/sharepoint.js";
 import { Fax } from "./modules/fax.js";
 
 
 
+import './modules/pages/onboarding.js';
 import './modules/pages/home.js';
 import './modules/pages/settings.js';
 import './modules/pages/internal_users.js';
@@ -32,10 +36,7 @@ import './modules/pages/hr.js';
 import './modules/pages/database_probe.js';
 import './modules/pages/external_links.js';
 import './modules/pages/demo_panel.js';
-import { Autosave } from "./modules/autosave.js";
-import { OverlayManager } from "./modules/ui/overlays.js";
-import { Timers } from "./modules/timers.js";
-import { SharePoint } from "./modules/sharepoint.js";
+import './modules/pages/map.js';
 
 
 
@@ -64,11 +65,35 @@ async function OnAuraInit()
 
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
+	let e_content_obscurer = document.getElementById('content-body-obscurer');
 
 	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
 	window.e_account_profile_picture.style.display = 'none';
 
 	SetErrorProxy();
+
+	window.args = {};
+	let q = window.location.search.substring(1).split('&');
+	for (let x in q)
+	{
+		let str = q[x];
+		let id_eq = str.indexOf('=');
+		let k = str.substring(0, id_eq);
+		let v = str.substring(id_eq + 1);
+		window.args[k] = v;
+	}
+
+	const sdanger = { user_id: 's.danger', display_name: 'Stranger Danger', mail: 's.danger@evil.corp' };
+	window.spoof_data = {};
+	if ('spoof-id' in window.args) 
+	{
+		let spoof_id = window.args['spoof-id'];
+		if (spoof_id === 's.danger') window.spoof_data = sdanger;
+		else window.spoof_data.user_id = spoof_id;
+	}
+	if ('spoof-name' in window.args) window.spoof_data.display_name = window.args['spoof-name'];
+	if ('spoof-mail' in window.args) window.spoof_data.mail = window.args['spoof-mail'];
+	//window.spoof_data = sdanger;
 
 	UserSettings.HookOptionEvents();
 	UserSettings.LoadFromStorage();
@@ -77,50 +102,54 @@ async function OnAuraInit()
 	await UserAccountManager.AttemptAutoLogin();
 	ActionBar.UpdateAccountButton();
 
-	let has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
-	let is_alg_account = has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
-
-	if (UserAccountManager.account_provider.logged_in === true && is_alg_account === true) 
+	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true) 
 	{
 		window.e_account_profile_picture.style.display = 'block';
 
-		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
-		ActionBar.AddMenuButton('refresh', 'refresh', _ =>
-		{
-			OverlayManager.ShowConfirmDialog(
-				_ => { RequestSharedDataRefresh(); },
-				_ => { },
-				'Refresh all shared data?<br><br>'
-				+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
-				'[Y]ES',
-				'[N]o'
-			)
-		});
-		ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
-
 		SharePoint.StartProcessingQueue();
 		await CheckIdentity();
+
+		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
+		if (UserAccountInfo.aura_access === true)
+		{
+			ActionBar.AddMenuButton('refresh', 'refresh', _ =>
+			{
+				OverlayManager.ShowConfirmDialog(
+					_ => { RequestSharedDataRefresh(); },
+					_ => { },
+					'Refresh all shared data?<br><br>'
+					+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
+					'[Y]ES',
+					'[N]o'
+				)
+			});
+			ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
+		}
 		await AppEvents.onAccountLogin.InvokeAsync();
 
-		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
-		if (!should_restore_layout || !PageManager.RestoreCachedLayout()) PageManager.OpenPageByTitle('nav menu');
+		let should_restore_layout = UserAccountInfo.aura_access && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
+		if (!should_restore_layout || !PageManager.RestoreCachedLayout()) 
+		{
+			if (UserAccountInfo.aura_access === true) PageManager.OpenPageByTitle('nav menu');
+			else PageManager.OpenPageByTitle('onboarding');
+		}
 		await Fax.RefreshFact();
 
 		NotificationLog.Create();
-		NotificationLog.Log(new Notification('notification', 'this is a notification', true));
 
-		document.getElementById('content-body-obscurer').style.display = 'none';
+		e_content_obscurer.style.display = 'none';
 		window.addEventListener('keyup', CheckHotkey);
 	}
 	else
 	{
-		document.getElementById('content-body-obscurer').style.display = 'block';
-		document.getElementById('content-body-obscurer').innerText = 'RESTRICTED';
+		e_content_obscurer.style.display = 'block';
+		e_content_obscurer.innerText = 'nothing to see';
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
 
 	UserSettings.UpdateOptionEffects();
+	UserAccountManager.ShowWelcomeMessage();
 
 	DebugLog.SubmitGroup('#fff4');
 }

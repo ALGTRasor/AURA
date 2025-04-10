@@ -55,4 +55,4 @@ export class PageInternalUsers extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageInternalUsers('internal users'));
+PageManager.RegisterPage(new PageInternalUsers('internal users', 'users.view'));

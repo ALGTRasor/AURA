@@ -50,4 +50,4 @@ export class PageExternalLinks extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageExternalLinks('external links'));
+PageManager.RegisterPage(new PageExternalLinks('external links', 'aura.access'));

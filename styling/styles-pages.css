@@ -111,7 +111,6 @@
 .page-panel.inset-box
 {
 	background-color: hsl(from var(--theme-color) h s 12%);
-	box-shadow: inset -2px 2px 1rem rgba(from var(--shadow-color) r g b / 0.5);
 	clip-path: padding-box;
 
 	border: solid 2px black;
@@ -220,17 +219,38 @@
 {
 	transition-property: max-height;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: 0.1s;
+	transition-delay: 0.5s;
 	transition-timing-function: ease-in-out;
 }
 
 .page-panel.expanding-panel:hover
 {
+	outline: solid 2px var(--theme-color);
+	outline-offset: -4px;
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: 0s;
 	max-height: 100vh !important;
 }
 
+
+.page-panel iframe
+{
+	z-index: 1;
+	position: relative;
+	overflow: hidden;
+	border-radius: 0.5rem;
+}
+.inset-box::before
+{
+	content: '';
+
+	z-index: 2;
+	pointer-events: none;
+	position: absolute;
+	inset: 0;
+
+	box-shadow: inset 0px 0px 0.5rem var(--shadow-color);
+}
 
 
 
@@ -673,6 +693,8 @@
 	border-style: solid;
 	border-color: rgba(from var(--theme-color) r g b / 0.15);
 
+	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.5);
+
 	max-width: 100%;
 
 	background-color: hsl(from var(--theme-color) h s 25%);
@@ -680,7 +702,7 @@
 
 .setting-root-slider:active
 {
-	border: solid 2px var(--theme-color);
+	outline: solid 2px var(--theme-color);
 }
 
 .setting-root-slider:hover > .setting-slider-fill

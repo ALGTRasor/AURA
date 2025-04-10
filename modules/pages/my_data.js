@@ -145,4 +145,4 @@ export class PageMyData extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('my data'));
+PageManager.RegisterPage(new PageMyData('my data', 'aura.access'));

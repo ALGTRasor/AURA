@@ -24,34 +24,41 @@ export class PageHome extends PageBase
 
 		this.menu = new QuickMenu();
 
-		let ButtonOptions = (id, label) => 
+		let TryAddButton = (buttons = [], id, label) => 
 		{
-			return {
-				label: (label ? label : id).toUpperCase(),
-				on_click: () =>
-				{
-					DebugLog.Log('nav attempt -> ' + id);
-					PageManager.TogglePageByTitle(id);
-				}
+			if (PageManager.IsPageAvailable(id))
+			{
+				buttons.push({
+					label: (label ? label : id).toUpperCase(),
+					on_click: () =>
+					{
+						DebugLog.Log('nav attempt -> ' + id);
+						PageManager.TogglePageByTitle(id);
+					}
+				});
 			}
+
 		};
 
 		let buttons = [];
-		if (UserAccountInfo.HasPermission('projects.view')) buttons.push(ButtonOptions('project hub'));
-		if (UserAccountInfo.HasPermission('tasks.view')) buttons.push(ButtonOptions('task hub'));
-		if (UserAccountInfo.HasPermission('contact.logs.view')) buttons.push(ButtonOptions('contact logs'));
-		if (UserAccountInfo.HasPermission('users.view')) buttons.push(ButtonOptions('internal users'));
-		if (UserAccountInfo.HasPermission('contacts.view')) buttons.push(ButtonOptions('external contacts'));
-		if (UserAccountInfo.HasPermission('reports.access')) buttons.push(ButtonOptions('reports'));
-		if (UserAccountInfo.HasPermission('time.keep')) buttons.push(ButtonOptions('timekeep'));
-		buttons.push(ButtonOptions('my data'));
-		if (UserAccountInfo.HasPermission('hr.access')) buttons.push(ButtonOptions('hr'));
-		buttons.push(ButtonOptions('settings'));
-		buttons.push(ButtonOptions('external links'));
+
+		TryAddButton(buttons, 'project hub');
+		TryAddButton(buttons, 'task hub');
+		TryAddButton(buttons, 'contact logs');
+		TryAddButton(buttons, 'internal users');
+		TryAddButton(buttons, 'external contacts');
+		TryAddButton(buttons, 'reports');
+		TryAddButton(buttons, 'timekeep');
+		TryAddButton(buttons, 'my data');
+		TryAddButton(buttons, 'hr');
+		TryAddButton(buttons, 'settings');
+		TryAddButton(buttons, 'external links');
+		TryAddButton(buttons, 'map');
+
 		if (DevMode.active)
 		{
-			buttons.push(ButtonOptions('database probe'));
-			buttons.push(ButtonOptions('demo panel'));
+			TryAddButton(buttons, 'database probe');
+			TryAddButton(buttons, 'demo panel');
 		}
 
 		this.menu.CreateElements(this.e_content, buttons);
@@ -81,4 +88,4 @@ export class PageHome extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageHome('nav menu'));
+PageManager.RegisterPage(new PageHome('nav menu', 'aura.access'));

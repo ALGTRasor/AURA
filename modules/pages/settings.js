@@ -38,17 +38,27 @@ export class PageSettings extends PageBase
 		this.e_toggle_spotlight = this.AddToggle('spotlight', 'highlight', 'Toggle spotlight', 'spotlight', () => { AppEvents.onToggleSpotlight.Invoke(); });
 		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
 
-
 		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
 
 		const updateColorWarning = () =>
 		{
 			let hue = UserSettings.GetOptionValue('theme-hue');
 			let sat = UserSettings.GetOptionValue('theme-saturation');
-			if ((hue < 0.43 || hue > 0.95) && sat > 0.25) this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
+			{
+				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+				this.e_theme_color_warning.style.display = 'block';
+			}
 			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
+			{
 				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
-			else this.e_theme_color_warning.innerText = '';
+				this.e_theme_color_warning.style.display = 'block';
+			}
+			else 
+			{
+				this.e_theme_color_warning.innerText = '';
+				this.e_theme_color_warning.style.display = 'none';
+			}
 		};
 
 		const updateHueSlider = (data = {}, triggerSetEvent = false) =>
@@ -149,7 +159,7 @@ export class PageSettings extends PageBase
 			}
 		);
 
-
+		let user_has_aura_access = UserAccountInfo.HasPermission('aura.access');
 		CreatePagePanel(
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
@@ -169,15 +179,20 @@ export class PageSettings extends PageBase
 					}
 				);
 				addKey('` or ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
-				if (UserAccountInfo.HasPermission('contacts.view')) addKey('e', 'Toggle External Contacts');
-				if (UserAccountInfo.HasPermission('hr.access')) addKey('h', 'Toggle HR');
-				if (UserAccountInfo.HasPermission('users.view')) addKey('i', 'Toggle Internal Users');
-				if (UserAccountInfo.HasPermission('keep.time')) addKey('k', 'Toggle Timekeep');
-				addKey('m', 'Toggle My Data');
-				addKey('n', 'Toggle Nav Menu');
-				if (UserAccountInfo.HasPermission('projects.view')) addKey('p', 'Toggle Project Hub');
+				if (user_has_aura_access)
+				{
+					if (UserAccountInfo.HasPermission('contacts.view')) addKey('e', 'Toggle External Contacts');
+					if (UserAccountInfo.HasPermission('hr.access')) addKey('h', 'Toggle HR');
+					if (UserAccountInfo.HasPermission('users.view')) addKey('i', 'Toggle Internal Users');
+					if (UserAccountInfo.HasPermission('keep.time')) addKey('k', 'Toggle Timekeep');
+
+					addKey('m', 'Toggle My Data');
+					addKey('n', 'Toggle Nav Menu');
+
+					if (UserAccountInfo.HasPermission('projects.view')) addKey('p', 'Toggle Project Hub');
+				}
 				addKey('s', 'Toggle Settings');
-				if (UserAccountInfo.HasPermission('tasks.view')) addKey('t', 'Toggle Task Hub');
+				if (user_has_aura_access && UserAccountInfo.HasPermission('tasks.view')) addKey('t', 'Toggle Task Hub');
 			}
 		);
 

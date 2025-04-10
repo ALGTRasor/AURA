@@ -54,4 +54,4 @@ export class PageHR extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageHR('hr'));
+PageManager.RegisterPage(new PageHR('hr', 'hr.access'));

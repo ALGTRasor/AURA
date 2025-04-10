@@ -66,4 +66,4 @@ export class PageProjectHub extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageProjectHub('project hub'));
+PageManager.RegisterPage(new PageProjectHub('project hub', 'projects.view'));

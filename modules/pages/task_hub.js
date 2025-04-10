@@ -52,4 +52,4 @@ export class PageTaskHub extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageTaskHub('task hub'));
+PageManager.RegisterPage(new PageTaskHub('task hub', 'tasks.view'));

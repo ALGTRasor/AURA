@@ -114,4 +114,4 @@ export class DatabaseProbe extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new DatabaseProbe('database probe'));
+PageManager.RegisterPage(new DatabaseProbe('database probe', 'aura.access'));

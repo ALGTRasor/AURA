@@ -9,18 +9,21 @@ export class PageBase
 {
 	static Default = new PageBase(null);
 
-	constructor(title = '')
+	constructor(title = '', permission = '')
 	{
 		if (title && title.length > 0) this.title = title;
 		else this.title = this.GetTitle();
+
+		this.permission = permission;
+
 		this.e_btn_close = {};
 		this.e_body = {};
 		this.e_title_bar = {};
 		this.e_content = {};
 
-		let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
-		let space0 = str_const.indexOf(' ', 0);
-		let space1 = str_const.indexOf(' ', space0 + 1);
+		//let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
+		//let space0 = str_const.indexOf(' ', 0);
+		//let space1 = str_const.indexOf(' ', space0 + 1);
 	}
 
 	GetTitle() { return '' }

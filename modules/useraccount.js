@@ -4,6 +4,7 @@ import { EventSource, EventSourceSubscription } from "./eventsource.js";
 import { SharedData } from "./datashared.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
 import { OverlayManager } from "./ui/overlays.js";
+import { PageManager } from "./pagemanager.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -92,7 +93,6 @@ export class MSAccountProvider extends UserAccountProvider
 	LoadCachedData()
 	{
 		let success = true;
-		DebugLog.StartGroup('loading account data');
 
 		let tmp_access = localStorage.getItem(lskey_access_token);
 		if (tmp_access) this.UpdateAccessToken(tmp_access);
@@ -106,21 +106,17 @@ export class MSAccountProvider extends UserAccountProvider
 		if (tmp_account_info)
 		{
 			let tmp_account_info_parsed = JSON.parse(tmp_account_info);
-			if (tmp_account_info_parsed) UserAccountInfo.account_info = tmp_account_info_parsed;
+			if (tmp_account_info_parsed)
+			{
+				UserAccountInfo.account_info = tmp_account_info_parsed;
+				UserAccountInfo.UpdateIdentity();
+			}
 			else success = false;
 		}
 		else success = false;
 
-		if (success)
-		{
-			DebugLog.Log('...loaded from cache');
-			DebugLog.SubmitGroup('#0f04');
-		}
-		else
-		{
-			DebugLog.Log('...not found in cache');
-			DebugLog.SubmitGroup('#ff04');
-		}
+		if (success) DebugLog.Log('...account data found');
+		else DebugLog.Log('...account data not found');
 	}
 
 	async AttemptAutoLogin()
@@ -252,7 +248,6 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async DownloadAccountData()
 	{
-		DebugLog.StartGroup('downloading account data');
 		var resp = await fetch(
 			"https://graph.microsoft.com/v1.0/me",
 			{
@@ -265,15 +260,7 @@ export class MSAccountProvider extends UserAccountProvider
 			}
 		);
 
-		if (resp.status == 200)
-		{
-			this.UpdateAccountInfo(JSON.parse(await resp.text()));
-			DebugLog.SubmitGroup('#0f04');
-		}
-		else
-		{
-			DebugLog.SubmitGroup('#f004');
-		}
+		if (resp.status == 200) this.UpdateAccountInfo(JSON.parse(await resp.text()));
 	}
 
 	UpdateAccountInfo(info_obj = {})
@@ -284,9 +271,16 @@ export class MSAccountProvider extends UserAccountProvider
 		UserAccountInfo.account_info.display_name = info_obj.displayName;
 		UserAccountInfo.account_info.email = info_obj.mail;
 
-		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.account_info));
+		if (window.spoof_data)
+		{
+			if (window.spoof_data.user_id) UserAccountInfo.account_info.user_id = window.spoof_data.user_id;
+			if (window.spoof_data.display_name) UserAccountInfo.account_info.display_name = window.spoof_data.display_name;
+			if (window.spoof_data.mail) UserAccountInfo.account_info.email = window.spoof_data.mail;
+		}
 
-		DebugLog.Log("...account: " + UserAccountInfo.account_info.user_id);
+		localStorage.setItem(lskey_user_data, JSON.stringify(UserAccountInfo.account_info));
+		DebugLog.Log("user id: " + UserAccountInfo.account_info.user_id);
+		UserAccountInfo.UpdateIdentity();
 	}
 
 	async DownloadAccountProfilePicture()
@@ -371,15 +365,52 @@ export class UserAccountManager
 		UserAccountManager.account_provider.InitiateAccountSelection();
 	}
 
+	static ShowWelcomeMessage()
+	{
+		const showWelcome = (msg = '') => { OverlayManager.ShowChoiceDialog(msg, [OverlayManager.OkayChoice()]); };
+		if (window.found_tokens === true) 
+		{
+			if (UserAccountInfo.aura_access)// user past onboarding
+			{
+				let msg = `Welcome back, ${UserAccountInfo.account_info.display_name}!`;
+				window.setTimeout(_ => { showWelcome(msg); }, 200);
+			}
+			else if (UserAccountInfo.is_alg_account)//user in onboarding
+			{
+				let msg = `Hello, ${UserAccountInfo.account_info.display_name}!`;
+				window.setTimeout(_ => { showWelcome(msg); }, 200);
+			}
+			else //external user
+			{
+				let msg = 'AURA doesn\'t recognize you!';
+				window.setTimeout(_ => { showWelcome(msg); }, 200);
+			}
+		}
+		else 
+		{
+			if (UserAccountInfo.aura_access)// user past onboarding
+			{
+				let msg = `Welcome back, ${UserAccountInfo.account_info.display_name}!`;
+				window.setTimeout(_ => { showWelcome(msg); }, 200);
+			}
+			else if (UserAccountInfo.is_alg_account)//user in onboarding
+			{
+				let msg = `Welcome back, ${UserAccountInfo.account_info.display_name}!`;
+				window.setTimeout(_ => { showWelcome(msg); }, 200);
+			}
+		}
+
+	}
+
 	static async CheckWindowLocationForCodes()
 	{
-		if (UserAccountManager.account_provider.GatherLocationTokens())
+		window.found_tokens = UserAccountManager.account_provider.GatherLocationTokens();
+		if (window.found_tokens === true)
 		{
 			let windowloc = window.location.toString();
 			if (windowloc.indexOf('?') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('?'));
 			if (windowloc.indexOf('#') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('#'));
 			window.history.replaceState(null, '', windowloc);
-			window.setTimeout(() => { OverlayManager.ShowChoiceDialog(`Logged in as ${UserAccountInfo.account_info.display_name}!`, [OverlayManager.OkayChoice()]); }, 500);
 		}
 	}
 }
@@ -391,6 +422,17 @@ export class UserAccountInfo
 	static user_permissions = []; // internal user aura permissions
 
 	static hr_info = {}; // internal user hr data
+
+	static has_ms_account = false;
+	static is_alg_account = false;
+	static aura_access = false;
+
+	static UpdateIdentity()
+	{
+		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
+		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
+		UserAccountInfo.aura_access = UserAccountInfo.HasPermission('aura.access');
+	}
 
 	static IndexOfPermission(permission_id = '')
 	{
@@ -422,17 +464,20 @@ export class UserAccountInfo
 			return;
 		}
 
+
 		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
 		if (got && got.display_name_full)
 		{
 			UserAccountInfo.user_info = got;
 			UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+			UserAccountInfo.aura_access = UserAccountInfo.HasPermission('aura.access');
 			DebugLog.Log('internal user data match: ' + got.display_name_full);
 			DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
 		}
 		else
 		{
 			DebugLog.Log('no internal user data match', "#f00");
+			UserAccountInfo.aura_access = false;
 		}
 
 		UserAccountInfo.hr_info.requests = SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);

@@ -98,4 +98,4 @@ export class PageDemoPanel extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageDemoPanel('demo panel'));
+PageManager.RegisterPage(new PageDemoPanel('demo panel', 'aura.access'));

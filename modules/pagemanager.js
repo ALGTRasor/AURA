@@ -3,6 +3,7 @@ import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageBase } from "./pages/pagebase.js";
+import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
 
 //const e_actionbar_title_label = document.getElementById('action-bar-title');
 const e_pages_root = document.getElementById('content-pages-root');
@@ -42,12 +43,12 @@ export class PageManager
 		PageManager.all_pages.push(page);
 	}
 
-	static GetPageIndexFromTitle(title = '')
+	static GetPageIndexFromTitle(pages = [], title = '')
 	{
 		var target_title = title.toLowerCase().trim();
-		for (let pid in PageManager.currentPages)
+		for (let pid in pages)
 		{
-			let p = PageManager.currentPages[pid];
+			let p = pages[pid];
 			if (p.title.toLowerCase().trim() === target_title) return pid;
 		}
 		return -1;
@@ -63,11 +64,28 @@ export class PageManager
 			if (p.title.toLowerCase().trim() === target_title) PageManager.OpenPageDirectly(p);
 		}
 	}
+
+	static IsPageAvailable(title = '')
+	{
+		let page_id = PageManager.GetPageIndexFromTitle(PageManager.all_pages, title);
+		let page_available = page_id > -1;
+
+		if (page_available)
+		{
+			let page = PageManager.all_pages[page_id];
+			if (typeof page.permission === 'string' && page.permission.length && page.permission.length > 0)
+				page_available = page_available && UserAccountInfo.HasPermission(page.permission);
+		}
+
+		return page_available;
+	}
+
 	static TogglePageByTitle(title)
 	{
 		title = title.toLowerCase().trim();
-		let existing_page_id = PageManager.GetPageIndexFromTitle(title);
+		if (!PageManager.IsPageAvailable(title)) return;
 
+		let existing_page_id = PageManager.GetPageIndexFromTitle(PageManager.currentPages, title);
 		if (existing_page_id > -1)
 		{
 			if (title !== 'nav menu' || PageManager.currentPages.length > 1)
@@ -93,7 +111,7 @@ export class PageManager
 	{
 		if (!page || !page.title) return false;
 
-		let existing_page_id = PageManager.GetPageIndexFromTitle(page.title);
+		let existing_page_id = PageManager.GetPageIndexFromTitle(PageManager.currentPages, page.title);
 		if (!force_new && existing_page_id > -1) return false;
 
 		DebugLog.StartGroup('loading page ' + page.title);

@@ -206,6 +206,11 @@ img
 	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
 }
 
+iframe
+{
+	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
+}
+
 
 
 .page-panel div:focus-within::after

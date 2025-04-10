@@ -53,4 +53,4 @@ export class PageExternalContacts extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageExternalContacts('external contacts'));
+PageManager.RegisterPage(new PageExternalContacts('external contacts', 'contacts.view'));
