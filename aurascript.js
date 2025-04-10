@@ -100,11 +100,12 @@ async function OnAuraInit()
 
 	await UserAccountManager.CheckWindowLocationForCodes();
 	await UserAccountManager.AttemptAutoLogin();
-	await UserAccountInfo.DownloadUserInfo();
 	ActionBar.UpdateAccountButton();
 
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true) 
 	{
+		await UserAccountInfo.DownloadUserInfo();
+
 		window.e_account_profile_picture.style.display = 'block';
 
 		SharePoint.StartProcessingQueue();
