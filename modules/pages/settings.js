@@ -97,7 +97,8 @@ export class PageSettings extends PageBase
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
-				x.className += ' expanding-panel';
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY PERMISSIONS'; });
 
 				//const get_key = _ => _.Title.split('.')[0];
@@ -142,7 +143,8 @@ export class PageSettings extends PageBase
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
-				x.className += ' expanding-panel';
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'LOADED MODULES'; });
 				for (let report_id in Modules.reported)
 				{
@@ -164,7 +166,8 @@ export class PageSettings extends PageBase
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
-				x.className += ' expanding-panel';
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
 				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
 
@@ -201,7 +204,8 @@ export class PageSettings extends PageBase
 			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
-				x.className += ' expanding-panel';
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
 				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
 

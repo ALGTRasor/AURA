@@ -10,7 +10,7 @@ export class InternalUserList extends PanelBase
 
 	OnCreate()
 	{
-		this.e_root = addElement(this.e_parent, 'div', '', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;overflow-y:auto;gap:0.5rem;');
+		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.5rem;');
 	}
 	OnRefresh()
 	{

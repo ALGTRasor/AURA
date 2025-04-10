@@ -5,6 +5,7 @@ import { SharedData } from "./datashared.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
 import { OverlayManager } from "./ui/overlays.js";
 import { PageManager } from "./pagemanager.js";
+import { InternalUser } from "./datamodels/internal_user.js";
 
 const id_mo_tenant = 'af0df1fe-2a14-4718-8660-84733b9b72bc';
 const url_mo = 'https://login.microsoftonline.com/' + id_mo_tenant + '/';
@@ -246,6 +247,7 @@ export class MSAccountProvider extends UserAccountProvider
 		return dirty_location;
 	}
 
+	/*
 	async DownloadAccountData()
 	{
 		var resp = await fetch(
@@ -260,8 +262,13 @@ export class MSAccountProvider extends UserAccountProvider
 			}
 		);
 
-		if (resp.status == 200) this.UpdateAccountInfo(JSON.parse(await resp.text()));
+		if (resp.status == 200)
+		{
+			this.UpdateAccountInfo(JSON.parse(await resp.text()));
+			await UserAccountInfo.DownloadUserInfo();
+		}
 	}
+	*/
 
 	UpdateAccountInfo(info_obj = {})
 	{
@@ -431,7 +438,7 @@ export class UserAccountInfo
 	{
 		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
-		UserAccountInfo.aura_access = UserAccountInfo.HasPermission('aura.access');
+		UserAccountInfo.aura_access = UserAccountInfo.user_info && UserAccountInfo.user_info.user_permissions && UserAccountInfo.user_info.user_permissions.indexOf('aura.access') > -1;
 	}
 
 	static IndexOfPermission(permission_id = '')
@@ -451,41 +458,44 @@ export class UserAccountInfo
 		return existing_id > -1;
 	}
 
-	static UpdateUserInfo()
+	static async DownloadUserInfo()
 	{
-		if (!SharedData.users || SharedData.users.length < 1)
+		const sp_site = 'ALGInternal';
+		let user_record = await SharePoint.DownloadRecord(sp_site, 'ALGUsers', `fields/Title eq '${UserAccountInfo.account_info.user_id}'`, InternalUser.data_model.fields);
+		if (user_record)
 		{
-			DebugLog.Log('SharedData.users invalid');
-			return;
-		}
-		if (!UserAccountInfo.account_info) 
-		{
-			DebugLog.Log('UserAccountInfo.account_info invalid');
-			return;
-		}
+			let prop_count = 0;
+			for (let prop in user_record)
+			{
+				UserAccountInfo.user_info[prop] = user_record[prop];
+				prop_count++;
+			}
 
+			UserAccountInfo.UpdateIdentity();
 
-		let got = SharedData.GetUserData(UserAccountInfo.account_info.user_id);
-		if (got && got.display_name_full)
-		{
-			UserAccountInfo.user_info = got;
-			UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
-			UserAccountInfo.aura_access = UserAccountInfo.HasPermission('aura.access');
-			DebugLog.Log('internal user data match: ' + got.display_name_full);
-			DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
+			DebugLog.Log('...downloaded user info');
+			DebugLog.Log('display name: ' + UserAccountInfo.user_info.display_name_full);
+			DebugLog.Log('user properties: ' + prop_count);
+			DebugLog.Log('aura access: ' + (UserAccountInfo.aura_access === true));
 		}
 		else
 		{
-			DebugLog.Log('no internal user data match', "#f00");
-			UserAccountInfo.aura_access = false;
+			UserAccountInfo.UpdateIdentity();
+			DebugLog.Log('...could not download user info', true, "#f00");
 		}
 
+	}
+
+	static UpdateUserSharedData()
+	{
+		UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
 		UserAccountInfo.hr_info.requests = SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
-		DebugLog.Log("Collected " + UserAccountInfo.hr_info.requests.length + " hr requests");
+		DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
+		DebugLog.Log('hr request count: ' + UserAccountInfo.hr_info.requests.length);
 	}
 }
 
-SharedData.onLoaded.RequestSubscription(() => { UserAccountInfo.UpdateUserInfo(); });
+SharedData.onLoaded.RequestSubscription(() => { UserAccountInfo.UpdateUserSharedData(); });
 
 Modules.Report('User Account', 'This module downloads and caches data for your tenant / company account.');
 if (!window.fxn) window.fxn = {};

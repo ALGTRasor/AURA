@@ -13,7 +13,7 @@ export function CreatePagePanel(parent = {}, inset = false, tiles = false, styli
 {
     let classes = 'page-panel';
     if (inset) classes += ' inset-box';
-    if (tiles) classes += ' page-panel-tiles';
+    if (tiles) classes += ' page-panel-tiles scroll-y';
     let e = addElement(parent, 'div', classes, styling, prep);
     return e;
 }

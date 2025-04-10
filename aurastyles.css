@@ -82,6 +82,17 @@ body
 	letter-spacing: calc(0.15 * var(--font-size));
 }
 
+
+
+
+.scroll-y
+{
+	overflow-x: hidden !important;
+	overflow-y: auto !important;
+}
+
+
+
 .content-root
 {
 	z-index: 500;

@@ -203,6 +203,19 @@ export class SharePoint
 	}
 
 
+	static async DownloadRecord(site = '', list = '', filter = '', fields = [])
+	{
+		let url = await SharePoint.GetListUrl(site, list) + '/items?select=id';
+		if (fields && fields.length > 0) url += '&expand=fields(select=' + fields.join(',') + ')';
+		if (filter && filter.length > 0) url += '&$filter=' + filter;
+		let result = await SharePoint.GetData(url);
+		let result_items = result.value;
+		let valid_items = result_items && Array.isArray(result_items) && result_items.length > 0;
+		if (valid_items) return result_items[0].fields;
+		return undefined;
+	}
+
+
 
 
 	static async GetData(url)

@@ -159,7 +159,6 @@
 
 .page-panel-tiles
 {
-	overflow: hidden auto;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -240,7 +239,7 @@
 	overflow: hidden;
 	border-radius: 0.5rem;
 }
-.inset-box::before
+.inset-box:not(.scroll-y)::before
 {
 	content: '';
 

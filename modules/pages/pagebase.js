@@ -180,7 +180,7 @@ export class PageBase
 	{
 		let classes = 'page-panel';
 		if (inset) classes += ' inset-box';
-		if (tiles) classes += ' page-panel-tiles';
+		if (tiles) classes += ' page-panel-tiles scroll-y';
 		return addElement(parent, 'div', classes, styling, prep);
 	}
 
