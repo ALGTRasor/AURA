@@ -14,7 +14,7 @@
 	transition-duration: 120ms;
 	transition-timing-function: ease-in;
 
-	scrollbar-color: hsl(from var(--theme-color) h s 30%) hsl(from var(--theme-color) h s 8%);
+	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 }
 
 
@@ -55,6 +55,119 @@
 	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 15%);
 }
+
+
+
+
+.page-title-bar
+{
+	user-select: none;
+
+	position: relative;
+	width: 100%;
+	left: 0;
+
+	height: 2rem;
+	min-height: 2rem;
+	line-height: 2rem;
+
+	color: hsl(from var(--theme-color) h s 50%);
+	letter-spacing: 4px;
+	text-align: center;
+	align-content: center;
+	font-weight: bold;
+	font-size: 90%;
+
+	background: #0002;
+}
+
+.page-title
+{
+	position: absolute;
+	inset: 0;
+}
+
+.page-title-bar i
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	aspect-ratio: 1.0;
+	width: auto;
+
+	scale: 80%;
+
+	color: hsl(from var(--theme-color) h s 50%);
+}
+
+.page-title-buttons
+{
+	position: relative;
+	height: 100%;
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	flex-grow: 1.0;
+}
+
+
+.page-title-button
+{
+	cursor: pointer;
+
+	position: relative;
+	top: 2px;
+	height: calc(100% - 8px);
+	aspect-ratio: 1.0;
+	width: auto;
+	background-color: hsl(from var(--theme-color) h s 10%);
+
+	border-radius: 0.5rem;
+
+	opacity: 50%;
+	scale: 90%;
+
+	border: solid 2px;
+	border-color: rgba(from var(--theme-color) r g b / 0.1);
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	transition-property: border-color;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.page-title-button:hover
+{
+	opacity: 100%;
+	scale: 100%;
+	background-color: hsl(from var(--theme-color) h s 15%);
+	border-color: rgba(from var(--theme-color) r g b / 0.5);
+
+}
+
+.page-title-button i
+{
+	opacity: 50%;
+	scale: 80%;
+
+	transition-property: opacity, scale;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.page-title-button:hover i
+{
+	opacity: 100%;
+	scale: 95%;
+}
+
+
+
+
+
 
 
 
@@ -394,36 +507,6 @@
 .page-root:hover>.page-title-bar
 {
 	color: hsl(from var(--theme-color) h s 70%);
-}
-
-.page-title-bar
-{
-	position: static;
-	user-select: none;
-	height: 2rem;
-	line-height: 2rem;
-
-	color: hsl(from var(--theme-color) h s 50%);
-	letter-spacing: 4px;
-	text-align: center;
-	align-content: center;
-	font-weight: bold;
-	font-size: 90%;
-
-	background: #0002;
-}
-
-.page-title-bar>i
-{
-	display: inline;
-	position: static;
-	font-variant: unset;
-	color: inherit;
-	padding-right: 1.3rem;
-	padding-left: 1rem;
-	width: 1rem;
-	font-size: 120%;
-	line-height: 2rem;
 }
 
 

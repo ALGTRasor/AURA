@@ -9,6 +9,30 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 };
 
 
+export function MoveArrayItem(items = [], from = 0, to = 0)
+{
+    if (from < 0 || from === to) return;
+    var x = items[fromIndex];
+    items.splice(from, 1);
+    items.splice(to, 0, x);
+}
+
+export function setSiblingIndex(element = {}, new_index = 0)
+{
+    if (!element) return;
+    if (!element.parentElement) return;
+
+    let old_index = [...element.parentElement.children].indexOf(element);
+    if (old_index < 0) return;
+    MoveArrayItem(element.parentElement.children, old_index, new_index);
+}
+
+
+
+
+
+
+
 export function CreatePagePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
 {
     let classes = 'page-panel';

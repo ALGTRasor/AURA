@@ -7,10 +7,27 @@ import { PageBase } from "./pagebase.js";
 export class PageMap extends PageBase
 {
 	GetTitle() { return 'map'; }
+
+	Resize()
+	{
+		this.limit_size = this.limit_size !== true;
+		this.UpdateSize();
+	}
+
+	UpdateSize()
+	{
+		if (this.limit_size) this.e_body.style.maxWidth = '17rem';
+		else this.e_body.style.maxWidth = 'unset';
+	}
+
 	CreateElements(parent)
 	{
 		if (!parent) return;
 		this.CreateBody();
+
+		this.limit_size = true;
+		this.UpdateSize();
+		this.title_bar.AddResizeButton();
 
 		this.timeout_UpdateQuery = new RunningTimeout(() => this.UpdateQuery(), 1, 150);
 

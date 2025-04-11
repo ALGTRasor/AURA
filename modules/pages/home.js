@@ -8,6 +8,19 @@ import { PageBase } from "./pagebase.js";
 export class PageHome extends PageBase
 {
 	GetTitle() { return 'nav menu' }
+
+	Resize()
+	{
+		this.limit_size = this.limit_size !== true;
+		this.UpdateSize();
+	}
+
+	UpdateSize()
+	{
+		if (this.limit_size) this.e_body.style.maxWidth = '20rem';
+		else this.e_body.style.maxWidth = 'unset';
+	}
+
 	CreateElements(parent)
 	{
 		if (!parent) return;
@@ -16,7 +29,11 @@ export class PageHome extends PageBase
 
 		this.CreateBody();
 
-		this.e_body.style.minWidth = '24rem';
+		this.limit_size = true;
+		this.UpdateSize();
+		this.title_bar.AddResizeButton();
+
+		this.e_body.style.minWidth = '20rem';
 		//this.e_body.style.maxWidth = '400px';
 		this.e_body.style.flexGrow = '1.0';
 

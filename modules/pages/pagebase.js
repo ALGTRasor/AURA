@@ -3,11 +3,14 @@ import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement } 
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
+import { PageTitleBar } from "./pagetitlebar.js";
 
 
 export class PageBase
 {
 	static Default = new PageBase(null);
+
+	title = '';
 
 	constructor(title = '', permission = '')
 	{
@@ -16,9 +19,11 @@ export class PageBase
 
 		this.permission = permission;
 
+		this.title_bar = null;
+
 		this.e_btn_close = {};
 		this.e_body = {};
-		this.e_title_bar = {};
+		//this.e_title_bar = {};
 		this.e_content = {};
 
 		//let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
@@ -39,6 +44,9 @@ export class PageBase
 		this.e_body = document.createElement('div');
 		this.e_body.className = 'page-root';
 
+		this.title_bar = new PageTitleBar(this, true);
+
+		/*
 		this.e_title_bar = document.createElement('div');
 		this.e_title_bar.className = 'page-title-bar';
 
@@ -52,36 +60,12 @@ export class PageBase
 			this.e_title_bar.appendChild(e_title_icon);
 		}
 		else this.e_title_bar.innerHTML = this.GetTitle().toUpperCase();
+		*/
 
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
 
-		if (create_close_button)
-		{
-			this.e_btn_close = document.createElement('div');
-			this.e_btn_close.className = 'page-close-button';
-			this.e_btn_close.innerHTML = "<i class='material-symbols icon'>close</i>";
-			this.e_btn_close.title = "Close this panel";
-			this.e_btn_close.addEventListener('click', () => { this.Close(); });
-			this.e_body.appendChild(this.e_btn_close);
-		}
-
-		this.e_btn_move_l = document.createElement('div');
-		this.e_btn_move_l.className = 'page-move-button';
-		this.e_btn_move_l.style.left = "0.2rem";
-		this.e_btn_move_l.innerHTML = "<i class='material-symbols icon'>chevron_left</i>";
-		this.e_btn_move_l.title = "Move this panel to the left";
-		this.e_btn_move_l.addEventListener('click', () => { this.MoveLeft(); });
-		this.e_body.appendChild(this.e_btn_move_l);
-
-		this.e_btn_move_r = document.createElement('div');
-		this.e_btn_move_r.className = 'page-move-button';
-		this.e_btn_move_r.innerHTML = "<i class='material-symbols icon'>chevron_right</i>";
-		this.e_btn_move_r.title = "Move this panel to the right";
-		this.e_btn_move_r.addEventListener('click', () => { this.MoveRight(); });
-		this.e_body.appendChild(this.e_btn_move_r);
-
-		this.e_body.appendChild(this.e_title_bar);
+		//this.e_body.appendChild(this.e_title_bar);
 		this.e_body.appendChild(this.e_content);
 	}
 
@@ -162,15 +146,15 @@ export class PageBase
 	{
 		if (PageManager.currentPages.length < 2)
 		{
-			if (this.e_btn_close) this.e_btn_close.style.display = (this.title == 'nav menu') ? 'none' : 'block';
-			this.e_btn_move_l.style.display = 'none';
-			this.e_btn_move_r.style.display = 'none';
+			if (this.title !== 'nav menu') this.title_bar.AddCloseButton();
+			else this.title_bar.RemoveCloseButton();
+			this.title_bar.RemoveNavigationButtons();
 		}
 		else
 		{
-			if (this.e_btn_close) this.e_btn_close.style.display = 'block';
-			this.e_btn_move_l.style.display = this.e_body.previousElementSibling ? 'block' : 'none';
-			this.e_btn_move_r.style.display = this.e_body.nextElementSibling ? 'block' : 'none';
+			this.title_bar.AddCloseButton();
+			this.title_bar.RemoveNavigationButtons();
+			this.title_bar.AddNavigationButtons(this.e_body.previousElementSibling != null, this.e_body.nextElementSibling != null);
 		}
 
 		this.OnLayoutChange();
