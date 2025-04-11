@@ -15,7 +15,7 @@ export class PageInternalUsers extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 		this.e_body.style.minWidth = '32rem';
-		this.e_body.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
+		//this.e_body.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
 
 		this.viewer = new RecordViewer();
 		this.viewer.SetData(SharedData.users.data);

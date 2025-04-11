@@ -25,8 +25,18 @@ export class Autosave
 
 		Autosave.last_invoke_ts = new Date();
 		DebugLog.Log('~ Autosave', false);
+		Autosave.e_lastsaved.style.aspectRatio = '1.0';
+		Autosave.e_lastsaved.style.height = '100%';
+		Autosave.e_lastsaved.style.width = 'auto';
 		Autosave.e_lastsaved.style.color = '#3f3a';
-		Autosave.e_lastsaved.innerText = 'Autosaved @' + Autosave.last_invoke_ts.toLocaleTimeString();
+		Autosave.e_lastsaved.title = 'Autosaved @' + Autosave.last_invoke_ts.toLocaleTimeString();
+		Autosave.e_lastsaved.innerHTML = '';
+		let e_title_icon = document.createElement('i');
+		e_title_icon.className = 'material-symbols icon';
+		e_title_icon.style = 'inset:unset;position:relative;top:0;left:0;width:100%;height:100%;'
+			+ 'color:green;opacity:50%;user-select:none;pointer-events:none;';
+		e_title_icon.innerText = 'save';
+		Autosave.e_lastsaved.appendChild(e_title_icon);
 	}
 
 	static InvokeSoon()
