@@ -29,10 +29,12 @@ const CLIENT_SCOPES = [
 	'Sites.ReadWrite.All'
 ].join(' ');
 
-export class UserAccountProvider {
+export class UserAccountProvider
+{
 	static Microsoft = new UserAccountProvider();
 
-	constructor() {
+	constructor()
+	{
 		this.logging_in = false;
 		this.logged_in = false;
 
@@ -65,26 +67,32 @@ export class UserAccountProvider {
 	ClearCachedData() { } // clears cached account info, usually to prepare for logout
 }
 
-export class MSAccountProvider extends UserAccountProvider {
+export class MSAccountProvider extends UserAccountProvider
+{
 	constructor() { super(); }
 
-	UpdateAccessToken(new_value, update_store = false) {
-		if (new_value && UserAccountManager.IsValidString(new_value)) {
+	UpdateAccessToken(new_value, update_store = false)
+	{
+		if (new_value && UserAccountManager.IsValidString(new_value))
+		{
 			this.access_token = new_value;
 			this.has_access_token = true;
 			if (update_store) localStorage.setItem(lskey_access_token, this.access_token);
 		}
 	}
 
-	UpdateIdToken(new_value, update_store = false) {
-		if (new_value && UserAccountManager.IsValidString(new_value)) {
+	UpdateIdToken(new_value, update_store = false)
+	{
+		if (new_value && UserAccountManager.IsValidString(new_value))
+		{
 			this.id_token = new_value;
 			this.has_id_token = true;
 			if (update_store) localStorage.setItem(lskey_id_token, this.id_token);
 		}
 	}
 
-	LoadCachedData() {
+	LoadCachedData()
+	{
 		let success = true;
 
 		let tmp_access = localStorage.getItem(lskey_access_token);
@@ -96,9 +104,11 @@ export class MSAccountProvider extends UserAccountProvider {
 		else success = false;
 
 		let tmp_account_info = localStorage.getItem(lskey_user_data);
-		if (tmp_account_info) {
+		if (tmp_account_info)
+		{
 			let tmp_account_info_parsed = JSON.parse(tmp_account_info);
-			if (tmp_account_info_parsed) {
+			if (tmp_account_info_parsed)
+			{
 				UserAccountInfo.account_info = tmp_account_info_parsed;
 				UserAccountInfo.UpdateIdentity();
 			}
@@ -110,7 +120,8 @@ export class MSAccountProvider extends UserAccountProvider {
 		else DebugLog.Log('...account data not found');
 	}
 
-	async AttemptAutoLogin() {
+	async AttemptAutoLogin()
+	{
 		UserAccountManager.account_provider.logging_in = true;
 
 		DebugLog.StartGroup('autologin');
@@ -127,7 +138,8 @@ export class MSAccountProvider extends UserAccountProvider {
 				new RequestBatchRequest(
 					'get', '/me/photos/240x240/$value',
 					_ => { this.UpdateAccountProfilePicture(_); },
-					_ => {
+					_ =>
+					{
 						_.headers = SharePoint.GetAuthOnlyHeaders();
 						_.headers['Content-Type'] = 'application/json';
 					}
@@ -142,7 +154,8 @@ export class MSAccountProvider extends UserAccountProvider {
 			DebugLog.SubmitGroup('#0f04');
 			UserAccountManager.account_provider.logged_in = true;
 		}
-		else {
+		else
+		{
 			DebugLog.Log('! authorization required');
 			DebugLog.SubmitGroup('#f004');
 			UserAccountManager.account_provider.logged_in = false;
@@ -150,18 +163,21 @@ export class MSAccountProvider extends UserAccountProvider {
 		UserAccountManager.account_provider.logging_in = false;
 	}
 
-	async AfterAuthenticationError() {
+	async AfterAuthenticationError()
+	{
 
 	}
 
 
-	AttemptReauthorize(reason = '') {
+	AttemptReauthorize(reason = '')
+	{
 		const max_login_attempts = 1;
 
 		let login_attempts = localStorage.getItem(lskey_login_attempts);
 		if (!login_attempts) login_attempts = 0;
 
-		if (login_attempts < max_login_attempts) {
+		if (login_attempts < max_login_attempts)
+		{
 			login_attempts += 1;
 			localStorage.setItem(lskey_login_attempts, login_attempts);
 			DebugLog.Log('reauthorize attempt ' + login_attempts + ' :: ' + (reason ? reason : 'no reason given'));
@@ -169,7 +185,8 @@ export class MSAccountProvider extends UserAccountProvider {
 		}
 	}
 
-	GetAuthorizationURL() {
+	GetAuthorizationURL()
+	{
 		let force = localStorage.getItem(lskey_login_forced);
 		let url = url_mo_oauth;
 		url += "?response_type=id_token+token";
@@ -182,12 +199,14 @@ export class MSAccountProvider extends UserAccountProvider {
 		return url;
 	}
 
-	InitiateLogin() {
+	InitiateLogin()
+	{
 		var auth_url = this.GetAuthorizationURL();
 		window.open(auth_url, "_self");
 	}
 
-	ClearCachedData() {
+	ClearCachedData()
+	{
 		this.access_token = '';
 		this.has_access_token = false;
 		this.id_token = '';
@@ -197,7 +216,8 @@ export class MSAccountProvider extends UserAccountProvider {
 		localStorage.removeItem(lskey_access_token);
 	}
 
-	InitiateAccountSelection() {
+	InitiateAccountSelection()
+	{
 		DebugLog.Log('Forced account selection');
 		this.ClearCachedData();
 		localStorage.setItem(lskey_login_forced, 1);
@@ -206,17 +226,20 @@ export class MSAccountProvider extends UserAccountProvider {
 		//window.open(UserAccountManager.GetRedirectUri(), "_self"); // reloads AURA logged out
 	}
 
-	GatherLocationTokens() {
+	GatherLocationTokens()
+	{
 		let dirty_location = false;
 
 		let id_token_match = window.location.toString().match(rgx_id_token);
-		if (id_token_match != null) {
+		if (id_token_match != null)
+		{
 			this.UpdateIdToken(id_token_match[1], true);
 			dirty_location = true;
 		}
 
 		let access_token_match = window.location.toString().match(rgx_access_token);
-		if (access_token_match != null) {
+		if (access_token_match != null)
+		{
 			this.UpdateAccessToken(access_token_match[1], true);
 			dirty_location = true;
 		}
@@ -247,14 +270,16 @@ export class MSAccountProvider extends UserAccountProvider {
 	}
 	*/
 
-	UpdateAccountInfo(info_obj = {}) {
+	UpdateAccountInfo(info_obj = {})
+	{
 		let id_at = info_obj.mail.indexOf("@");
 
 		UserAccountInfo.account_info.user_id = id_at > -1 ? info_obj.mail.substring(0, id_at) : info_obj.mail;
 		UserAccountInfo.account_info.display_name = info_obj.displayName;
 		UserAccountInfo.account_info.email = info_obj.mail;
 
-		if (window.spoof_data) {
+		if (window.spoof_data)
+		{
 			if (window.spoof_data.user_id) UserAccountInfo.account_info.user_id = window.spoof_data.user_id;
 			if (window.spoof_data.display_name) UserAccountInfo.account_info.display_name = window.spoof_data.display_name;
 			if (window.spoof_data.mail) UserAccountInfo.account_info.email = window.spoof_data.mail;
@@ -265,8 +290,10 @@ export class MSAccountProvider extends UserAccountProvider {
 		UserAccountInfo.UpdateIdentity();
 	}
 
-	async DownloadAccountProfilePicture() {
-		try {
+	async DownloadAccountProfilePicture()
+	{
+		try
+		{
 			var resp = await fetch(
 				"https://graph.microsoft.com/v1.0/me/photos/240x240/$value",
 				{
@@ -278,12 +305,14 @@ export class MSAccountProvider extends UserAccountProvider {
 			this.account_profile_picture_url = window.URL.createObjectURL(await resp.blob());
 			document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
 		}
-		catch (e) {
+		catch (e)
+		{
 			this.AttemptReauthorize(e);
 		}
 	}
 
-	async UpdateAccountProfilePicture(resp) {
+	async UpdateAccountProfilePicture(resp)
+	{
 		document.getElementById('action-bar-profile-picture').src = 'data:image/jpeg;base64,' + resp.body;
 		return;
 
@@ -293,20 +322,24 @@ export class MSAccountProvider extends UserAccountProvider {
 	}
 }
 
-export class UserAccountManager {
+export class UserAccountManager
+{
 	static account_provider = new MSAccountProvider();
 
-	static IsValidString(str) {
+	static IsValidString(str)
+	{
 		return str !== undefined && str !== null && typeof str === 'string' && str !== 'undefined' && str !== 'null';
 	}
 
-	static KeyString(str) {
+	static KeyString(str)
+	{
 		return str.substring(0, 32).split('').map(x => (Math.random() > 0.42) ? x : '*').join('') + '...';
 	}
 
 	static GetNonce() { return Math.floor(Math.random() * 8999999) + 1000000; }
 
-	static GetRedirectUri() {
+	static GetRedirectUri()
+	{
 		if (window.location.origin.startsWith('http://localhost')) return window.location.origin;
 		return 'https://algtrasor.github.io/AURA/';
 
@@ -319,25 +352,31 @@ export class UserAccountManager {
 		return n;
 	}
 
-	static async AttemptAutoLogin() {
+	static async AttemptAutoLogin()
+	{
 		await UserAccountManager.account_provider.AttemptAutoLogin();
 	}
 
-	static RequestLogin() {
+	static RequestLogin()
+	{
 		UserAccountManager.account_provider.InitiateLogin();
 	}
 
-	static MaybeAttemptReauthorize(reason = '') {
+	static MaybeAttemptReauthorize(reason = '')
+	{
 		UserAccountManager.account_provider.AttemptReauthorize(reason);
 	}
 
-	static ForceLogOut() {
+	static ForceLogOut()
+	{
 		UserAccountManager.account_provider.InitiateAccountSelection();
 	}
 
-	static async CheckWindowLocationForCodes() {
+	static async CheckWindowLocationForCodes()
+	{
 		window.found_tokens = UserAccountManager.account_provider.GatherLocationTokens();
-		if (window.found_tokens === true) {
+		if (window.found_tokens === true)
+		{
 			let windowloc = window.location.toString();
 			if (windowloc.indexOf('?') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('?'));
 			if (windowloc.indexOf('#') > -1) windowloc = windowloc.substring(0, windowloc.indexOf('#'));
@@ -346,7 +385,8 @@ export class UserAccountManager {
 	}
 }
 
-export class UserAccountInfo {
+export class UserAccountInfo
+{
 	static account_info = {}; // auth account info
 	static user_info = {}; // internal user / employee info
 	static user_permissions = []; // internal user aura permissions
@@ -357,32 +397,39 @@ export class UserAccountInfo {
 	static is_alg_account = false;
 	static aura_access = false;
 
-	static UpdateIdentity() {
+	static UpdateIdentity()
+	{
 		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
 		UserAccountInfo.aura_access = UserAccountInfo.user_info && UserAccountInfo.user_info.user_permissions && UserAccountInfo.user_info.user_permissions.indexOf('aura.access') > -1;
 	}
 
-	static IndexOfPermission(permission_id = '') {
+	static IndexOfPermission(permission_id = '')
+	{
 		if (typeof permission_id !== 'string' || permission_id.length < 1) return -1;
-		for (let pid in UserAccountInfo.user_permissions) {
+		for (let pid in UserAccountInfo.user_permissions)
+		{
 			if (UserAccountInfo.user_permissions[pid].Title === permission_id) return pid;
 		}
 		return -1;
 	}
 
-	static HasPermission(permission_id = '') {
+	static HasPermission(permission_id = '')
+	{
 		if (typeof permission_id !== 'string' || permission_id.length < 1) return true;
 		let existing_id = UserAccountInfo.IndexOfPermission(permission_id);
 		return existing_id > -1;
 	}
 
-	static async DownloadUserInfo() {
+	static async DownloadUserInfo()
+	{
 		const sp_site = 'ALGInternal';
 		let user_record = await SharePoint.DownloadRecord(sp_site, 'ALGUsers', `fields/Title eq '${UserAccountInfo.account_info.user_id}'`, InternalUser.data_model.fields);
-		if (user_record) {
+		if (user_record)
+		{
 			let prop_count = 0;
-			for (let prop in user_record) {
+			for (let prop in user_record)
+			{
 				UserAccountInfo.user_info[prop] = user_record[prop];
 				prop_count++;
 			}
@@ -394,14 +441,16 @@ export class UserAccountInfo {
 			DebugLog.Log('user properties: ' + prop_count);
 			DebugLog.Log('aura access: ' + (UserAccountInfo.aura_access === true));
 		}
-		else {
+		else
+		{
 			UserAccountInfo.UpdateIdentity();
 			DebugLog.Log('...could not download user info', true, "#f00");
 		}
 
 	}
 
-	static UpdateUserSharedData() {
+	static UpdateUserSharedData()
+	{
 		UserAccountInfo.user_permissions = SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
 		UserAccountInfo.hr_info.requests = SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
 		DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
