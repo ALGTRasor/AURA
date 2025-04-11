@@ -10,14 +10,14 @@ export class PageMap extends PageBase
 
 	Resize()
 	{
-		this.limit_size = this.limit_size !== true;
+		this.expanding = this.expanding !== true;
 		this.UpdateSize();
 	}
 
 	UpdateSize()
 	{
-		if (this.limit_size) this.e_body.style.maxWidth = '17rem';
-		else this.e_body.style.maxWidth = 'unset';
+		if (this.expanding) this.e_body.style.maxWidth = 'unset';
+		else this.e_body.style.maxWidth = '17rem';
 	}
 
 	CreateElements(parent)
@@ -25,7 +25,7 @@ export class PageMap extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 
-		this.limit_size = true;
+		this.expanding = true;
 		this.UpdateSize();
 		this.title_bar.AddResizeButton();
 

@@ -186,6 +186,21 @@ body
 	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
 }
 
+.theme-toner
+{
+	z-index: 5000005;
+	position: absolute;
+	pointer-events: none;
+	inset: 0;
+	padding: 0;
+	margin: 0;
+	backdrop-filter: contrast(100%);
+}
+
+
+
+
+
 .spotlight
 {
 	z-index: 10000000;

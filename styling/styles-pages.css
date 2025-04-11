@@ -126,7 +126,7 @@
 
 	border-radius: 0.5rem;
 
-	opacity: 50%;
+	opacity: 80%;
 	scale: 90%;
 
 	border: solid 2px;
@@ -147,11 +147,13 @@
 	background-color: hsl(from var(--theme-color) h s 15%);
 	border-color: rgba(from var(--theme-color) r g b / 0.5);
 
+	box-shadow: 0px 0px 6px black;
+
 }
 
 .page-title-button i
 {
-	opacity: 50%;
+	opacity: 70%;
 	scale: 80%;
 
 	transition-property: opacity, scale;

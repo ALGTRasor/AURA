@@ -11,14 +11,14 @@ export class PageHome extends PageBase
 
 	Resize()
 	{
-		this.limit_size = this.limit_size !== true;
+		this.expanding = this.expanding !== true;
 		this.UpdateSize();
 	}
 
 	UpdateSize()
 	{
-		if (this.limit_size) this.e_body.style.maxWidth = '20rem';
-		else this.e_body.style.maxWidth = 'unset';
+		if (this.expanding) this.e_body.style.maxWidth = 'unset';
+		else this.e_body.style.maxWidth = '20rem';
 	}
 
 	CreateElements(parent)
@@ -29,12 +29,11 @@ export class PageHome extends PageBase
 
 		this.CreateBody();
 
-		this.limit_size = true;
+		this.expanding = true;
 		this.UpdateSize();
 		this.title_bar.AddResizeButton();
 
 		this.e_body.style.minWidth = '20rem';
-		//this.e_body.style.maxWidth = '400px';
 		this.e_body.style.flexGrow = '1.0';
 
 		//this.e_content.className = 'page-content-root menu-root';

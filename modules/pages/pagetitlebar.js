@@ -10,8 +10,23 @@ export class PageTitleBarButton
 		this.parent = parent;
 		this.icon = icon;
 		this.action = action;
-		this.e_root = addElement(this.parent, 'div', 'page-title-button', '', _ => { _.addEventListener('click', _ => { action(); }) });
+		this.e_root = addElement(this.parent, 'div', 'page-title-button', '', _ => { _.addEventListener('click', _ => { this.InvokeAction(); }) });
 		this.e_icon = addElement(this.e_root, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
+	}
+
+	SetColor(color = '')
+	{
+		this.e_root.style.setProperty('--theme-color', color);
+	}
+
+	SetAction(action = () => { })
+	{
+		this.action = action;
+	}
+
+	InvokeAction()
+	{
+		this.action();
 	}
 }
 
@@ -119,7 +134,16 @@ export class PageTitleBar
 	AddResizeButton()
 	{
 		if (this.b_resize) return;
-		this.b_resize = this.AddButton(this.e_buttons_right, 'resize', () => { this.page.Resize(); }, "#0f0");
+		this.b_resize = this.AddButton(this.e_buttons_right, 'resize');
+		const update_color = _ => { _.b_resize.SetColor((_.page.expanding === true) ? '#0ff' : '#fff'); };
+		update_color(this);
+		this.b_resize.SetAction(
+			() =>
+			{
+				this.page.Resize();
+				update_color(this);
+			}
+		);
 	}
 
 	RemoveElements()
