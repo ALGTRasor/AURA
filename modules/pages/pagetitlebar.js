@@ -1,5 +1,6 @@
 import { DebugLog } from "../debuglog.js";
 import { addElement, setSiblingIndex } from "../domutils.js";
+import { PageManager } from "../pagemanager.js";
 import { PageBase } from "./pagebase.js";
 
 export class PageTitleBarButton
@@ -135,12 +136,13 @@ export class PageTitleBar
 	{
 		if (this.b_resize) return;
 		this.b_resize = this.AddButton(this.e_buttons_right, 'resize');
-		const update_color = _ => { _.b_resize.SetColor((_.page.expanding === true) ? '#0ff' : '#fff'); };
+		const update_color = _ => { _.b_resize.SetColor((_.page.state_data.expanding === true) ? '#0ff' : '#fff'); };
 		update_color(this);
 		this.b_resize.SetAction(
 			() =>
 			{
 				this.page.Resize();
+				PageManager.onLayoutChange.Invoke();
 				update_color(this);
 			}
 		);

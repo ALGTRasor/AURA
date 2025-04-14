@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement } from "../domutils.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { RecordFormUtils } from "../ui/recordform.js";
@@ -11,24 +11,21 @@ export class PageBase
 	static Default = new PageBase(null);
 
 	title = '';
+	state_data = {};
 
 	constructor(title = '', permission = '')
 	{
 		if (title && title.length > 0) this.title = title;
 		else this.title = this.GetTitle();
 
+		this.siblingIndex = -1;
+		this.state_data = {};
+
 		this.permission = permission;
 
 		this.title_bar = null;
-
-		this.e_btn_close = {};
 		this.e_body = {};
-		//this.e_title_bar = {};
 		this.e_content = {};
-
-		//let str_const = this.constructor.toString().replaceAll('\n', ' ').replaceAll('Page', '');
-		//let space0 = str_const.indexOf(' ', 0);
-		//let space1 = str_const.indexOf(' ', space0 + 1);
 	}
 
 	GetTitle() { return '' }
@@ -39,64 +36,40 @@ export class PageBase
 		this.e_content.innerHTML = "<div style='position:absolute;inset:0;text-align:center;align-content:center;'>" + text + "</div>";
 	}
 
-	CreateBody(create_close_button = true)
+	CreateBody()
 	{
 		this.e_body = document.createElement('div');
 		this.e_body.className = 'page-root';
-
 		this.title_bar = new PageTitleBar(this, true);
-
-		/*
-		this.e_title_bar = document.createElement('div');
-		this.e_title_bar.className = 'page-title-bar';
-
-		if (this.icon)
-		{
-			let e_title_icon = document.createElement('i');
-			e_title_icon.className = 'material-symbols icon';
-			e_title_icon.innerText = this.icon;
-			this.e_title_bar.appendChild(e_title_icon);
-			this.e_title_bar.innerHTML += this.GetTitle().toUpperCase();
-			this.e_title_bar.appendChild(e_title_icon);
-		}
-		else this.e_title_bar.innerHTML = this.GetTitle().toUpperCase();
-		*/
-
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
-
-		//this.e_body.appendChild(this.e_title_bar);
 		this.e_body.appendChild(this.e_content);
 	}
 
 	MoveLeft()
 	{
-		if (this.e_body.previousSibling)
-		{
-			fadeTransformElement(
-				this.e_body.parentElement,
-				() =>
-				{
-					this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
-					PageManager.onLayoutChange.Invoke();
-				}
-			);
-		}
+		if (!this.e_body.previousSibling) return;
+		fadeTransformElement(
+			this.e_body.parentElement,
+			() =>
+			{
+				this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+				PageManager.onLayoutChange.Invoke();
+			}
+		);
 	}
 
 	MoveRight()
 	{
-		if (this.e_body.nextSibling)
-		{
-			fadeTransformElement(
-				this.e_body.parentElement,
-				() =>
-				{
-					this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
-					PageManager.onLayoutChange.Invoke();
-				}
-			);
-		}
+		if (!this.e_body.nextSibling) return;
+		fadeTransformElement(
+			this.e_body.parentElement,
+			() =>
+			{
+				this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+				PageManager.onLayoutChange.Invoke();
+			}
+		);
 	}
 
 	Close(immediate = false)
@@ -157,7 +130,20 @@ export class PageBase
 			this.title_bar.AddNavigationButtons(this.e_body.previousElementSibling != null, this.e_body.nextElementSibling != null);
 		}
 
+		this.siblingIndex = getSiblingIndex(this.e_body);
 		this.OnLayoutChange();
+	}
+
+	UpdateStateData(state_data = {})
+	{
+		let prop_count = 0;
+		for (let prop_id in state_data)
+		{
+			this.state_data[prop_id] = state_data[prop_id];
+			prop_count++;
+			//DebugLog.Log(` - Page State Data [${prop_count}] ${prop_id}: ${this.state_data[prop_id]}`);
+		}
+		if (prop_count > 0) this.OnStateChange();
 	}
 
 	CreatePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
@@ -173,6 +159,7 @@ export class PageBase
 	OnOpen() { }
 	OnClose() { }
 	OnLayoutChange() { }
+	OnStateChange() { }
 }
 
 Modules.Report("Pages");

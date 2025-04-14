@@ -19,6 +19,92 @@ export class FieldValuePanel extends PanelBase
 	onValueChangedDelayed = new EventSource();
 	valueChangeTimeout = new RunningTimeout(() => { this.onValueChangedDelayed.Invoke() }, 0.6, false, 50);
 
+	TryValidateValue(target_value) 
+	{
+		if (this.validator) return this.validator(target_value);
+		return target_value;
+	}
+
+	getSourceValue() { return this.value; }
+	setSourceValue(new_value)
+	{
+		let prev_value = this.value;
+		this.value = new_value;
+		this.AfterSourceValueChanged(prev_value);
+	}
+	AfterSourceValueChanged(prev_value = '')
+	{
+		this.value = this.TryValidateValue(this.value);
+		this.e_value.value = this.value;
+		this.AfterAnyValueChanged(prev_value, this.value);
+	}
+
+	getLiveValue() { return this.e_value.value; }
+	setLiveValue(new_value)
+	{
+		let prev_value = this.e_value.value;
+		this.e_value.value = new_value;
+		this.AfterLiveValueChanged(prev_value);
+	};
+	AfterLiveValueChanged(prev_value = '')
+	{
+		this.e_value.value = this.TryValidateValue(this.e_value.value);
+		this.AfterAnyValueChanged(prev_value, this.e_value.value);
+	}
+
+	AfterAnyValueChanged(prev_value = '', new_value = '')
+	{
+		this.onValueChanged.Invoke({ value_original: prev_value, value_current: new_value });
+		this.valueChangeTimeout.ExtendTimer();
+		this.RefreshStyling();
+	}
+
+	last_caret_char = '';
+	last_caret_pos = -1;
+	last_caret_at_end = false;
+	PushCaretPos()
+	{
+		this.last_caret_pos = this.e_value.selectionStart;
+		this.last_caret_at_end = this.last_caret_pos >= (this.e_value.value.length - 1);
+		this.last_caret_char = this.e_value.value.substring(this.last_caret_pos, 1);
+	}
+	PopCaretPos(old_value, new_value)
+	{
+		let new_caret_pos = -1;
+		let length_delta = new_value.length - old_value.length;
+
+		if (this.last_caret_at_end) new_caret_pos = new_value.length;
+		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos + length_delta - 1);
+		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos);
+		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char);
+		if (new_caret_pos < 0) new_caret_pos = this.last_caret_pos;
+
+		this.e_value.value = new_value;
+		this.e_value.selectionStart = new_caret_pos;
+		this.e_value.selectionEnd = new_caret_pos;
+	}
+
+	handle_FieldKeyUp(e) 
+	{
+		e.stopPropagation();
+
+		let unvalidated_value = this.e_value.value;
+
+		if (this.validator)
+		{
+			this.PushCaretPos();
+			let validated_value = this.validator(unvalidated_value);
+			this.value_dirty = unvalidated_value !== validated_value;
+			if (this.value_dirty === true) this.PopCaretPos(unvalidated_value, validated_value);
+		}
+
+		//this.value = this.e_value.value; // copy live value to source
+
+		this.OnRefresh();
+		this.onValueChanged.Invoke({ value_original: unvalidated_value, value_current: this.e_value.value });
+		this.valueChangeTimeout.ExtendTimer();
+	}
+
 	OnCreate()
 	{
 		const style_shared = 'display:inline-block; position:relative; align-content:center; height:100%; font-size:0.7rem; padding:0; margin:0;';
@@ -43,57 +129,32 @@ export class FieldValuePanel extends PanelBase
 				_.disabled = this.edit_mode !== true;
 				_.placeholder = 'Add ' + this.label + '...';
 
-				_.addEventListener(
-					'keyup',
-					e =>
-					{
-						e.stopPropagation();
-
-						let unvalidated_value = _.value;
-
-						if (this.validator)
-						{
-							let old_caret_pos = _.selectionStart;
-							let caret_at_end = old_caret_pos >= (unvalidated_value.length - 1);
-							let old_caret_character = unvalidated_value.substring(old_caret_pos, 1);
-
-							let validated_value = this.validator(unvalidated_value);
-							if (unvalidated_value !== validated_value)
-							{
-								let length_delta = validated_value.length - unvalidated_value.length;
-								let new_caret_pos = -1;
-								if (caret_at_end) new_caret_pos = validated_value.length;
-								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos + length_delta - 1);
-								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character, old_caret_pos);
-								if (new_caret_pos < 0) new_caret_pos = validated_value.indexOf(old_caret_character);
-								if (new_caret_pos < 0) new_caret_pos = old_caret_pos;
-								_.value = validated_value;
-								_.selectionStart = new_caret_pos;
-								_.selectionEnd = new_caret_pos;
-							}
-						}
-						this.value_dirty = _.value !== this.value;
-
-						this.RefreshStyling();
-
-						this.onValueChanged.Invoke({ value_original: this.value, value_current: _.value });
-						this.valueChangeTimeout.ExtendTimer();
-					}
-				);
+				_.addEventListener('keyup', e => this.handle_FieldKeyUp(e));
 			}
 		);
-		this.RefreshStyling();
+
+		this.OnRefresh();
 	}
 
 	OnRefresh()
 	{
 		this.e_label.innerText = this.label.toUpperCase();
 		this.e_value.value = this.value;
-		if (this.value === 'NULL' || this.value === undefined) this.e_value.style.color = 'orangered';
-		else this.e_value.style.color = 'inherit';
+		this.RefreshStyling();
 	}
 
 	OnRemove() { this.e_root.remove(); }
+
+	SetValue(new_value = '', skip_validation = false)
+	{
+		this.value_dirty = new_value !== this.e_value.value;
+		if (this.value_dirty === true)
+		{
+			if (skip_validation !== true && this.validator) this.e_value.value = this.validator(new_value);
+			else this.e_value.value = new_value;
+			this.RefreshStyling();
+		}
+	}
 
 	SetEditMode(edit_mode = true)
 	{
@@ -114,6 +175,17 @@ export class FieldValuePanel extends PanelBase
 		{
 			this.e_value.removeAttribute('valuechanged');
 			this.e_label.removeAttribute('valuechanged');
+		}
+
+		if (this.value === 'NULL' || this.value === undefined)
+		{
+			this.e_value.value = '';
+			this.e_value.style.color = 'orangered';
+		}
+		else 
+		{
+			this.e_value.value = this.value;
+			this.e_value.style.color = 'inherit';
 		}
 	}
 }

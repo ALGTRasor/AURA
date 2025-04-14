@@ -19,28 +19,36 @@ export class PageManager
 
 	static sub_AutosaveOnLayoutChange = PageManager.onLayoutChange.RequestSubscription(Autosave.InvokeSoon);
 
+	static RegisterPage(page = PageBase.Default()) { PageManager.all_pages.push(page); }
+
 	static CacheCurrentLayout()
 	{
-		let titles = PageManager.currentPages.map(x => x.title);
-		localStorage.setItem(lskey_page_layout, JSON.stringify({ titles: titles }));
+		const get_page_data = _ => { return { title: _.title, state: _.state_data } };
+		const pages_sort = (x, y) =>
+		{
+			if (x.siblingIndex > y.siblingIndex) return 1;
+			if (x.siblingIndex < y.siblingIndex) return -1;
+			return 0;
+		};
+		let pages = PageManager.currentPages.sort(pages_sort).map(get_page_data);
+		let layout_json = JSON.stringify({ pages: pages });
+		localStorage.setItem(lskey_page_layout, layout_json);
 	}
 
 	static RestoreCachedLayout()
 	{
-		let got_titles = localStorage.getItem(lskey_page_layout);
-		if (got_titles)
+		let got_pages = localStorage.getItem(lskey_page_layout);
+		if (got_pages)
 		{
-			let titles = JSON.parse(got_titles).titles;
-			for (let id in titles) PageManager.OpenPageByTitle(titles[id]);
-			return titles.length > 0;
+			let pages = JSON.parse(got_pages).pages;
+			for (let id in pages) 
+			{
+				let p = pages[id];
+				PageManager.OpenPageByTitle(p.title, p.state);
+			}
+			return pages.length > 0;
 		}
 		return false;
-	}
-
-	static RegisterPage(page = PageBase.Default())
-	{
-		//DebugLog.Log('+page: ' + page.title.toUpperCase());
-		PageManager.all_pages.push(page);
 	}
 
 	static GetPageIndexFromTitle(pages = [], title = '')
@@ -54,14 +62,18 @@ export class PageManager
 		return -1;
 	}
 
-	static OpenPageByIndex(index) { PageManager.OpenPageDirectly(PageManager.all_pages[index]); }
-	static OpenPageByTitle(title)
+	static OpenPageByIndex(index, state = {}) { PageManager.OpenPageDirectly(PageManager.all_pages[index], state); }
+	static OpenPageByTitle(title, state = {})
 	{
 		var target_title = title.toLowerCase().trim();
 		for (let pid in PageManager.all_pages)
 		{
 			let p = PageManager.all_pages[pid];
-			if (p.title.toLowerCase().trim() === target_title) PageManager.OpenPageDirectly(p);
+			if (p.title.toLowerCase().trim() === target_title) 
+			{
+				PageManager.OpenPageDirectly(p, state);
+				return;
+			}
 		}
 	}
 
@@ -80,7 +92,7 @@ export class PageManager
 		return page_available;
 	}
 
-	static TogglePageByTitle(title)
+	static TogglePageByTitle(title, state = {})
 	{
 		title = title.toLowerCase().trim();
 		if (!PageManager.IsPageAvailable(title)) return;
@@ -98,7 +110,7 @@ export class PageManager
 				let p = PageManager.all_pages[pid];
 				if (p.title.toLowerCase().trim() === title)
 				{
-					PageManager.OpenPageDirectly(p);
+					PageManager.OpenPageDirectly(p, state);
 					return;
 				}
 			}
@@ -107,7 +119,7 @@ export class PageManager
 	}
 
 
-	static OpenPageDirectly(page = PageBase.Default(), force_new = false)
+	static OpenPageDirectly(page = PageBase.Default(), state = {}, force_new = false)
 	{
 		if (!page || !page.title) return false;
 
@@ -116,6 +128,10 @@ export class PageManager
 
 		DebugLog.StartGroup('loading page ' + page.title);
 		PageManager.currentPages.push(page);
+		if (state) 
+		{
+			page.UpdateStateData(state);
+		}
 
 		page.CreateElements(e_pages_root);
 		DebugLog.SubmitGroup();

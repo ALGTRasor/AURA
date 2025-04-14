@@ -70,22 +70,22 @@ export class InternalUserSummary extends PanelBase
 		{
 			this.e_title.innerText = this.user_data.display_name_full;
 
-			this.fields.id.value = this.user_data.Title;
-			this.fields.name.value = this.user_data.display_name_full;
-			this.fields.team.value = this.user_data.user_team;
-			this.fields.role.value = this.user_data.user_role;
-			this.fields.manager.value = this.user_data.user_manager_id;
+			this.fields.id.SetValue(this.user_data.Title);
+			this.fields.name.SetValue(this.user_data.display_name_full);
+			this.fields.team.SetValue(this.user_data.user_team);
+			this.fields.role.SetValue(this.user_data.user_role);
+			this.fields.manager.SetValue(this.user_data.user_manager_id);
 
-			this.fields.email_company.value = this.user_data.email_work;
-			this.fields.email_personal.value = this.user_data.email_home;
-			this.fields.address_company.value = this.user_data.address_work;
-			this.fields.address_personal.value = this.user_data.address_home;
-			this.fields.phone_company.value = this.user_data.phone_work;
-			this.fields.phone_personal.value = this.user_data.phone_home;
+			this.fields.email_company.SetValue(this.user_data.email_work);
+			this.fields.email_personal.SetValue(this.user_data.email_home);
+			this.fields.address_company.SetValue(this.user_data.address_work);
+			this.fields.address_personal.SetValue(this.user_data.address_home);
+			this.fields.phone_company.SetValue(this.user_data.phone_work);
+			this.fields.phone_personal.SetValue(this.user_data.phone_home);
 
-			this.fields.birth_date.value = this.user_data.user_birthdate;
-			this.fields.start_date.value = this.user_data.date_start;
-			this.fields.end_date.value = this.user_data.date_end === undefined ? '-' : this.user_data.date_end;
+			this.fields.birth_date.SetValue(this.user_data.user_birthdate);
+			this.fields.start_date.SetValue(this.user_data.date_start);
+			this.fields.end_date.SetValue(this.user_data.date_end === undefined ? '-' : this.user_data.date_end);
 		}
 		else this.ClearValues();
 	}
@@ -103,22 +103,22 @@ export class InternalUserSummary extends PanelBase
 
 	ClearValues()
 	{
-		this.fields.id.value = undefined;
-		this.fields.name.value = undefined;
-		this.fields.team.value = undefined;
-		this.fields.role.value = undefined;
-		this.fields.manager.value = undefined;
+		this.fields.id.SetValue(undefined, false, true);
+		this.fields.name.SetValue(undefined, false, true);
+		this.fields.team.SetValue(undefined, false, true);
+		this.fields.role.SetValue(undefined, false, true);
+		this.fields.manager.SetValue(undefined, false, true);
 
-		this.fields.email_company.value = undefined;
-		this.fields.email_personal.value = undefined;
-		this.fields.address_company.value = undefined;
-		this.fields.address_personal.value = undefined;
-		this.fields.phone_company.value = undefined;
-		this.fields.phone_personal.value = undefined;
+		this.fields.email_company.SetValue(undefined, false, true);
+		this.fields.email_personal.SetValue(undefined, false, true);
+		this.fields.address_company.SetValue(undefined, false, true);
+		this.fields.address_personal.SetValue(undefined, false, true);
+		this.fields.phone_company.SetValue(undefined, false, true);
+		this.fields.phone_personal.SetValue(undefined, false, true);
 
-		this.fields.birth_date.value = undefined;
-		this.fields.start_date.value = undefined;
-		this.fields.end_date.value = undefined;
+		this.fields.birth_date.SetValue(undefined, false, true);
+		this.fields.start_date.SetValue(undefined, false, true);
+		this.fields.end_date.SetValue(undefined, false, true);
 	}
 
 	ReleaseReferences()

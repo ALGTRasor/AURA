@@ -17,12 +17,15 @@ export function MoveArrayItem(items = [], from = 0, to = 0)
     items.splice(to, 0, x);
 }
 
+export function getSiblingIndex(element = {})
+{
+    if (!element || !element.parentElement) return -1;
+    return [...element.parentElement.children].indexOf(element);
+}
+
 export function setSiblingIndex(element = {}, new_index = 0)
 {
-    if (!element) return;
-    if (!element.parentElement) return;
-
-    let old_index = [...element.parentElement.children].indexOf(element);
+    let old_index = getSiblingIndex(element);
     if (old_index < 0) return;
     MoveArrayItem(element.parentElement.children, old_index, new_index);
 }

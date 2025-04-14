@@ -11,13 +11,13 @@ export class PageHome extends PageBase
 
 	Resize()
 	{
-		this.expanding = this.expanding !== true;
+		this.state_data.expanding = !this.state_data.expanding;
 		this.UpdateSize();
 	}
 
 	UpdateSize()
 	{
-		if (this.expanding) this.e_body.style.maxWidth = 'unset';
+		if (this.state_data.expanding === true) this.e_body.style.maxWidth = 'unset';
 		else this.e_body.style.maxWidth = '20rem';
 	}
 
@@ -28,8 +28,6 @@ export class PageHome extends PageBase
 		this.icon = 'menu';
 
 		this.CreateBody();
-
-		this.expanding = true;
 		this.UpdateSize();
 		this.title_bar.AddResizeButton();
 

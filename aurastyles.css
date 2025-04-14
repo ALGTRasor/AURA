@@ -239,7 +239,7 @@ iframe
 
 
 
-.page-panel div:focus-within::after
+.page-panel div:focus-within:not(.scroll-y)::after
 {
 	pointer-events: none;
 	user-select: none;
