@@ -1,3 +1,5 @@
+import { DebugLog } from "./debuglog.js";
+
 export function addElement(parent = {}, tag = 'div', className = '', style = '', prep = e => { })
 {
     let e = document.createElement((tag && tag.length > 0) ? tag : 'div');
@@ -11,23 +13,36 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 
 export function MoveArrayItem(items = [], from = 0, to = 0)
 {
-    if (from < 0 || from === to) return;
-    var x = items[fromIndex];
-    items.splice(from, 1);
+    if (!items || !items.length || from < 0 || from === to) return;
+    var x = items.splice(from, 1);
     items.splice(to, 0, x);
+    DebugLog.Log(`Moved ID: ${from} -> ${to}`);
 }
+
+
 
 export function getSiblingIndex(element = {})
 {
-    if (!element || !element.parentElement) return -1;
-    return [...element.parentElement.children].indexOf(element);
+    let e_parent = element.parentElement;
+    if (e_parent == null) 
+    {
+        console.warn('null parent for getSiblingIndex');
+        return -1;
+    }
+
+    for (let ii = 0; ii < e_parent.children.length; ii++)
+    {
+        if (e_parent.children.item(ii) == element) return ii;
+    }
+    console.warn('no element match for getSiblingIndex');
+    return -1;
 }
 
 export function setSiblingIndex(element = {}, new_index = 0)
 {
-    let old_index = getSiblingIndex(element);
-    if (old_index < 0) return;
-    MoveArrayItem(element.parentElement.children, old_index, new_index);
+    if (new_index <= 0) element.parentElement.insertBefore(element, element.parentElement.firstElementChild);
+    else if (new_index >= element.parentElement.children.length) element.parentElement.insertBefore(element, null);
+    else element.parentElement.insertBefore(element, element.parentElement.children.item(new_index + 1));
 }
 
 

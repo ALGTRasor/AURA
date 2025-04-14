@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, setSiblingIndex } from "../domutils.js";
+import { addElement, getSiblingIndex, setSiblingIndex } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { PageBase } from "./pagebase.js";
 
@@ -74,7 +74,7 @@ export class PageTitleBar
 		this.e_buttons = addElement(this.e_root, 'div', 'page-title-buttons');
 		const style_buttons_shared = 'flex-grow:1.0; gap:2px; padding:0 2px 0 2px;';
 		this.e_buttons_left = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared);
-		this.e_buttons_right = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared + 'justify-content:end;');
+		this.e_buttons_right = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared + 'justify-content:end; flex-direction:row-reverse;');
 
 		if (this.page.icon)
 		{
@@ -105,45 +105,57 @@ export class PageTitleBar
 		if (left === true && !this.b_moveL)
 		{
 			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); });
-			setSiblingIndex(this.b_moveL, 0);
+			setSiblingIndex(this.b_moveL.e_root, 0);
 		}
 		if (right === true && !this.b_moveR)
 		{
-			this.b_moveR = this.AddButton(this.e_buttons_left, 'chevron_right', () => { this.page.MoveRight(); });
-			setSiblingIndex(this.b_moveL, 1);
+			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', () => { this.page.MoveRight(); });
+			setSiblingIndex(this.b_moveR.e_root, 0);
+			if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
 		}
 	}
 
 	RemoveCloseButton()
 	{
-		if (!this.b_close) return;
-		this.b_close.e_root.remove();
-		this.b_close = null;
+		if (this.b_close)
+		{
+			this.b_close.e_root.remove();
+			this.b_close = null;
+		}
 	}
 	AddCloseButton()
 	{
 		if (this.b_close) return;
 		this.b_close = this.AddButton(this.e_buttons_right, 'close', () => { this.page.Close(); }, "#f00");
+		setSiblingIndex(this.b_close.e_root, 0);
 	}
 
 	RemoveResizeButton()
 	{
-		if (!this.b_resize) return;
-		this.b_resize.e_root.remove();
-		this.b_resize = null;
+		if (this.b_resize)
+		{
+			this.b_resize.e_root.remove();
+			this.b_resize = null;
+		}
 	}
 	AddResizeButton()
 	{
 		if (this.b_resize) return;
+
 		this.b_resize = this.AddButton(this.e_buttons_right, 'resize');
+		if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
+		setSiblingIndex(this.b_resize.e_root, 2);
+		//DebugLog.Log(`resize added: ${getSiblingIndex(this.b_resize)}`);
+		//window.setTimeout(() => { setSiblingIndex(this.b_resize, 2); }, 150);
+
 		const update_color = _ => { _.b_resize.SetColor((_.page.state_data.expanding === true) ? '#0ff' : '#fff'); };
 		update_color(this);
 		this.b_resize.SetAction(
 			() =>
 			{
 				this.page.Resize();
-				PageManager.onLayoutChange.Invoke();
 				update_color(this);
+				PageManager.onLayoutChange.Invoke();
 			}
 		);
 	}
