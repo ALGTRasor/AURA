@@ -278,6 +278,15 @@ div[valuechanged]
 	outline-offset: -1px;
 }
 
+.page-root input[type="text"]::placeholder,
+.page-root input[type="textarea"]::placeholder
+{
+	color: hsl(from var(--theme-color) h s 36%);
+	font-style: italic;
+	font-size: 85%;
+	padding-left: 1rem;
+}
+
 
 .page-root input[type="text"][disabled],
 .page-root input[type="textarea"][disabled]

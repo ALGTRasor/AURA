@@ -16,7 +16,7 @@ export class PanelBase
 			this.OnCreate();
 			this.created = true;
 		}
-		catch (e) { this.OnError('ERROR IN PANEL CREATE:: ' + e); }
+		catch (e) { this.OnError(e); }
 
 
 		this.Refresh();
@@ -37,7 +37,7 @@ export class PanelBase
 				}
 			}
 		}
-		catch (e) { this.OnError('ERROR IN PANEL REFRESH:: ' + e); }
+		catch (e) { this.OnError(e); }
 	}
 
 	Remove()
@@ -45,7 +45,7 @@ export class PanelBase
 		if (!this.created) return;
 		this.RemoveAllChildren();
 		try { this.OnRemove(); }
-		catch (e) { this.OnError('ERROR IN PANEL REMOVE:: ' + e); }
+		catch (e) { this.OnError(e); }
 		this.created = false;
 	}
 
@@ -65,5 +65,5 @@ export class PanelBase
 	OnRefresh() { throw 'Panel Refresh Not Implemented'; }
 	OnRemove() { throw 'Panel Remove Not Implemented'; }
 
-	OnError(error = '') { console.trace(); console.error(error); }
+	OnError(error = '') { console.error(error.stack); }
 }

@@ -8,20 +8,14 @@ export class RecordListPanel extends PanelBase
 	record_title_field = '';
 	record_title_label = '';
 
-	createFieldPanels = () => { };
-	updateFieldPanelValues = () => { };
-	clearFieldPanelValues = () => { };
+	createFieldPanels = _ => { };
+	updateFieldPanelValues = _ => { };
+	clearFieldPanelValues = _ => { };
 
 	spoofCount = 7;
 	getSpoofRecord = () => { return {}; };
 
-	constructor(
-		records = [],
-		record_title_field = 'user_id',
-		record_title_label = 'user id',
-		getSpoofRecord = () => { return {}; },
-		spoofCount = 7
-	)
+	constructor(records = [], record_title_field = 'user_id', record_title_label = 'user id', getSpoofRecord = () => { return {}; }, spoofCount = 7)
 	{
 		super();
 
@@ -35,7 +29,8 @@ export class RecordListPanel extends PanelBase
 
 	OnCreate()
 	{
-		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.5rem;');
+		const style_root = 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.5rem;';
+		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', style_root);
 	}
 
 	OnRefresh()
