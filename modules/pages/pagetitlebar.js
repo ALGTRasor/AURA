@@ -6,12 +6,20 @@ import { PageBase } from "./pagebase.js";
 export class PageTitleBarButton
 {
 	static Nothing = new PageTitleBarButton();
-	constructor(parent, icon = '', action = () => { })
+	constructor(parent, icon = '', action = () => { }, tooltip = '')
 	{
 		this.parent = parent;
+		this.tooltip = tooltip;
 		this.icon = icon;
 		this.action = action;
-		this.e_root = addElement(this.parent, 'div', 'page-title-button', '', _ => { _.addEventListener('click', _ => { this.InvokeAction(); }) });
+		this.e_root = addElement(
+			this.parent, 'div', 'page-title-button', '',
+			_ =>
+			{
+				_.title = this.tooltip;
+				_.addEventListener('click', _ => { this.InvokeAction(); });
+			}
+		);
 		this.e_icon = addElement(this.e_root, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
 	}
 
@@ -54,9 +62,9 @@ export class PageTitleBar
 		if (create === true) this.CreateElements();
 	}
 
-	AddButton(parent, icon = '', action = () => { }, color = '')
+	AddButton(parent, icon = '', action = () => { }, color = '', tooltip = '')
 	{
-		let b = new PageTitleBarButton(parent, icon, action);
+		let b = new PageTitleBarButton(parent, icon, action, tooltip);
 		if (color && color.length > 0) b.e_root.style.setProperty('--theme-color', color);
 		this.buttons.push(b);
 		return b;
@@ -104,12 +112,12 @@ export class PageTitleBar
 	{
 		if (left === true && !this.b_moveL)
 		{
-			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); });
+			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); }, undefined, 'Move this page to the left');
 			setSiblingIndex(this.b_moveL.e_root, 0);
 		}
 		if (right === true && !this.b_moveR)
 		{
-			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', () => { this.page.MoveRight(); });
+			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', () => { this.page.MoveRight(); }, undefined, 'Move this page to the right');
 			setSiblingIndex(this.b_moveR.e_root, 0);
 			if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
 		}
@@ -126,7 +134,7 @@ export class PageTitleBar
 	AddCloseButton()
 	{
 		if (this.b_close) return;
-		this.b_close = this.AddButton(this.e_buttons_right, 'close', () => { this.page.Close(); }, "#f00");
+		this.b_close = this.AddButton(this.e_buttons_right, 'close', () => { this.page.Close(); }, '#f00', 'Close this page');
 		setSiblingIndex(this.b_close.e_root, 0);
 	}
 
@@ -142,13 +150,15 @@ export class PageTitleBar
 	{
 		if (this.b_resize) return;
 
-		this.b_resize = this.AddButton(this.e_buttons_right, 'resize');
+		let expanded = this.page.state_data.expanding === true;
+
+		this.b_resize = this.AddButton(this.e_buttons_right, 'resize', undefined, undefined, expanded ? 'Collapse this page' : 'Allow this page to expand');
 		if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
 		setSiblingIndex(this.b_resize.e_root, 2);
 		//DebugLog.Log(`resize added: ${getSiblingIndex(this.b_resize)}`);
 		//window.setTimeout(() => { setSiblingIndex(this.b_resize, 2); }, 150);
 
-		const update_color = _ => { _.b_resize.SetColor((_.page.state_data.expanding === true) ? '#0ff' : '#fff'); };
+		const update_color = _ => { _.b_resize.SetColor((_.page.state_data.expanding) ? '#0ff' : '#fff'); };
 		update_color(this);
 		this.b_resize.SetAction(
 			() =>
