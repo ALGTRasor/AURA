@@ -1,46 +1,38 @@
-import { InternalUser } from "../datamodels/internal_user.js";
-import { SharedData } from "../datashared.js";
-import { addElement, CreatePagePanel } from "../domutils.js";
-import { PanelBase } from "./panel_base.js";
 import { InternalUserSummary } from "./panel_internal_user_summary.js";
+import { RecordListPanelBase } from "./panel_record_list_base.js";
 
-export class InternalUserList extends PanelBase
+export class InternalUserList extends RecordListPanelBase
 {
-	users = [];
+	GetPanelTitle() { return 'Internal User List'; }
+	GetListLabel() { return 'Internal Users'; }
+	GetRecordTitleField() { return 'Title'; }
+	GetRecordTitleLabel() { return 'User ID'; }
 
-	OnCreate()
+	CreateRecordSummary(record = {})
 	{
-		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.5rem;');
+		let summary = new InternalUserSummary();
+		summary.record = record;
+		summary.Create(this.e_root);
+		this.PushChild(summary);
 	}
-	OnRefresh()
-	{
-		for (let cid in this.children) this.children[cid].Remove();
-		this.children = [];
 
-		if (this.users && this.users.length > 0)
-		{
-			for (let ii = 0; ii < this.users.length; ii++)
-			{
-				let panel_summary = new InternalUserSummary();
-				panel_summary.user_data = this.users[ii];
-				panel_summary.Create(this.e_root);
-				this.PushChild(panel_summary);
-			}
-		}
-		else // spoof records
-		{
-			for (let ii = 0; ii < 7; ii++)
-			{
-				let panel_summary = new InternalUserSummary();
-				panel_summary.user_data = InternalUser.data_model.SpoofRecord();
-				panel_summary.Create(this.e_root);
-				panel_summary.e_root.style.setProperty('--theme-color', '#fed');
-				this.PushChild(panel_summary);
-			}
-		}
-	}
-	OnRemove()
+	GetSpoofRecord()
 	{
-		this.e_root.remove();
+		let spoof = {};
+		spoof.Title = 'user.id.' + (Math.round(Math.random() * 899999) + 100000);
+		spoof.display_name_full = 'User Name ' + (Math.round(Math.random() * 899999) + 100000);
+		spoof.user_team = '';
+		spoof.user_role = '';
+		spoof.user_manager_id = '';
+		spoof.email_work = '';
+		spoof.email_home = '';
+		spoof.address_work = '';
+		spoof.address_home = '';
+		spoof.phone_work = '';
+		spoof.phone_home = '';
+		spoof.user_birthdate = '';
+		spoof.date_start = '';
+		spoof.date_end = '';
+		return spoof;
 	}
 }

@@ -260,6 +260,53 @@ div[valuechanged]
 	color: yellow;
 }
 
+
+
+.page-root textarea[valuechanged],
+.page-root textarea[valuechanged]:hover
+{
+	color: yellow !important;
+	outline-color: yellow !important;
+	background-color: rgb(56, 56, 0) !important;
+}
+
+.page-root textarea
+{
+	border: unset;
+	background-color: transparent;
+	outline: solid 1px transparent;
+	outline-offset: -1px;
+}
+
+.page-root textarea::placeholder
+{
+	font-family: inherit;
+	color: hsl(from var(--theme-color) h s 36%);
+	font-style: italic;
+	font-size: 85%;
+	padding-left: 1rem;
+}
+
+
+.page-root textarea[disabled]
+{
+	pointer-events: none !important;
+	user-select: none !important;
+}
+
+.page-root textarea:not([disabled]):hover,
+.page-root textarea:focus,
+.page-root textarea:active
+{
+	color: white;
+	outline: solid white 1px !important;
+	outline-offset: -1px;
+}
+
+
+
+
+
 .page-root input[valuechanged],
 .page-root input[valuechanged]:hover
 {
@@ -267,7 +314,6 @@ div[valuechanged]
 	outline-color: yellow !important;
 	background-color: rgb(56, 56, 0) !important;
 }
-
 
 .page-root input[type="text"],
 .page-root input[type="textarea"]

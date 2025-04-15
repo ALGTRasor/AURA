@@ -28,6 +28,7 @@ export class DataTableDesc
             if (desc.exclude) exp.exclude = desc.exclude;
             if (desc.format) exp.format = desc.format;
             if (desc.multiline) exp.multiline = desc.multiline;
+            if (desc.read_only) exp.read_only = desc.read_only;
             descs_expanded[desc.key] = exp;
         }
         return new DataTableDesc(descs_expanded);

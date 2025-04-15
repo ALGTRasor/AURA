@@ -56,7 +56,7 @@ export class RecordListPanel extends PanelBase
 		else // spoof records
 		{
 			for (let ii = 0; ii < this.spoofCount; ii++)
-				addSummary(this.getSpoofRecord());
+				addSummary(this.GetSpoofRecord());
 		}
 	}
 	OnRemove()

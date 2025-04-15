@@ -7,7 +7,9 @@ export class FieldValuePanel extends PanelBase
 {
 	label = '';
 	value = '';
+	value_original = '';
 
+	multiline = false;
 	spellcheck = false;
 	value_dirty = false;
 	validator = _ => _.trim();
@@ -54,7 +56,7 @@ export class FieldValuePanel extends PanelBase
 
 	AfterAnyValueChanged(prev_value = '', new_value = '')
 	{
-		this.onValueChanged.Invoke({ value_original: prev_value, value_current: new_value });
+		this.onValueChanged.Invoke({ value_original: this.value_original, value_current: new_value });
 		this.valueChangeTimeout.ExtendTimer();
 		this.RefreshStyling();
 	}
@@ -84,9 +86,9 @@ export class FieldValuePanel extends PanelBase
 		this.e_value.selectionEnd = new_caret_pos;
 	}
 
-	handle_FieldKeyUp(e) 
+	handle_FieldChange(e) 
 	{
-		e.stopPropagation();
+		//e.stopPropagation();
 
 		let unvalidated_value = this.e_value.value;
 
@@ -94,33 +96,28 @@ export class FieldValuePanel extends PanelBase
 		{
 			this.PushCaretPos();
 			let validated_value = this.validator(unvalidated_value);
-			this.value_dirty = unvalidated_value !== validated_value;
+			this.value_dirty = this.value_original !== validated_value;
 			if (this.value_dirty === true) this.PopCaretPos(unvalidated_value, validated_value);
 		}
 
-		//this.value = this.e_value.value; // copy live value to source
+		this.value = this.e_value.value; // copy live value to source
 
 		this.OnRefresh();
-		this.onValueChanged.Invoke({ value_original: unvalidated_value, value_current: this.e_value.value });
+		this.onValueChanged.Invoke({ value_original: this.value_original, value_current: this.e_value.value });
 		this.valueChangeTimeout.ExtendTimer();
 	}
 
 	OnCreate()
 	{
-		const style_shared = 'display:inline-block; position:relative; align-content:center; height:100%; font-size:0.7rem; padding:0; margin:0;';
+		this.value_original = this.value;
 
-		this.e_root = CreatePagePanel(this.e_parent, false, false, 'border-radius:0.25rem; flex-grow:0.0; padding:0; min-height:1.5rem;');
-		this.e_label = addElement(
-			this.e_root, 'div', '',
-			style_shared + 'text-align:right; left:0; padding-right:0.5rem; width:calc(max(' + this.minWidth + ', 25%) - 0.5rem);'
-			+ 'background:#0003; float:left; height:100%; border-radius:0 0.5rem  0.5rem 0;'
-		)
+		this.e_root = CreatePagePanel(this.e_parent, false, false, '', _ => { _.className += ' field-panel-row'; });
+		this.e_label = addElement(this.e_root, 'div', 'field-panel-label');
 		this.e_value = addElement(
-			this.e_root, 'input', '',
-			style_shared + 'text-align:left; right:0; padding-left:0.5rem; width:calc(100% - max(' + this.minWidth + ', 25%) - 0.5rem);min-width:0;',
+			this.e_root, 'textarea', 'field-panel-value', '',
 			_ =>
 			{
-				_.type = 'textarea';
+				//_.type = 'textarea';
 				_.value = this.value;
 				_.spellcheck = this.spellcheck;
 				_.autocapitalize = 'off';
@@ -129,7 +126,11 @@ export class FieldValuePanel extends PanelBase
 				_.disabled = this.edit_mode !== true;
 				_.placeholder = 'Add ' + this.label + '...';
 
-				_.addEventListener('keyup', e => this.handle_FieldKeyUp(e));
+				if (this.multiline === true) _.setAttribute('multiline', '');
+				else _.removeAttribute('multiline', '');
+
+				_.addEventListener('keyup', e => e.stopPropagation());
+				_.addEventListener('input', e => this.handle_FieldChange(e));
 			}
 		);
 
@@ -139,21 +140,22 @@ export class FieldValuePanel extends PanelBase
 	OnRefresh()
 	{
 		this.e_label.innerText = this.label.toUpperCase();
-		this.e_value.value = this.value;
+		//this.e_value.value = this.value;
 		this.RefreshStyling();
 	}
 
 	OnRemove() { this.e_root.remove(); }
 
-	SetValue(new_value = '', skip_validation = false)
+	SetValue(new_value = '', skip_validation = false, set_original = false)
 	{
-		this.value_dirty = new_value !== this.e_value.value;
-		if (this.value_dirty === true)
-		{
-			if (skip_validation !== true && this.validator) this.e_value.value = this.validator(new_value);
-			else this.e_value.value = new_value;
-			this.RefreshStyling();
-		}
+		this.value = new_value;
+		if (skip_validation !== true && this.validator) this.value = this.validator(this.value);
+
+		if (set_original === true) this.value_original = this.value;
+		this.value_dirty = this.value !== this.value_original;
+
+		this.e_value.value = this.value;
+		this.RefreshStyling();
 	}
 
 	SetEditMode(edit_mode = true)
@@ -184,7 +186,6 @@ export class FieldValuePanel extends PanelBase
 		}
 		else 
 		{
-			this.e_value.value = this.value;
 			this.e_value.style.color = 'inherit';
 		}
 	}

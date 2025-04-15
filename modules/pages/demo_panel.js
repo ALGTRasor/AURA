@@ -15,70 +15,44 @@ export class PageDemoPanel extends PageBase
 	GetTitle() { return 'demo panel'; }
 	CreateElements(parent)
 	{
-		const style_button = 'text-align:center;align-content:center;padding:1rem;font-weight:bold;';
+		const style_button = 'text-align:center; align-content:center; padding:1rem; font-weight:bold; flex-basis:0%;';
 		const AddButton = (parent, demo = {}) =>
 		{
 			let e_btn = CreatePagePanel(parent, false, false, style_button, x => { x.className += ' panel-button'; x.innerText = demo.name; });
 			if (demo.onCreate) e_btn.addEventListener('click', e => { this.LoadDemo(demo); });
 		};
 
-
-		if (!parent) return;
+		const LoadDemo = _ =>
+		{
+			this.demo_panel = _;
+			this.demo_panel.Create(this.e_panel);
+			this.demo_panel.e_root.id = 'demo-panel-demo';
+		};
+		const UnloadDemo = () =>
+		{
+			this.demo_panel.Remove();
+			this.demo_panel = null;
+		};
 
 		const demos = [
 			{
 				name: 'PROJECT LIST',
-				onCreate:
-					() =>
-					{
-						this.demo_panel = new ProjectList();
-						//this.demo_panel.projects = SharedData.projects.data.slice(0, 5);
-						this.demo_panel.Create(this.e_panel);
-					},
-				onRemove: () =>
-				{
-					this.demo_panel.Remove();
-					this.demo_panel = null;
-				}
+				onCreate: () => LoadDemo(new ProjectList(SharedData.projects.data.slice(0, 7))),
+				onRemove: UnloadDemo
 			},
-			{ name: 'PROJECT DETAILS', onCreate: () => { }, onRemove: () => { } },
-			{ name: 'TRACT DETAILS', onCreate: () => { }, onRemove: () => { } },
 			{
 				name: 'INTERNAL USER',
-				onCreate:
-					() =>
-					{
-						this.demo_panel = new RecordListPanel(undefined, 'Title', 'user id');
-						this.demo_panel.createFieldPanels = InternalUserSummary.CreateFields;
-						this.demo_panel.updateFieldPanelValues = InternalUserSummary.UpdateFields;
-						this.demo_panel.clearFieldPanelValues = InternalUserSummary.ClearFields;
-						this.demo_panel.getSpoofRecord = InternalUserSummary.GetSpoofRecord;
-						//this.demo_panel = new InternalUserList();
-						//this.demo_panel.users = SharedData.users.data.slice(0, 7);
-						this.demo_panel.Create(this.e_panel);
-					},
-				onRemove: () =>
-				{
-					this.demo_panel.Remove();
-					this.demo_panel = null;
-				}
+				onCreate: () => LoadDemo(new InternalUserList(SharedData.users.data.slice(0, 7))),
+				onRemove: UnloadDemo
 			},
 			{
 				name: 'EXTERNAL CONTACT',
-				onCreate:
-					() =>
-					{
-						this.demo_panel = new ExternalContactList();
-						//this.demo_panel.users = SharedData.users.data.slice(0, 7);
-						this.demo_panel.Create(this.e_panel);
-					},
-				onRemove: () =>
-				{
-					this.demo_panel.Remove();
-					this.demo_panel = null;
-				}
+				onCreate: () => LoadDemo(new ExternalContactList(SharedData.contacts.data.slice(0, 7))),
+				onRemove: UnloadDemo
 			},
 		];
+
+		if (!parent) return;
 
 		this.demo = null;
 		this.demo_panel = null;
@@ -95,7 +69,8 @@ export class PageDemoPanel extends PageBase
 		this.ClearDemo();
 		this.demo = demo;
 		if (!this.demo) return;
-		if (this.demo.onCreate) this.demo.onCreate();
+		if (!this.demo.onCreate) return;
+		this.demo.onCreate();
 	}
 
 	ClearDemo()

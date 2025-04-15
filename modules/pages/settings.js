@@ -211,7 +211,7 @@ export class PageSettings extends PageBase
 
 				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
 				const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });
-				addAbout('AURA stands for Arrow User & Resource Assistant.');
+				addAbout('AURA stands for Arrow User Resource Assistant.');
 				addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
 				addAbout('AURA utilizes a Microsoft account for login, but is prepared to accomodate database backends outside of the Microsoft ecosystem.');
 				addAbout('AURA itself has no external dependencies, thus it can run in any standard web browser and could be made portable to run locally on any device with a standard browser. This also means AURA avoids any vulnerabilities that might be introduced by commonly used web dependencies like <a href="https://www.upguard.com/blog/critical-middleware-bypass-vulnerability-in-next-js-cve-2025-29927" target="_blank">Next.js</a>.');

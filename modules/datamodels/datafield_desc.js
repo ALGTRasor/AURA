@@ -13,14 +13,15 @@ export class DataFieldDesc
         return new DataFieldDesc(key, key);
     }
 
-    constructor(key = '', label = '', sensitive = false, exclude = false, format_mode = '', multiline = false)
+    constructor(key = '', label = '', sensitive = false, exclude = false, format = '', multiline = false, read_only = false)
     {
         this.key = key;
         this.label = label;
         this.sensitive = sensitive;
         this.exclude = exclude;
-        this.format_mode = format_mode;
+        this.format = format;
         this.multiline = multiline;
+        this.read_only = read_only;
     }
 }
 

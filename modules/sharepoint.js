@@ -103,7 +103,8 @@ export class SharePoint
 		return {
 			'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			'Prefer': 'HonorNonIndexedQueriesWarningMayFailRandomly'
 		};
 	}
 
@@ -254,6 +255,7 @@ export class SharePoint
 		let url = await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
 		if (source.view_filter && source.view_filter.length > 0) url += '&$filter=' + source.view_filter;
+		if (source.sorting_field && source.sorting_field.length > 0) url += '&$orderby=fields/' + source.sorting_field + ' asc';
 		return url;
 	}
 
@@ -263,6 +265,7 @@ export class SharePoint
 		let url = await SharePoint.GetListBatchUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
 		if (source.view_filter && source.view_filter.length > 0) url += '&$filter=' + source.view_filter;
+		if (source.sorting_field && source.sorting_field.length > 0) url += '&$orderby=fields/' + source.sorting_field + ' asc';
 		return url;
 	}
 

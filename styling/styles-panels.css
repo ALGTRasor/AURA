@@ -1,0 +1,108 @@
+.record-summary-root
+{
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	flex-shrink: 0.0;
+	flex-grow: 1.0;
+
+	min-width: 24rem;
+	height: fit-content;
+}
+
+.record-summary-title
+{
+	height: 1.5rem;
+	line-height: 1.5rem;
+	flex-basis: 1.5rem;
+	flex-grow: 0 0 1.5rem;
+
+	text-align: left;
+	font-weight: bold;
+	letter-spacing: 1px;
+
+	flex-wrap: nowrap;
+	flex-direction: column;
+	align-content: space-around;
+	gap: 3px;
+
+	padding: 2px;
+	overflow-y: visible;
+}
+
+.record-summary-fields
+{
+	display: flex;
+	flex: 1 0 100%;
+	flex-wrap: nowrap;
+	flex-direction: column;
+	align-content: space-around;
+	gap: 3px;
+
+	padding: 2px;
+	overflow-y: visible;
+}
+
+
+
+.field-panel-row
+{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	gap: 0;
+
+	flex-grow: 0.0;
+	flex-shrink: 1.0;
+
+	min-width: 3rem;
+	min-height: 1.5rem;
+	padding: 0;
+
+	align-content: center;
+	border-radius: 0.25rem;
+}
+
+.field-panel-label
+{
+	display: block;
+	flex: 0 0 min(25%, 8rem);
+	padding-right: 0.5rem;
+
+	border-radius: 0 0.5rem 0.5rem 0;
+
+	align-content: center;
+	font-size: 0.7rem;
+	text-align: right;
+
+	background: #0003;
+}
+
+.field-panel-value
+{
+	display: block;
+	flex: 1 1 calc(100% - min(25%, 8rem));
+	padding: 0;
+	padding-left: 0.5rem;
+
+	border-radius: 0 0.5rem 0.5rem 0;
+
+	align-content: center;
+	font-size: 0.7rem;
+	text-align: left;
+
+	resize: none;
+	background: transparent;
+}
+
+.field-panel-value[multiline]
+{
+	max-height: 32rem;
+	min-height: fit-content;
+	height: fit-content;
+	background: linear-gradient(to right, transparent, #ff000020);
+
+	align-content: flex-start;
+	padding-top: 0.25rem;
+	overflow: hidden;
+}

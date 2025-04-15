@@ -5,7 +5,7 @@ export class InternalUser
 	static data_model = DataTableDesc.Build(
 		[
 			{ key: 'id', label: 'id', exclude: true },
-			{ key: 'Title', label: 'user id' },
+			{ key: 'Title', label: 'user id', read_only: true },
 			{ key: 'display_name_full', label: 'legal name' },
 			{ key: 'user_role', label: 'role(s)', format: 'role' },
 			{ key: 'user_team', label: 'department', format: 'team' },

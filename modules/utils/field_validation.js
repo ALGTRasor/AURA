@@ -1,5 +1,17 @@
 export class FieldValidation
 {
+
+    static GetValidator(format = '')
+    {
+        switch (format)
+        {
+            case 'phone': return FieldValidation.CheckPhone;
+            case 'email': return FieldValidation.CheckEmail;
+            case 'date': return FieldValidation.CheckDate;
+        }
+        return _ => _;
+    }
+
     static CheckPhone(raw = '')
     {
         raw = raw.trim();

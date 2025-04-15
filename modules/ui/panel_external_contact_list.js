@@ -1,46 +1,25 @@
-import { ExternalContact } from "../datamodels/external_contact.js";
-import { SharedData } from "../datashared.js";
-import { addElement, CreatePagePanel } from "../domutils.js";
-import { PanelBase } from "./panel_base.js";
 import { ExternalContactSummary } from "./panel_external_contact_summary.js";
+import { RecordListPanelBase } from "./panel_record_list_base.js";
 
-export class ExternalContactList extends PanelBase
+export class ExternalContactList extends RecordListPanelBase
 {
-	contacts = [];
-
-	OnCreate()
+	GetPanelTitle() { return 'External Contact List'; }
+	GetListLabel() { return 'External Contacts'; }
+	GetRecordTitleField() { return 'Title'; }
+	GetRecordTitleLabel() { return 'Contact ID'; }
+	GetSpoofRecord()
 	{
-		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', 'position:absolute;inset:0;padding:0.5rem;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.5rem;');
+		let spoof = {};
+		spoof.Title = 'contact.id.' + (Math.round(Math.random() * 899999) + 100000);
+		spoof.contact_name = 'Contact Name ' + (Math.round(Math.random() * 899999) + 100000);
+		return spoof;
 	}
-	OnRefresh()
-	{
-		for (let cid in this.children) this.children[cid].Remove();
-		this.children = [];
 
-		if (this.contacts && this.contacts.length > 0)
-		{
-			for (let ii = 0; ii < this.contacts.length; ii++)
-			{
-				let panel_summary = new ExternalContactSummary();
-				panel_summary.contact_data = this.contacts[ii];
-				panel_summary.Create(this.e_root);
-				this.PushChild(panel_summary);
-			}
-		}
-		else // spoof records
-		{
-			for (let ii = 0; ii < 15; ii++)
-			{
-				let panel_summary = new ExternalContactSummary();
-				panel_summary.contact_data = ExternalContact.data_model.SpoofRecord();
-				panel_summary.Create(this.e_root);
-				panel_summary.e_root.style.setProperty('--theme-color', '#fed');
-				this.PushChild(panel_summary);
-			}
-		}
-	}
-	OnRemove()
+	CreateRecordSummary(record = {})
 	{
-		this.e_root.remove();
+		let summary = new ExternalContactSummary();
+		summary.record = record;
+		summary.Create(this.e_root);
+		this.PushChild(summary);
 	}
 }
