@@ -52,22 +52,22 @@ export class UserSettings
 
 	static SaveToStorage()
 	{
-		let blob = [];
+		let data = [];
 		for (let x = 0; x < UserSettings.options.length; x++)
 		{
 			let o = UserSettings.options[x];
-			blob.push({ key: o.key, value: o.value });
+			data.push({ key: o.key, value: o.value });
 		}
-		localStorage.setItem(lskey_usersettings, JSON.stringify({ items: blob }));
+		localStorage.setItem(lskey_usersettings, JSON.stringify({ items: data }));
 	}
 
 	static LoadFromStorage()
 	{
 		DebugLog.StartGroup('loading user settings');
-		let blob = localStorage.getItem(lskey_usersettings);
-		if (blob)
+		let data_json = localStorage.getItem(lskey_usersettings);
+		if (data_json)
 		{
-			let loaded_options = JSON.parse(blob).items;
+			let loaded_options = JSON.parse(data_json).items;
 			for (let x = 0; x < loaded_options.length; x++)
 			{
 				let kvp = loaded_options[x];

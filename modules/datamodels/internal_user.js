@@ -17,7 +17,7 @@ export class InternalUser
 			{ key: 'phone_ext', label: 'office ext' },
 			{ key: 'phone_work', label: 'work phone', exclude: true, format: 'phone' },
 			{ key: 'phone_home', label: 'mobile phone', sensitive: true, format: 'phone' },
-			{ key: 'address_work', label: 'work address', format: 'address' },
+			{ key: 'address_work', label: 'work address', exclude: true, format: 'address' },
 			{ key: 'address_home', label: 'home address', sensitive: true, format: 'address' },
 			{ key: 'user_birthdate', label: 'date of birth', format: 'date' },
 			{ key: 'user_permissions', label: 'permissions', exclude: true, format: 'list' },

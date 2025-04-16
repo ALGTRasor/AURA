@@ -10,13 +10,13 @@ export class PageMap extends PageBase
 
 	Resize()
 	{
-		this.expanding = this.expanding !== true;
+		this.state_data.expanding = this.state_data.expanding !== true;
 		this.UpdateSize();
 	}
 
 	UpdateSize()
 	{
-		if (this.expanding) this.e_body.style.maxWidth = 'unset';
+		if (this.state_data.expanding) this.e_body.style.maxWidth = 'unset';
 		else this.e_body.style.maxWidth = '17rem';
 	}
 
@@ -25,13 +25,11 @@ export class PageMap extends PageBase
 		if (!parent) return;
 		this.CreateBody();
 
-		this.expanding = true;
 		this.UpdateSize();
 		this.title_bar.AddResizeButton();
 
 		this.timeout_UpdateQuery = new RunningTimeout(() => this.UpdateQuery(), 1, 150);
 
-		const style_map = 'position:absolute;inset:0rem;width:100%;height:100%;';
 		const apply_iframe_properties = _ =>
 		{
 			_.setAttribute('sandbox', 'allow-scripts');
@@ -56,6 +54,7 @@ export class PageMap extends PageBase
 			return fvp;
 		};
 
+		const style_map = 'position:absolute;inset:0rem;width:100%;height:100%;';
 		this.e_panel = this.CreatePanel(
 			this.e_content, false, true, 'flex-wrap:nowrap;flex-direction:column;',
 			_ =>

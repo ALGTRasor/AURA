@@ -9,7 +9,7 @@ export class ExternalContact
 			{ key: 'contact_name', label: 'contact name' },
 			{ key: 'contact_type', label: 'contact type' },
 			{ key: 'contact_title', label: 'contact title', format: 'upper' },
-			{ key: 'mailing_address', label: 'mailing address', format: 'address', multiline: true },
+			{ key: 'mailing_address', label: 'mailing address', format: 'address' },
 			{ key: 'contact_email', label: 'email', format: 'email' },
 			{ key: 'contact_phone', label: 'phone', format: 'phone' },
 			{ key: 'contact_website', label: 'website', format: 'url' },

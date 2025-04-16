@@ -30,8 +30,10 @@
 	--theme-color-text-90: rgba(from var(--theme-color-text) r g b / 0.9);
 
 	--theme-invert: 0.0;
+	--theme-contrast: 0.5;
+	--theme-brightness: 0.5;
 	--shadow-color: hsl(0deg 0% calc(var(--theme-invert) * 100%));
-	--glow-color: hsl(from var(--shadow-color) h s calc(100% - l));
+	--glow-color: hsl(0deg 0% calc(100% - var(--theme-invert) * 100%));
 
 	--sensitive-info-cover: 1.0;
 
@@ -175,6 +177,9 @@ body
 
 
 
+
+
+
 .theme-inverter
 {
 	z-index: 5000000;
@@ -183,18 +188,13 @@ body
 	inset: 0;
 	padding: 0;
 	margin: 0;
-	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg));
+	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg)) brightness(calc(var(--theme-brightness) + 0.5)) contrast(calc(var(--theme-contrast) + 0.5));
 }
 
-.theme-toner
+img,
+iframe
 {
-	z-index: 5000005;
-	position: absolute;
-	pointer-events: none;
-	inset: 0;
-	padding: 0;
-	margin: 0;
-	backdrop-filter: contrast(100%);
+	filter: contrast(calc(1.0 / (var(--theme-contrast) + 0.5))) brightness(calc(1.0 / (var(--theme-brightness) + 0.5))) hue-rotate(calc(180deg * var(--theme-invert))) invert(var(--theme-invert));
 }
 
 
@@ -227,15 +227,8 @@ body
 	mix-blend-mode: multiply;
 }
 
-img
-{
-	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
-}
 
-iframe
-{
-	filter: invert(var(--theme-invert)) hue-rotate(calc(180deg * var(--theme-invert)));
-}
+
 
 
 

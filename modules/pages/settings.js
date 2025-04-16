@@ -243,8 +243,8 @@ export class PageSettings extends PageBase
 
 		const updateColorWarning = () =>
 		{
-			let hue = UserSettings.GetOptionValue('theme-hue');
-			let sat = UserSettings.GetOptionValue('theme-saturation');
+			let hue = GlobalStyling.themeColor.hue;
+			let sat = GlobalStyling.themeColor.saturation;
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
 			{
 				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
@@ -260,22 +260,6 @@ export class PageSettings extends PageBase
 				this.e_theme_color_warning.innerText = '';
 				this.e_theme_color_warning.style.display = 'none';
 			}
-		};
-
-		const updateHueSlider = (data = {}, triggerSetEvent = false) =>
-		{
-			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
-			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
-			updateColorWarning();
-		};
-
-		const updateSatSlider = (data = {}, triggerSetEvent = false) =>
-		{
-			data.e_slider_icon.style.color = 'hsl(from var(--theme-color) h s 50%)';
-			data.e_slider_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h s 50%)';
-			if (triggerSetEvent) AppEvents.onSetThemeColor.Invoke();
-			updateColorWarning();
 		};
 
 
@@ -303,22 +287,28 @@ export class PageSettings extends PageBase
 				updateColorWarning();
 			}
 		);
-
-		/*
-		this.e_slider_themehue = this.AddSlider(
-			'theme hue', 'palette', 'UI theme hue', 'theme-hue', 0.01,
-			data => updateHueSlider(data, false),
-			data => updateHueSlider(data, true)
-		);
-
-		this.e_slider_themesat = this.AddSlider(
-			'theme saturation', 'opacity', 'UI theme saturation', 'theme-saturation', 0.01,
-			data => updateSatSlider(data, false),
-			data => updateSatSlider(data, true)
-		);
-		*/
-
 		this.e_options_root.appendChild(this.e_theme_color_warning);
+
+
+
+		this.e_slider_contrast = new SettingSlider(
+			this.e_options_root, 'theme contrast', 'palette', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
+			_ =>
+			{
+				GlobalStyling.themeContrast.value = _.value;
+				GlobalStyling.themeContrast.Apply(true);
+			}
+		);
+
+		this.e_slider_brightness = new SettingSlider(
+			this.e_options_root, 'theme brightness', 'palette', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
+			_ =>
+			{
+				GlobalStyling.themeBrightness.value = _.value;
+				GlobalStyling.themeBrightness.Apply(true);
+			}
+		);
+
 
 
 
@@ -331,9 +321,6 @@ export class PageSettings extends PageBase
 				GlobalStyling.animationSpeed.Apply(true);
 			}
 		);
-
-		//this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
-
 
 
 		CreatePagePanel(

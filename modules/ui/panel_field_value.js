@@ -76,9 +76,9 @@ export class FieldValuePanel extends PanelBase
 		let length_delta = new_value.length - old_value.length;
 
 		if (this.last_caret_at_end) new_caret_pos = new_value.length;
-		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos + length_delta - 1);
-		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos);
-		if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char);
+		//if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos + length_delta - 1);
+		//if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char, this.last_caret_pos);
+		//if (new_caret_pos < 0) new_caret_pos = new_value.indexOf(this.last_caret_char);
 		if (new_caret_pos < 0) new_caret_pos = this.last_caret_pos;
 
 		this.e_value.value = new_value;

@@ -101,7 +101,7 @@ export function fadeAppendChild(parent = {}, child = {}, min_scale = '95%')
     {
         if (child.style)
         {
-            child.style.transitionDuration = fade_duration_ms + 'ms';
+            child.style.transitionDuration = 'var(--trans-dur-on-slow)';
             child.style.opacity = '100%';
             child.style.scale = '100%';
         }
@@ -134,7 +134,7 @@ export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_sca
     if (target.style)
     {
 
-        target.style.transitionDuration = fade_duration_ms + 'ms';
+        target.style.transitionDuration = 'var(--trans-dur-on-slow)';
         target.style.pointerEvents = 'none';
         target.style.userSelect = 'none';
     }
