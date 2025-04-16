@@ -38,6 +38,7 @@ import './modules/pages/external_links.js';
 import './modules/pages/demo_panel.js';
 import './modules/pages/map.js';
 import { Welcome } from "./modules/ui/welcomes.js";
+import { GlobalStyling } from "./modules/ui/global_styling.js";
 
 
 
@@ -96,8 +97,9 @@ async function OnAuraInit()
 	if ('spoof-mail' in window.args) window.spoof_data.mail = window.args['spoof-mail'];
 	//window.spoof_data = sdanger;
 
-	UserSettings.HookOptionEvents();
 	UserSettings.LoadFromStorage();
+	GlobalStyling.Load();
+	//UserSettings.HookOptionEvents();
 
 	await UserAccountManager.CheckWindowLocationForCodes();
 	await UserAccountManager.AttemptAutoLogin();
@@ -151,7 +153,7 @@ async function OnAuraInit()
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
 
-	UserSettings.UpdateOptionEffects();
+	GlobalStyling.Apply();
 	Welcome.ShowWelcomeMessage();
 
 	DebugLog.SubmitGroup('#fff4');
@@ -193,6 +195,7 @@ function CheckHotkey(e)
 		else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
 		else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 		else if (e.key === '`') ToggleLightMode();
+		else if (e.key === 'F1') ToggleDebugLog();
 	}
 }
 
@@ -305,11 +308,16 @@ document.body.addEventListener('mouseout', RefreshGlobalTooltip);
 document.body.addEventListener('mouseup', e => { window.setTimeout(() => { RefreshGlobalTooltip(e); }, 50); });
 document.body.addEventListener('scroll', RefreshGlobalTooltip);
 
+function ToggleDebugLog()
+{
+	GlobalStyling.showDebugLog.enabled = GlobalStyling.showDebugLog.enabled !== true;
+	GlobalStyling.showDebugLog.Apply(true);
+};
+
 function ToggleLightMode()
 {
-	const option_id = 'light-mode';
-	UserSettings.SetOptionValue(option_id, !UserSettings.GetOptionValue(option_id));
-	UserSettings.UpdateLightMode();
+	GlobalStyling.lightMode.enabled = GlobalStyling.lightMode.enabled !== true;
+	GlobalStyling.lightMode.Apply(true);
 };
 
 async function CheckIdentity()

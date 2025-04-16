@@ -46,4 +46,4 @@ export class PageTimekeep extends PageBase
 	}
 }
 
-PageManager.RegisterPage(new PageTimekeep('timekeep', 'keep.time'));
+PageManager.RegisterPage(new PageTimekeep('timekeep', 'time.keep'));

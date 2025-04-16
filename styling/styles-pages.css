@@ -188,12 +188,12 @@
 	gap: 0.5rem;
 	padding: 0.25rem;
 
-	color: var(--theme-color-text-40);
+	color: var(--theme-color-text-50);
 	letter-spacing: 0px;
 	font-size: 95%;
 	user-select: none;
 
-	background-color: hsl(from var(--theme-color) h s 14%);
+	background-color: hsl(from var(--theme-color) h s 18%);
 	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 0.4);
 
 	border-radius: 0.5rem;
@@ -208,7 +208,7 @@
 .page-panel:focus-within
 {
 	color: var(--theme-color);
-	background-color: hsl(from var(--theme-color) h s 16%);
+	background-color: hsl(from var(--theme-color) h s 24%);
 	transition-duration: var(--trans-dur-on-fast);
 }
 
@@ -283,7 +283,7 @@
 	gap: 0.25rem;
 }
 
-.page-panel .page-panel-tiles>.page-panel
+.page-panel .page-panel-tiles > .page-panel
 {
 	flex-grow: 1.0;
 	flex-shrink: 1.0;
@@ -400,14 +400,14 @@
 	background-color: #f805;
 }
 
-.page-move-button>i
+.page-move-button > i
 {
 	color: white;
 	pointer-events: none;
 	opacity: 15%;
 }
 
-.page-move-button:hover>i
+.page-move-button:hover > i
 {
 	opacity: 65%;
 }
@@ -446,13 +446,13 @@
 	scale: 95%;
 }
 
-.page-close-button>i
+.page-close-button > i
 {
 	pointer-events: none;
 	opacity: 15%;
 }
 
-.page-close-button:hover>i
+.page-close-button:hover > i
 {
 	color: red;
 	opacity: 80%;
@@ -506,7 +506,7 @@
 
 
 
-.page-root:hover>.page-title-bar
+.page-root:hover > .page-title-bar
 {
 	color: hsl(from var(--theme-color) h s 70%);
 }
@@ -649,7 +649,7 @@
 
 
 
-.setting-root>i
+.setting-root > i
 {
 	pointer-events: none;
 	position: absolute;
@@ -663,7 +663,7 @@
 	text-shadow: none;
 }
 
-.setting-root>span
+.setting-root > span
 {
 	pointer-events: none;
 
@@ -686,7 +686,7 @@
 	transition-timing-function: ease-in-out;
 }
 
-.setting-root:hover>span
+.setting-root:hover > span
 {
 	color: hsl(from var(--theme-color) h s 75%);
 
@@ -713,18 +713,18 @@
 	background-color: hsl(from var(--theme-color) h s 15%);
 }
 
-.setting-root-on>span
+.setting-root-on > span
 {
 	color: hsl(from var(--theme-color) h s 85%);
 }
 
-.setting-root-on>i
+.setting-root-on > i
 {
 	color: hsl(from var(--theme-color) h s 95%);
 	text-shadow: 0px 0px 6px var(--theme-color);
 }
 
-.setting-root-on:hover>span
+.setting-root-on:hover > span
 {
 	color: hsl(from var(--theme-color) h s 95%);
 }
@@ -788,14 +788,14 @@
 	outline: solid 2px var(--theme-color);
 }
 
-.setting-root-slider:hover>.setting-slider-fill
+.setting-root-slider:hover > .setting-slider-fill
 {
 	background-color: hsl(from var(--theme-color) h s 30%);
 }
 
 
 
-.setting-root:hover>.setting-root-toggle
+.setting-root:hover > .setting-root-toggle
 {
 	opacity: 100%;
 	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
@@ -803,7 +803,7 @@
 	background-color: rgba(from var(--theme-color) r g b / 0.2);
 }
 
-.setting-root:active>.setting-root-toggle
+.setting-root:active > .setting-root-toggle
 {
 	box-shadow: 0px 0px 2px rgba(from var(--shadow-color) r g b / 0.25);
 }

@@ -23,7 +23,7 @@ export class RecordListPanelBase extends PanelBase
 
 	OnCreate()
 	{
-		const style_root = 'display:flex; flex-direction:row; flex-wrap:wrap; gap:0.5rem; position:absolute; inset:0; padding:0.5rem; align-content:space-around;';
+		const style_root = 'display:flex; flex-direction:row; flex-wrap:wrap; gap:0.5rem; position:absolute; inset:0; padding:0.5rem; align-content:flex-start;';
 		this.e_root = addElement(this.e_parent, 'div', 'scroll-y', style_root);
 	}
 

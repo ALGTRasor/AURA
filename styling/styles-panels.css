@@ -1,3 +1,17 @@
+.panel-button-row
+{
+	display: flex;
+	flex-direction: row;
+
+	align-content: start;
+	min-height: fit-content;
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
+	overflow: hidden;
+}
+
+
+
 .record-summary-root
 {
 	display: flex;
@@ -5,17 +19,20 @@
 	flex-wrap: nowrap;
 	flex-shrink: 0.0;
 	flex-grow: 1.0;
+	flex-basis: 0%;
 
 	min-width: 24rem;
 	height: fit-content;
+
 }
 
 .record-summary-title
 {
 	height: 1.5rem;
 	line-height: 1.5rem;
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
 	flex-basis: 1.5rem;
-	flex-grow: 0 0 1.5rem;
 
 	text-align: left;
 	font-weight: bold;
@@ -23,17 +40,16 @@
 
 	flex-wrap: nowrap;
 	flex-direction: column;
-	align-content: space-around;
 	gap: 3px;
 
-	padding: 2px;
+	padding: 2px 2px 2px 1rem;
 	overflow-y: visible;
 }
 
 .record-summary-fields
 {
 	display: flex;
-	flex: 1 0 100%;
+	flex: 1 0 0%;
 	flex-wrap: nowrap;
 	flex-direction: column;
 	align-content: space-around;
@@ -41,6 +57,7 @@
 
 	padding: 2px;
 	overflow-y: visible;
+	box-sizing: border-box;
 }
 
 
@@ -61,31 +78,43 @@
 
 	align-content: center;
 	border-radius: 0.25rem;
+	box-sizing: border-box;
 }
 
 .field-panel-label
 {
 	display: block;
-	flex: 0 0 min(25%, 8rem);
+
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
+	min-width: min(30%, 10rem);
+	max-width: min(30%, 10rem);
 	padding-right: 0.5rem;
 
 	border-radius: 0 0.5rem 0.5rem 0;
 
 	align-content: center;
-	font-size: 0.7rem;
+	font-size: 0.85rem;
 	text-align: right;
+	font-variant: small-caps;
 
 	background: #0003;
+	box-sizing: border-box;
 }
 
 .field-panel-value
 {
 	display: block;
-	flex: 1 1 calc(100% - min(25%, 8rem));
+
+	flex-basis: 0%;
+	flex-grow: 1.0;
+	flex-shrink: 0.0;
+	min-width: calc(100% - min(30%, 10rem));
+	max-width: calc(100% - min(30%, 10rem));
 	padding: 0;
 	padding-left: 0.5rem;
 
-	border-radius: 0 0.5rem 0.5rem 0;
+	border-radius: 0;
 
 	align-content: center;
 	font-size: 0.7rem;
@@ -93,16 +122,18 @@
 
 	resize: none;
 	background: transparent;
+	box-sizing: border-box;
 }
 
 .field-panel-value[multiline]
 {
-	max-height: 32rem;
-	min-height: fit-content;
-	height: fit-content;
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+	flex-basis: 8rem;
+	min-height: 8rem;
 	background: linear-gradient(to right, transparent, #ff000020);
 
 	align-content: flex-start;
 	padding-top: 0.25rem;
-	overflow: hidden;
+	overflow: hidden auto;
 }

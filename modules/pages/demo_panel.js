@@ -58,7 +58,7 @@ export class PageDemoPanel extends PageBase
 		this.demo_panel = null;
 
 		this.CreateBody();
-		let e_body_root = CreatePagePanel(this.e_content, true, true, 'align-content:start; min-height:fit-content; flex-grow:0.0; flex-shrink:0.0; overflow:hidden;', x => { });
+		let e_body_root = CreatePagePanel(this.e_content, true, false, '', x => { x.className += ' panel-button-row'; });
 		for (let demo_id in demos) AddButton(e_body_root, demos[demo_id]);
 		this.e_panel = CreatePagePanel(this.e_content, true, false, 'flex-grow:1.0; flex-shrink:1.0;', x => { x.innerHTML = ''; });
 		this.FinalizeBody(parent);

@@ -1,5 +1,3 @@
-import { DebugLog } from "./debuglog.js";
-
 export function addElement(parent = {}, tag = 'div', className = '', style = '', prep = e => { })
 {
     let e = document.createElement((tag && tag.length > 0) ? tag : 'div');
@@ -16,7 +14,6 @@ export function MoveArrayItem(items = [], from = 0, to = 0)
     if (!items || !items.length || from < 0 || from === to) return;
     var x = items.splice(from, 1);
     items.splice(to, 0, x);
-    DebugLog.Log(`Moved ID: ${from} -> ${to}`);
 }
 
 

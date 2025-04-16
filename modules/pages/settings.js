@@ -1,11 +1,165 @@
 import { AppEvents } from "../appevents.js";
 import { Autosave } from "../autosave.js";
 import { addElement, CreatePagePanel } from "../domutils.js";
+import { clamp } from "../mathutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
+import { GlobalStyling } from "../ui/global_styling.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { UserSettings } from "../usersettings.js";
 import { PageBase } from "./pagebase.js";
+
+
+class SettingControl
+{
+	constructor(parent = {}, label = '', icon = '')
+	{
+		this.parent = parent;
+		this.label = label;
+		this.icon = icon;
+	}
+
+	CreateElements() { }
+}
+
+class SettingSlider extends SettingControl
+{
+	constructor(parent = {}, label = '', icon = '', initial_value = 0.5, value_step = 0.0, tooltip = () => '', onValueChange = _ => { })
+	{
+		super(parent, label, icon);
+		this.value = initial_value;
+		this.tooltip = tooltip;
+		this.value_step = value_step;
+		this.onValueChange = onValueChange;
+		this.dragging = false;
+
+		this.CreateElements();
+	}
+
+	CreateElements()
+	{
+		this.e_slider = document.createElement('div');
+		this.e_slider.className = 'setting-root setting-root-slider';
+
+		if (this.icon)
+		{
+			this.e_icon = document.createElement('i');
+			this.e_icon.className = 'material-symbols icon';
+			this.e_icon.innerText = this.icon;
+			this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
+			this.e_icon.style.textShadow = '0px 0px 6px rgba(255,255,255,' + this.value + ')';
+			this.e_slider.appendChild(this.e_icon);
+		}
+		else
+		{
+			this.e_icon = null;
+		}
+
+		this.e_label = document.createElement('span');
+		this.e_label.innerText = this.label;
+		this.e_slider.appendChild(this.e_label);
+
+		this.e_fill = document.createElement('div');
+		this.e_fill.className = 'setting-slider-fill';
+		this.e_slider.appendChild(this.e_fill);
+
+		this.last_value_update_ts = 0;
+		this.UpdateStyling();
+
+		this.parent.appendChild(this.e_slider);
+		this.e_slider.addEventListener('mousedown', e => this.DragStart(e));
+	}
+
+	UpdateStyling()
+	{
+		if (this.value > 0.0) this.e_slider.classList.add('setting-root-on');
+		else this.e_slider.classList.remove('setting-root-on');
+
+		this.e_fill.style.width = (this.value * 100) + '%';
+		this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
+		this.e_icon.style.textShadow = '0px 0px 6px rgba(255,255,255,' + this.value + ')';
+
+		if (this.tooltip) this.e_slider.title = this.tooltip();
+	}
+
+	HandleMouse(e, force = false) 
+	{
+		if (!this.dragging) return;
+
+		const update_delay_ms = 50;
+		let now = new Date();
+		if (!force && (now - this.last_value_update_ts) < update_delay_ms) return;
+		this.last_value_update_ts = now;
+
+		let slider_rect = this.e_slider.getBoundingClientRect();
+		let click_phase = (e.pageX - slider_rect.x) / slider_rect.width;
+		click_phase = (click_phase - 0.5) * 1.025 + 0.5;
+		click_phase = clamp(click_phase, 0.0, 1.0)
+		if (this.value_step > 0.0) click_phase = Math.round(click_phase / this.value_step) * this.value_step;
+		this.value = click_phase;
+
+		if (this.onValueChange) this.onValueChange(this);
+		this.UpdateStyling();
+
+		Autosave.InvokeSoon();
+	}
+
+	DragStart(e)
+	{
+		this.dragging = true;
+		this.HandleMouse(e); // first update on mouse down
+		window.addEventListener('mouseup', e => this.DragEnd(e));
+		window.addEventListener('mousemove', e => this.HandleMouse(e));// one update per mouse move
+	}
+
+	DragEnd(e)
+	{
+		window.removeEventListener('mouseup', e => this.DragEnd(e));
+		window.removeEventListener('mousemove', e => this.HandleMouse(e));
+		this.HandleMouse(e, true); // last update on mouse up
+		this.dragging = false;
+	}
+}
+
+class SettingToggle extends SettingControl
+{
+	constructor(parent = {}, label = '', icon = '', toggled = false, tooltip = () => '', onValueChange = _ => { })
+	{
+		super(parent, label, icon);
+		this.toggled = toggled;
+		this.tooltip = tooltip;
+		this.onValueChange = onValueChange;
+
+		this.CreateElements();
+	}
+
+	CreateElements()
+	{
+		this.e_root = addElement(this.parent, 'div', 'setting-root setting-root-toggle');
+
+		if (this.toggled) this.e_root.classList.add('setting-root-on');
+
+		this.e_root.innerHTML = '<span>' + this.label + '</span>' + (this.icon ? ("<i class='material-symbols icon'>" + this.icon + "</i>") : "");
+		this.e_root.addEventListener(
+			'click',
+			_ =>
+			{
+				this.toggled = !this.toggled;
+				if (this.onValueChange) this.onValueChange(this);
+				this.UpdateStyle();
+			}
+		);
+
+		this.UpdateStyle();
+	}
+
+	UpdateStyle()
+	{
+		if (this.tooltip) this.e_root.title = this.tooltip();
+		if (this.toggled) this.e_root.classList.add('setting-root-on');
+		else this.e_root.classList.remove('setting-root-on');
+	}
+}
 
 export class PageSettings extends PageBase
 {
@@ -31,12 +185,59 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_layoutrestore = this.AddToggle('remember layout', 'restore_page', 'Remember page layout', 'pagemanager-restore-layout', () => { });
-		this.e_toggle_lightmode = this.AddToggle('light mode', 'invert_colors', 'Toggle light mode', 'light-mode', () => { AppEvents.onToggleLightMode.Invoke(); });
-		this.e_toggle_limitwidth = this.AddToggle('limit width', 'width_wide', 'Toggle limit content width', 'limit-content-width', () => { AppEvents.onToggleLimitWidth.Invoke(); });
-		this.e_toggle_hidesensitive = this.AddToggle('obscure sensitive info', 'visibility_lock', 'Toggle hiding sensitive info', 'hide-sensitive-info', () => { AppEvents.onToggleHideSensitiveInfo.Invoke(); });
-		this.e_toggle_spotlight = this.AddToggle('spotlight', 'highlight', 'Toggle spotlight', 'spotlight', () => { AppEvents.onToggleSpotlight.Invoke(); });
-		this.e_toggle_debuglog = this.AddToggle('show debug log', 'problem', 'Toggle the debugging log', 'show-debug-log', () => { AppEvents.onToggleDebugLog.Invoke(); });
+		this.e_toggle_layoutrestore = new SettingToggle(
+			this.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Toggle remembering page layout on load',
+			_ =>
+			{
+				UserSettings.SetOptionValue('pagemanager-restore-layout', _.toggled === true);
+				Autosave.InvokeSoon();
+			}
+		);
+
+		this.e_toggle_lightmode = new SettingToggle(
+			this.e_options_root, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
+			_ =>
+			{
+				GlobalStyling.lightMode.enabled = _.toggled === true;
+				GlobalStyling.lightMode.Apply(true);
+			}
+		);
+
+		this.e_toggle_limitwidth = new SettingToggle(
+			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Toggle limit content width (useful for wider screens)',
+			_ =>
+			{
+				GlobalStyling.limitContentWidth.enabled = _.toggled === true;
+				GlobalStyling.limitContentWidth.Apply(true);
+			}
+		);
+
+		this.e_toggle_hidesensitive = new SettingToggle(
+			this.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Toggle hiding sensitive info',
+			_ =>
+			{
+				GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
+				GlobalStyling.hideSensitiveInfo.Apply(true);
+			}
+		);
+
+		this.e_toggle_spotlight = new SettingToggle(
+			this.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Toggle spotlight',
+			_ =>
+			{
+				GlobalStyling.spotlight.enabled = _.toggled === true;
+				GlobalStyling.spotlight.Apply(true);
+			}
+		);
+
+		this.e_toggle_debuglog = new SettingToggle(
+			this.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Toggle the debugging log',
+			_ =>
+			{
+				GlobalStyling.showDebugLog.enabled = _.toggled === true;
+				GlobalStyling.showDebugLog.Apply(true);
+			}
+		);
 
 		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
 
@@ -77,19 +278,61 @@ export class PageSettings extends PageBase
 			updateColorWarning();
 		};
 
+
+
+		this.e_slider_themehue = new SettingSlider(
+			this.e_options_root, 'theme hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
+			_ =>
+			{
+				GlobalStyling.themeColor.hue = _.value;
+				GlobalStyling.themeColor.Apply(true);
+				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
+				updateColorWarning();
+			}
+		);
+
+		this.e_slider_themesat = new SettingSlider(
+			this.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.01, () => 'UI theme saturation',
+			_ =>
+			{
+				GlobalStyling.themeColor.saturation = _.value;
+				GlobalStyling.themeColor.Apply(true);
+				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
+				updateColorWarning();
+			}
+		);
+
+		/*
 		this.e_slider_themehue = this.AddSlider(
 			'theme hue', 'palette', 'UI theme hue', 'theme-hue', 0.01,
 			data => updateHueSlider(data, false),
 			data => updateHueSlider(data, true)
 		);
+
 		this.e_slider_themesat = this.AddSlider(
 			'theme saturation', 'opacity', 'UI theme saturation', 'theme-saturation', 0.01,
 			data => updateSatSlider(data, false),
 			data => updateSatSlider(data, true)
 		);
+		*/
+
 		this.e_options_root.appendChild(this.e_theme_color_warning);
 
-		this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
+
+
+
+		this.e_slider_animspeed = new SettingSlider(
+			this.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
+			_ =>
+			{
+				GlobalStyling.animationSpeed.value = _.value;
+				GlobalStyling.animationSpeed.Apply(true);
+			}
+		);
+
+		//this.e_slider_animspeed = this.AddSlider('animation speed', 'speed', 'UI animation speed', 'anim-speed', 0.125, data => { }, () => { AppEvents.onSetAnimSpeed.Invoke(); });
 
 
 
@@ -220,10 +463,10 @@ export class PageSettings extends PageBase
 			}
 		);
 
-
 		this.FinalizeBody(parent);
 	}
 
+	/*
 	AddToggle(label = '', icon = '', tooltip = '', option_id = '', extra = data => { })
 	{
 		let toggled_og = UserSettings.GetOptionValue(option_id) === true;
@@ -247,6 +490,7 @@ export class PageSettings extends PageBase
 		this.e_options_root.appendChild(e);
 		return e;
 	}
+	*/
 
 	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { }, extraOnDrag = data => { })
 	{
@@ -278,7 +522,7 @@ export class PageSettings extends PageBase
 
 		if (tooltip) e_slider.title = tooltip;
 
-		let isclicking = false;
+		let dragging = false;
 
 		if (extra)
 		{
@@ -297,7 +541,7 @@ export class PageSettings extends PageBase
 		let last_value_update_ts = new Date();
 		const handleMouse = (e, force = false) =>
 		{
-			if (!isclicking) return;
+			if (!dragging) return;
 
 			let now = new Date();
 			let value_update_delta = now - last_value_update_ts;
@@ -341,14 +585,14 @@ export class PageSettings extends PageBase
 			'mousedown',
 			e =>
 			{
-				isclicking = true;
+				dragging = true;
 				handleMouse(e);
 
 				const fn_MouseMove = e => { handleMouse(e); };
 				const fn_MouseUp = e =>
 				{
 					handleMouse(e, true);
-					isclicking = false;
+					dragging = false;
 					window.removeEventListener('mouseup', fn_MouseUp);
 					window.removeEventListener('mousemove', fn_MouseMove);
 				};

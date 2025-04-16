@@ -139,7 +139,7 @@ export class FieldValuePanel extends PanelBase
 
 	OnRefresh()
 	{
-		this.e_label.innerText = this.label.toUpperCase();
+		this.e_label.innerText = this.label;//.toUpperCase();
 		//this.e_value.value = this.value;
 		this.RefreshStyling();
 	}
