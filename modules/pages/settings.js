@@ -241,24 +241,24 @@ export class PageSettings extends PageBase
 
 		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
 
-		const updateColorWarning = () =>
+		const updateColorWarning = (e) =>
 		{
 			let hue = GlobalStyling.themeColor.hue;
 			let sat = GlobalStyling.themeColor.saturation;
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
 			{
-				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
-				this.e_theme_color_warning.style.display = 'block';
+				e.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+				e.style.display = 'block';
 			}
 			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
 			{
-				this.e_theme_color_warning.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
-				this.e_theme_color_warning.style.display = 'block';
+				e.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.style.display = 'block';
 			}
 			else 
 			{
-				this.e_theme_color_warning.innerText = '';
-				this.e_theme_color_warning.style.display = 'none';
+				e.innerText = '';
+				e.style.display = 'none';
 			}
 		};
 
@@ -272,7 +272,7 @@ export class PageSettings extends PageBase
 				GlobalStyling.themeColor.Apply(true);
 				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
 				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning();
+				updateColorWarning(this.e_theme_color_warning);
 			}
 		);
 
@@ -284,10 +284,11 @@ export class PageSettings extends PageBase
 				GlobalStyling.themeColor.Apply(true);
 				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
 				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning();
+				updateColorWarning(this.e_theme_color_warning);
 			}
 		);
 		this.e_options_root.appendChild(this.e_theme_color_warning);
+		updateColorWarning(this.e_theme_color_warning);
 
 
 
