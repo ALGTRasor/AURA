@@ -2,6 +2,7 @@ import { AnimJob } from "./AnimJob.js";
 import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
+import { RunningTimeout } from "./utils/running_timeout.js";
 
 export class Autosave
 {
@@ -25,18 +26,30 @@ export class Autosave
 
 		Autosave.last_invoke_ts = new Date();
 		DebugLog.Log('~ Autosave', false);
+		Autosave.StartPulseAnimation();
 		Autosave.e_lastsaved.style.aspectRatio = '1.0';
 		Autosave.e_lastsaved.style.height = '100%';
 		Autosave.e_lastsaved.style.width = 'auto';
-		Autosave.e_lastsaved.style.color = '#3f3a';
-		Autosave.e_lastsaved.title = 'Autosaved @' + Autosave.last_invoke_ts.toLocaleTimeString();
+		Autosave.e_lastsaved.style.setProperty('--theme-color', '#0f0');
+		Autosave.e_lastsaved.title = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString();
 		Autosave.e_lastsaved.innerHTML = '';
 		let e_title_icon = document.createElement('i');
 		e_title_icon.className = 'material-symbols icon';
 		e_title_icon.style = 'inset:unset;position:relative;top:0;left:0;width:100%;height:100%;'
-			+ 'color:green;opacity:50%;user-select:none;pointer-events:none;';
+			+ 'user-select:none;pointer-events:none;';
 		e_title_icon.innerText = 'save';
 		Autosave.e_lastsaved.appendChild(e_title_icon);
+	}
+
+	static StartPulseAnimation()
+	{
+		Autosave.e_lastsaved.style.animation = '0.5s infinite save-icon-pulse-fast';
+		window.setTimeout(Autosave.EndPulseAnimation, 2500);
+	}
+
+	static EndPulseAnimation()
+	{
+		Autosave.e_lastsaved.style.animation = '4s infinite save-icon-pulse-soft';
 	}
 
 	static InvokeSoon()

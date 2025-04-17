@@ -72,7 +72,6 @@ export class PageInstance
 		if (immediate)
 		{
 			if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
-			//PageManager.RemoveFromCurrent(this, 20);
 			this.e_body.remove();
 			this.e_body = null;
 		}
@@ -83,7 +82,6 @@ export class PageInstance
 				() =>
 				{
 					if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
-					//PageManager.RemoveFromCurrent(this, 20);
 					this.e_body = null;
 				}
 			);
@@ -179,22 +177,12 @@ export class PageDescriptor
 	instances = [];
 	GetInstance()
 	{
-		if (this.instances.length > 0) 
-		{
-			DebugLog.Log('got existing page instance: ' + this.title);
-			return this.instances[0];
-		}
-
+		if (this.instances.length > 0) return this.instances[0];
 		return null;
 	}
 	GetOrCreateInstance(forceCreate = false)
 	{
-		if (forceCreate !== true && this.instances.length > 0) 
-		{
-			DebugLog.Log('reusing page instance: ' + this.title);
-			return this.instances[0];
-		}
-
+		if (forceCreate !== true && this.instances.length > 0) return this.instances[0];
 		return this.CreateInstance();
 	}
 
@@ -202,24 +190,19 @@ export class PageDescriptor
 	{
 		let pinst = new PageInstance(this);
 		this.instances.push(pinst);
-		DebugLog.Log('creating new page instance: ' + this.title);
 		return pinst;
 	}
 
 	CloseInstance(instance)
 	{
 		let instance_index = this.instances.indexOf(instance);
-		if (instance_index > -1)
-		{
-			DebugLog.Log('closed page: instance_index : ' + instance_index, '#0ff');
-			this.instances.splice(instance_index, 1);
-		}
+		if (instance_index > -1) this.instances.splice(instance_index, 1);
 		else DebugLog.Log('! instance_index invalid', '#ff0');
 		if (instance.Close) instance.Close();
 
 		let piid = PageManager.page_instances.indexOf(instance);
 		if (piid > -1) PageManager.page_instances.splice(piid, 1);
-		PageManager.AfterPageClosed();
+		window.setTimeout(PageManager.AfterPageClosed, 400);
 	}
 
 	UpdateSize(instance) { }

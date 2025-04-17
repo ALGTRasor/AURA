@@ -159,7 +159,7 @@ export class PageManager
 	static AfterPageClosed()
 	{
 		if (PageManager.page_instances.length < 1) window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, 500);
-		else PageManager.onLayoutChange.Invoke();
+		PageManager.onLayoutChange.Invoke();
 	}
 
 	/*
