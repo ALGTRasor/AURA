@@ -186,7 +186,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_layoutrestore = new SettingToggle(
-			this.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Toggle remembering page layout on load',
+			this.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Whether or not the page layout will be restored when you load the app, or reset.',
 			_ =>
 			{
 				UserSettings.SetOptionValue('pagemanager-restore-layout', _.toggled === true);
@@ -204,7 +204,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_limitwidth = new SettingToggle(
-			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Toggle limit content width (useful for wider screens)',
+			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match  a typical screen ratio (useful for wider screens)',
 			_ =>
 			{
 				GlobalStyling.limitContentWidth.enabled = _.toggled === true;
@@ -213,7 +213,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_hidesensitive = new SettingToggle(
-			this.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Toggle hiding sensitive info',
+			this.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
 			_ =>
 			{
 				GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
@@ -222,7 +222,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_spotlight = new SettingToggle(
-			this.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Toggle spotlight',
+			this.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
 			_ =>
 			{
 				GlobalStyling.spotlight.enabled = _.toggled === true;
@@ -231,7 +231,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_debuglog = new SettingToggle(
-			this.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Toggle the debugging log',
+			this.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
 			_ =>
 			{
 				GlobalStyling.showDebugLog.enabled = _.toggled === true;
@@ -239,7 +239,7 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = 'THIS COLOR CHOICE SUCKS' });
+		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 
 		const updateColorWarning = (e) =>
 		{
@@ -277,7 +277,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_slider_themesat = new SettingSlider(
-			this.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.01, () => 'UI theme saturation',
+			this.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
 			_ =>
 			{
 				GlobalStyling.themeColor.saturation = _.value;
@@ -293,7 +293,7 @@ export class PageSettings extends PageBase
 
 
 		this.e_slider_contrast = new SettingSlider(
-			this.e_options_root, 'theme contrast', 'palette', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
+			this.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
 			_ =>
 			{
 				GlobalStyling.themeContrast.value = _.value;
@@ -302,7 +302,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_slider_brightness = new SettingSlider(
-			this.e_options_root, 'theme brightness', 'palette', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
+			this.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
 			_ =>
 			{
 				GlobalStyling.themeBrightness.value = _.value;
