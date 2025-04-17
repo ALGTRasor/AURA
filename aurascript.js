@@ -9,13 +9,18 @@ import { Timers } from "./modules/timers.js";
 import { AnimJob } from "./modules/AnimJob.js";
 import { Autosave } from "./modules/autosave.js";
 import { RunningTimeout } from "./modules/utils/running_timeout.js";
-import { Notification, NotificationLog } from "./modules/notificationlog.js";
+
 import { DevMode } from "./modules/devmode.js";
 import { DebugLog } from "./modules/debuglog.js";
-import { ActionBar } from "./modules/actionbar.js";
-import { PageManager } from "./modules/pagemanager.js";
-import { OverlayManager } from "./modules/ui/overlays.js";
+import { Welcome } from "./modules/ui/welcomes.js";
 import { UserSettings } from "./modules/usersettings.js";
+import { HotkeyDescriptor, Hotkeys } from "./modules/utils/hotkeys.js";
+
+import { GlobalStyling } from "./modules/ui/global_styling.js";
+import { NotificationLog } from "./modules/notificationlog.js";
+import { OverlayManager } from "./modules/ui/overlays.js";
+import { PageManager } from "./modules/pagemanager.js";
+import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { SharedData } from "./modules/datashared.js";
 import { SharePoint } from "./modules/sharepoint.js";
@@ -37,9 +42,6 @@ import './modules/pages/database_probe.js';
 import './modules/pages/external_links.js';
 import './modules/pages/demo_panel.js';
 import './modules/pages/map.js';
-import { Welcome } from "./modules/ui/welcomes.js";
-import { GlobalStyling } from "./modules/ui/global_styling.js";
-import { HotkeyDescriptor, Hotkeys } from "./modules/utils/hotkeys.js";
 
 
 
@@ -80,7 +82,7 @@ function SetContentFaded(enabled = true)
 	window.content_faded = enabled === true;
 	let e_content_root = document.getElementById('content-root');
 	if (!e_content_root) return;
-	e_content_root.style.filter = window.content_faded ? 'brightness(50%) blur(0.2rem)' : 'none';
+	e_content_root.style.filter = window.content_faded ? 'brightness(50%) blur(0.2rem) saturate(50%)' : 'none';
 }
 function ToggleContentFaded()
 {
@@ -108,7 +110,7 @@ function RegisterHotkeys()
 	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }));
 	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }));
 	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }));
-	Hotkeys.Register(new HotkeyDescriptor('F1', m => { if (m.none) ToggleDebugLog(); }));
+	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }));
 }
 
 
@@ -228,41 +230,6 @@ function HandleKeyUp(e)
 	else
 	{
 		Hotkeys.EvaluateKeyEvent(e);
-	}
-
-	e.stopPropagation();
-	e.preventDefault();
-	return;
-
-	let anyModifier = e.ctrlKey || e.altKey || e.shiftKey;
-	let allModifiers = e.ctrlKey && e.altKey && e.shiftKey;
-	let someModifiers = anyModifier && !allModifiers;
-	let ctrlShift = someModifiers && e.ctrlKey && e.shiftKey;
-	let ctrlAlt = someModifiers && e.ctrlKey && e.altKey;
-	let shiftAlt = someModifiers && e.shiftKey && e.altKey;
-
-	if (anyModifier)
-	{
-		if (e.key === 's')
-		{
-			NotificationLog.Log(new Notification('save triggered', 'save triggered', true, '#0ff', '#0ff'));
-			Autosave.InvokeSoon();
-		}
-	}
-	else
-	{
-		if (e.key === 's') PageManager.TogglePageByTitle('settings');
-		else if (e.key === 'n') PageManager.TogglePageByTitle('nav menu');
-		else if (e.key === 'm') PageManager.TogglePageByTitle('my data');
-		else if (e.key === 'h') PageManager.TogglePageByTitle('hr');
-		else if (e.key === 'i') PageManager.TogglePageByTitle('internal users');
-		else if (e.key === 'e') PageManager.TogglePageByTitle('external contacts');
-		else if (e.key === 'p') PageManager.TogglePageByTitle('project hub');
-		else if (e.key === 'k') PageManager.TogglePageByTitle('timekeep');
-		else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
-		else if (e.key === '`') ToggleLightMode();
-		else if (e.key === 'F1') ToggleDebugLog();
-		else if (e.key === 'F2') ToggleContentFaded();
 	}
 }
 

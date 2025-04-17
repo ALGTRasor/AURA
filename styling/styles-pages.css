@@ -362,7 +362,7 @@
 	position: absolute;
 	inset: 0;
 
-	box-shadow: inset 0px 0px 0.5rem var(--shadow-color);
+	box-shadow: inset 0px 0px 0.5rem rgba(from var(--shadow-color) r g b / 0.5);
 }
 
 
@@ -614,7 +614,7 @@
 	flex-shrink: 0.0;
 
 	min-width: 8rem;
-	min-height: 5rem;
+	min-height: 4rem;
 	margin: 0;
 
 	background-color: transparent;
@@ -654,8 +654,8 @@
 	pointer-events: none;
 	position: absolute;
 	color: var(--theme-color-60);
-	inset: 0 0 20% 0;
-	max-height: 100%;
+	top: 0;
+	height: 70%;
 	align-content: center;
 	text-align: center;
 	font-variant: normal;
@@ -667,6 +667,7 @@
 .setting-root-slider > i
 {
 	inset: unset;
+	height: 100%;
 	top: 0;
 	left: 0;
 	bottom: 0;

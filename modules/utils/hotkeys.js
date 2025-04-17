@@ -56,6 +56,9 @@ export class HotkeyDescriptor
         DebugLog.Log(msg);
 
         this.keyAction(modifiers);
+
+        event.stopPropagation();
+        event.preventDefault();
     }
 }
 
