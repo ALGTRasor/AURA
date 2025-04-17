@@ -10,7 +10,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
 import { RecordViewer } from "../../ui/recordviewer.js";
-import { addElement, CreatePagePanel } from "/modules/domutils.js";
+import { addElement, CreatePagePanel } from "../../domutils.js";
 
 
 export class PageMyData extends PageDescriptor
