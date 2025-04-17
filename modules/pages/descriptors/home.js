@@ -38,14 +38,25 @@ export class PageHome extends PageDescriptor
 		{
 			if (PageManager.IsPageAvailable(id))
 			{
-				buttons.push({
-					label: (label ? label : id).toUpperCase(),
-					on_click: () =>
+				buttons.push(
 					{
-						DebugLog.Log('nav attempt -> ' + id);
-						PageManager.TogglePageByTitle(id);
+						label: (label ? label : id).toUpperCase(),
+						on_click: _ =>
+						{
+							DebugLog.Log('nav attempt -> ' + id);
+							if (_.shiftKey === true) 
+							{
+								let desc_id = PageManager.GetDescriptorIndex(id);
+								let desc = PageManager.page_descriptors[desc_id];
+								PageManager.OpenPageFromDescriptor(desc, {}, true);
+							}
+							else
+							{
+								PageManager.TogglePageByTitle(id);
+							}
+						}
 					}
-				});
+				);
 			}
 
 		};
