@@ -337,7 +337,7 @@
 
 .page-panel.expanding-panel:hover
 {
-	outline: solid 2px var(--theme-color);
+	outline: solid 2px hsl(from var(--theme-color) h s 50%);
 	outline-offset: -4px;
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: 0s;
@@ -351,6 +351,11 @@
 	position: relative;
 	overflow: hidden;
 	border-radius: 0.5rem;
+}
+
+.inset-box:where(.scroll-y)
+{
+	box-shadow: inset 0px 0px 0.5rem rgba(from var(--shadow-color) r g b / 0.5);
 }
 
 .inset-box:not(.scroll-y)::before

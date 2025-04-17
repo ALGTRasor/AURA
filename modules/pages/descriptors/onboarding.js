@@ -1,8 +1,8 @@
 
-import { PageManager } from "../pagemanager.js";
-import { PageBase } from "./pagebase.js";
+import { PageManager } from "../../pagemanager.js";
+import { PageDescriptor } from "../pagebase.js";
 
-export class PageOnboarding extends PageBase
+export class PageOnboarding extends PageDescriptor
 {
 	GetTitle() { return 'onboarding'; }
 	CreateElements(parent)

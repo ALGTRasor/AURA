@@ -1,18 +1,18 @@
-import { addElement, CreatePagePanel } from "../domutils.js";
-import { PageManager } from "../pagemanager.js";
-import { PageBase } from "./pagebase.js";
+import { addElement, CreatePagePanel } from "../../domutils.js";
+import { PageManager } from "../../pagemanager.js";
+import { PageDescriptor } from "../pagebase.js";
 
-export class PageExternalLinks extends PageBase
+export class PageExternalLinks extends PageDescriptor
 {
 	GetTitle() { return 'external links'; }
-	CreateElements(parent)
+	OnCreateElements(instance)
 	{
-		if (!parent) return;
-		this.CreateBody();
-		this.e_body.style.maxWidth = '22rem';
-		this.e_body.style.minWidth = '16rem';
+		if (!instance) return;
 
-		let e_body_root = CreatePagePanel(this.e_content, true, true, null, x => { x.style.flexDirection = 'column'; });
+		instance.e_body.style.maxWidth = '22rem';
+		instance.e_body.style.minWidth = '16rem';
+
+		let e_body_root = CreatePagePanel(instance.e_content, true, true, null, x => { x.style.flexDirection = 'column'; });
 
 		const style_button = 'flex-grow:0.0; flex-shrink:1.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
 		const style_icon = 'position:absolute;top:0.5rem;right:0.5rem;aspect-ratio:1.0;align-content:center;height:calc(100% - 1rem);object-fit:contain;';
@@ -32,21 +32,20 @@ export class PageExternalLinks extends PageBase
 		AddButton('TEAMS', 'https://teams.microsoft.com/v2/', 'resources/images/thirdparty/favicon_teams.ico');
 		AddButton('GOOGLE MAPS', 'https://www.google.com/maps', 'resources/images/thirdparty/favicon_google_maps.ico');
 
-		this.e_cookie_warning = addElement(
+		instance.e_cookie_warning = addElement(
 			e_body_root, 'div', '', 'pointer-events:none;position:absolute;left:0.25rem;right:0.25rem;bottom:0.25rem;height:3.25rem;font-size:0.65rem;text-align:center;opacity:50%;',
 			_ => 
 			{
 				_.innerText = 'Warning: Following any link allows the site to read or write cookies to your browser, so make sure you know and trust where links will take you!'
 			}
 		);
-		this.FinalizeBody(parent);
 	}
 
-	OnLayoutChange()
+	OnLayoutChange(instance)
 	{
-		let body_rect = this.e_body.getBoundingClientRect();
-		if (body_rect.height > 400) this.e_cookie_warning.style.display = 'block';
-		else this.e_cookie_warning.style.display = 'none';
+		let body_rect = instance.e_body.getBoundingClientRect();
+		if (body_rect.height > 400) instance.e_cookie_warning.style.display = 'block';
+		else instance.e_cookie_warning.style.display = 'none';
 	}
 }
 

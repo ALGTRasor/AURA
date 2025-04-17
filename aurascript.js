@@ -28,20 +28,20 @@ import { Fax } from "./modules/fax.js";
 
 
 
-import './modules/pages/onboarding.js';
-import './modules/pages/home.js';
-import './modules/pages/settings.js';
-import './modules/pages/internal_users.js';
-import './modules/pages/external_contacts.js';
-import './modules/pages/project_hub.js';
-import './modules/pages/task_hub.js';
-import './modules/pages/timekeep.js';
-import './modules/pages/my_data.js';
-import './modules/pages/hr.js';
-import './modules/pages/database_probe.js';
-import './modules/pages/external_links.js';
-import './modules/pages/demo_panel.js';
-import './modules/pages/map.js';
+import './modules/pages/descriptors/onboarding.js';
+import './modules/pages/descriptors/home.js';
+import './modules/pages/descriptors/settings.js';
+import './modules/pages/descriptors/internal_users.js';
+import './modules/pages/descriptors/external_contacts.js';
+import './modules/pages/descriptors/project_hub.js';
+import './modules/pages/descriptors/task_hub.js';
+import './modules/pages/descriptors/timekeep.js';
+import './modules/pages/descriptors/my_data.js';
+import './modules/pages/descriptors/hr.js';
+import './modules/pages/descriptors/database_probe.js';
+import './modules/pages/descriptors/external_links.js';
+import './modules/pages/descriptors/demo_panel.js';
+import './modules/pages/descriptors/map.js';
 
 
 

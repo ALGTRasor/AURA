@@ -1,7 +1,6 @@
-import { DebugLog } from "../debuglog.js";
-import { addElement, getSiblingIndex, setSiblingIndex } from "../domutils.js";
+import { addElement, setSiblingIndex } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
-import { PageBase } from "./pagebase.js";
+import { PageDescriptor, PageInstance } from "./pagebase.js";
 
 export class PageTitleBarButton
 {
@@ -44,7 +43,7 @@ export class PageTitleBar
 	static Default = new PageTitleBar();
 
 	created = false;
-	page = null;
+	page = {};
 	icon = '';
 
 	e_root = {};
@@ -55,10 +54,9 @@ export class PageTitleBar
 	e_buttons_left = {};
 	e_buttons_right = {};
 
-	constructor(page = {}, icon = '', create = true)
+	constructor(page = {}, create = true)
 	{
 		this.page = page;
-		this.icon = icon;
 		if (create === true) this.CreateElements();
 	}
 
@@ -84,14 +82,15 @@ export class PageTitleBar
 		this.e_buttons_left = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared);
 		this.e_buttons_right = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared + 'justify-content:end; flex-direction:row-reverse;');
 
-		if (this.page.icon)
+		if (this.icon)
 		{
-			addElement(this.e_root, 'i', 'material-symbols icon', '', i => { i.innerText = this.page.icon; });
+			addElement(this.e_root, 'i', 'material-symbols icon', '', i => { i.innerText = this.icon; });
 			this.e_buttons.style.marginLeft = '2rem';
 		}
 		this.created = true;
 
-		if (this.page.title) this.SetTitle(this.page.title.toUpperCase());
+		if (this.page.page_descriptor && this.page.page_descriptor.title)
+			this.SetTitle(this.page.page_descriptor.title.toUpperCase());
 	}
 
 	RemoveNavigationButtons(left = true, right = true)
@@ -134,7 +133,14 @@ export class PageTitleBar
 	AddCloseButton()
 	{
 		if (this.b_close) return;
-		this.b_close = this.AddButton(this.e_buttons_right, 'close', () => { this.page.Close(); }, '#f00', 'Close this page');
+		this.b_close = this.AddButton(
+			this.e_buttons_right, 'close',
+			() =>
+			{
+				this.page.page_descriptor.CloseInstance(this.page);
+			},
+			'#f00', 'Close this page'
+		);
 		setSiblingIndex(this.b_close.e_root, 0);
 	}
 
@@ -163,9 +169,12 @@ export class PageTitleBar
 		this.b_resize.SetAction(
 			() =>
 			{
-				this.page.Resize();
-				update_color(this);
-				PageManager.onLayoutChange.Invoke();
+				if (this.page.page_descriptor.Resize)
+				{
+					this.page.page_descriptor.Resize(this.page);
+					update_color(this);
+					PageManager.onLayoutChange.Invoke();
+				}
 			}
 		);
 	}

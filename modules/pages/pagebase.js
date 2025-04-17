@@ -2,33 +2,25 @@ import { DebugLog } from "../debuglog.js";
 import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
-import { RecordFormUtils } from "../ui/recordform.js";
 import { PageTitleBar } from "./pagetitlebar.js";
 
-
-export class PageBase
+export class PageInstance
 {
-	static Default = new PageBase(null);
+	static Nothing = new PageInstance();
 
-	title = '';
+	page_descriptor = {};
 	state_data = {};
 
-	constructor(title = '', permission = '')
+	constructor(page_descriptor = {})
 	{
-		if (title && title.length > 0) this.title = title;
-		else this.title = this.GetTitle();
+		this.page_descriptor = page_descriptor;
 
 		this.siblingIndex = -1;
-		this.state_data = {};
-
-		this.permission = permission;
-
 		this.title_bar = null;
 		this.e_body = {};
 		this.e_content = {};
+		this.instance_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
 	}
-
-	GetTitle() { return '' }
 
 	SetContentBodyLabel(text)
 	{
@@ -39,10 +31,11 @@ export class PageBase
 	CreateBody()
 	{
 		this.e_body = document.createElement('div');
+		this.e_body.id = 'page-' + this.page_descriptor.title + '[' + this.instance_id + ']';
 		this.e_body.className = 'page-root';
-		this.title_bar = new PageTitleBar(this, true);
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
+		this.title_bar = new PageTitleBar(this, true);
 		this.e_body.appendChild(this.e_content);
 	}
 
@@ -74,12 +67,12 @@ export class PageBase
 
 	Close(immediate = false)
 	{
-		this.OnClose();
+		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
 
 		if (immediate)
 		{
-			PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
-			PageManager.RemoveFromCurrent(this, 20);
+			if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
+			//PageManager.RemoveFromCurrent(this, 20);
 			this.e_body.remove();
 			this.e_body = null;
 		}
@@ -89,8 +82,8 @@ export class PageBase
 				this.e_body,
 				() =>
 				{
-					PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
-					PageManager.RemoveFromCurrent(this, 20);
+					if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
+					//PageManager.RemoveFromCurrent(this, 20);
 					this.e_body = null;
 				}
 			);
@@ -104,22 +97,23 @@ export class PageBase
 		fadeAppendChild(parent, this.e_body);
 
 		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
-		this.OnOpen();
+		this.page_descriptor.OnOpen(this);
 	}
 
 	CreateElements(parent)
 	{
 		if (!parent) return;
 		this.CreateBody();
-		this.e_content.innerText = 'content :: ' + this.title;
+		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
+		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
 		this.FinalizeBody(parent);
 	}
 
 	UpdatePageContext()
 	{
-		if (PageManager.currentPages.length < 2)
+		if (PageManager.page_instances.length < 2)
 		{
-			if (this.title !== 'nav menu') this.title_bar.AddCloseButton();
+			if (this.page_descriptor.title !== 'nav menu') this.title_bar.AddCloseButton();
 			else this.title_bar.RemoveCloseButton();
 			this.title_bar.RemoveNavigationButtons();
 		}
@@ -130,8 +124,8 @@ export class PageBase
 			this.title_bar.AddNavigationButtons(this.e_body.previousElementSibling != null, this.e_body.nextElementSibling != null);
 		}
 
-		this.siblingIndex = getSiblingIndex(this.e_body);
-		this.OnLayoutChange();
+		this.siblingIndex = this.e_body ? getSiblingIndex(this.e_body) : -1;
+		this.page_descriptor.OnLayoutChange(this);
 	}
 
 	UpdateStateData(state_data = {})
@@ -143,7 +137,7 @@ export class PageBase
 			prop_count++;
 			//DebugLog.Log(` - Page State Data [${prop_count}] ${prop_id}: ${this.state_data[prop_id]}`);
 		}
-		if (prop_count > 0) this.OnStateChange();
+		if (prop_count > 0) this.page_descriptor.OnStateChange(this);
 	}
 
 	CreatePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
@@ -153,13 +147,92 @@ export class PageBase
 		if (tiles) classes += ' page-panel-tiles scroll-y';
 		return addElement(parent, 'div', classes, styling, prep);
 	}
-
-
-
-	OnOpen() { }
-	OnClose() { }
-	OnLayoutChange() { }
-	OnStateChange() { }
 }
 
-Modules.Report("Pages");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export class PageDescriptor
+{
+	static Nothing = new PageDescriptor(null);
+
+	constructor(title = '', permission = '', icon = '', description = '')
+	{
+		this.icon = icon;
+		this.title = title;
+		this.description = description;
+		this.permission = permission;
+		this.descriptor_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
+	}
+
+	instances = [];
+	GetInstance()
+	{
+		if (this.instances.length > 0) 
+		{
+			DebugLog.Log('got existing page instance: ' + this.title);
+			return this.instances[0];
+		}
+
+		return null;
+	}
+	GetOrCreateInstance(forceCreate = false)
+	{
+		if (forceCreate !== true && this.instances.length > 0) 
+		{
+			DebugLog.Log('reusing page instance: ' + this.title);
+			return this.instances[0];
+		}
+
+		return this.CreateInstance();
+	}
+
+	CreateInstance()
+	{
+		let pinst = new PageInstance(this);
+		this.instances.push(pinst);
+		DebugLog.Log('creating new page instance: ' + this.title);
+		return pinst;
+	}
+
+	CloseInstance(instance)
+	{
+		let instance_index = this.instances.indexOf(instance);
+		if (instance_index > -1)
+		{
+			DebugLog.Log('closed page: instance_index : ' + instance_index, '#0ff');
+			this.instances.splice(instance_index, 1);
+		}
+		else DebugLog.Log('! instance_index invalid', '#ff0');
+		if (instance.Close) instance.Close();
+
+		let piid = PageManager.page_instances.indexOf(instance);
+		if (piid > -1) PageManager.page_instances.splice(piid, 1);
+		PageManager.AfterPageClosed();
+	}
+
+	UpdateSize(instance) { }
+	Resize(instance) { }
+	OnOpen(instance) { }
+	OnClose(instance) { }
+	OnLayoutChange(instance) { }
+	OnStateChange(instance) { }
+
+	OnCreateElements(instance)
+	{
+		instance.e_content.innerText = 'content :: ' + this.title;
+	}
+}
+
+Modules.Report("Page Descriptors");

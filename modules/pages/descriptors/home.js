@@ -1,42 +1,38 @@
-import { DebugLog } from "../debuglog.js";
-import { DevMode } from "../devmode.js";
-import { PageManager } from "../pagemanager.js";
-import { QuickMenu } from "../ui/quickmenu.js";
-import { UserAccountInfo } from "../useraccount.js";
-import { PageBase } from "./pagebase.js";
+import { DebugLog } from "../../debuglog.js";
+import { DevMode } from "../../devmode.js";
+import { PageManager } from "../../pagemanager.js";
+import { QuickMenu } from "../../ui/quickmenu.js";
+import { UserAccountInfo } from "../../useraccount.js";
+import { PageDescriptor } from "../pagebase.js";
 
-export class PageHome extends PageBase
+export class PageHome extends PageDescriptor
 {
-	GetTitle() { return 'nav menu' }
+	GetTitle() { return 'nav menu'; }
 
-	Resize()
+	Resize(instance)
 	{
-		this.state_data.expanding = !this.state_data.expanding;
-		this.UpdateSize();
+		instance.state_data.expanding = !instance.state_data.expanding;
+		this.UpdateSize(instance);
 	}
 
-	UpdateSize()
+	UpdateSize(instance)
 	{
-		if (this.state_data.expanding === true) this.e_body.style.maxWidth = 'unset';
-		else this.e_body.style.maxWidth = '20rem';
+		if (instance.state_data.expanding === true) instance.e_body.style.maxWidth = 'unset';
+		else instance.e_body.style.maxWidth = '20rem';
 	}
 
-	CreateElements(parent)
+	OnCreateElements(instance)
 	{
-		if (!parent) return;
+		if (!instance) return;
 
-		this.icon = 'menu';
+		instance.title_bar.AddResizeButton();
 
-		this.CreateBody();
-		this.UpdateSize();
-		this.title_bar.AddResizeButton();
-
-		this.e_body.style.minWidth = '20rem';
-		this.e_body.style.flexGrow = '1.0';
+		instance.e_body.style.minWidth = '20rem';
+		instance.e_body.style.flexGrow = '1.0';
 
 		//this.e_content.className = 'page-content-root menu-root';
 
-		this.menu = new QuickMenu();
+		instance.menu = new QuickMenu();
 
 		let TryAddButton = (buttons = [], id, label) => 
 		{
@@ -75,11 +71,9 @@ export class PageHome extends PageBase
 			TryAddButton(buttons, 'demo panel');
 		}
 
-		this.menu.CreateElements(this.e_content, buttons);
+		instance.menu.CreateElements(instance.e_content, buttons);
 
-		this.e_content.style.justifyContent = 'center';
-
-		this.FinalizeBody(parent);
+		instance.e_content.style.justifyContent = 'center';
 	}
 
 	AddMenuButton(text = '', onclick = () => { }, permissions_required = [])

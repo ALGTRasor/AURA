@@ -1,13 +1,13 @@
-import { AppEvents } from "../appevents.js";
-import { Autosave } from "../autosave.js";
-import { addElement, CreatePagePanel } from "../domutils.js";
-import { clamp } from "../mathutils.js";
-import { Modules } from "../modules.js";
-import { PageManager } from "../pagemanager.js";
-import { GlobalStyling } from "../ui/global_styling.js";
-import { UserAccountInfo } from "../useraccount.js";
-import { UserSettings } from "../usersettings.js";
-import { PageBase } from "./pagebase.js";
+import { AppEvents } from "../../appevents.js";
+import { Autosave } from "../../autosave.js";
+import { addElement, CreatePagePanel } from "../../domutils.js";
+import { clamp } from "../../mathutils.js";
+import { Modules } from "../../modules.js";
+import { PageManager } from "../../pagemanager.js";
+import { GlobalStyling } from "../../ui/global_styling.js";
+import { UserAccountInfo } from "../../useraccount.js";
+import { UserSettings } from "../../usersettings.js";
+import { PageDescriptor } from "../pagebase.js";
 
 
 class SettingControl
@@ -161,32 +161,29 @@ class SettingToggle extends SettingControl
 	}
 }
 
-export class PageSettings extends PageBase
+export class PageSettings extends PageDescriptor
 {
 	GetTitle() { return 'settings'; }
-	CreateElements(parent)
+	GetIcon() { return 'settings'; }
+	OnCreateElements(instance)
 	{
-		if (!parent) return;
+		if (!instance) return;
 
-		this.icon = 'settings';
+		instance.e_body.style.minWidth = '18rem';
+		instance.e_body.style.maxWidth = '32rem';
+		instance.e_body.style.flexBasis = '12rem';
+		instance.e_body.style.flexGrow = '1.0';
 
-		this.CreateBody();
-
-		this.e_body.style.minWidth = '18rem';
-		this.e_body.style.maxWidth = '32rem';
-		this.e_body.style.flexBasis = '12rem';
-		this.e_body.style.flexGrow = '1.0';
-
-		this.e_options_root = CreatePagePanel(
-			this.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
+		instance.e_options_root = CreatePagePanel(
+			instance.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
 			x =>
 			{
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY SETTINGS'; });
 			}
 		);
 
-		this.e_toggle_layoutrestore = new SettingToggle(
-			this.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Whether or not the page layout will be restored when you load the app, or reset.',
+		instance.e_toggle_layoutrestore = new SettingToggle(
+			instance.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Whether or not the page layout will be restored when you load the app, or reset.',
 			_ =>
 			{
 				UserSettings.SetOptionValue('pagemanager-restore-layout', _.toggled === true);
@@ -194,8 +191,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_lightmode = new SettingToggle(
-			this.e_options_root, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
+		instance.e_toggle_lightmode = new SettingToggle(
+			instance.e_options_root, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
 			_ =>
 			{
 				GlobalStyling.lightMode.enabled = _.toggled === true;
@@ -203,8 +200,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_limitwidth = new SettingToggle(
-			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
+		instance.e_toggle_limitwidth = new SettingToggle(
+			instance.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
 			_ =>
 			{
 				GlobalStyling.limitContentWidth.enabled = _.toggled === true;
@@ -212,8 +209,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_hidesensitive = new SettingToggle(
-			this.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
+		instance.e_toggle_hidesensitive = new SettingToggle(
+			instance.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
 			_ =>
 			{
 				GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
@@ -221,8 +218,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_spotlight = new SettingToggle(
-			this.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
+		instance.e_toggle_spotlight = new SettingToggle(
+			instance.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
 			_ =>
 			{
 				GlobalStyling.spotlight.enabled = _.toggled === true;
@@ -230,8 +227,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_toggle_debuglog = new SettingToggle(
-			this.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
+		instance.e_toggle_debuglog = new SettingToggle(
+			instance.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
 			_ =>
 			{
 				GlobalStyling.showDebugLog.enabled = _.toggled === true;
@@ -239,7 +236,7 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
+		instance.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 
 		const updateColorWarning = (e) =>
 		{
@@ -264,36 +261,36 @@ export class PageSettings extends PageBase
 
 
 
-		this.e_slider_themehue = new SettingSlider(
-			this.e_options_root, 'theme hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
+		instance.e_slider_themehue = new SettingSlider(
+			instance.e_options_root, 'theme hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
 			_ =>
 			{
 				GlobalStyling.themeColor.hue = _.value;
 				GlobalStyling.themeColor.Apply(true);
 				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
 				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning(this.e_theme_color_warning);
+				updateColorWarning(instance.e_theme_color_warning);
 			}
 		);
 
-		this.e_slider_themesat = new SettingSlider(
-			this.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
+		instance.e_slider_themesat = new SettingSlider(
+			instance.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
 			_ =>
 			{
 				GlobalStyling.themeColor.saturation = _.value;
 				GlobalStyling.themeColor.Apply(true);
 				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
 				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning(this.e_theme_color_warning);
+				updateColorWarning(instance.e_theme_color_warning);
 			}
 		);
-		this.e_options_root.appendChild(this.e_theme_color_warning);
-		updateColorWarning(this.e_theme_color_warning);
+		instance.e_options_root.appendChild(instance.e_theme_color_warning);
+		updateColorWarning(instance.e_theme_color_warning);
 
 
 
-		this.e_slider_contrast = new SettingSlider(
-			this.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
+		instance.e_slider_contrast = new SettingSlider(
+			instance.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
 			_ =>
 			{
 				GlobalStyling.themeContrast.value = _.value;
@@ -301,8 +298,8 @@ export class PageSettings extends PageBase
 			}
 		);
 
-		this.e_slider_brightness = new SettingSlider(
-			this.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
+		instance.e_slider_brightness = new SettingSlider(
+			instance.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
 			_ =>
 			{
 				GlobalStyling.themeBrightness.value = _.value;
@@ -314,8 +311,8 @@ export class PageSettings extends PageBase
 
 
 
-		this.e_slider_animspeed = new SettingSlider(
-			this.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
+		instance.e_slider_animspeed = new SettingSlider(
+			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
 			_ =>
 			{
 				GlobalStyling.animationSpeed.value = _.value;
@@ -325,7 +322,7 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -371,7 +368,7 @@ export class PageSettings extends PageBase
 		);
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -394,7 +391,7 @@ export class PageSettings extends PageBase
 
 		let user_has_aura_access = UserAccountInfo.HasPermission('aura.access');
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -432,7 +429,7 @@ export class PageSettings extends PageBase
 
 
 		CreatePagePanel(
-			this.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -450,8 +447,6 @@ export class PageSettings extends PageBase
 				addAbout('© 2025 Arrow Land Group LLC');
 			}
 		);
-
-		this.FinalizeBody(parent);
 	}
 
 	/*
