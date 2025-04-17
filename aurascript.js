@@ -59,6 +59,37 @@ function CheckWindowSizeChanged()
 
 function OnWindowSizeChanged() { PageManager.onLayoutChange.Invoke(); }
 
+
+
+function SetContentObscured(enabled = true, label = '...')
+{
+	window.content_obscured = enabled === true;
+	let e_content_obscurer = document.getElementById('content-body-obscurer');
+	if (!e_content_obscurer) return;
+	e_content_obscurer.style.display = window.content_obscured ? 'block' : 'none';
+	if (label) e_content_obscurer.innerText = label;
+}
+function ToggleContentObscured()
+{
+	SetContentObscured(window.content_obscured !== true);
+}
+
+function SetContentFaded(enabled = true)
+{
+	window.content_faded = enabled === true;
+	let e_content_root = document.getElementById('content-root');
+	if (!e_content_root) return;
+	e_content_root.style.filter = window.content_faded ? 'brightness(50%) blur(0.2rem)' : 'none';
+}
+function ToggleContentFaded()
+{
+	SetContentFaded(window.content_faded !== true);
+}
+
+
+
+
+
 async function OnAuraInit()
 {
 	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
@@ -68,6 +99,9 @@ async function OnAuraInit()
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
 	let e_content_obscurer = document.getElementById('content-body-obscurer');
+	let e_action_bar = document.getElementById('action-bar');
+	e_action_bar.addEventListener('mouseenter', _ => { SetContentFaded(true); });
+	e_action_bar.addEventListener('mouseleave', _ => { SetContentFaded(false); });
 
 	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
 	window.e_account_profile_picture.style.display = 'none';
@@ -142,13 +176,12 @@ async function OnAuraInit()
 
 		NotificationLog.Create();
 
-		e_content_obscurer.style.display = 'none';
+		SetContentObscured(false);
 		window.addEventListener('keyup', CheckHotkey);
 	}
 	else
 	{
-		e_content_obscurer.style.display = 'block';
-		e_content_obscurer.innerText = 'nothing to see';
+		SetContentObscured(true, 'Login Required');
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
@@ -158,6 +191,7 @@ async function OnAuraInit()
 
 	DebugLog.SubmitGroup('#fff4');
 }
+
 
 function CheckHotkey(e)
 {
@@ -196,6 +230,7 @@ function CheckHotkey(e)
 		else if (e.key === 't') PageManager.TogglePageByTitle('task hub');
 		else if (e.key === '`') ToggleLightMode();
 		else if (e.key === 'F1') ToggleDebugLog();
+		else if (e.key === 'F2') ToggleContentFaded();
 	}
 }
 

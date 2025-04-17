@@ -104,6 +104,9 @@ body
 	right: 0;
 	top: var(--action-bar-height);
 	height: calc(100% - (var(--action-bar-height) + var(--info-bar-height)));
+
+	transition-property: filter;
+	transition-duration: var(--trans-dur-off-slow);
 }
 
 .content-body
