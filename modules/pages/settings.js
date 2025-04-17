@@ -204,7 +204,7 @@ export class PageSettings extends PageBase
 		);
 
 		this.e_toggle_limitwidth = new SettingToggle(
-			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match  a typical screen ratio (useful for wider screens)',
+			this.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
 			_ =>
 			{
 				GlobalStyling.limitContentWidth.enabled = _.toggled === true;

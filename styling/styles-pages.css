@@ -775,7 +775,7 @@
 .setting-root-slider
 {
 	flex-basis: 90%;
-	min-height: 3rem;
+	min-height: 2.5rem;
 
 	clip-path: padding-box;
 	background-color: transparent;
