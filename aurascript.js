@@ -39,6 +39,7 @@ import './modules/pages/demo_panel.js';
 import './modules/pages/map.js';
 import { Welcome } from "./modules/ui/welcomes.js";
 import { GlobalStyling } from "./modules/ui/global_styling.js";
+import { HotkeyDescriptor, Hotkeys } from "./modules/utils/hotkeys.js";
 
 
 
@@ -86,6 +87,29 @@ function ToggleContentFaded()
 	SetContentFaded(window.content_faded !== true);
 }
 
+
+function RegisterHotkeys()
+{
+	Hotkeys.Register(
+		new HotkeyDescriptor('s',
+			m =>
+			{
+				if (m.ctrl) Autosave.InvokeSoon();
+				if (m.none) PageManager.TogglePageByTitle('settings');
+			}
+		)
+	);
+	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }));
+	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }));
+	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }));
+	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }));
+	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }));
+	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }));
+	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }));
+	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }));
+	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }));
+	Hotkeys.Register(new HotkeyDescriptor('F1', m => { if (m.none) ToggleDebugLog(); }));
+}
 
 
 
@@ -176,8 +200,9 @@ async function OnAuraInit()
 
 		NotificationLog.Create();
 
+		RegisterHotkeys();
 		SetContentObscured(false);
-		window.addEventListener('keyup', CheckHotkey);
+		window.addEventListener('keyup', HandleKeyUp);
 	}
 	else
 	{
@@ -193,14 +218,21 @@ async function OnAuraInit()
 }
 
 
-function CheckHotkey(e)
+function HandleKeyUp(e)
 {
 	if (OverlayManager.visible && OverlayManager.overlays.length > 0)
 	{
 		let o = OverlayManager.overlays[OverlayManager.overlays.length - 1];
 		if (o && o.handleHotkeys) o.handleHotkeys(e);
-		return;
 	}
+	else
+	{
+		Hotkeys.EvaluateKeyEvent(e);
+	}
+
+	e.stopPropagation();
+	e.preventDefault();
+	return;
 
 	let anyModifier = e.ctrlKey || e.altKey || e.shiftKey;
 	let allModifiers = e.ctrlKey && e.altKey && e.shiftKey;

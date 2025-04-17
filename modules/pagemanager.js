@@ -95,7 +95,11 @@ export class PageManager
 	static TogglePageByTitle(title, state = {})
 	{
 		title = title.toLowerCase().trim();
-		if (!PageManager.IsPageAvailable(title)) return;
+		if (!PageManager.IsPageAvailable(title)) 
+		{
+			DebugLog.Log('nav failed: page unavailable');
+			return;
+		}
 
 		let existing_page_id = PageManager.GetPageIndexFromTitle(PageManager.currentPages, title);
 		if (existing_page_id > -1)
