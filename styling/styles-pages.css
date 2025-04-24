@@ -50,16 +50,6 @@
 
 
 
-.page-root.page-loose
-{
-	pointer-events: all;
-	user-select: none;
-	position: absolute;
-	top: 0;
-	left: 0;
-	min-height: 14rem;
-	min-width: 14rem;
-}
 
 .page-root
 {
@@ -91,13 +81,28 @@
 
 .page-root:hover
 {
-	outline-color: hsl(from var(--theme-color) h s 25%);
+	outline-color: hsl(from var(--theme-color) h s 35%);
 	opacity: 100%;
 
 	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 24%);
 }
 
+.page-root.page-loose
+{
+	user-select: none;
+	pointer-events: all;
+	box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-height: 20rem;
+	min-width: 20rem;
+	clip-path: none;
+
+	border: solid 2px hsl(from var(--theme-color) h s 50%);
+	box-shadow: -3px 3px 8px black;
+}
 
 
 
