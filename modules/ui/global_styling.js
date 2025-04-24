@@ -83,7 +83,7 @@ const lskey_theme_light_mode = 'light-mode';
 const lskey_spotlight = 'spotlight';
 const lskey_hide_sensitive = 'hide-sensitive-info';
 const lskey_limit_width = 'limit-content-width';
-const lskey_compact_mode = 'compact-mode';
+const lskey_spacing = 'spacing';
 const lskey_show_debug_log = 'show-debug-log';
 const lskey_anim_speed = 'anim-speed';
 
@@ -146,6 +146,16 @@ GlobalStyling.themeBrightness = GlobalStyling.RegisterAspect(
     },
 );
 
+GlobalStyling.spacing = GlobalStyling.RegisterAspect(
+    _ => { _.value = UserSettings.GetOptionValue(lskey_spacing, 0.5); },
+    _ => { UserSettings.SetOptionValue(lskey_spacing, _.value); },
+    _ =>
+    {
+        GlobalStyling.SetRootStyleProperty('--spacing-multiplier', _.value);
+        GlobalStyling.TriggerChangeEvents(false);
+    },
+);
+
 GlobalStyling.lightMode = GlobalStyling.RegisterAspect(
     _ => { _.enabled = UserSettings.GetOptionValue(lskey_theme_light_mode, false); },
     _ => { UserSettings.SetOptionValue(lskey_theme_light_mode, _.enabled); },
@@ -184,16 +194,6 @@ GlobalStyling.showDebugLog = GlobalStyling.RegisterAspect(
     {
         DebugLog.ui.e_root.style.display = _.enabled ? 'block' : 'none';
         GlobalStyling.TriggerChangeEvents(false);
-    },
-);
-
-GlobalStyling.compactMode = GlobalStyling.RegisterAspect(
-    _ => { _.enabled = UserSettings.GetOptionValue(lskey_compact_mode, false); },
-    _ => { UserSettings.SetOptionValue(lskey_compact_mode, _.enabled); },
-    _ =>
-    {
-        GlobalStyling.SetRootStyleProperty('--compact-mode', _.enabled ? 1.0 : 0.0);
-        GlobalStyling.TriggerChangeEvents(true);
     },
 );
 

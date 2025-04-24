@@ -4,10 +4,10 @@
 	--action-bar-height: 3rem;
 	--info-bar-height: 2rem;
 	--limit-content-width: 1.0;
-	--compact-mode: 0.0;
-	--gap-1: calc(1rem - 0.7rem * var(--compact-mode));
-	--gap-05: calc(0.5rem - 0.35rem * var(--compact-mode));
-	--gap-025: calc(0.25rem - 0.15rem * var(--compact-mode));
+	--spacing-multiplier: 0.0;
+	--gap-1: calc(0.3rem + 0.7rem * var(--spacing-multiplier));
+	--gap-05: calc(0.15rem + 0.35rem * var(--spacing-multiplier));
+	--gap-025: calc(0.1rem + 0.15rem * var(--spacing-multiplier));
 
 	--theme-color: hsl(197, 100%, 50%);
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);

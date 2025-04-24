@@ -175,9 +175,12 @@ export class PageSettings extends PageDescriptor
 		instance.e_body.style.flexGrow = '1.0';
 
 		instance.e_options_root = CreatePagePanel(
-			instance.e_content, true, true, 'min-height:1.5rem;align-content:flex-start;flex-grow:2.0;',
+			instance.e_content, true, true, 'min-height:1.5rem;',
 			x =>
 			{
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
+				x.classList.add('hide-expander');
 				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY SETTINGS'; });
 			}
 		);
@@ -197,16 +200,6 @@ export class PageSettings extends PageDescriptor
 			{
 				GlobalStyling.lightMode.enabled = _.toggled === true;
 				GlobalStyling.lightMode.Apply(true);
-			}
-		);
-
-		instance.e_toggle_compact = new SettingToggle(
-			instance.e_options_root, 'compact mode', 'compress', GlobalStyling.compactMode.enabled === true,
-			() => 'Whether or not to use tighter spacing in the interface.',
-			_ =>
-			{
-				GlobalStyling.compactMode.enabled = _.toggled === true;
-				GlobalStyling.compactMode.Apply(true);
 			}
 		);
 
@@ -246,20 +239,56 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
+
+
+
+
+
+		instance.e_slider_spacing = new SettingSlider(
+			instance.e_options_root, 'spacing', 'compress', GlobalStyling.spacing.value, 0.125, () => 'UI spacing',
+			_ =>
+			{
+				GlobalStyling.spacing.value = _.value;
+				GlobalStyling.spacing.Apply(true);
+			}
+		);
+
+		instance.e_slider_animspeed = new SettingSlider(
+			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
+			_ =>
+			{
+				GlobalStyling.animationSpeed.value = _.value;
+				GlobalStyling.animationSpeed.Apply(true);
+			}
+		);
+
+
+
+
+
+
+
+
 		instance.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 
 		const updateColorWarning = (e) =>
 		{
 			let hue = GlobalStyling.themeColor.hue;
 			let sat = GlobalStyling.themeColor.saturation;
+			let contrast = GlobalStyling.themeContrast.value;
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
 			{
-				e.innerText = 'THEME COLOR MIGHT CONFLICT WITH COLOR CODING';
+				e.innerText = 'COLOR MIGHT CONFLICT WITH COLOR CODING';
 				e.style.display = 'block';
 			}
 			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
 			{
-				e.innerText = 'THEME COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.innerText = 'COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.style.display = 'block';
+			}
+			else if (contrast < 0.25 || contrast > 0.75)
+			{
+				e.innerText = 'CONTRAST MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
 				e.style.display = 'block';
 			}
 			else 
@@ -269,7 +298,8 @@ export class PageSettings extends PageDescriptor
 			}
 		};
 
-
+		instance.e_options_root.appendChild(instance.e_theme_color_warning);
+		updateColorWarning(instance.e_theme_color_warning);
 
 		instance.e_slider_themehue = new SettingSlider(
 			instance.e_options_root, 'theme hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
@@ -294,39 +324,26 @@ export class PageSettings extends PageDescriptor
 				updateColorWarning(instance.e_theme_color_warning);
 			}
 		);
-		instance.e_options_root.appendChild(instance.e_theme_color_warning);
-		updateColorWarning(instance.e_theme_color_warning);
 
 
 
 		instance.e_slider_contrast = new SettingSlider(
-			instance.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.1, () => 'UI theme contrast',
+			instance.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.05, () => 'UI theme contrast',
 			_ =>
 			{
 				GlobalStyling.themeContrast.value = _.value;
 				GlobalStyling.themeContrast.Apply(true);
+				updateColorWarning(instance.e_theme_color_warning);
 			}
 		);
 
 		instance.e_slider_brightness = new SettingSlider(
-			instance.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.1, () => 'UI theme brightness',
+			instance.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.05, () => 'UI theme brightness',
 			_ =>
 			{
 				GlobalStyling.themeBrightness.value = _.value;
 				GlobalStyling.themeBrightness.Apply(true);
-			}
-		);
-
-
-
-
-
-		instance.e_slider_animspeed = new SettingSlider(
-			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
-			_ =>
-			{
-				GlobalStyling.animationSpeed.value = _.value;
-				GlobalStyling.animationSpeed.Apply(true);
+				updateColorWarning(instance.e_theme_color_warning);
 			}
 		);
 
