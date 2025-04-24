@@ -107,6 +107,25 @@ export class PageTitleBar
 		}
 	}
 
+	RemoveExtraButtons()
+	{
+		if (this.b_pin)
+		{
+			this.b_pin.e_root.remove();
+			this.b_pin = null;
+		}
+	}
+
+	RefreshExtraButtons()
+	{
+		if (false && this.page.page_descriptor.pinnable === true && !this.b_pin)
+		{
+			this.b_pin = this.AddButton(this.e_buttons_right, 'keep', () => { this.page.TryTogglePin(); }, undefined, 'Pin this page');
+			if (this.b_close) setSiblingIndex(this.b_pin.e_root, 1);
+			else setSiblingIndex(this.b_pin.e_root, 0);
+		}
+	}
+
 	AddNavigationButtons(left = true, right = true)
 	{
 		if (left === true && !this.b_moveL)
@@ -114,6 +133,7 @@ export class PageTitleBar
 			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); }, undefined, 'Move this page to the left');
 			setSiblingIndex(this.b_moveL.e_root, 0);
 		}
+
 		if (right === true && !this.b_moveR)
 		{
 			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', () => { this.page.MoveRight(); }, undefined, 'Move this page to the right');

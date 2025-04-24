@@ -16,6 +16,7 @@ export class PageInstance
 		this.page_descriptor = page_descriptor;
 
 		this.siblingIndex = -1;
+		this.pin_location = null;
 		this.title_bar = null;
 		this.e_body = {};
 		this.e_content = {};
@@ -63,6 +64,52 @@ export class PageInstance
 				PageManager.onLayoutChange.Invoke();
 			}
 		);
+	}
+
+	SetParentElement(new_parent)
+	{
+		if (!new_parent) return;
+
+		let old_parent = this.e_body.parentElement;
+		if (old_parent)
+		{
+			if (old_parent === new_parent) return;
+			old_parent.removeChild(this.e_body);
+		}
+		new_parent.appendChild(this.e_body);
+		PageManager.onLayoutChange.Invoke();
+	}
+
+	TryTogglePin()
+	{
+		if (this.pin_location != null) this.TryUnpin();
+		else this.TryPin();
+	}
+
+	TryPin()
+	{
+		if (this.pin_location != null) return;
+		this.pin_location = 'left';
+		let pin_root = document.getElementById('content-pinned-left');
+		pin_root.style.display = 'flex';
+		this.e_body.style.setProperty('--spacing-multiplier', '0.0');
+		this.e_body.style.setProperty('--gap-1', '0.3rem');
+		this.e_body.style.setProperty('--gap-05', '0.15rem');
+		this.e_body.style.setProperty('--gap-025', '0.1rem');
+		this.SetParentElement(pin_root);
+	}
+
+	TryUnpin()
+	{
+		if (this.pin_location == null) return;
+		this.pin_location = null;
+		let pin_root = document.getElementById('content-pinned-left');
+		this.SetParentElement(document.getElementById('content-pages-root'));
+		if (pin_root.childElementCount < 1) pin_root.style.display = 'none';
+		this.e_body.style.setProperty('--spacing-multiplier', 'unset');
+		this.e_body.style.setProperty('--gap-1', 'unset');
+		this.e_body.style.setProperty('--gap-05', 'unset');
+		this.e_body.style.setProperty('--gap-025', 'unset');
 	}
 
 	Close(immediate = false)
@@ -121,6 +168,8 @@ export class PageInstance
 			this.title_bar.RemoveNavigationButtons();
 			this.title_bar.AddNavigationButtons(this.e_body.previousElementSibling != null, this.e_body.nextElementSibling != null);
 		}
+
+		this.title_bar.RefreshExtraButtons();
 
 		this.siblingIndex = this.e_body ? getSiblingIndex(this.e_body) : -1;
 		this.page_descriptor.OnLayoutChange(this);

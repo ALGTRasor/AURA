@@ -163,6 +163,7 @@ class SettingToggle extends SettingControl
 
 export class PageSettings extends PageDescriptor
 {
+	pinnable = true;
 	GetTitle() { return 'settings'; }
 	GetIcon() { return 'settings'; }
 	OnCreateElements(instance)
@@ -388,6 +389,7 @@ export class PageSettings extends PageDescriptor
 							y.innerText = info.permission_name;
 							y.title = info.permission_desc;
 							y.style.setProperty('--theme-color', group.color);
+							y.classList.add('hover-lift');
 						}
 					);
 				}
@@ -410,6 +412,7 @@ export class PageSettings extends PageDescriptor
 						{
 							_.innerText = module_info.name;
 							_.title = module_info.desc;
+							_.classList.add('hover-lift');
 						}
 					);
 				}

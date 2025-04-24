@@ -7,6 +7,7 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageHome extends PageDescriptor
 {
+	pinnable = true;
 	GetTitle() { return 'nav menu'; }
 
 	Resize(instance)
