@@ -15,8 +15,17 @@ export class PageTitleBarButton
 			this.parent, 'div', 'page-title-button', '',
 			_ =>
 			{
+				_.style.zIndex = 30;
 				_.title = this.tooltip;
-				_.addEventListener('click', _ => { this.InvokeAction(); });
+				_.addEventListener(
+					'click',
+					_ =>
+					{
+						_.stopPropagation();
+						_.preventDefault();
+						this.InvokeAction();
+					}
+				);
 			}
 		);
 		this.e_icon = addElement(this.e_root, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
@@ -43,6 +52,8 @@ export class PageTitleBar
 	static Default = new PageTitleBar();
 
 	created = false;
+	draggable = false;
+	dragging = false;
 	page = {};
 	icon = '';
 
@@ -58,7 +69,89 @@ export class PageTitleBar
 	{
 		this.page = page;
 		if (create === true) this.CreateElements();
+
+		this.handle_drag_start = (e) => this._HandleDragStart(e);
+		this.handle_drag = (e) => this._HandleDrag(e);
+		this.handle_drag_end = (e) => this._HandleDragEnd(e);
 	}
+
+	UpdateDraggable()
+	{
+		if (this.page.docked === false && this.draggable === false) this._MakeDraggable();
+		else if (this.page.docked === true && this.draggable === true) this._MakeNotDraggable();
+	}
+
+	_MakeDraggable()
+	{
+		this.draggable = true;
+		this.page.e_body.classList.add('page-loose');
+		this.page.e_body.style.resize = 'both';
+		this.page.e_body.style.width = '16rem';
+		this.page.e_body.style.height = '16rem';
+
+		this.e_title.classList.add('draggable');
+		this.e_title.style.zIndex = 20;
+		this.e_title.addEventListener('mousedown', this.handle_drag_start);
+	}
+
+	_MakeNotDraggable()
+	{
+		this.draggable = false;
+		this.page.e_body.classList.remove('page-loose');
+		this.page.e_body.style.removeProperty('resize');
+		this.page.e_body.style.removeProperty('top');
+		this.page.e_body.style.removeProperty('left');
+		this.page.e_body.style.removeProperty('width');
+		this.page.e_body.style.removeProperty('height');
+
+		this.e_title.classList.remove('draggable');
+		this.e_title.removeEventListener('mousedown', this.handle_drag_start);
+		window.removeEventListener('mouseup', this.handle_drag_end);
+	}
+
+	_HandleDragStart(e)
+	{
+		e.stopPropagation();
+		e.preventDefault();
+		let pageRect = this.page.e_body.getBoundingClientRect();
+		setSiblingIndex(this.page.e_body, 999);
+		this.drag_start_x = e.clientX - pageRect.x;
+		this.drag_start_y = e.clientY - pageRect.y;
+		window.addEventListener('mousemove', this.handle_drag);
+		window.addEventListener('mouseup', this.handle_drag_end);
+		this.e_title.classList.add("dragging");
+	};
+
+	_HandleDrag(e)
+	{
+		e.stopPropagation();
+		e.preventDefault();
+		let pageRect = this.page.e_body.getBoundingClientRect();
+		let pageRootRect = this.page.e_body.parentElement.getBoundingClientRect();
+
+		this.drag_latest_x = e.clientX;
+		this.drag_latest_y = e.clientY;
+
+		let new_x = this.drag_latest_x - this.drag_start_x - pageRootRect.x;
+		let new_y = this.drag_latest_y - this.drag_start_y - pageRootRect.y;
+
+		new_x = Math.max(0, new_x);
+		new_y = Math.max(0, new_y);
+		new_x = Math.min(pageRootRect.width - pageRect.width, new_x);
+		new_y = Math.min(pageRootRect.height - pageRect.height, new_y);
+
+		this.page.e_body.style.left = new_x + 'px';
+		this.page.e_body.style.top = new_y + 'px';
+	}
+
+	_HandleDragEnd(e)
+	{
+		e.stopPropagation();
+		e.preventDefault();
+		window.removeEventListener('mousemove', this.handle_drag);
+		window.removeEventListener('mouseup', this.handle_drag_end);
+		this.e_title.classList.remove("dragging");
+	};
 
 	AddButton(parent, icon = '', action = () => { }, color = '', tooltip = '')
 	{
@@ -109,25 +202,29 @@ export class PageTitleBar
 
 	RemoveExtraButtons()
 	{
-		if (this.b_pin)
+		if (this.b_dock)
 		{
-			this.b_pin.e_root.remove();
-			this.b_pin = null;
+			this.b_dock.e_root.remove();
+			this.b_dock = null;
 		}
 	}
 
 	RefreshExtraButtons()
 	{
-		if (false && this.page.page_descriptor.pinnable === true && !this.b_pin)
+		if (this.page.page_descriptor.dockable === true && !this.b_dock)
 		{
-			this.b_pin = this.AddButton(this.e_buttons_right, 'keep', () => { this.page.TryTogglePin(); }, undefined, 'Pin this page');
-			if (this.b_close) setSiblingIndex(this.b_pin.e_root, 1);
-			else setSiblingIndex(this.b_pin.e_root, 0);
+			this.b_dock = this.AddButton(this.e_buttons_right, 'picture_in_picture', () => { this.page.TryToggleDocked(); }, undefined, 'Dock or undock this page');
+			if (this.b_close) setSiblingIndex(this.b_dock.e_root, 1);
+			else setSiblingIndex(this.b_dock.e_root, 0);
 		}
+
+		this.UpdateDraggable();
 	}
 
 	AddNavigationButtons(left = true, right = true)
 	{
+		if (this.page.docked === false) return;
+
 		if (left === true && !this.b_moveL)
 		{
 			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); }, undefined, 'Move this page to the left');

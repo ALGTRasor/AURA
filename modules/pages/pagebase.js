@@ -16,7 +16,7 @@ export class PageInstance
 		this.page_descriptor = page_descriptor;
 
 		this.siblingIndex = -1;
-		this.pin_location = null;
+		this.docked = this.page_descriptor.dockable;
 		this.title_bar = null;
 		this.e_body = {};
 		this.e_content = {};
@@ -80,36 +80,26 @@ export class PageInstance
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	TryTogglePin()
+	TryToggleDocked()
 	{
-		if (this.pin_location != null) this.TryUnpin();
-		else this.TryPin();
+		if (this.docked === true) this.TryUndock();
+		else this.TryDock();
 	}
 
-	TryPin()
+	TryUndock()
 	{
-		if (this.pin_location != null) return;
-		this.pin_location = 'left';
-		let pin_root = document.getElementById('content-pinned-left');
-		pin_root.style.display = 'flex';
-		this.e_body.style.setProperty('--spacing-multiplier', '0.0');
-		this.e_body.style.setProperty('--gap-1', '0.3rem');
-		this.e_body.style.setProperty('--gap-05', '0.15rem');
-		this.e_body.style.setProperty('--gap-025', '0.1rem');
-		this.SetParentElement(pin_root);
+		if (this.docked === false) return;
+		this.docked = false;
+		let loose_root = document.getElementById('content-pages-loose');
+		this.SetParentElement(loose_root);
 	}
 
-	TryUnpin()
+	TryDock()
 	{
-		if (this.pin_location == null) return;
-		this.pin_location = null;
-		let pin_root = document.getElementById('content-pinned-left');
-		this.SetParentElement(document.getElementById('content-pages-root'));
-		if (pin_root.childElementCount < 1) pin_root.style.display = 'none';
-		this.e_body.style.setProperty('--spacing-multiplier', 'unset');
-		this.e_body.style.setProperty('--gap-1', 'unset');
-		this.e_body.style.setProperty('--gap-05', 'unset');
-		this.e_body.style.setProperty('--gap-025', 'unset');
+		if (this.docked === true) return;
+		this.docked = true;
+		let docked_root = document.getElementById('content-pages-root');
+		this.SetParentElement(docked_root);
 	}
 
 	Close(immediate = false)
@@ -221,6 +211,8 @@ export class PageDescriptor
 		this.description = description;
 		this.permission = permission;
 		this.descriptor_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
+
+		this.dockable = true;
 	}
 
 	instances = [];

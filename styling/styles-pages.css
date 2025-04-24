@@ -21,53 +21,45 @@
 }
 
 
-.content-pinned-left
+.content-pages-loose
 {
-	position: relative;
-	flex-grow: 0.0;
-	flex-basis: auto;
-	max-width: 50%;
+	pointer-events: none;
+	position: absolute;
+	overflow: hidden;
+	inset: 0;
 
-	background: linear-gradient(180deg, hsl(from var(--theme-color) h s 10%), hsl(from var(--theme-color) h s 15%));
-	border-radius: 0 var(--gap-05) var(--gap-05) 0;
+	flex-shrink: 0.0;
+	flex-grow: 0.0;
+	flex-basis: fit-content;
+	justify-content: center;
+
+	border-radius: 0;
 	border: solid 2px hsl(from var(--theme-color) h s 20%);
 
-	display: none;
-	flex-wrap: wrap;
-	flex-direction: row;
+	display: block;
 
-	justify-content: center;
-	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.2);
-
-	transition-property: opacity;
-	transition-duration: var(--trans-dur-on-fast);
-	transition-timing-function: ease-in;
-
-	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 	padding: var(--gap-05);
-	padding-top: 2rem;
-	gap: var(--gap-1);
+
+	transition-property: opacity, max-width;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
 }
 
-.content-pinned-left::after
+
+
+
+
+
+.page-root.page-loose
 {
-	content: 'PINNED';
+	pointer-events: all;
+	user-select: none;
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 0;
-	height: 2rem;
-	line-height: 2rem;
-	text-align: center;
-	font-size: 0.6rem;
-	font-weight: bold;
-	color: hsl(from var(--theme-color) h s 40%);
+	min-height: 14rem;
+	min-width: 14rem;
 }
-
-
-
-
-
 
 .page-root
 {

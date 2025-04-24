@@ -6,6 +6,7 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageMap extends PageDescriptor
 {
+	pinnable = true;
 	GetTitle() { return 'map'; }
 
 	Resize(instance)

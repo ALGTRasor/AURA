@@ -140,6 +140,40 @@ body
 
 
 
+
+
+
+
+
+
+
+
+
+.draggable
+{
+	cursor: grab;
+	pointer-events: visible;
+	user-select: none;
+}
+
+.draggable.dragging
+{
+	cursor: grabbing;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .aura-button-loginrequired
 {
 	position: absolute;
