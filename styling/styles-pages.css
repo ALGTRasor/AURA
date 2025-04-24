@@ -15,6 +15,8 @@
 	transition-timing-function: ease-in;
 
 	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
+	padding: var(--gap-05);
+	gap: var(--gap-1);
 }
 
 
@@ -30,10 +32,9 @@
 	opacity: 100%;
 	scale: 100%;
 
-	margin: 0.25rem;
 	min-width: 20%;
 
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 	clip-path: stroke-box;
 
 	outline: solid 3px transparent;
@@ -124,7 +125,7 @@
 	width: auto;
 	background-color: hsl(from var(--theme-color) h s 10%);
 
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 
 	opacity: 80%;
 	scale: 90%;
@@ -185,8 +186,8 @@
 
 	min-width: 1rem;
 	min-height: 1rem;
-	gap: 0.5rem;
-	padding: 0.25rem;
+	gap: var(--gap-05);
+	padding: var(--gap-025);
 
 	color: var(--theme-color-text-50);
 	letter-spacing: 0px;
@@ -196,7 +197,7 @@
 	background-color: hsl(from var(--theme-color) h s 18%);
 	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 0.4);
 
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 	border: solid 2px transparent;
 
 	transition-property: border, background-color;
@@ -259,7 +260,7 @@
 {
 	color: hsl(from var(--theme-color) h s 55%);
 	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 }
 
 .page-panel a:hover
@@ -280,7 +281,7 @@
 	flex-basis: 0.0;
 	align-content: stretch;
 	justify-content: stretch;
-	gap: 0.25rem;
+	gap: var(--gap-025);
 }
 
 .page-panel .page-panel-tiles > .page-panel
@@ -337,8 +338,6 @@
 
 .page-panel.expanding-panel:hover
 {
-	outline: solid 2px hsl(from var(--theme-color) h s 50%);
-	outline-offset: -4px;
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: 0s;
 	max-height: 100vh !important;
@@ -350,7 +349,7 @@
 	z-index: 1;
 	position: relative;
 	overflow: hidden;
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 }
 
 .inset-box:where(.scroll-y)
@@ -385,7 +384,7 @@
 	width: 1.5rem;
 	height: 1.5rem;
 	background-color: #f803;
-	border-radius: 0.2rem;
+	border-radius: var(--gap-025);
 
 	box-shadow: 0px 0px 0px rgba(from var(--shadow-color) r g b / 0);
 	text-shadow: -2px 2px 2px rgba(from var(--shadow-color) r g b / 0.2);
@@ -429,7 +428,7 @@
 	width: 1.5rem;
 	height: 1.5rem;
 	background-color: #f003;
-	border-radius: 0.2rem;
+	border-radius: var(--gap-025);
 
 	box-shadow: 0px 0px 0px rgba(from var(--shadow-color) r g b / 0);
 	text-shadow: -2px 2px 2px rgba(from var(--shadow-color) r g b / 0.2);
@@ -475,7 +474,7 @@
 	display: flex;
 	flex-direction: column;
 
-	padding: 0.5rem;
+	padding: var(--gap-05);
 
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -489,7 +488,7 @@
 	flex-grow: 1.0;
 	flex-basis: 0;
 
-	border-radius: 0.35rem;
+	border-radius: var(--gap-025);
 	border: solid 2px hsl(from var(--theme-color) h s 20%);
 
 	background-color: rgba(from var(--theme-color) r g b / 8%);
@@ -531,8 +530,8 @@
 	flex-direction: column;
 
 	padding: 0rem;
-	inset: 1rem 1rem 1rem 1rem;
-	border-radius: 1rem;
+	inset: var(--gap-1);
+	border-radius: var(--gap-1);
 
 	overflow: hidden;
 	clip-path: stroke-box;
@@ -594,7 +593,7 @@
 	position: relative;
 	padding: 0.5rem;
 
-	border-radius: 0.5rem;
+	border-radius: var(--gap-05);
 	border: solid 2px rgba(from var(--theme-color) r g b / 0.1);
 
 	display: flex;
@@ -623,7 +622,7 @@
 	margin: 0;
 
 	background-color: transparent;
-	border-radius: 0.75rem;
+	border-radius: calc(var(--gap-025) * 3);
 	text-align: center;
 	align-content: center;
 	font-size: 0.85rem;

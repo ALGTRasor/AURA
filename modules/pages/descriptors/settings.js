@@ -200,6 +200,16 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
+		instance.e_toggle_compact = new SettingToggle(
+			instance.e_options_root, 'compact mode', 'compress', GlobalStyling.compactMode.enabled === true,
+			() => 'Whether or not to use tighter spacing in the interface.',
+			_ =>
+			{
+				GlobalStyling.compactMode.enabled = _.toggled === true;
+				GlobalStyling.compactMode.Apply(true);
+			}
+		);
+
 		instance.e_toggle_limitwidth = new SettingToggle(
 			instance.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
 			_ =>

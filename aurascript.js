@@ -111,6 +111,7 @@ function RegisterHotkeys()
 	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }));
 	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }));
 	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }));
+	Hotkeys.Register(new HotkeyDescriptor('=', m => { if (m.none) ToggleCompactMode(); }));
 }
 
 
@@ -347,6 +348,12 @@ function ToggleDebugLog()
 	GlobalStyling.showDebugLog.enabled = GlobalStyling.showDebugLog.enabled !== true;
 	GlobalStyling.showDebugLog.Apply(true);
 };
+
+function ToggleCompactMode()
+{
+	GlobalStyling.compactMode.enabled = GlobalStyling.compactMode.enabled !== true;
+	GlobalStyling.compactMode.Apply(true);
+}
 
 function ToggleLightMode()
 {

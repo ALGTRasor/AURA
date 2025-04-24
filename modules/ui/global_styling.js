@@ -83,6 +83,7 @@ const lskey_theme_light_mode = 'light-mode';
 const lskey_spotlight = 'spotlight';
 const lskey_hide_sensitive = 'hide-sensitive-info';
 const lskey_limit_width = 'limit-content-width';
+const lskey_compact_mode = 'compact-mode';
 const lskey_show_debug_log = 'show-debug-log';
 const lskey_anim_speed = 'anim-speed';
 
@@ -183,6 +184,16 @@ GlobalStyling.showDebugLog = GlobalStyling.RegisterAspect(
     {
         DebugLog.ui.e_root.style.display = _.enabled ? 'block' : 'none';
         GlobalStyling.TriggerChangeEvents(false);
+    },
+);
+
+GlobalStyling.compactMode = GlobalStyling.RegisterAspect(
+    _ => { _.enabled = UserSettings.GetOptionValue(lskey_compact_mode, false); },
+    _ => { UserSettings.SetOptionValue(lskey_compact_mode, _.enabled); },
+    _ =>
+    {
+        GlobalStyling.SetRootStyleProperty('--compact-mode', _.enabled ? 1.0 : 0.0);
+        GlobalStyling.TriggerChangeEvents(true);
     },
 );
 
