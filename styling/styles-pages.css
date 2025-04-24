@@ -686,8 +686,8 @@
 
 	position: absolute;
 	left: 50%;
-	bottom: 0%;
-	width: 100%;
+	bottom: var(--gap-025);
+	width: calc(100% - var(--gap-025));
 
 	line-height: 1rem;
 	text-wrap: pretty;
