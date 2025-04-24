@@ -176,7 +176,7 @@ export class PageSettings extends PageDescriptor
 		instance.e_body.style.flexGrow = '1.0';
 
 		instance.e_options_root = CreatePagePanel(
-			instance.e_content, true, true, 'min-height:1.5rem;',
+			instance.e_content, true, true, 'min-height:2rem; align-content:flex-start;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -350,7 +350,7 @@ export class PageSettings extends PageDescriptor
 
 
 		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:2rem;min-height:2rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -397,7 +397,7 @@ export class PageSettings extends PageDescriptor
 		);
 
 		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:2rem;min-height:2rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -421,7 +421,7 @@ export class PageSettings extends PageDescriptor
 
 		let user_has_aura_access = UserAccountInfo.HasPermission('aura.access');
 		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:2rem;min-height:2rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
@@ -459,7 +459,7 @@ export class PageSettings extends PageDescriptor
 
 
 		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:2rem;min-height:2rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');

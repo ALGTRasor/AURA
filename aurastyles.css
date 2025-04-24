@@ -51,6 +51,7 @@
 }
 
 
+
 .notransitions
 {
 	-webkit-transition: none !important;
@@ -75,13 +76,13 @@ body
 {
 	opacity: 100%;
 
-	position: absolute;
-	inset: 0;
-	margin: var(--gap-05);
-
 	overflow: hidden;
 	clip-path: padding-box;
-	border-radius: 0.5rem;
+	position: absolute;
+	inset: 0;
+
+	margin: var(--gap-05);
+	border-radius: var(--gap-05);
 
 	font-family: AtkinsonHyperlegible;
 	font-size: var(--font-size);
@@ -125,7 +126,7 @@ body
 	flex-wrap: nowrap;
 	gap: var(--gap-025);
 
-	margin: var(--gap-05);
+	margin: 0;
 	padding: var(--gap-1);
 	justify-self: center;
 
