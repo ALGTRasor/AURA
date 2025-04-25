@@ -138,7 +138,7 @@ export class PageTitleBar
 		new_x = Math.max(0, new_x);
 		new_y = Math.max(0, new_y);
 		new_x = Math.min(pageRootRect.width - pageRect.width, new_x);
-		new_y = Math.min(pageRootRect.height - pageRect.height, new_y);
+		new_y = Math.min(pageRootRect.height - 48, new_y);
 
 		this.page.e_body.style.left = new_x + 'px';
 		this.page.e_body.style.top = new_y + 'px';

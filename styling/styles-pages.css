@@ -101,7 +101,7 @@
 	clip-path: none;
 
 	border: solid 2px hsl(from var(--theme-color) h s 50%);
-	box-shadow: -3px 3px 8px black;
+	box-shadow: -3px 3px 8px rgba(from var(--shadow-color) r g b / 0.5);
 }
 
 
