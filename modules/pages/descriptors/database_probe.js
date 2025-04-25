@@ -34,11 +34,20 @@ export class DatabaseProbe extends PageDescriptor
 				instance.e_table_buttons, false, false, 'padding:0.5rem;text-align:center;align-content:center;',
 				x =>
 				{
-					x.className += ' panel-button';
+					x.classList.add('panel-button');
 					x.innerHTML = sd.key;
-					if (sd.data && sd.data.length) x.innerHTML += ` (${sd.data.length})`;
+					if (sd.instance.data && sd.instance.data.length) x.innerHTML += ` (${sd.instance.data.length})`;
 
-					const view_this_table = _ => { this.SetTableData(instance, sd.source.list_title, sd.data, sd.source.data_model.field_descs, x => x[sd.source.label_field], x => x[sd.source.sorting_field]); };
+					const view_this_table = _ =>
+					{
+						for (let cid in instance.e_table_buttons.children)
+						{
+							let c = instance.e_table_buttons.children[cid];
+							if (c.classList) c.classList.remove('panel-button-selected');
+						}
+						x.classList.add('panel-button-selected');
+						this.SetTableData(instance, sd.instance.datasource.list_title, sd.instance.data, sd.instance.datasource.data_model.field_descs, x => x[sd.instance.datasource.label_field], x => x[sd.instance.datasource.sorting_field]);
+					};
 					x.addEventListener('click', view_this_table);
 				}
 			);

@@ -5,7 +5,7 @@ import { PageDescriptor, PageInstance } from "./pagebase.js";
 export class PageTitleBarButton
 {
 	static Nothing = new PageTitleBarButton();
-	constructor(parent, icon = '', action = () => { }, tooltip = '')
+	constructor(parent, icon = '', action = e => { }, tooltip = '')
 	{
 		this.parent = parent;
 		this.tooltip = tooltip;
@@ -23,7 +23,7 @@ export class PageTitleBarButton
 					{
 						_.stopPropagation();
 						_.preventDefault();
-						this.InvokeAction();
+						this.InvokeAction(_);
 					}
 				);
 			}
@@ -36,14 +36,14 @@ export class PageTitleBarButton
 		this.e_root.style.setProperty('--theme-color', color);
 	}
 
-	SetAction(action = () => { })
+	SetAction(action = e => { })
 	{
 		this.action = action;
 	}
 
-	InvokeAction()
+	InvokeAction(e)
 	{
-		this.action();
+		this.action(e);
 	}
 }
 
@@ -153,7 +153,7 @@ export class PageTitleBar
 		this.e_title.classList.remove("dragging");
 	};
 
-	AddButton(parent, icon = '', action = () => { }, color = '', tooltip = '')
+	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '')
 	{
 		let b = new PageTitleBarButton(parent, icon, action, tooltip);
 		if (color && color.length > 0) b.e_root.style.setProperty('--theme-color', color);
@@ -227,13 +227,13 @@ export class PageTitleBar
 
 		if (left === true && !this.b_moveL)
 		{
-			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', () => { this.page.MoveLeft(); }, undefined, 'Move this page to the left');
+			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', e => { this.page.MoveLeft(e.shiftKey); }, undefined, 'Move this page to the left');
 			setSiblingIndex(this.b_moveL.e_root, 0);
 		}
 
 		if (right === true && !this.b_moveR)
 		{
-			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', () => { this.page.MoveRight(); }, undefined, 'Move this page to the right');
+			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', e => { this.page.MoveRight(e.shiftKey); }, undefined, 'Move this page to the right');
 			setSiblingIndex(this.b_moveR.e_root, 0);
 			if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
 		}

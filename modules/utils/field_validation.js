@@ -1,6 +1,7 @@
+import { SharedData } from "../datashared.js";
+
 export class FieldValidation
 {
-
     static GetValidator(format = '')
     {
         switch (format)
@@ -8,8 +9,9 @@ export class FieldValidation
             case 'phone': return FieldValidation.CheckPhone;
             case 'email': return FieldValidation.CheckEmail;
             case 'date': return FieldValidation.CheckDate;
+            case 'role': return FieldValidation.CheckRoles;
         }
-        return _ => _;
+        return null;
     }
 
     static CheckPhone(raw = '')
@@ -115,5 +117,17 @@ export class FieldValidation
         y = y.padStart(4, '19');
 
         return `${y}-${m}-${d}`;
+    }
+
+    static CheckRoles(raw = '')
+    {
+        const getRoleString = (role_key = '') =>
+        {
+            let role_info = SharedData.GetRoleData(role_key)[0];
+            if (role_info) return role_info.role_name_short;
+            return role_key;
+        };
+
+        return raw.split(';').map(getRoleString).join(', ');
     }
 }

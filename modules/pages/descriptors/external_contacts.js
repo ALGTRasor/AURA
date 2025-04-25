@@ -15,7 +15,7 @@ export class PageExternalContacts extends PageDescriptor
 		instance.e_body.style.minWidth = '32rem';
 
 		instance.viewer = new RecordViewer();
-		instance.viewer.SetData(SharedData.contacts.data);
+		instance.viewer.SetData(SharedData.contacts.instance.data);
 		const sort = (x, y) =>
 		{
 			if (x.contact_name < y.contact_name) return -1;

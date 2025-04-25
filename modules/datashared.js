@@ -5,13 +5,7 @@ import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
 import { UserAccountInfo } from "./useraccount.js";
-import { RequestBatch, RequestBatchRequest, SharePoint } from "./sharepoint.js";
-import { DBConfig } from "./dbconfig.js";
-
-const SanitizeString = (str = '') =>
-{
-	return str.trim().toLowerCase();
-}
+import { RequestBatchRequest, SharePoint } from "./sharepoint.js";
 
 
 export class SharedDataTable
@@ -126,12 +120,7 @@ export class SharedData
 		}
 
 		await SharePoint.WaitUntilQueueEmpty();
-		for (let table_id in this.all_tables)
-		{
-			this.all_tables[table_id].instance.TryStoreInCache();
-			//let table = this.all_tables[table_id];
-			//SharedData.SaveToStorage(table.key, table.instance.data);
-		}
+		for (let table_id in this.all_tables) { this.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
@@ -151,7 +140,15 @@ export class SharedData
 			x =>
 			{
 				x.instance.TryLoadFromCache();
-				if (x.instance.loaded !== true) full = false;
+				if (x.instance.loaded !== true) 
+				{
+					DebugLog.Log('not cached: ' + x.instance.datasource.list_title);
+					full = false;
+				}
+				else
+				{
+					DebugLog.Log('in cache: ' + x.instance.datasource.list_title);
+				}
 			}
 		);
 		return full;

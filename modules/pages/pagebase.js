@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex } from "../domutils.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex, setSiblingIndex } from "../domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
@@ -40,27 +40,29 @@ export class PageInstance
 		this.e_body.appendChild(this.e_content);
 	}
 
-	MoveLeft()
+	MoveLeft(toEnd = false)
 	{
 		if (!this.e_body.previousSibling) return;
 		fadeTransformElement(
 			this.e_body.parentElement,
 			() =>
 			{
-				this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+				if (toEnd === true) setSiblingIndex(this.e_body, 0);
+				else this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
 				PageManager.onLayoutChange.Invoke();
 			}
 		);
 	}
 
-	MoveRight()
+	MoveRight(toEnd = false)
 	{
 		if (!this.e_body.nextSibling) return;
 		fadeTransformElement(
 			this.e_body.parentElement,
 			() =>
 			{
-				this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+				if (toEnd === true) setSiblingIndex(this.e_body, this.e_body.parentElement.childElementCount);
+				else this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
 				PageManager.onLayoutChange.Invoke();
 			}
 		);

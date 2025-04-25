@@ -3,6 +3,7 @@ import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../domutils.js";
 import { Modules } from "../modules.js";
+import { FieldValidation } from "../utils/field_validation.js";
 
 const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
 const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
@@ -107,6 +108,14 @@ export class RecordFormUtils
 
     static FormatValueString(valstr = '', row_opts = {})
     {
+        if ('format' in row_opts)
+        {
+            let validator = FieldValidation.GetValidator(row_opts.format);
+            if (validator) return validator(valstr);
+            return valstr;
+        }
+        return valstr;
+
         if (!row_opts) return valstr;
         if (!row_opts.format) return valstr;
         if (row_opts.format.length < 1) return valstr;

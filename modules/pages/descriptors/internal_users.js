@@ -18,7 +18,7 @@ export class PageInternalUsers extends PageDescriptor
 		//this.e_body.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
 
 		instance.viewer = new RecordViewer();
-		instance.viewer.SetData(SharedData.users.data);
+		instance.viewer.SetData(SharedData.users.instance.data);
 		const sort = (x, y) =>
 		{
 			if (x.Title < y.Title) return -1;

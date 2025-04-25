@@ -11,42 +11,42 @@ export class PageDemoPanel extends PageDescriptor
 	GetTitle() { return 'demo panel'; }
 	OnCreateElements(instance)
 	{
-		const style_button = 'text-align:center; align-content:center; padding:1rem; font-weight:bold; flex-basis:0%;';
-		const AddButton = (parent, demo = {}) =>
+		const CreateDemoElements = _ =>
 		{
-			let e_btn = CreatePagePanel(parent, false, false, style_button, x => { x.className += ' panel-button'; x.innerText = demo.name; });
-			if (demo.onCreate) e_btn.addEventListener('click', e => { this.LoadDemo(instance, demo); });
+			instance.demo_panel = _;
+			instance.demo_panel.Create(instance.e_panel);
+			instance.demo_panel.e_root.id = 'demo-panel-demo';
 		};
-
-		const LoadDemo = _ =>
+		const RemoveDemoElements = () =>
 		{
-			this.demo_panel = _;
-			this.demo_panel.Create(this.e_panel);
-			this.demo_panel.e_root.id = 'demo-panel-demo';
-		};
-		const UnloadDemo = () =>
-		{
-			this.demo_panel.Remove();
-			this.demo_panel = null;
+			instance.demo_panel.Remove();
+			instance.demo_panel = null;
 		};
 
 		const demos = [
 			{
 				name: 'PROJECT LIST',
-				onCreate: () => LoadDemo(new ProjectList(SharedData.projects.data.slice(0, 7))),
-				onRemove: UnloadDemo
+				onCreate: () => CreateDemoElements(new ProjectList(SharedData.projects.instance.data.slice(0, 7))),
+				onRemove: RemoveDemoElements
 			},
 			{
 				name: 'INTERNAL USER',
-				onCreate: () => LoadDemo(new InternalUserList(SharedData.users.data.slice(0, 7))),
-				onRemove: UnloadDemo
+				onCreate: () => CreateDemoElements(new InternalUserList(SharedData.users.instance.data.slice(0, 7))),
+				onRemove: RemoveDemoElements
 			},
 			{
 				name: 'EXTERNAL CONTACT',
-				onCreate: () => LoadDemo(new ExternalContactList(SharedData.contacts.data.slice(0, 7))),
-				onRemove: UnloadDemo
+				onCreate: () => CreateDemoElements(new ExternalContactList(SharedData.contacts.instance.data.slice(0, 7))),
+				onRemove: RemoveDemoElements
 			},
 		];
+
+		const style_button = 'text-align:center; align-content:center; padding:1rem; font-weight:bold; flex-basis:0%;';
+		const AddButton = (parent, demo = {}) =>
+		{
+			let e_btn = CreatePagePanel(parent, false, false, style_button, x => { x.className += ' panel-button'; x.innerText = demo.name; });
+			e_btn.addEventListener('click', e => { this.CreateDemo(instance, demo); });
+		};
 
 		if (!instance) return;
 
@@ -58,13 +58,12 @@ export class PageDemoPanel extends PageDescriptor
 		instance.e_panel = CreatePagePanel(instance.e_content, true, false, 'flex-grow:1.0; flex-shrink:1.0;', x => { x.innerHTML = ''; });
 	}
 
-	LoadDemo(instance, demo = {})
+	CreateDemo(instance, demo = {})
 	{
 		this.ClearDemo(instance);
 		instance.demo = demo;
 		if (!instance.demo) return;
-		if (!instance.demo.onCreate) return;
-		instance.demo.onCreate();
+		if (instance.demo.onCreate) instance.demo.onCreate();
 	}
 
 	ClearDemo(instance)

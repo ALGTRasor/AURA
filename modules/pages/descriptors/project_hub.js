@@ -17,7 +17,7 @@ export class PageProjectHub extends PageDescriptor
 		instance.e_body.style.minWidth = '32rem';
 
 		instance.viewer = new RecordViewer();
-		instance.viewer.SetData(SharedData.projects.data);
+		instance.viewer.SetData(SharedData.projects.instance.data);
 		const sort = (x, y) =>
 		{
 			if (x.id < y.id) return -1;

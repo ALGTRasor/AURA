@@ -379,6 +379,18 @@
 	background-color: hsl(from var(--theme-color) h s 16%);
 }
 
+.panel-button-selected
+{
+	color: hsl(from var(--theme-color) h s 80%) !important;
+	border-color: hsl(from var(--theme-color) h s 80%) !important;
+	background-color: #000f !important;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 4px;
+}
+
+
+
 .page-panel.expanding-panel:not(.hide-expander)::after
 {
 	content: '▶';
