@@ -48,6 +48,7 @@ export class SharedData
 	static hrRequests = new SharedDataTable('hr requests', DataSource.HrRequests);
 	static timekeepEvents = new SharedDataTable('timekeep events', DataSource.TimekeepEvents);
 	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSource.TimekeepStatuses);
+	static auraLinks = new SharedDataTable('aura links', DataSource.AURALinks);
 
 	static all_tables = [
 		SharedData.roles,
@@ -59,7 +60,8 @@ export class SharedData
 		SharedData.permissions,
 		SharedData.hrRequests,
 		SharedData.timekeepEvents,
-		SharedData.timekeepStatuses
+		SharedData.timekeepStatuses,
+		SharedData.auraLinks
 	];
 
 	static async LoadData(useCache = true)
@@ -76,12 +78,20 @@ export class SharedData
 		Timers.Start(timer_shareddataload);
 		DebugLog.StartGroup('loading shared data');
 
-		if (useCache)
+		if (useCache === true)
 		{
-			let cacheAvailable = SharedData.AttemptLoadCache();
-			if (cacheAvailable)
+			let all_from_cache = true;
+			SharedData.all_tables.forEach(
+				x =>
+				{
+					x.instance.TryLoadFromCache();
+					if (x.instance.loaded !== true) all_from_cache = false;
+				}
+			);
+
+			if (all_from_cache)
 			{
-				DebugLog.Log('using cached shared data');
+				DebugLog.Log('...using cached shared data');
 				DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
 				DebugLog.SubmitGroup();
 
@@ -94,33 +104,40 @@ export class SharedData
 			}
 		}
 
+		if (useCache === true) DebugLog.Log('fetching missing shared data...');
 		const after_download = (table, result) =>
 		{
 			const expand_fields = x => { return x.fields ? x.fields : x; };
 			let page_items = result.body.value.map(expand_fields);
 			table.instance.data = table.instance.data.concat(page_items);
-			DebugLog.Log(`+ ${page_items.length} items from ${table.key}`);
+			table.instance.loaded = true;
 
 			let next_page_url = result.body['@odata.nextLink'];
 			if (next_page_url)
 			{
+				table.instance.loaded = false;
 				next_page_url = next_page_url.replace(SharePoint.url_api, '');
 				let next_page_req = new RequestBatchRequest('get', next_page_url, _ => { after_download(table, _); });
 				SharePoint.Enqueue(next_page_req);
+				DebugLog.Log(`+ ${page_items.length} items : ${table.key} [incomplete]`);
 			}
+			else DebugLog.Log(`+ ${page_items.length} items : ${table.key}`);
 		};
 
-		for (let table_id in this.all_tables)
+		for (let table_id in SharedData.all_tables)
 		{
-			let table = SharedData.all_tables[table_id];
+			const table = SharedData.all_tables[table_id];
+			if (useCache === true && table.instance.loaded === true) continue;
+			if (useCache === true) DebugLog.Log('fetching ' + table.key);
 			table.instance.ClearData();
 			let url = await SharePoint.GetBatchURL_GetList(table.instance.datasource);
-			let first_page_req = new RequestBatchRequest('get', url, _ => { after_download(table, _); });
-			SharePoint.Enqueue(first_page_req);
+			let req = new RequestBatchRequest('get', url, _ => { after_download(table, _); });
+			SharePoint.Enqueue(req);
 		}
 
 		await SharePoint.WaitUntilQueueEmpty();
-		for (let table_id in this.all_tables) { this.all_tables[table_id].instance.TryStoreInCache(); }
+
+		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
@@ -238,6 +255,7 @@ export class SharedData
 	static GetHrRequestDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.hrRequests, ids, 'requestee_id'); }
 	static GetTimekeepEventDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepEvents, ids, 'user_id'); }
 	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, ids); }
+	static GetAURALinksDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.auraLinks, ids); }
 
 	static GetUserData(id = '') { return SharedData.GetSharedDatum(SharedData.users, id); }
 	static GetRoleData(id = '') { return SharedData.GetSharedDatum(SharedData.roles, id); }
@@ -249,8 +267,9 @@ export class SharedData
 	static GetHrRequestData(id = '') { return SharedData.GetSharedDatum(SharedData.hrRequests, id, 'requestee_id'); }
 	static GetTimekeepEventData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepEvents, id, 'user_id'); }
 	static GetTimekeepStatusData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, id); }
+	static GetAURALinksData(id = '') { return SharedData.GetSharedDatum(SharedData.auraLinks, id); }
 }
 
-SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);
+SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(() => { SharedData.LoadData(true) });
 
 Modules.Report('Shared Data', 'This module acts as an entrypoint for many aspects of AURA which need access to the same online data.');

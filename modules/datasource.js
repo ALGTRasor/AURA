@@ -11,7 +11,7 @@ import { ProjectCoreData } from "./datamodels/project_data_core.js";
 import { HrRequest } from "./datamodels/hr_request.js";
 import { TimekeepEvent, TimekeepStatus } from "./datamodels/timekeep.js";
 import { DataTableDesc } from "./datamodels/datatable_desc.js";
-import { UserAccountInfo } from "./useraccount.js";
+import { AURALink } from "./datamodels/aura_link.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -25,6 +25,7 @@ const TABLENAME_PROJECTS = 'ALGProjects';
 const TABLENAME_HR_REQUESTS = 'ALGHRRequests';
 const TABLENAME_TK_EVENTS = 'ALGTimekeepEvents';
 const TABLENAME_TK_STATUSES = 'ALGTimekeepStatuses';
+const TABLENAME_AURA_LINKS = 'AURALinks';
 
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
 
@@ -44,6 +45,7 @@ export class DataSource
 	static HrRequests = new DataSource(TABLENAME_HR_REQUESTS, HrRequest.data_model, 'request_name', 'request_name');
 	static TimekeepEvents = new DataSource(TABLENAME_TK_EVENTS, TimekeepEvent.data_model);
 	static TimekeepStatuses = new DataSource(TABLENAME_TK_STATUSES, TimekeepStatus.data_model);
+	static AURALinks = new DataSource(TABLENAME_AURA_LINKS, AURALink.data_model);
 
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{
@@ -96,18 +98,19 @@ export class DataSourceInstance
 
 	TryLoadFromCache()
 	{
+		if (!this.lskey_cache) return;
 		if (this.valid !== true) return;
+
 		let cache_value = localStorage.getItem(this.lskey_cache);
 		let cache_valid = cache_value && typeof cache_value === 'string' && cache_value.length > 0;
-		if (cache_valid)
-		{
-			let cache_obj = JSON.parse(cache_value);
-			if (cache_obj && cache_obj.data)
-			{
-				this.data = cache_obj.data;
-				this.loaded = true;
-			}
-		}
+		if (cache_valid !== true) return;
+
+		let cache_obj = JSON.parse(cache_value);
+		let cache_obj_valid = cache_obj && cache_obj.data && cache_obj.data.length && cache_obj.data.length > 0;
+		if (cache_obj_valid !== true) return;
+
+		this.data = cache_obj.data;
+		this.loaded = true;
 	}
 
 	TryStoreInCache()
