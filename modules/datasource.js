@@ -28,6 +28,8 @@ const TABLENAME_TK_STATUSES = 'ALGTimekeepStatuses';
 
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
 
+// class used to describe a remote data source
+// a DataSourceInstance is used to manage data obtained from the DataSource
 export class DataSource
 {
 	static Nothing = new DataSource(null, null, null);
@@ -55,12 +57,64 @@ export class DataSource
 	}
 
 	async GetData() { return await SharePoint.GetListData(this); }
+	async SetData(instructions = {}) { return await SharePoint.SetListData(this, instructions); }
+}
 
-
-	async SetData(instructions = {})
+// class used to manage data obtained from a DataSource
+export class DataSourceInstance
+{
+	constructor(datasource = DataSource.Nothing)
 	{
-		return await SharePoint.SetListData(this, instructions);
+		this.datasource = datasource;
+		this.loaded = false;
+		this.valid = false;
+		this.data = [];
+
+		if (this.datasource.list_title == null) return;
+
+		this.valid = true;
+		this.lskey_cache = 'dsc_' + this.datasource.list_title.toLowerCase();
+	}
+
+	ClearData()
+	{
+		this.loaded = false;
+		this.data = [];
+	}
+
+	async TryLoad(force_download = false)
+	{
+		if (this.valid !== true) return;
+
+		this.loaded = false;
+		if (force_download !== true) this.TryLoadFromCache();
+		if (this.loaded === true) return;
+
+		this.data = await this.datasource.GetData();
+		this.loaded = this.data != null;
+	}
+
+	TryLoadFromCache()
+	{
+		if (this.valid !== true) return;
+		let cache_value = localStorage.getItem(this.lskey_cache);
+		let cache_valid = cache_value && typeof cache_value === 'string' && cache_value.length > 0;
+		if (cache_valid)
+		{
+			let cache_obj = JSON.parse(cache_value);
+			if (cache_obj && cache_obj.data)
+			{
+				this.data = cache_obj.data;
+				this.loaded = true;
+			}
+		}
+	}
+
+	TryStoreInCache()
+	{
+		if (this.valid !== true) return;
+		localStorage.setItem(this.lskey_cache, JSON.stringify({ data: this.data }));
 	}
 }
 
-Modules.Report('Data Sources', 'This module adds a reusable code component to keep references to database tables.');
+Modules.Report('Data Sources', 'This module adds a reusable code component to keep references to database tables and their cached data.');

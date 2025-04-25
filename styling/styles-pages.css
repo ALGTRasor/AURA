@@ -13,7 +13,7 @@
 	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 
 	gap: var(--gap-1);
-	padding: 0;
+	padding: var(--gap-05);
 
 	transition-property: opacity, filter;
 	transition-duration: var(--trans-dur-on-fast);
@@ -23,24 +23,16 @@
 
 .content-pages-loose
 {
+	display: block;
 	pointer-events: none;
 	position: absolute;
 	overflow: hidden;
 	inset: 0;
 
-	flex-shrink: 0.0;
-	flex-grow: 0.0;
-	flex-basis: fit-content;
-	justify-content: center;
-
 	border-radius: 0;
-	border: solid 2px hsl(from var(--theme-color) h s 20%);
-
-	display: block;
-
 	padding: var(--gap-05);
 
-	transition-property: opacity, max-width;
+	transition-property: opacity;
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
@@ -146,6 +138,31 @@
 	scale: 80%;
 
 	color: hsl(from var(--theme-color) h s 50%);
+}
+
+.page-title-bar .page-title-buttons
+{
+	opacity: 0%;
+	transition-property: opacity;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
+}
+.page-title-bar:hover .page-title-buttons
+{
+	opacity: 100%;
+}
+
+
+.page-title-bar .page-title
+{
+	opacity: 100%;
+	transition-property: opacity;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
+}
+.page-title-bar:hover .page-title
+{
+	opacity: 15%;
 }
 
 .page-title-buttons

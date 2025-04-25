@@ -1,5 +1,5 @@
 import { Modules } from "./modules.js";
-import { DataSource } from "./datasource.js";
+import { DataSource, DataSourceInstance } from "./datasource.js";
 import { DebugLog } from "./debuglog.js";
 import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
@@ -18,22 +18,17 @@ export class SharedDataTable
 {
 	static Nothing = new SharedDataTable('nothing', DataSource.Nothing);
 
-	constructor(key = '', source = DataSource.Nothing, data = [])
+	constructor(key = '', datasource = DataSource.Nothing)
 	{
 		this.key = key;
-		this.data = data;
-		this.source = source;
+		this.instance = new DataSourceInstance(datasource);
 	}
 
 	async Download()
 	{
-		let result = await this.source.GetData();
-		if (result && result.length)
-		{
-			this.data = result;
-			DebugLog.Log('loaded ' + result.length + ' ' + this.key, true, '#0f0');
-		}
-		else DebugLog.Log('loaded ' + result + ' ' + this.key, true, '#f00');
+		await this.instance.TryLoad(true);
+		if (this.instance.data && this.instance.data.length) DebugLog.Log('loaded ' + this.instance.data.length + ' ' + this.key, true, '#0f0');
+		else DebugLog.Log('download data invalid: ' + this.key, true, '#f00');
 	}
 }
 
@@ -109,7 +104,7 @@ export class SharedData
 		{
 			const expand_fields = x => { return x.fields ? x.fields : x; };
 			let page_items = result.body.value.map(expand_fields);
-			table.data = table.data.concat(page_items);
+			table.instance.data = table.instance.data.concat(page_items);
 			DebugLog.Log(`+ ${page_items.length} items from ${table.key}`);
 
 			let next_page_url = result.body['@odata.nextLink'];
@@ -124,8 +119,8 @@ export class SharedData
 		for (let table_id in this.all_tables)
 		{
 			let table = SharedData.all_tables[table_id];
-			table.data = [];
-			let url = await SharePoint.GetBatchURL_GetList(table.source);
+			table.instance.ClearData();
+			let url = await SharePoint.GetBatchURL_GetList(table.instance.datasource);
 			let first_page_req = new RequestBatchRequest('get', url, _ => { after_download(table, _); });
 			SharePoint.Enqueue(first_page_req);
 		}
@@ -133,8 +128,9 @@ export class SharedData
 		await SharePoint.WaitUntilQueueEmpty();
 		for (let table_id in this.all_tables)
 		{
-			let table = this.all_tables[table_id];
-			SharedData.SaveToStorage(table.key, table.data);
+			this.all_tables[table_id].instance.TryStoreInCache();
+			//let table = this.all_tables[table_id];
+			//SharedData.SaveToStorage(table.key, table.instance.data);
 		}
 		await SharedData.onSavedToCache.InvokeAsync();
 
@@ -154,9 +150,8 @@ export class SharedData
 		SharedData.all_tables.forEach(
 			x =>
 			{
-				let got = SharedData.TryLoadFromCache(x.key);
-				if (got) x.data = got;
-				else full = false;
+				x.instance.TryLoadFromCache();
+				if (x.instance.loaded !== true) full = false;
 			}
 		);
 		return full;
@@ -168,10 +163,10 @@ export class SharedData
 		return SharedData.LoadFromStorage(key);
 	}
 
-	static async LoadTable(source = DataSource.Nothing, key = '????')
+	static async LoadTable(datasource = DataSource.Nothing, key = '????')
 	{
 		let result = [];
-		result = await source.GetData();
+		result = await datasource.GetData();
 		if (result && result.length) { }
 		else DebugLog.Log('loaded ' + result + ' ' + key, false, '#f00');
 		return result;
@@ -196,21 +191,34 @@ export class SharedData
 
 
 
-	static GetDatum(table = [], keys = [], key_field = 'Title')
+	static GetSharedDatum(table = SharedDataTable.Nothing, keys = [], key_field = 'Title')
 	{
 		if (!Array.isArray(keys)) keys = [keys];
-		//keys = keys.map(SanitizeString);
-
 		let results = [];
 		for (let key_id in keys) // for each provided key value
 		{
-			let this_key = keys[key_id];//SanitizeString(keys[key_id]);
+			let this_key = keys[key_id];
+			// find all records with matching key value
+			let matches = table.instance.data.filter(x => x && x[key_field] == this_key);
+			for (var match_id in matches) results.push(matches[match_id]);
+		}
+		return results;
+	}
+
+	static GetDatum(table = [], keys = [], key_field = 'Title')
+	{
+		if (!Array.isArray(keys)) keys = [keys];
+		let results = [];
+		for (let key_id in keys) // for each provided key value
+		{
+			let this_key = keys[key_id];
 			// find all records with matching key value
 			let matches = table.filter(x => x && x[key_field] == this_key);
 			for (var match_id in matches) results.push(matches[match_id]);
 		}
 		return results;
 	}
+
 	static GetData(table = [], key = '', key_field = 'Title')
 	{
 		key = key.trim().toLowerCase();
@@ -223,27 +231,27 @@ export class SharedData
 		);
 	}
 
-	static GetUserDatum(ids = []) { return SharedData.GetDatum(SharedData.users.data, ids); }
-	static GetRoleDatum(ids = []) { return SharedData.GetDatum(SharedData.roles.data, ids); }
-	static GetTeamDatum(ids = []) { return SharedData.GetDatum(SharedData.teams.data, ids); }
-	static GetTaskDatum(ids = []) { return SharedData.GetDatum(SharedData.tasks.data, ids); }
-	static GetPermDatum(ids = []) { return SharedData.GetDatum(SharedData.permissions.data, ids); }
-	static GetContactDatum(ids = []) { return SharedData.GetDatum(SharedData.contacts.data, ids); }
-	static GetProjectDatum(ids = []) { return SharedData.GetDatum(SharedData.projects.data, ids); }
-	static GetHrRequestDatum(ids = []) { return SharedData.GetDatum(SharedData.hrRequests.data, ids, 'requestee_id'); }
-	static GetTimekeepEventDatum(ids = []) { return SharedData.GetDatum(SharedData.timekeepEvents.data, ids, 'user_id'); }
-	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetDatum(SharedData.timekeepStatuses.data, ids); }
+	static GetUserDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.users, ids); }
+	static GetRoleDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.roles, ids); }
+	static GetTeamDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.teams, ids); }
+	static GetTaskDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.tasks, ids); }
+	static GetPermDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.permissions, ids); }
+	static GetContactDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.contacts, ids); }
+	static GetProjectDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.projects, ids); }
+	static GetHrRequestDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.hrRequests, ids, 'requestee_id'); }
+	static GetTimekeepEventDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepEvents, ids, 'user_id'); }
+	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, ids); }
 
-	static GetUserData(id = '') { return SharedData.GetData(SharedData.users.data, id); }
-	static GetRoleData(id = '') { return SharedData.GetData(SharedData.roles.data, id); }
-	static GetTeamData(id = '') { return SharedData.GetData(SharedData.teams.data, id); }
-	static GetTaskData(id = '') { return SharedData.GetData(SharedData.tasks.data, id); }
-	static GetPermData(id = '') { return SharedData.GetData(SharedData.permissions.data, id); }
-	static GetContactData(id = '') { return SharedData.GetData(SharedData.contacts.data, id); }
-	static GetProjectData(id = '') { return SharedData.GetData(SharedData.projects.data, id); }
-	static GetHrRequestData(id = '') { return SharedData.GetData(SharedData.hrRequests.data, id, 'requestee_id'); }
-	static GetTimekeepEventData(id = '') { return SharedData.GetData(SharedData.timekeepEvents.data, id, 'user_id'); }
-	static GetTimekeepStatusData(id = '') { return SharedData.GetData(SharedData.timekeepStatuses.data, id); }
+	static GetUserData(id = '') { return SharedData.GetSharedDatum(SharedData.users, id); }
+	static GetRoleData(id = '') { return SharedData.GetSharedDatum(SharedData.roles, id); }
+	static GetTeamData(id = '') { return SharedData.GetSharedDatum(SharedData.teams, id); }
+	static GetTaskData(id = '') { return SharedData.GetSharedDatum(SharedData.tasks, id); }
+	static GetPermData(id = '') { return SharedData.GetSharedDatum(SharedData.permissions, id); }
+	static GetContactData(id = '') { return SharedData.GetSharedDatum(SharedData.contacts, id); }
+	static GetProjectData(id = '') { return SharedData.GetSharedDatum(SharedData.projects, id); }
+	static GetHrRequestData(id = '') { return SharedData.GetSharedDatum(SharedData.hrRequests, id, 'requestee_id'); }
+	static GetTimekeepEventData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepEvents, id, 'user_id'); }
+	static GetTimekeepStatusData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, id); }
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(SharedData.LoadData);
