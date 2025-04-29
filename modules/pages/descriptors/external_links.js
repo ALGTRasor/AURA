@@ -14,7 +14,14 @@ export class PageExternalLinks extends PageDescriptor
 		instance.e_body.style.maxWidth = '22rem';
 		instance.e_body.style.minWidth = '16rem';
 
-		let e_body_root = CreatePagePanel(instance.e_content, true, true, null, x => { x.style.flexDirection = 'column'; });
+		let e_body_root = CreatePagePanel(
+			instance.e_content, true, true, null,
+			_ =>
+			{
+				_.style.flexDirection = 'column';
+				_.style.flexWrap = 'nowrap';
+			}
+		);
 
 		const style_button = 'flex-grow:0.0; flex-shrink:1.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
 		const style_icon = 'position:absolute;top:0.5rem;right:0.5rem;aspect-ratio:1.0;align-content:center;height:calc(100% - 1rem);object-fit:contain;';

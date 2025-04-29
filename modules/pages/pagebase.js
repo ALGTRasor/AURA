@@ -9,18 +9,19 @@ export class PageInstance
 	static Nothing = new PageInstance();
 
 	page_descriptor = {};
-	state_data = {};
 
-	constructor(page_descriptor = {})
+	constructor(page_descriptor = {}, state_data = undefined)
 	{
 		this.page_descriptor = page_descriptor;
+		this.instance_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
 
 		this.siblingIndex = -1;
-		this.docked = this.page_descriptor.dockable;
 		this.title_bar = null;
 		this.e_body = {};
 		this.e_content = {};
-		this.instance_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
+		this.state_data = {};
+
+		this.UpdateStateData(state_data);
 	}
 
 	SetContentBodyLabel(text)
@@ -37,7 +38,8 @@ export class PageInstance
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
 		this.title_bar = new PageTitleBar(this, true);
-		this.e_body.appendChild(this.e_content);
+		fadeAppendChild(this.e_body, this.e_content);
+		//this.e_body.appendChild(this.e_content);
 	}
 
 	MoveLeft(toEnd = false)
@@ -82,26 +84,94 @@ export class PageInstance
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	TryToggleDocked()
+	DetermineBodyParent()
 	{
-		if (this.docked === true) this.TryUndock();
-		else this.TryDock();
+		const loose_root = 'content-pages-loose';
+		const docked_root = 'content-pages-root';
+		if (this.state_data.docked === true) return document.getElementById(docked_root);
+		return document.getElementById(loose_root);
 	}
+
+	UpdateBodyParent()
+	{
+		let new_parent = this.DetermineBodyParent();
+		if (this.e_body.parentElement !== new_parent) 
+		{
+			DebugLog.Log("Moved Page to root: " + new_parent.id);
+			this.SetParentElement(new_parent);
+		}
+	}
+
+	DetermineBodyClassList()
+	{
+		if (this.state_data.docked !== true)
+		{
+			this.e_body.classList.remove('page-loose');
+			this.e_body.classList.add('page-loose');
+			this.e_body.style.resize = 'both';
+			this.e_body.style.left = this.state_data.position_x + 'px';
+			this.e_body.style.top = this.state_data.position_y + 'px';
+			this.e_body.style.width = '16rem';
+			this.e_body.style.height = '16rem';
+		}
+		else
+		{
+			this.e_body.classList.remove('page-loose');
+			this.e_body.style.resize = 'unset';
+			this.e_body.style.left = 'unset';
+			this.e_body.style.top = 'unset';
+			this.e_body.style.width = 'unset';
+			this.e_body.style.height = 'unset';
+		}
+	}
+
+	TryToggleDocked() { if (this.state_data.docked === true) this.TryUndock(); else this.TryDock(); }
 
 	TryUndock()
 	{
-		if (this.docked === false) return;
-		this.docked = false;
-		let loose_root = document.getElementById('content-pages-loose');
-		this.SetParentElement(loose_root);
+		DebugLog.Log(`${this.page_descriptor.title} undocked`);
+		this.state_data.docked = false;
+		this.ApplyDockState();
+
+		if (!this.state_data.position_x) this.state_data.position_x = 0;
+		if (!this.state_data.position_y) this.state_data.position_y = 0;
+
 	}
 
 	TryDock()
 	{
-		if (this.docked === true) return;
-		this.docked = true;
-		let docked_root = document.getElementById('content-pages-root');
-		this.SetParentElement(docked_root);
+		if (this.page_descriptor.dockable !== true) return;
+
+		DebugLog.Log(`${this.page_descriptor.title} docked`);
+		this.state_data.docked = this.page_descriptor.dockable === true;
+		this.ApplyDockState();
+	}
+
+	ApplyDockState()
+	{
+		this.UpdateBodyParent();
+		this.DetermineBodyClassList();
+		this.ApplyLoosePosition();
+	}
+
+	ApplyLoosePosition(trigger_layout_change = true)
+	{
+		if (!this.e_body) return;
+		if (!this.e_body.style) return;
+		if (this.state_data.docked !== true)
+		{
+			this.e_body.style.left = this.state_data.position_x + 'px';
+			this.e_body.style.top = this.state_data.position_y + 'px';
+			if (trigger_layout_change === true) PageManager.onLayoutChange.Invoke();
+		}
+	}
+
+	SetLoosePosition(new_x = 0, new_y = 0, trigger_layout_change = true)
+	{
+		if (this.state_data.docked === true) return;
+		this.state_data.position_x = Math.round(new_x);
+		this.state_data.position_y = Math.round(new_y);
+		this.ApplyLoosePosition(trigger_layout_change);
 	}
 
 	Close(immediate = false)
@@ -127,23 +197,22 @@ export class PageInstance
 		}
 	}
 
-	FinalizeBody(parent)
+	CreateElements()
 	{
-		if (!parent) return;
+		parent = this.DetermineBodyParent();
+		if (!parent) 
+		{
+			DebugLog.Log("PageInstance.CreateElements failed! Null parent");
+			return;
+		}
+
+		this.CreateBody();
+		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
+		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 
 		fadeAppendChild(parent, this.e_body);
-
 		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
 		this.page_descriptor.OnOpen(this);
-	}
-
-	CreateElements(parent)
-	{
-		if (!parent) return;
-		this.CreateBody();
-		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
-		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
-		this.FinalizeBody(parent);
 	}
 
 	UpdatePageContext()
@@ -167,16 +236,37 @@ export class PageInstance
 		this.page_descriptor.OnLayoutChange(this);
 	}
 
-	UpdateStateData(state_data = {})
+	RequireStateProperty(property_name = '', default_value = undefined)
 	{
-		let prop_count = 0;
-		for (let prop_id in state_data)
+		if (!(property_name in this.state_data)) this.state_data[property_name] = default_value;
+	}
+
+	ValidateStateData()
+	{
+		this.RequireStateProperty('docked', this.page_descriptor.dockable);
+	}
+
+	UpdateStateData(state_data = undefined)
+	{
+		if (state_data)
 		{
-			this.state_data[prop_id] = state_data[prop_id];
-			prop_count++;
-			//DebugLog.Log(` - Page State Data [${prop_count}] ${prop_id}: ${this.state_data[prop_id]}`);
+			DebugLog.StartGroup('Loading state...');
+			let prop_count = 0;
+			for (let prop_id in state_data)
+			{
+				this.state_data[prop_id] = state_data[prop_id];
+				prop_count++;
+				DebugLog.Log(` > ${prop_count} // ${prop_id} [${this.state_data[prop_id]}]`);
+			}
+			if (prop_count > 0) this.page_descriptor.OnStateChange(this);
+			DebugLog.SubmitGroup();
 		}
-		if (prop_count > 0) this.page_descriptor.OnStateChange(this);
+	}
+
+	ApplyStateData()
+	{
+		this.ValidateStateData();
+		this.ApplyDockState();
 	}
 
 	CreatePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
@@ -206,6 +296,8 @@ export class PageDescriptor
 {
 	static Nothing = new PageDescriptor(null);
 
+	dockable = true;
+
 	constructor(title = '', permission = '', icon = '', description = '')
 	{
 		this.icon = icon;
@@ -213,25 +305,25 @@ export class PageDescriptor
 		this.description = description;
 		this.permission = permission;
 		this.descriptor_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
-
-		this.dockable = true;
 	}
 
 	instances = [];
+
 	GetInstance()
 	{
 		if (this.instances.length > 0) return this.instances[0];
 		return null;
 	}
-	GetOrCreateInstance(forceCreate = false)
+
+	GetOrCreateInstance(forceCreate = false, state_data = undefined)
 	{
 		if (forceCreate !== true && this.instances.length > 0) return this.instances[0];
-		return this.CreateInstance();
+		return this.CreateInstance(state_data);
 	}
 
-	CreateInstance()
+	CreateInstance(state_data = undefined)
 	{
-		let pinst = new PageInstance(this);
+		let pinst = new PageInstance(this, state_data);
 		this.instances.push(pinst);
 		return pinst;
 	}
@@ -245,11 +337,10 @@ export class PageDescriptor
 
 		let piid = PageManager.page_instances.indexOf(instance);
 		if (piid > -1) PageManager.page_instances.splice(piid, 1);
-		window.setTimeout(PageManager.AfterPageClosed, 400);
+		window.setTimeout(PageManager.AfterPageClosed, 100);
 	}
 
 	UpdateSize(instance) { }
-	Resize(instance) { }
 	OnOpen(instance) { }
 	OnClose(instance) { }
 	OnLayoutChange(instance) { }
@@ -261,4 +352,4 @@ export class PageDescriptor
 	}
 }
 
-Modules.Report("Page Descriptors");
+Modules.Report("Page Descriptors", "This module adds support for page type descriptors, which are used to create instances of available pages");

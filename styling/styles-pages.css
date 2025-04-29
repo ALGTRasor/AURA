@@ -147,6 +147,7 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .page-title-bar:hover .page-title-buttons
 {
 	opacity: 100%;
@@ -160,6 +161,7 @@
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
+
 .page-title-bar:hover .page-title
 {
 	opacity: 15%;
@@ -169,6 +171,9 @@
 {
 	position: relative;
 	height: 100%;
+	pointer-events: none;
+
+	z-index: 100;
 
 	display: flex;
 	flex-direction: row;
@@ -180,6 +185,7 @@
 .page-title-button
 {
 	cursor: pointer;
+	pointer-events: all;
 
 	position: relative;
 	top: 2px;

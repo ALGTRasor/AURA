@@ -36,15 +36,8 @@ export class PageTitleBarButton
 		this.e_root.style.setProperty('--theme-color', color);
 	}
 
-	SetAction(action = e => { })
-	{
-		this.action = action;
-	}
-
-	InvokeAction(e)
-	{
-		this.action(e);
-	}
+	SetAction(action = e => { }) { this.action = action; }
+	InvokeAction(e) { this.action(e); }
 }
 
 export class PageTitleBar
@@ -70,46 +63,35 @@ export class PageTitleBar
 		this.page = page;
 		if (create === true) this.CreateElements();
 
-		this.handle_drag_start = (e) => this._HandleDragStart(e);
-		this.handle_drag = (e) => this._HandleDrag(e);
-		this.handle_drag_end = (e) => this._HandleDragEnd(e);
+		this.handle_drag_start = (e) => this.#HandleDragStart(e);
+		this.handle_drag = (e) => this.#HandleDrag(e);
+		this.handle_drag_end = (e) => this.#HandleDragEnd(e);
 	}
 
 	UpdateDraggable()
 	{
-		if (this.page.docked === false && this.draggable === false) this._MakeDraggable();
-		else if (this.page.docked === true && this.draggable === true) this._MakeNotDraggable();
+		let dock_state_changed = this.page.state_data.docked === this.draggable;
+		if (dock_state_changed !== true) return;
+		if (this.page.state_data.docked === true) this.#MakeNotDraggable(); else this.#MakeDraggable();
 	}
 
-	_MakeDraggable()
+	#MakeDraggable()
 	{
 		this.draggable = true;
-		this.page.e_body.classList.add('page-loose');
-		this.page.e_body.style.resize = 'both';
-		this.page.e_body.style.width = '16rem';
-		this.page.e_body.style.height = '16rem';
-
 		this.e_title.classList.add('draggable');
 		this.e_title.style.zIndex = 20;
 		this.e_title.addEventListener('mousedown', this.handle_drag_start);
 	}
 
-	_MakeNotDraggable()
+	#MakeNotDraggable()
 	{
 		this.draggable = false;
-		this.page.e_body.classList.remove('page-loose');
-		this.page.e_body.style.removeProperty('resize');
-		this.page.e_body.style.removeProperty('top');
-		this.page.e_body.style.removeProperty('left');
-		this.page.e_body.style.removeProperty('width');
-		this.page.e_body.style.removeProperty('height');
-
 		this.e_title.classList.remove('draggable');
 		this.e_title.removeEventListener('mousedown', this.handle_drag_start);
 		window.removeEventListener('mouseup', this.handle_drag_end);
 	}
 
-	_HandleDragStart(e)
+	#HandleDragStart(e)
 	{
 		e.stopPropagation();
 		e.preventDefault();
@@ -122,7 +104,7 @@ export class PageTitleBar
 		this.e_title.classList.add("dragging");
 	};
 
-	_HandleDrag(e)
+	#HandleDrag(e)
 	{
 		e.stopPropagation();
 		e.preventDefault();
@@ -140,11 +122,10 @@ export class PageTitleBar
 		new_x = Math.min(pageRootRect.width - pageRect.width, new_x);
 		new_y = Math.min(pageRootRect.height - 48, new_y);
 
-		this.page.e_body.style.left = new_x + 'px';
-		this.page.e_body.style.top = new_y + 'px';
+		this.page.SetLoosePosition(new_x, new_y);
 	}
 
-	_HandleDragEnd(e)
+	#HandleDragEnd(e)
 	{
 		e.stopPropagation();
 		e.preventDefault();
@@ -223,7 +204,7 @@ export class PageTitleBar
 
 	AddNavigationButtons(left = true, right = true)
 	{
-		if (this.page.docked === false) return;
+		if (this.page.state_data.docked === false) return;
 
 		if (left === true && !this.b_moveL)
 		{
@@ -247,6 +228,7 @@ export class PageTitleBar
 			this.b_close = null;
 		}
 	}
+
 	AddCloseButton()
 	{
 		if (this.b_close) return;
@@ -278,18 +260,22 @@ export class PageTitleBar
 		this.b_resize = this.AddButton(this.e_buttons_right, 'resize', undefined, undefined, expanded ? 'Collapse this page' : 'Allow this page to expand');
 		if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
 		setSiblingIndex(this.b_resize.e_root, 2);
-		//DebugLog.Log(`resize added: ${getSiblingIndex(this.b_resize)}`);
-		//window.setTimeout(() => { setSiblingIndex(this.b_resize, 2); }, 150);
 
-		const update_color = _ => { _.b_resize.SetColor((_.page.state_data.expanding) ? '#0ff' : '#fff'); };
-		update_color(this);
+		const update_button_style = _ =>
+		{
+			_.b_resize.title = _.page.state_data.expanding ? 'Collapse this page' : 'Allow this page to expand';
+			_.b_resize.SetColor((_.page.state_data.expanding) ? '#0ff' : '#fff');
+		};
+		update_button_style(this);
+
 		this.b_resize.SetAction(
 			() =>
 			{
-				if (this.page.page_descriptor.Resize)
+				if (this.page.page_descriptor.UpdateSize)
 				{
-					this.page.page_descriptor.Resize(this.page);
-					update_color(this);
+					this.page.state_data.expanding = !this.page.state_data.expanding;
+					this.page.page_descriptor.UpdateSize(this.page);
+					update_button_style(this);
 					PageManager.onLayoutChange.Invoke();
 				}
 			}

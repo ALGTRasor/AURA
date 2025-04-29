@@ -96,21 +96,29 @@ function RegisterHotkeys()
 		new HotkeyDescriptor('s',
 			m =>
 			{
-				if (m.ctrl) Autosave.InvokeSoon();
+				if (m.ctrl) Autosave.InvokeNow();
 				if (m.none) PageManager.TogglePageByTitle('settings');
+			},
+			{
+				action_description: 'Toggle Page: Settings'
 			}
 		)
 	);
-	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }));
-	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }));
-	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }));
-	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }));
-	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }));
-	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }));
-	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }));
-	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }));
-	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }));
-	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }));
+
+	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '` or ~', action_description: 'Toggle Light Mode' }));
+
+	if (!UserAccountInfo.HasPermission('aura.access')) return;
+
+	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Toggle Page: Nav Menu' }));
+	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Toggle Page: My Data' }));
+	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Toggle Page: HR', permission: 'hr.access' }));
+	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }, { action_description: 'Toggle Page: Internal Users', permission: 'users.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }, { action_description: 'Toggle Page: External Contacts', permission: 'contacts.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Toggle Page: Project Hub', permission: 'projects.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }, { action_description: 'Toggle Page: Time Log', permission: 'keep.time' }));
+	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }, { action_description: 'Toggle Page: Task Hub', permission: 'tasks.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Toggle Page: External Links' }));
+	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log' }));
 }
 
 
@@ -192,6 +200,8 @@ async function OnAuraInit()
 		}
 		await AppEvents.onAccountLogin.InvokeAsync();
 
+		RegisterHotkeys();
+
 		let should_restore_layout = UserAccountInfo.aura_access && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
 		if (!should_restore_layout || !PageManager.RestoreCachedLayout())
 		{
@@ -202,7 +212,6 @@ async function OnAuraInit()
 
 		NotificationLog.Create();
 
-		RegisterHotkeys();
 		SetContentObscured(false);
 		window.addEventListener('keyup', HandleKeyUp);
 	}

@@ -77,34 +77,36 @@ export function secondsDelta(x = new Date(), y = new Date())
 
 const fade_duration_ms = 250;
 const fade_duration_quick_ms = 120;
+
 export function fadeAppendChild(parent = {}, child = {}, min_scale = '95%')
 {
     if (!child) return;
+    if (!child.style) return;
     if (!parent || !parent.appendChild) return;
 
+    let def_transitionDuration = 'unset';
     let def_pointerEvents = 'unset';
     let def_userSelect = 'unset';
+    let def_opacity = 'unset';
+    let def_scale = 'unset';
 
-    if (child.style)
-    {
-        def_pointerEvents = child.style.pointerEvents;
-        def_userSelect = child.style.userSelect;
+    def_transitionDuration = child.style.transitionDuration;
+    def_pointerEvents = child.style.pointerEvents;
+    def_userSelect = child.style.userSelect;
+    def_opacity = child.style.opacity;
+    def_scale = child.style.scale;
 
-        child.style.transitionDuration = '0s';
-        child.style.pointerEvents = 'none';
-        child.style.userSelect = 'none';
-        child.style.opacity = '0%';
-        child.style.scale = min_scale;
-    }
+    child.style.transitionDuration = '0s';
+    child.style.pointerEvents = 'none';
+    child.style.userSelect = 'none';
+    child.style.opacity = '0%';
+    child.style.scale = min_scale;
 
     const start_fade = () =>
     {
-        if (child.style)
-        {
-            child.style.transitionDuration = 'var(--trans-dur-on-slow)';
-            child.style.opacity = '100%';
-            child.style.scale = '100%';
-        }
+        child.style.transitionDuration = 'var(--trans-dur-on-slow)';
+        child.style.opacity = def_opacity;
+        child.style.scale = def_scale;
     };
 
     window.setTimeout(
@@ -113,11 +115,11 @@ export function fadeAppendChild(parent = {}, child = {}, min_scale = '95%')
             start_fade();
             const end_fade = () =>
             {
-                if (child.style)
-                {
-                    child.style.pointerEvents = def_pointerEvents;
-                    child.style.userSelect = def_userSelect;
-                }
+                child.style.transitionDuration = def_transitionDuration;
+                child.style.pointerEvents = def_pointerEvents;
+                child.style.userSelect = def_userSelect;
+                child.style.opacity = def_opacity;
+                child.style.scale = def_scale;
             };
             window.setTimeout(end_fade, fade_duration_ms);
         },

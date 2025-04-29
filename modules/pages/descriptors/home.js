@@ -7,20 +7,7 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageHome extends PageDescriptor
 {
-	pinnable = true;
 	GetTitle() { return 'nav menu'; }
-
-	Resize(instance)
-	{
-		instance.state_data.expanding = !instance.state_data.expanding;
-		this.UpdateSize(instance);
-	}
-
-	UpdateSize(instance)
-	{
-		if (instance.state_data.expanding === true) instance.e_body.style.maxWidth = 'unset';
-		else instance.e_body.style.maxWidth = '20rem';
-	}
 
 	OnCreateElements(instance)
 	{
@@ -49,7 +36,7 @@ export class PageHome extends PageDescriptor
 							{
 								let desc_id = PageManager.GetDescriptorIndex(id);
 								let desc = PageManager.page_descriptors[desc_id];
-								PageManager.OpenPageFromDescriptor(desc, {}, true);
+								PageManager.OpenPageFromDescriptor(desc, undefined, true);
 							}
 							else
 							{
@@ -105,6 +92,12 @@ export class PageHome extends PageDescriptor
 		e_btn_menu.title = text;
 		e_btn_menu.addEventListener('click', onclick);
 		this.e_content.appendChild(e_btn_menu);
+	}
+
+	UpdateSize(instance)
+	{
+		if (instance.state_data.expanding === true) instance.e_body.style.maxWidth = 'unset';
+		else instance.e_body.style.maxWidth = '20rem';
 	}
 }
 

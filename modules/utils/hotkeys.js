@@ -4,14 +4,18 @@ export class HotkeyDescriptor
 {
     static Nothing = new HotkeyDescriptor();
 
-    constructor(key = '', keyAction = keyModifiers => { }, keyInfo = '', keyActionInfo = '')
+    constructor(key = '', keyAction = modifiers => { }, extra = {})
     {
         this.key = key;
         this.keyAction = keyAction;
         this.disabled = false;
 
-        this.keyInfo = keyInfo;
-        this.keyActionInfo = keyActionInfo;
+        if (extra)
+        {
+            if ('key_description' in extra) this.key_description = extra.key_description;
+            if ('action_description' in extra) this.action_description = extra.action_description;
+            if ('permission' in extra) this.permission = extra.permission;
+        }
     }
 
     SetDisabled(disabled = true)
@@ -67,10 +71,7 @@ export class Hotkeys
     static descriptors = [];
     static disabled = false;
 
-    static Register(descriptor = HotkeyDescriptor.Nothing)
-    {
-        Hotkeys.descriptors.push(descriptor);
-    }
+    static Register(descriptor = HotkeyDescriptor.Nothing) { Hotkeys.descriptors.push(descriptor); }
     static SetDisabled(disabled = true) { Hotkeys.disabled = disabled === true; }
     static EvaluateKeyEvent(event)
     {
@@ -95,5 +96,13 @@ export class Hotkeys
         modifiers.shiftAlt = modifiers.some && modifiers.shift && modifiers.alt;
 
         for (let hkid in Hotkeys.descriptors) Hotkeys.descriptors[hkid].Evaluate(event, modifiers);
+    }
+
+    static Emulate(key = '', ctrl = false, alt = false, shift = false)
+    {
+        if (typeof key !== 'string') return;
+        if (key.length < 1) return;
+
+        Hotkeys.EvaluateKeyEvent({ key: key, ctrlKey: ctrl, altKey: alt, shiftKey: shift });
     }
 }

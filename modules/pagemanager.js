@@ -32,7 +32,7 @@ export class PageManager
 
 	static CacheCurrentLayout()
 	{
-		const get_page_data = _ => { return { title: _.page_descriptor.title, state: _.page_descriptor.state_data } };
+		const get_page_data = _ => { return { title: _.page_descriptor.title, state: _.state_data } };
 		const pages_sort = (x, y) =>
 		{
 			if (x.siblingIndex > y.siblingIndex) return 1;
@@ -40,8 +40,7 @@ export class PageManager
 			return 0;
 		};
 		let page_instances_sorted = PageManager.page_instances.sort(pages_sort).map(get_page_data);
-		let layout_json = JSON.stringify({ pages: page_instances_sorted });
-		localStorage.setItem(lskey_page_layout, layout_json);
+		localStorage.setItem(lskey_page_layout, JSON.stringify({ pages: page_instances_sorted }));
 	}
 
 	static RestoreCachedLayout()
@@ -70,8 +69,8 @@ export class PageManager
 		return -1;
 	}
 
-	static OpenPageByIndex(index, state = {}) { PageManager.OpenPageFromDescriptor(PageManager.page_descriptors[index], state); }
-	static OpenPageByTitle(title, state = {})
+	static OpenPageByIndex(index, state = undefined) { PageManager.OpenPageFromDescriptor(PageManager.page_descriptors[index], state); }
+	static OpenPageByTitle(title, state = undefined)
 	{
 		var target_title = title.toLowerCase().trim();
 		for (let pid in PageManager.page_descriptors)
@@ -97,7 +96,7 @@ export class PageManager
 		return true;
 	}
 
-	static TogglePageByTitle(title, state = {})
+	static TogglePageByTitle(title, state = undefined)
 	{
 		title = title.toLowerCase().trim();
 		if (!PageManager.IsPageAvailable(title)) 
@@ -125,7 +124,7 @@ export class PageManager
 	}
 
 
-	static OpenPageFromDescriptor(page = PageDescriptor.Nothing, state = {}, force_new = false)
+	static OpenPageFromDescriptor(page = PageDescriptor.Nothing, state = undefined, force_new = false)
 	{
 		if (!page) return false;
 
@@ -133,21 +132,21 @@ export class PageManager
 
 		if (force_new === true)
 		{
-			let pageInstance = page.CreateInstance();
-			pageInstance.CreateElements(e_pages_root);
+			let pageInstance = page.CreateInstance(state);
+			pageInstance.CreateElements();
+			pageInstance.ApplyStateData();
 			PageManager.page_instances.push(pageInstance);
-			if (state) pageInstance.UpdateStateData(state);
 		}
 		else
 		{
-			let pageInstance = page.GetInstance(force_new);
+			let pageInstance = page.GetInstance();
 			if (!pageInstance)
 			{
-				pageInstance = page.CreateInstance();
-				pageInstance.CreateElements(e_pages_root);
+				pageInstance = page.CreateInstance(state);
+				pageInstance.CreateElements();
+				pageInstance.ApplyStateData();
 				PageManager.page_instances.push(pageInstance);
 			}
-			if (state) pageInstance.UpdateStateData(state);
 		}
 
 		DebugLog.SubmitGroup();
@@ -158,31 +157,17 @@ export class PageManager
 
 	static AfterPageClosed()
 	{
-		if (PageManager.page_instances.length < 1) window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, 500);
+		let no_pages_open = PageManager.page_instances.length < 1;
+		if (no_pages_open) PageManager.ShowNavMenu();
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	/*
-	static RemoveFromCurrent(page = PageInstance.Nothing, layoutEventDelay = 0)
+	static ShowNavMenu(delay = 250)
 	{
-		page.page_descriptor.CloseInstance(page);
-
-		const do_remove = () =>
-		{
-			let i = PageManager.page_instances.indexOf(page);
-			if (i < 0) return;
-
-			PageManager.page_instances.splice(i, 1);
-			if (PageManager.page_instances.length < 1) window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, 250);
-			else PageManager.onLayoutChange.Invoke();
-		};
-
-		if (layoutEventDelay < 1) do_remove();
-		else window.setTimeout(do_remove, layoutEventDelay);
+		window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, delay);
 	}
-	*/
 }
 
-Modules.Report('Page Manager', 'This module opens and closes pages and remembers their layout (if you have that option enabled).');
+Modules.Report('Page Manager', 'This module opens and closes pages and remembers their layout (if the option is enabled)');
 
 Autosave.HookSaveEvent(PageManager.CacheCurrentLayout);

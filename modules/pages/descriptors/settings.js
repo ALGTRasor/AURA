@@ -7,6 +7,7 @@ import { PageManager } from "../../pagemanager.js";
 import { GlobalStyling } from "../../ui/global_styling.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { UserSettings } from "../../usersettings.js";
+import { Hotkeys } from "../../utils/hotkeys.js";
 import { PageDescriptor } from "../pagebase.js";
 
 
@@ -419,7 +420,6 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		let user_has_aura_access = UserAccountInfo.HasPermission('aura.access');
 		CreatePagePanel(
 			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
@@ -434,29 +434,24 @@ export class PageSettings extends PageDescriptor
 					x, false, false, about_style,
 					_ =>
 					{
+						_.style.cursor = 'pointer';
 						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
 							+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
 						_.title = tooltip;
+
+						_.addEventListener('click', e => { Hotkeys.Emulate(key, e.ctrlKey, e.altKey, e.shiftKey) });
 					}
 				);
-				addKey('` or ~', 'Toggle Light Mode', 'Tilde or grave or backquote');
-				if (user_has_aura_access)
+
+				for (let hotkey_id in Hotkeys.descriptors)
 				{
-					if (UserAccountInfo.HasPermission('contacts.view')) addKey('e', 'Toggle External Contacts');
-					if (UserAccountInfo.HasPermission('hr.access')) addKey('h', 'Toggle HR');
-					if (UserAccountInfo.HasPermission('users.view')) addKey('i', 'Toggle Internal Users');
-					if (UserAccountInfo.HasPermission('keep.time')) addKey('k', 'Toggle Timekeep');
-
-					addKey('m', 'Toggle My Data');
-					addKey('n', 'Toggle Nav Menu');
-
-					if (UserAccountInfo.HasPermission('projects.view')) addKey('p', 'Toggle Project Hub');
+					let hotkey = Hotkeys.descriptors[hotkey_id];
+					if ('permission' in hotkey && !UserAccountInfo.HasPermission(hotkey.permission)) continue;
+					let label = 'key_description' in hotkey ? hotkey.key_description : hotkey.key;
+					addKey(label, hotkey.action_description, 'Select to trigger this hotkey now');
 				}
-				addKey('s', 'Toggle Settings');
-				if (user_has_aura_access && UserAccountInfo.HasPermission('tasks.view')) addKey('t', 'Toggle Task Hub');
 			}
 		);
-
 
 		CreatePagePanel(
 			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
@@ -478,32 +473,6 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 	}
-
-	/*
-	AddToggle(label = '', icon = '', tooltip = '', option_id = '', extra = data => { })
-	{
-		let toggled_og = UserSettings.GetOptionValue(option_id) === true;
-
-		let e = document.createElement('div');
-		e.className = toggled_og ? 'setting-root setting-root-toggle setting-root-on' : 'setting-root setting-root-toggle ';
-		if (tooltip) e.title = tooltip;
-		e.innerHTML = '<span>' + label + '</span>' + (icon ? ("<i class='material-symbols icon'>" + icon + "</i>") : "");
-		e.addEventListener(
-			'click',
-			() =>
-			{
-				let new_value = UserSettings.GetOptionValue(option_id) !== true;
-				UserSettings.SetOptionValue(option_id, new_value);
-				e.className = new_value ? 'setting-root setting-root-toggle setting-root-on' : 'setting-root setting-root-toggle ';
-				if (extra) extra();
-
-				Autosave.InvokeSoon();
-			}
-		);
-		this.e_options_root.appendChild(e);
-		return e;
-	}
-	*/
 
 	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { }, extraOnDrag = data => { })
 	{
