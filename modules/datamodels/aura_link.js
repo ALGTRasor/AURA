@@ -9,7 +9,9 @@ export class AURALink
 			{ key: 'link_label', label: 'link label' },
 			{ key: 'link_url', label: 'link url' },
 			{ key: 'link_image_path', label: 'link image path' },
-			{ key: 'link_description', label: 'link description' }
+			{ key: 'link_description', label: 'link description' },
+			{ key: 'link_service_type', label: 'link service type' },
+			{ key: 'link_department', label: 'link department' }
 		]
 	);
 }

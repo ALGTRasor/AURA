@@ -209,11 +209,7 @@ export class PageManager
 	}
 
 	static ShowNavMenu(delay = 250) { window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, delay); }
-	static FocusLastPageInstance(delay = 250)
-	{
-
-		window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay);
-	}
+	static FocusLastPageInstance(delay = 250) { window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay); }
 }
 
 Modules.Report('Page Manager', 'This module opens and closes pages and remembers their layout (if the option is enabled)');

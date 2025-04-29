@@ -1,10 +1,10 @@
 import { addElement, setSiblingIndex } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
-import { PageDescriptor, PageInstance } from "./pagebase.js";
 
 export class PageTitleBarButton
 {
 	static Nothing = new PageTitleBarButton();
+
 	constructor(parent, icon = '', action = e => { }, tooltip = '')
 	{
 		this.parent = parent;
@@ -26,16 +26,14 @@ export class PageTitleBarButton
 						this.InvokeAction(_);
 					}
 				);
+
+				this.e_icon = addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
 			}
 		);
-		this.e_icon = addElement(this.e_root, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
 	}
 
-	SetColor(color = '')
-	{
-		this.e_root.style.setProperty('--theme-color', color);
-	}
-
+	Remove() { this.e_root.remove(); }
+	SetColor(color = '') { this.e_root.style.setProperty('--theme-color', color); }
 	SetAction(action = e => { }) { this.action = action; }
 	InvokeAction(e) { this.action(e); }
 }
@@ -168,31 +166,27 @@ export class PageTitleBar
 			this.SetTitle(this.page.page_descriptor.title.toUpperCase());
 	}
 
-	RemoveNavigationButtons(left = true, right = true)
+	RemoveAllButtons()
 	{
-		if (left === true && this.b_moveL)
+		for (let button_id in this.buttons)
 		{
-			this.b_moveL.e_root.remove();
-			this.b_moveL = null;
+			let button = this.buttons[button_id];
+			if (button && button.Remove) button.Remove();
 		}
-		if (right === true && this.b_moveR)
-		{
-			this.b_moveR.e_root.remove();
-			this.b_moveR = null;
-		}
+		this.buttons = [];
+		this.b_close = null;
+		this.b_moveL = null;
+		this.b_moveR = null;
+		this.b_dock = null;
+		this.b_resize = null;
 	}
 
-	RemoveExtraButtons()
+	RefreshAllButtons()
 	{
-		if (this.b_dock)
-		{
-			this.b_dock.e_root.remove();
-			this.b_dock = null;
-		}
-	}
+		this.AddCloseButton();
+		this.AddNavigationButtons();
+		this.AddResizeButton();
 
-	RefreshExtraButtons()
-	{
 		if (this.page.page_descriptor.dockable === true && !this.b_dock)
 		{
 			this.b_dock = this.AddButton(this.e_buttons_right, 'picture_in_picture', () => { this.page.TryToggleDocked(); }, undefined, 'Dock or undock this page');
@@ -203,30 +197,24 @@ export class PageTitleBar
 		this.UpdateDraggable();
 	}
 
-	AddNavigationButtons(left = true, right = true)
+	AddNavigationButtons()
 	{
 		if (this.page.state_data.docked !== true) return;
 
-		if (left === true && !this.b_moveL)
+		let hasPrevious = this.page.e_body.previousElementSibling != null;
+		let hasNext = this.page.e_body.nextElementSibling != null
+
+		if (hasPrevious === true && !this.b_moveL)
 		{
 			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', e => { this.page.MoveLeft(e.shiftKey); }, undefined, 'Move this page to the left');
 			setSiblingIndex(this.b_moveL.e_root, 0);
 		}
 
-		if (right === true && !this.b_moveR)
+		if (hasNext === true && !this.b_moveR)
 		{
 			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', e => { this.page.MoveRight(e.shiftKey); }, undefined, 'Move this page to the right');
 			setSiblingIndex(this.b_moveR.e_root, 0);
 			if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
-		}
-	}
-
-	RemoveCloseButton()
-	{
-		if (this.b_close)
-		{
-			this.b_close.e_root.remove();
-			this.b_close = null;
 		}
 	}
 
@@ -235,23 +223,12 @@ export class PageTitleBar
 		if (this.b_close) return;
 		this.b_close = this.AddButton(
 			this.e_buttons_right, 'close',
-			() =>
-			{
-				this.page.CloseInstance();
-			},
+			() => { this.page.CloseInstance(); },
 			'#f00', 'Close this page'
 		);
 		setSiblingIndex(this.b_close.e_root, 0);
 	}
 
-	RemoveResizeButton()
-	{
-		if (this.b_resize)
-		{
-			this.b_resize.e_root.remove();
-			this.b_resize = null;
-		}
-	}
 	AddResizeButton()
 	{
 		if (this.b_resize) return;
