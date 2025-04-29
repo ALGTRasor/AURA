@@ -18,7 +18,7 @@ export class PageTitleBarButton
 				_.style.zIndex = 30;
 				_.title = this.tooltip;
 				_.addEventListener(
-					'click',
+					'mouseup',
 					_ =>
 					{
 						_.stopPropagation();
@@ -93,10 +93,11 @@ export class PageTitleBar
 
 	#HandleDragStart(e)
 	{
+		PageManager.FocusPage(this.page);
 		e.stopPropagation();
 		e.preventDefault();
 		let pageRect = this.page.e_body.getBoundingClientRect();
-		setSiblingIndex(this.page.e_body, 999);
+		//PageManager.BringToFront(this.page);
 		this.drag_start_x = e.clientX - pageRect.x;
 		this.drag_start_y = e.clientY - pageRect.y;
 		window.addEventListener('mousemove', this.handle_drag);
@@ -204,7 +205,7 @@ export class PageTitleBar
 
 	AddNavigationButtons(left = true, right = true)
 	{
-		if (this.page.state_data.docked === false) return;
+		if (this.page.state_data.docked !== true) return;
 
 		if (left === true && !this.b_moveL)
 		{
@@ -236,7 +237,7 @@ export class PageTitleBar
 			this.e_buttons_right, 'close',
 			() =>
 			{
-				this.page.page_descriptor.CloseInstance(this.page);
+				this.page.CloseInstance();
 			},
 			'#f00', 'Close this page'
 		);
@@ -254,6 +255,7 @@ export class PageTitleBar
 	AddResizeButton()
 	{
 		if (this.b_resize) return;
+		if (this.page.state_data.docked !== true) return;
 
 		let expanded = this.page.state_data.expanding === true;
 

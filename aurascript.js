@@ -92,6 +92,10 @@ function ToggleContentFaded()
 
 function RegisterHotkeys()
 {
+	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '` or ~', action_description: 'Toggle Light Mode' }));
+
+	if (!UserAccountInfo.HasPermission('aura.access')) return;
+
 	Hotkeys.Register(
 		new HotkeyDescriptor('s',
 			m =>
@@ -100,25 +104,74 @@ function RegisterHotkeys()
 				if (m.none) PageManager.TogglePageByTitle('settings');
 			},
 			{
-				action_description: 'Toggle Page: Settings'
+				action_description: 'Page: Settings'
 			}
 		)
 	);
 
-	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '` or ~', action_description: 'Toggle Light Mode' }));
-
-	if (!UserAccountInfo.HasPermission('aura.access')) return;
-
-	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Toggle Page: Nav Menu' }));
-	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Toggle Page: My Data' }));
-	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Toggle Page: HR', permission: 'hr.access' }));
-	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }, { action_description: 'Toggle Page: Internal Users', permission: 'users.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }, { action_description: 'Toggle Page: External Contacts', permission: 'contacts.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Toggle Page: Project Hub', permission: 'projects.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }, { action_description: 'Toggle Page: Time Log', permission: 'keep.time' }));
-	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }, { action_description: 'Toggle Page: Task Hub', permission: 'tasks.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Toggle Page: External Links' }));
+	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Page: Nav Menu' }));
+	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Page: My Data' }));
+	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Page: HR', permission: 'hr.access' }));
+	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }, { action_description: 'Page: Internal Users', permission: 'users.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }, { action_description: 'Page: External Contacts', permission: 'contacts.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Page: Project Hub', permission: 'projects.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }, { action_description: 'Page: Time Log', permission: 'keep.time' }));
+	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }, { action_description: 'Page: Task Hub', permission: 'tasks.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
 	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log' }));
+
+
+	Hotkeys.Register(
+		new HotkeyDescriptor(
+			' ',
+			m =>
+			{
+				let target = PageManager.GetHotkeyTarget();
+				if (m.none && target)
+				{
+					target.state_data.expanding = target.state_data.expanding !== true;
+					if (target.page_descriptor.UpdateSize) target.page_descriptor.UpdateSize(target);
+				}
+			},
+			{ action_description: 'Toggle Active Page Expanding (if applicable)', key_description: 'Spacebar', requires_target: true }
+		)
+	);
+
+	Hotkeys.Register(
+		new HotkeyDescriptor(
+			'ArrowLeft',
+			m =>
+			{
+				let target = PageManager.GetHotkeyTarget();
+				if (m.ctrl === true && target) target.MoveLeft(m.shift);
+			},
+			{ action_description: 'Move Active Page Left (if applicable)', key_description: 'ctrl+left', requires_target: true }
+		)
+	);
+
+	Hotkeys.Register(
+		new HotkeyDescriptor(
+			'ArrowRight',
+			m =>
+			{
+				let target = PageManager.GetHotkeyTarget();
+				if (m.ctrl === true && target != null) target.MoveRight(m.shift);
+			},
+			{ action_description: 'Move Active Page Right (if applicable)', key_description: 'ctrl+right', requires_target: true }
+		)
+	);
+
+	Hotkeys.Register(
+		new HotkeyDescriptor(
+			'x',
+			m =>
+			{
+				let target = PageManager.GetHotkeyTarget();
+				if (m.ctrl === true && target != null) target.CloseInstance();
+			},
+			{ action_description: 'Close Active Page', key_description: 'ctrl+x', requires_target: true }
+		)
+	);
 }
 
 

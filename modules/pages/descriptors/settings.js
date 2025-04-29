@@ -256,7 +256,7 @@ export class PageSettings extends PageDescriptor
 		);
 
 		instance.e_slider_animspeed = new SettingSlider(
-			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.125, () => 'UI animation speed',
+			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.05, () => 'UI animation speed',
 			_ =>
 			{
 				GlobalStyling.animationSpeed.value = _.value;
@@ -430,16 +430,18 @@ export class PageSettings extends PageDescriptor
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
 
 				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
-				const addKey = (key = '', effect = '', tooltip = '') => CreatePagePanel(
+				const addKey = (key = '', effect = '', tooltip = '', allow_emulate = true) => CreatePagePanel(
 					x, false, false, about_style,
 					_ =>
 					{
-						_.style.cursor = 'pointer';
 						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
 							+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
-						_.title = tooltip;
-
-						_.addEventListener('click', e => { Hotkeys.Emulate(key, e.ctrlKey, e.altKey, e.shiftKey) });
+						if (allow_emulate)
+						{
+							_.style.cursor = 'pointer';
+							_.title = tooltip;
+							_.addEventListener('click', e => { Hotkeys.Emulate(key, e.ctrlKey, e.altKey, e.shiftKey) });
+						}
 					}
 				);
 
@@ -448,7 +450,7 @@ export class PageSettings extends PageDescriptor
 					let hotkey = Hotkeys.descriptors[hotkey_id];
 					if ('permission' in hotkey && !UserAccountInfo.HasPermission(hotkey.permission)) continue;
 					let label = 'key_description' in hotkey ? hotkey.key_description : hotkey.key;
-					addKey(label, hotkey.action_description, 'Select to trigger this hotkey now');
+					addKey(label, hotkey.action_description, 'Select to trigger this hotkey now', hotkey.requires_target !== true);
 				}
 			}
 		);

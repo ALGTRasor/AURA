@@ -166,7 +166,7 @@ export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_sca
     );
 }
 
-export function fadeTransformElement(target = {}, transformation = () => { })
+export function fadeTransformElement(target = {}, transformation = () => { }, after = () => { })
 {
     if (!target) return;
 
@@ -206,6 +206,8 @@ export function fadeTransformElement(target = {}, transformation = () => { })
             target.style.userSelect = def_userSelect;
             target.style.filter = def_filter;
         }
+
+        if (after) after();
     };
 
     window.setTimeout(start_fade, 10);

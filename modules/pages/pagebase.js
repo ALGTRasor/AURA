@@ -35,6 +35,8 @@ export class PageInstance
 		this.e_body = document.createElement('div');
 		this.e_body.id = 'page-' + this.page_descriptor.title + '[' + this.instance_id + ']';
 		this.e_body.className = 'page-root';
+		this.e_body.addEventListener('mouseenter', _ => PageManager.SetPageHovered(this));
+		this.e_body.addEventListener('mousedown', _ => PageManager.FocusPage(this));
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
 		this.title_bar = new PageTitleBar(this, true);
@@ -44,13 +46,20 @@ export class PageInstance
 
 	MoveLeft(toEnd = false)
 	{
-		if (!this.e_body.previousSibling) return;
+		if (this.moving === true) return;
+		if (this.e_body.previousElementSibling == null) return;
+		this.moving = true;
+
 		fadeTransformElement(
 			this.e_body.parentElement,
 			() =>
 			{
 				if (toEnd === true) setSiblingIndex(this.e_body, 0);
 				else this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+			},
+			() =>
+			{
+				this.moving = false;
 				PageManager.onLayoutChange.Invoke();
 			}
 		);
@@ -58,13 +67,20 @@ export class PageInstance
 
 	MoveRight(toEnd = false)
 	{
-		if (!this.e_body.nextSibling) return;
+		if (this.moving === true) return;
+		if (this.e_body.nextElementSibling == null) return;
+		this.moving = true;
+
 		fadeTransformElement(
 			this.e_body.parentElement,
 			() =>
 			{
 				if (toEnd === true) setSiblingIndex(this.e_body, this.e_body.parentElement.childElementCount);
 				else this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+			},
+			() =>
+			{
+				this.moving = false;
 				PageManager.onLayoutChange.Invoke();
 			}
 		);
@@ -125,14 +141,26 @@ export class PageInstance
 		}
 	}
 
+	SetDepth(depth = 10)
+	{
+		this.state_data.depth = depth;
+		if (this.e_body) this.e_body.style.zIndex = this.state_data.depth;
+	}
+
+	ModifyDepth(depth_delta = 0)
+	{
+		if ('depth' in this.state_data) this.state_data.depth += depth_delta;
+		else this.state_data.depth = depth_delta;
+
+		if (this.e_body) this.e_body.style.zIndex = this.state_data.depth;
+	}
+
 	TryToggleDocked() { if (this.state_data.docked === true) this.TryUndock(); else this.TryDock(); }
 
 	TryUndock()
 	{
-		DebugLog.Log(`${this.page_descriptor.title} undocked`);
 		this.state_data.docked = false;
 		this.ApplyDockState();
-
 		if (!this.state_data.position_x) this.state_data.position_x = 0;
 		if (!this.state_data.position_y) this.state_data.position_y = 0;
 
@@ -141,8 +169,6 @@ export class PageInstance
 	TryDock()
 	{
 		if (this.page_descriptor.dockable !== true) return;
-
-		DebugLog.Log(`${this.page_descriptor.title} docked`);
 		this.state_data.docked = this.page_descriptor.dockable === true;
 		this.ApplyDockState();
 	}
@@ -174,7 +200,10 @@ export class PageInstance
 		this.ApplyLoosePosition(trigger_layout_change);
 	}
 
-	Close(immediate = false)
+
+	CloseInstance() { this.page_descriptor.CloseInstance(this); }
+
+	RemoveElements(immediate = false)
 	{
 		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
 
@@ -191,7 +220,6 @@ export class PageInstance
 				() =>
 				{
 					if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
-					this.e_body = null;
 				}
 			);
 		}
@@ -250,16 +278,13 @@ export class PageInstance
 	{
 		if (state_data)
 		{
-			DebugLog.StartGroup('Loading state...');
-			let prop_count = 0;
+			let any_applied = false;
 			for (let prop_id in state_data)
 			{
 				this.state_data[prop_id] = state_data[prop_id];
-				prop_count++;
-				DebugLog.Log(` > ${prop_count} // ${prop_id} [${this.state_data[prop_id]}]`);
+				any_applied = true;
 			}
-			if (prop_count > 0) this.page_descriptor.OnStateChange(this);
-			DebugLog.SubmitGroup();
+			if (any_applied === true) this.page_descriptor.OnStateChange(this);
 		}
 	}
 
@@ -295,6 +320,7 @@ export class PageInstance
 export class PageDescriptor
 {
 	static Nothing = new PageDescriptor(null);
+	instances = [];
 
 	dockable = true;
 
@@ -333,16 +359,21 @@ export class PageDescriptor
 		let instance_index = this.instances.indexOf(instance);
 		if (instance_index > -1) this.instances.splice(instance_index, 1);
 		else DebugLog.Log('! instance_index invalid', '#ff0');
-		if (instance.Close) instance.Close();
+
+		if (PageManager.page_instance_hovered === instance) PageManager.page_instance_hovered = undefined;
+		if (PageManager.page_instance_focused === instance) PageManager.page_instance_focused = undefined;
+
+		if (instance.RemoveElements) instance.RemoveElements();
 
 		let piid = PageManager.page_instances.indexOf(instance);
 		if (piid > -1) PageManager.page_instances.splice(piid, 1);
+
 		window.setTimeout(PageManager.AfterPageClosed, 100);
 	}
 
-	UpdateSize(instance) { }
 	OnOpen(instance) { }
 	OnClose(instance) { }
+	UpdateSize(instance) { }
 	OnLayoutChange(instance) { }
 	OnStateChange(instance) { }
 

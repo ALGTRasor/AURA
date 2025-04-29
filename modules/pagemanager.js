@@ -1,5 +1,6 @@
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
+import { setSiblingIndex } from "./domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageDescriptor, PageInstance } from "./pages/pagebase.js";
@@ -14,6 +15,16 @@ export class PageManager
 {
 	static page_descriptors = [];
 	static page_instances = [];
+	static page_instance_focused = null;
+	static page_instance_hovered = null;
+
+	static GetHotkeyTarget()
+	{
+		if (PageManager.page_instance_focused && 'e_body' in PageManager.page_instance_focused) return PageManager.page_instance_focused;
+		if (PageManager.page_instance_hovered && 'e_body' in PageManager.page_instance_hovered) return PageManager.page_instance_hovered;
+		DebugLog.Log('! NULL HOTKEY TARGET');
+		return null;
+	}
 
 	static onLayoutChange = new EventSource();
 
@@ -84,6 +95,38 @@ export class PageManager
 		}
 	}
 
+	static SetPageHovered(page_instance = undefined)
+	{
+		if (!page_instance) return;
+		PageManager.page_instance_hovered = page_instance;
+		DebugLog.Log('Page Hovered: ' + PageManager.page_instance_hovered.page_descriptor.title);
+	}
+
+	static ClearPageFocus()
+	{
+		if (!PageManager.page_instance_focused) return;
+		if (!('e_body' in PageManager.page_instance_focused)) return;
+		PageManager.page_instance_focused.e_body.classList.remove('page-focused');
+	}
+
+	static FocusPage(page_instance = undefined)
+	{
+		if (!page_instance) return;
+
+		PageManager.ClearPageFocus();
+
+		PageManager.page_instance_focused = page_instance;
+		PageManager.page_instance_focused.e_body.classList.add('page-focused');
+		if (page_instance.state_data.docked !== true) PageManager.BringToFront(page_instance);
+	}
+
+	static BringToFront(page_instance = undefined)
+	{
+		if (!page_instance) return;
+
+		if (page_instance.e_body.nextSibling) setSiblingIndex(page_instance.e_body, 999);
+	}
+
 	static IsPageAvailable(title = '')
 	{
 		let page_id = PageManager.GetDescriptorIndex(title);
@@ -135,6 +178,7 @@ export class PageManager
 			let pageInstance = page.CreateInstance(state);
 			pageInstance.CreateElements();
 			pageInstance.ApplyStateData();
+			PageManager.FocusPage(pageInstance);
 			PageManager.page_instances.push(pageInstance);
 		}
 		else
@@ -147,6 +191,7 @@ export class PageManager
 				pageInstance.ApplyStateData();
 				PageManager.page_instances.push(pageInstance);
 			}
+			PageManager.FocusPage(pageInstance);
 		}
 
 		DebugLog.SubmitGroup();
@@ -159,12 +204,15 @@ export class PageManager
 	{
 		let no_pages_open = PageManager.page_instances.length < 1;
 		if (no_pages_open) PageManager.ShowNavMenu();
+		else PageManager.FocusLastPageInstance();
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	static ShowNavMenu(delay = 250)
+	static ShowNavMenu(delay = 250) { window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, delay); }
+	static FocusLastPageInstance(delay = 250)
 	{
-		window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, delay);
+
+		window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay);
 	}
 }
 
