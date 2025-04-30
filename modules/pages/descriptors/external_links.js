@@ -23,6 +23,13 @@ export class PageExternalLinks extends PageDescriptor
 			}
 		);
 
+		const sort_alpha = (x, y) =>
+		{
+			if (x > y) return 1;
+			if (x < y) return -1;
+			return 0;
+		};
+
 		const style_button = 'flex-grow:0.0; flex-shrink:0.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
 		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%);';
 		const style_icon_full = 'position:absolute; inset:0.5rem; aspect-ratio:1.0; align-content:center; object-fit:contain;';
@@ -37,23 +44,21 @@ export class PageExternalLinks extends PageDescriptor
 			if (has_icon) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
 		};
 
+		SharedData.auraLinks.instance.data.sort((x, y) => sort_alpha(x.link_service_type, y.link_service_type));
 		const get_link_service = l => { if (typeof l.link_service_type === 'string' && l.link_service_type.length > 0) return l.link_service_type; return 'General'; };
 		let link_groups = Object.groupBy(SharedData.auraLinks.instance.data, get_link_service);
+		let group_index = -1;
 		for (let link_group_id in link_groups)
 		{
+			group_index++;
 			let link_group = link_groups[link_group_id];
 
-			const sort_alpha = (x, y) =>
-			{
-				if (x > y) return 1;
-				if (x < y) return -1;
-				return 0;
-			};
 			link_group.sort(sort_alpha);
 
 			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025); max-height:1rem;');
 			e_group.classList.add('smooth-max-height');
 			e_group.classList.add('no-max-height-hover');
+			e_group.style.setProperty('--theme-color', 'hsl(' + ((group_index * 0.1 - 0.1) * 360) + 'deg 30% 50%)');
 			addElement(e_group, 'div', null, 'text-align:center; height:1.25rem; align-content:center;', _ => _.innerText = link_group_id);
 			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none; position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025);');
 

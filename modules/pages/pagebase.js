@@ -40,9 +40,8 @@ export class PageInstance
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
 		this.title_bar = new PageTitleBar(this, true);
-		fadeAppendChild(this.e_body, this.e_content);
 		this.title_bar.RefreshAllButtons();
-		//this.e_body.appendChild(this.e_content);
+		fadeAppendChild(this.e_body, this.e_content);
 	}
 
 	MoveLeft(toEnd = false)
@@ -164,7 +163,6 @@ export class PageInstance
 		this.ApplyDockState();
 		if (!this.state_data.position_x) this.state_data.position_x = 0;
 		if (!this.state_data.position_y) this.state_data.position_y = 0;
-
 	}
 
 	TryDock()
@@ -246,27 +244,9 @@ export class PageInstance
 
 	UpdatePageContext()
 	{
+		this.siblingIndex = this.e_body ? getSiblingIndex(this.e_body) : -1;
 		this.title_bar.RemoveAllButtons();
 		this.title_bar.RefreshAllButtons();
-
-		/*
-		if (PageManager.page_instances.length < 2)
-		{
-			if (this.page_descriptor.title !== 'nav menu') this.title_bar.AddCloseButton();
-			else this.title_bar.RemoveCloseButton();
-			this.title_bar.RemoveNavigationButtons();
-		}
-		else
-		{
-			this.title_bar.AddCloseButton();
-			this.title_bar.RemoveNavigationButtons();
-			this.title_bar.AddNavigationButtons(this.e_body.previousElementSibling != null, this.e_body.nextElementSibling != null);
-		}
-
-		this.title_bar.RefreshExtraButtons();
-		*/
-
-		this.siblingIndex = this.e_body ? getSiblingIndex(this.e_body) : -1;
 		this.page_descriptor.OnLayoutChange(this);
 	}
 
@@ -308,15 +288,6 @@ export class PageInstance
 		return addElement(parent, 'div', classes, styling, prep);
 	}
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -379,7 +350,6 @@ export class PageDescriptor
 
 	OnOpen(instance) { }
 	OnClose(instance) { }
-	//UpdateSize(instance) { }
 	OnLayoutChange(instance) { }
 	OnStateChange(instance) { }
 
