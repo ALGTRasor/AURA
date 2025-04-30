@@ -11,7 +11,7 @@ export class PageExternalLinks extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.maxWidth = '22rem';
+		instance.e_body.style.maxWidth = '26rem';
 		instance.e_body.style.minWidth = '16rem';
 
 		let e_body_root = CreatePagePanel(
@@ -24,15 +24,17 @@ export class PageExternalLinks extends PageDescriptor
 		);
 
 		const style_button = 'flex-grow:0.0; flex-shrink:0.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
-		const style_icon = 'position:absolute;top:50%;right:0.5rem;aspect-ratio:1.0;align-content:center;height:50%;object-fit:contain;transform:translate(0%,-50%);';
-		const style_icon_full = 'position:absolute;inset:0.5rem;aspect-ratio:1.0;align-content:center;object-fit:contain;';
+		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%);';
+		const style_icon_full = 'position:absolute; inset:0.5rem; aspect-ratio:1.0; align-content:center; object-fit:contain;';
 
 		let AddButton = (parent = {}, label = '', link = '', icon = '') =>
 		{
-			let e_btn = CreatePagePanel(parent, false, false, style_button, _ => { _.className += ' panel-button'; _.innerText = label });
+			let has_icon = icon && icon.length > 0;
+			let h = has_icon ? '2rem' : 'fit-content';
+			let e_btn = CreatePagePanel(parent, false, false, style_button + `flex-basis:${h};`, _ => { _.className += ' panel-button'; _.innerText = label });
 			e_btn.title = link;
 			e_btn.addEventListener('click', _ => { window.open(link, '_blank') });
-			if (icon && icon.length > 0) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
+			if (has_icon) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
 		};
 
 		const get_link_service = l => { if (typeof l.link_service_type === 'string' && l.link_service_type.length > 0) return l.link_service_type; return 'General'; };
@@ -41,19 +43,24 @@ export class PageExternalLinks extends PageDescriptor
 		{
 			let link_group = link_groups[link_group_id];
 
-			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex;flex-direction:column;position:relative;flex-grow:0.0;flex-shrink:0.0;gap:var(--gap-05);');
-			addElement(e_group, 'div', null, 'text-align:center;height:1.5rem;line-height:1.5rem;', _ => _.innerText = link_group_id);
-			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none;display:flex;flex-direction:column;position:relative;flex-grow:0.0;flex-shrink:0.0;gap:var(--gap-05);');
+			const sort_alpha = (x, y) =>
+			{
+				if (x > y) return 1;
+				if (x < y) return -1;
+				return 0;
+			};
+			link_group.sort(sort_alpha);
+
+			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-05);');
+			addElement(e_group, 'div', null, 'text-align:center; height:1.25rem; align-content:center;', _ => _.innerText = link_group_id);
+			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none; position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-05);');
 
 			for (let link_id in link_group)
 			{
 				let link_record = link_group[link_id];
 
-				if (link_record.link_image_path && link_record.link_image_path.length > 0)
-				{
-					if (!link_record.link_image_path.startsWith('http'))
-						link_record.link_image_path = 'resources/images/' + link_record.link_image_path;
-				}
+				const is_relative_img_path = (p) => typeof p === 'string' && p.length > 0 && !p.startsWith('http') && !p.startsWith('resources/images/');
+				if (is_relative_img_path(link_record.link_image_path)) link_record.link_image_path = 'resources/images/' + link_record.link_image_path;
 				AddButton(e_group_buttons, link_record.link_label, link_record.link_url, link_record.link_image_path);
 			}
 		}
