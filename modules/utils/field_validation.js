@@ -10,8 +10,15 @@ export class FieldValidation
             case 'email': return FieldValidation.CheckEmail;
             case 'date': return FieldValidation.CheckDate;
             case 'role': return FieldValidation.CheckRoles;
+            case 'object': return FieldValidation.CheckObject;
         }
         return null;
+    }
+
+    static CheckObject(value)
+    {
+        if (typeof value === 'string') return value;
+        return [...value].length + ' properties';
     }
 
     static CheckPhone(raw = '')

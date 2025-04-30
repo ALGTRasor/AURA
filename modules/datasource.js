@@ -12,6 +12,8 @@ import { HrRequest } from "./datamodels/hr_request.js";
 import { TimekeepEvent, TimekeepStatus } from "./datamodels/timekeep.js";
 import { DataTableDesc } from "./datamodels/datatable_desc.js";
 import { AURALink } from "./datamodels/aura_link.js";
+import { UserAllocation } from "./datamodels/user_allocation.js";
+import { DebugLog } from "./debuglog.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 
@@ -26,6 +28,7 @@ const TABLENAME_HR_REQUESTS = 'ALGHRRequests';
 const TABLENAME_TK_EVENTS = 'ALGTimekeepEvents';
 const TABLENAME_TK_STATUSES = 'ALGTimekeepStatuses';
 const TABLENAME_AURA_LINKS = 'AURALinks';
+const TABLENAME_USER_ALLOCATIONS = 'ALGUserAllocations';
 
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
 
@@ -46,6 +49,7 @@ export class DataSource
 	static TimekeepEvents = new DataSource(TABLENAME_TK_EVENTS, TimekeepEvent.data_model);
 	static TimekeepStatuses = new DataSource(TABLENAME_TK_STATUSES, TimekeepStatus.data_model);
 	static AURALinks = new DataSource(TABLENAME_AURA_LINKS, AURALink.data_model);
+	static UserAllocations = new DataSource(TABLENAME_USER_ALLOCATIONS, UserAllocation.data_model);
 
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{
@@ -89,10 +93,19 @@ export class DataSourceInstance
 		if (this.valid !== true) return;
 
 		this.loaded = false;
-		if (force_download !== true) this.TryLoadFromCache();
-		if (this.loaded === true) return;
+		if (force_download !== true)
+		{
+			this.TryLoadFromCache();
+			if (this.loaded === true)
+			{
+				DebugLog.Log('using cached data from source: ' + this.datasource.list_title);
+				return;
+			}
+		}
 
+		DebugLog.Log('loading data from source: ' + this.datasource.list_title);
 		this.data = await this.datasource.GetData();
+
 		this.loaded = this.data != null;
 	}
 

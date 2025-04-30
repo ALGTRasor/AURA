@@ -49,6 +49,7 @@ export class SharedData
 	static timekeepEvents = new SharedDataTable('timekeep events', DataSource.TimekeepEvents);
 	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSource.TimekeepStatuses);
 	static auraLinks = new SharedDataTable('aura links', DataSource.AURALinks);
+	static userAllocations = new SharedDataTable('user allocations', DataSource.UserAllocations);
 
 	static all_tables = [
 		SharedData.roles,
@@ -61,7 +62,8 @@ export class SharedData
 		SharedData.hrRequests,
 		SharedData.timekeepEvents,
 		SharedData.timekeepStatuses,
-		SharedData.auraLinks
+		SharedData.auraLinks,
+		SharedData.userAllocations
 	];
 
 	static async LoadData(useCache = true)
@@ -70,8 +72,10 @@ export class SharedData
 
 		const timer_shareddataload = 'shared data load';
 
-		DataSource.TimekeepEvents.view_filter = `fields/user_id eq '${UserAccountInfo.account_info.user_id}'`;
-		DataSource.TimekeepStatuses.view_filter = `fields/Title eq '${UserAccountInfo.account_info.user_id}'`;
+		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
+		DataSource.UserAllocations.view_filter = user_id_filter('user_id');
+		DataSource.TimekeepEvents.view_filter = user_id_filter('user_id');
+		DataSource.TimekeepStatuses.view_filter = user_id_filter('Title');
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
 
 		SharedData.loading = true;
@@ -109,6 +113,27 @@ export class SharedData
 		{
 			const expand_fields = x => { return x.fields ? x.fields : x; };
 			let page_items = result.body.value.map(expand_fields);
+
+			// executes the expander on data in all DataFieldDescs that contain an expander
+			for (let field_id in table.instance.datasource.data_model.field_descs)
+			{
+				let desc = table.instance.datasource.data_model.field_descs[field_id];
+				if ('expander' in desc && typeof desc.expander === 'function')
+				{
+					DebugLog.Log('expanded field: ' + desc.label);
+					const try_expand = _ =>
+					{
+						try { return desc.expander(_); }
+						catch (e)
+						{
+							DebugLog.Log('error expanding field: ' + e, "#f55");
+							return _;
+						}
+					};
+					page_items = page_items.map(try_expand);
+				}
+			}
+
 			table.instance.data = table.instance.data.concat(page_items);
 			table.instance.loaded = true;
 

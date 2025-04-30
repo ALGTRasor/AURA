@@ -297,7 +297,7 @@ export class SharePoint
 			DebugLog.Log('...failed to collect sharepoint list items', '#ff03');
 		}
 
-		const expand_fields = x => { return x.fields ? x.fields : x; };
+		const expand_fields = x => { return 'fields' in x ? x.fields : x; };
 		return all_items.map(expand_fields);
 	}
 

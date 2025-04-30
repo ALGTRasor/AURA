@@ -11,8 +11,12 @@ export class DataTableDesc
     constructor(field_descs = {})
     {
         this.fields = [];
-        for (let id in field_descs) this.fields.push(id);
-        this.field_descs = field_descs;
+        this.field_descs = {};
+        for (let key in field_descs) 
+        {
+            this.fields.push(key);
+            this.field_descs[key] = field_descs[key];
+        }
     }
 
     static Build(descs = [])
@@ -21,14 +25,18 @@ export class DataTableDesc
         for (let desc_index in descs)
         {
             let desc = descs[desc_index];
-            if (!desc.key) continue;
-            if (!desc.label) desc.label = desc.key;
+
+            if (!('key' in desc)) continue;
+            if (!('label' in desc)) desc.label = desc.key;
             let exp = new DataFieldDesc(desc.key, desc.label);
-            if (desc.sensitive) exp.sensitive = desc.sensitive;
-            if (desc.exclude) exp.exclude = desc.exclude;
-            if (desc.format) exp.format = desc.format;
-            if (desc.multiline) exp.multiline = desc.multiline;
-            if (desc.read_only) exp.read_only = desc.read_only;
+
+            if ('sensitive' in desc) exp.sensitive = desc.sensitive;
+            if ('exclude' in desc) exp.exclude = desc.exclude;
+            if ('format' in desc) exp.format = desc.format;
+            if ('multiline' in desc) exp.multiline = desc.multiline;
+            if ('read_only' in desc) exp.read_only = desc.read_only;
+            if ('expander' in desc) exp.expander = desc.expander;
+
             descs_expanded[desc.key] = exp;
         }
         return new DataTableDesc(descs_expanded);

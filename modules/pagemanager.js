@@ -99,7 +99,7 @@ export class PageManager
 	{
 		if (!page_instance) return;
 		PageManager.page_instance_hovered = page_instance;
-		DebugLog.Log('Page Hovered: ' + PageManager.page_instance_hovered.page_descriptor.title);
+		//DebugLog.Log('Page Hovered: ' + PageManager.page_instance_hovered.page_descriptor.title);
 	}
 
 	static ClearPageFocus()
@@ -171,7 +171,7 @@ export class PageManager
 	{
 		if (!page) return false;
 
-		DebugLog.StartGroup('loading page ' + page.title);
+		DebugLog.StartGroup('opening page ' + page.title);
 
 		if (force_new === true)
 		{
