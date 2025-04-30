@@ -379,7 +379,7 @@ export class PageDescriptor
 
 	OnOpen(instance) { }
 	OnClose(instance) { }
-	UpdateSize(instance) { }
+	//UpdateSize(instance) { }
 	OnLayoutChange(instance) { }
 	OnStateChange(instance) { }
 

@@ -1,42 +1,8 @@
 import { addElement, setSiblingIndex } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
+import { PageTitleBarButton, TitleBarButtonDescriptor } from "./titlebarbuttons/titlebarbuttons.js";
 
-export class PageTitleBarButton
-{
-	static Nothing = new PageTitleBarButton();
 
-	constructor(parent, icon = '', action = e => { }, tooltip = '')
-	{
-		this.parent = parent;
-		this.tooltip = tooltip;
-		this.icon = icon;
-		this.action = action;
-		this.e_root = addElement(
-			this.parent, 'div', 'page-title-button', '',
-			_ =>
-			{
-				_.style.zIndex = 30;
-				_.title = this.tooltip;
-				_.addEventListener(
-					'mouseup',
-					_ =>
-					{
-						_.stopPropagation();
-						_.preventDefault();
-						this.InvokeAction(_);
-					}
-				);
-
-				this.e_icon = addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = this.icon; });
-			}
-		);
-	}
-
-	Remove() { this.e_root.remove(); }
-	SetColor(color = '') { this.e_root.style.setProperty('--theme-color', color); }
-	SetAction(action = e => { }) { this.action = action; }
-	InvokeAction(e) { this.action(e); }
-}
 
 export class PageTitleBar
 {
@@ -133,10 +99,23 @@ export class PageTitleBar
 		this.e_title.classList.remove("dragging");
 	};
 
-	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '')
+	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '', sortOrder = 0)
 	{
 		let b = new PageTitleBarButton(parent, icon, action, tooltip);
+		b.e_root.sortOrder = sortOrder;
 		if (color && color.length > 0) b.e_root.style.setProperty('--theme-color', color);
+		this.buttons.push(b);
+		return b;
+	}
+
+	AddButtonFromDescriptor(parent, descriptor = TitleBarButtonDescriptor.Nothing)
+	{
+		let b = new PageTitleBarButton(parent, descriptor);
+		b.SetInstanceData({ button: b, page: this.page });
+
+		b.e_root.sortOrder = descriptor.sort_order;
+		if (descriptor.color && descriptor.color.length > 0) b.e_root.style.setProperty('--theme-color', descriptor.color);
+
 		this.buttons.push(b);
 		return b;
 	}
@@ -166,6 +145,26 @@ export class PageTitleBar
 			this.SetTitle(this.page.page_descriptor.title.toUpperCase());
 	}
 
+	SortButtons(parent = document.body)
+	{
+		const sort_buttons = (x, y) =>
+		{
+			let xSortOrder = 0;
+			let ySortOrder = 0;
+
+			if ('sortOrder' in x) xSortOrder = x.sortOrder;
+			if ('sortOrder' in y) ySortOrder = y.sortOrder;
+
+			if (xSortOrder > ySortOrder) return 1;
+			if (xSortOrder < ySortOrder) return -1;
+			return 0;
+		};
+
+		let children = [...parent.children];
+		children.sort(sort_buttons);
+		children.forEach(c => parent.appendChild(c));
+	}
+
 	RemoveAllButtons()
 	{
 		for (let button_id in this.buttons)
@@ -183,82 +182,20 @@ export class PageTitleBar
 
 	RefreshAllButtons()
 	{
-		this.AddCloseButton();
-		this.AddNavigationButtons();
-		this.AddResizeButton();
+		let hasSiblingL = this.page.e_body.previousElementSibling != null;
+		let hasSiblingR = this.page.e_body.nextElementSibling != null;
 
-		if (this.page.page_descriptor.dockable === true && !this.b_dock)
-		{
-			this.b_dock = this.AddButton(this.e_buttons_right, 'picture_in_picture', () => { this.page.TryToggleDocked(); }, undefined, 'Dock or undock this page');
-			if (this.b_close) setSiblingIndex(this.b_dock.e_root, 1);
-			else setSiblingIndex(this.b_dock.e_root, 0);
-		}
+		if (hasSiblingL) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageMoveL);
+
+		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
+		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
+		if (this.page.state_data.docked === true && this.page.page_descriptor.UpdateSize) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
+		if (hasSiblingR) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageMoveR);
+
+		this.SortButtons(this.e_buttons_left);
+		this.SortButtons(this.e_buttons_right);
 
 		this.UpdateDraggable();
-	}
-
-	AddNavigationButtons()
-	{
-		if (this.page.state_data.docked !== true) return;
-
-		let hasPrevious = this.page.e_body.previousElementSibling != null;
-		let hasNext = this.page.e_body.nextElementSibling != null
-
-		if (hasPrevious === true && !this.b_moveL)
-		{
-			this.b_moveL = this.AddButton(this.e_buttons_left, 'chevron_left', e => { this.page.MoveLeft(e.shiftKey); }, undefined, 'Move this page to the left');
-			setSiblingIndex(this.b_moveL.e_root, 0);
-		}
-
-		if (hasNext === true && !this.b_moveR)
-		{
-			this.b_moveR = this.AddButton(this.e_buttons_right, 'chevron_right', e => { this.page.MoveRight(e.shiftKey); }, undefined, 'Move this page to the right');
-			setSiblingIndex(this.b_moveR.e_root, 0);
-			if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
-		}
-	}
-
-	AddCloseButton()
-	{
-		if (this.b_close) return;
-		this.b_close = this.AddButton(
-			this.e_buttons_right, 'close',
-			() => { this.page.CloseInstance(); },
-			'#f00', 'Close this page'
-		);
-		setSiblingIndex(this.b_close.e_root, 0);
-	}
-
-	AddResizeButton()
-	{
-		if (this.b_resize) return;
-		if (this.page.state_data.docked !== true) return;
-
-		let expanded = this.page.state_data.expanding === true;
-
-		this.b_resize = this.AddButton(this.e_buttons_right, 'resize', undefined, undefined, expanded ? 'Collapse this page' : 'Allow this page to expand');
-		if (this.b_close) setSiblingIndex(this.b_close.e_root, -1);
-		setSiblingIndex(this.b_resize.e_root, 2);
-
-		const update_button_style = _ =>
-		{
-			_.b_resize.title = _.page.state_data.expanding ? 'Collapse this page' : 'Allow this page to expand';
-			_.b_resize.SetColor((_.page.state_data.expanding) ? '#0ff' : '#fff');
-		};
-		update_button_style(this);
-
-		this.b_resize.SetAction(
-			() =>
-			{
-				if (this.page.page_descriptor.UpdateSize)
-				{
-					this.page.state_data.expanding = !this.page.state_data.expanding;
-					this.page.page_descriptor.UpdateSize(this.page);
-					update_button_style(this);
-					PageManager.onLayoutChange.Invoke();
-				}
-			}
-		);
 	}
 
 	RemoveElements()

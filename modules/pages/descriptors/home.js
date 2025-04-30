@@ -13,8 +13,6 @@ export class PageHome extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.title_bar.AddResizeButton();
-
 		instance.e_body.style.minWidth = '20rem';
 		instance.e_body.style.flexGrow = '1.0';
 

@@ -11,8 +11,8 @@ export class PageExternalLinks extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.maxWidth = '26rem';
-		instance.e_body.style.minWidth = '16rem';
+		instance.e_body.style.maxWidth = '30rem';
+		instance.e_body.style.minWidth = '24rem';
 
 		let e_body_root = CreatePagePanel(
 			instance.e_content, true, true, null,
@@ -51,9 +51,11 @@ export class PageExternalLinks extends PageDescriptor
 			};
 			link_group.sort(sort_alpha);
 
-			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-05);');
+			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025); max-height:1rem;');
+			e_group.classList.add('smooth-max-height');
+			e_group.classList.add('no-max-height-hover');
 			addElement(e_group, 'div', null, 'text-align:center; height:1.25rem; align-content:center;', _ => _.innerText = link_group_id);
-			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none; position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-05);');
+			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none; position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025);');
 
 			for (let link_id in link_group)
 			{

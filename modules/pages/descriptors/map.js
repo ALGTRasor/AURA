@@ -26,7 +26,6 @@ export class PageMap extends PageDescriptor
 		if (!instance) return;
 
 		this.UpdateSize(instance);
-		instance.title_bar.AddResizeButton();
 
 		instance.timeout_UpdateQuery = new RunningTimeout(() => this.UpdateQuery(instance), 1, 150);
 

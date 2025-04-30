@@ -140,3 +140,23 @@
 	padding-top: 0.25rem;
 	overflow: hidden auto;
 }
+
+
+.smooth-max-height
+{
+	transition-delay: 0.5s;
+	transition-property: max-height !important;
+	transition-duration: calc(2 * var(--trans-dur-off-veryslow)) !important;
+	transition-timing-function: ease-in-out;
+}
+
+.smooth-max-height:hover
+{
+	transition-delay: 0s;
+	transition-duration: var(--trans-dur-off-slow) !important;
+}
+
+.no-max-height-hover:hover
+{
+	max-height: 100vh !important;
+}
