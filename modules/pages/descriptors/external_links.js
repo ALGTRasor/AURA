@@ -30,8 +30,8 @@ export class PageExternalLinks extends PageDescriptor
 			return 0;
 		};
 
-		const style_button = 'flex-grow:0.0; flex-shrink:0.0; flex-basis:2rem; text-align:center; align-content:center; font-weight:bold; position:relative;';
-		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%);';
+		const style_button = 'flex-grow:0.0; flex-shrink:0.0; flex-basis:2rem; text-align:right; align-content:center; font-weight:bold; position:relative; padding-right:3rem;';
+		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%); border-radius:6px;';
 		const style_icon_full = 'position:absolute; inset:0.5rem; aspect-ratio:1.0; align-content:center; object-fit:contain;';
 
 		let AddButton = (parent = {}, label = '', link = '', icon = '') =>
@@ -65,9 +65,9 @@ export class PageExternalLinks extends PageDescriptor
 			for (let link_id in link_group)
 			{
 				let link_record = link_group[link_id];
-
-				const is_relative_img_path = (p) => typeof p === 'string' && p.length > 0 && !p.startsWith('http') && !p.startsWith('resources/images/');
-				if (is_relative_img_path(link_record.link_image_path)) link_record.link_image_path = 'resources/images/' + link_record.link_image_path;
+				const relative_img_path_prefix = 'resources/images/';
+				const is_relative_img_path = (p) => typeof p === 'string' && p.length > 0 && !p.startsWith('http') && !p.startsWith(relative_img_path_prefix);
+				if (is_relative_img_path(link_record.link_image_path)) link_record.link_image_path = relative_img_path_prefix + link_record.link_image_path;
 				AddButton(e_group_buttons, link_record.link_label, link_record.link_url, link_record.link_image_path);
 			}
 		}
@@ -77,7 +77,10 @@ export class PageExternalLinks extends PageDescriptor
 			_ =>
 			{
 				_.style.padding = 'var(--gap-1)';
-				_.innerText = 'Warning: Following any link allows the site to read or write cookies to your browser, so make sure you know and trust where links will take you!'
+				_.innerText = 'Warning: Following a link allows the owner of that site to read & write "cookies" on your device.'
+				_.innerText += ' "Cookies" can provide information that might allow the site owners to de-anonymize you.'
+				_.innerText += ' Make sure you always know where a link will take you and that the owner of that site is trustworthy!'
+				_.innerText += ' You can also avoid this by using a private or "incognito" browser mode, which typically disables "cookies".'
 			}
 		);
 	}

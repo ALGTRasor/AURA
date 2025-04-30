@@ -146,7 +146,7 @@
 {
 	transition-delay: 0.5s;
 	transition-property: max-height !important;
-	transition-duration: calc(2 * var(--trans-dur-off-veryslow)) !important;
+	transition-duration: var(--trans-dur-off-veryslow) !important;
 	transition-timing-function: ease-in-out;
 }
 

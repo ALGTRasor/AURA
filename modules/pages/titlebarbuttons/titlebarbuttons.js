@@ -5,8 +5,10 @@ import { PageManager } from "../../pagemanager.js";
 export class TitleBarButtonDescriptor
 {
 	static Nothing = new TitleBarButtonDescriptor();
+
 	static default_icon_name = (instance_data = {}) => 'star';
 	static default_click_action = (event_info, instance_data = {}) => { DebugLog.Log('titlebar button clicked: ' + event_info.button); };
+	static default_color = (instance_data = {}) => '';
 	static default_tooltip = (instance_data = {}) => 'Default Button Tooltip ( you should not see this )';
 
 	static PageClose = new TitleBarButtonDescriptor(
@@ -39,10 +41,13 @@ export class TitleBarButtonDescriptor
 			if (is_page_docked(data.page)) return 'flip_to_front';
 			return 'team_dashboard';
 		},
-		(e, data) => { if ('page' in data) data.page.TryToggleDocked(); },
+		(e, data) =>
+		{
+			if ('page' in data) data.page.TryToggleDocked();
+		},
 		(data) =>
 		{
-			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true
+			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
 			if ('page' in data)
 			{
 				if (is_page_docked(data.page)) return 'Undock this page';
@@ -50,7 +55,12 @@ export class TitleBarButtonDescriptor
 			}
 			return 'Dock or undock this page';
 		},
-		_ => { _.sort_order = 0; }
+		_ =>
+		{
+			_.sort_order = 0;
+			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
+			_.get_color = data => is_page_docked(data.page) ? '' : 'cyan';
+		}
 	);
 
 
@@ -73,7 +83,7 @@ export class TitleBarButtonDescriptor
 		},
 		(data) =>
 		{
-			const is_page_expanding = p => 'expanding' in p.state_data && p.state_data.expanding === true
+			const is_page_expanding = p => 'expanding' in p.state_data && p.state_data.expanding === true;
 			if ('page' in data)
 			{
 				if (is_page_expanding(data.page)) return 'Collapse this page';
@@ -81,15 +91,20 @@ export class TitleBarButtonDescriptor
 			}
 			return 'Toggle this page expanding to fill available space';
 		},
-		_ => { _.sort_order = 0; }
+		_ =>
+		{
+			const is_page_expanding = p => 'expanding' in p.state_data && p.state_data.expanding === true;
+			_.sort_order = -10;
+			_.get_color = data => is_page_expanding(data.page) ? 'cyan' : '';
+		}
 	);
 
 	icon_name = TitleBarButtonDescriptor.default_icon_name;
 	click_action = TitleBarButtonDescriptor.default_click_action;
 	tooltip = TitleBarButtonDescriptor.default_tooltip;
 
-	color = '';
 	sort_order = 0;
+	get_color = TitleBarButtonDescriptor.default_color;
 	allowed_mouse_buttons = [0];
 	prevent_default_action = true;
 
@@ -153,10 +168,30 @@ export class PageTitleBarButton
 	SetInstanceData(instance_data = {})
 	{
 		this.instance_data = instance_data;
+		this.RefreshState();
+	}
+	InvokeAction(e)
+	{
+		if (this.action) this.action(e, this.instance_data);
+		//this.RefreshState();
+	}
+
+	RefreshState()
+	{
+		this.RefreshColor();
 		this.RefreshTooltip();
 		this.RefreshIcon();
 	}
-	InvokeAction(e) { if (this.action) this.action(e, this.instance_data); }
+
+	RefreshColor()
+	{
+		let color_val = '';
+		if (typeof this.descriptor.get_color === 'function') color_val = this.descriptor.get_color(this.instance_data);
+		else color_val = this.descriptor.get_color;
+
+		if (typeof color_val === 'string' && color_val.length > 0) this.SetColor(color_val);
+		else this.UnsetColor();
+	}
 
 	RefreshTooltip()
 	{
