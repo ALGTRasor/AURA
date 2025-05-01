@@ -55,6 +55,11 @@ export class PageInstance
 		if (this.moving === true) return;
 		if (this.e_frame.previousElementSibling == null) return;
 		this.moving = true;
+		if (toEnd === true) setSiblingIndex(this.e_frame, 0);
+		else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
+		this.moving = false;
+		PageManager.onLayoutChange.Invoke();
+		return;
 
 		fadeTransformElement(
 			this.e_frame.parentElement,
@@ -76,6 +81,12 @@ export class PageInstance
 		if (this.moving === true) return;
 		if (this.e_frame.nextElementSibling == null) return;
 		this.moving = true;
+
+		if (toEnd === true) setSiblingIndex(this.e_frame, this.e_frame.parentElement.childElementCount);
+		else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
+		this.moving = false;
+		PageManager.onLayoutChange.Invoke();
+		return;
 
 		fadeTransformElement(
 			this.e_frame.parentElement,
@@ -213,12 +224,12 @@ export class PageInstance
 
 	ApplyLoosePosition(trigger_layout_change = true)
 	{
-		if (!this.e_body) return;
-		if (!this.e_body.style) return;
+		if (!this.e_frame) return;
+		if (!this.e_frame.style) return;
 		if (this.state_data.docked !== true)
 		{
-			this.e_body.style.left = this.state_data.position_x + 'px';
-			this.e_body.style.top = this.state_data.position_y + 'px';
+			this.e_frame.style.left = this.state_data.position_x + 'px';
+			this.e_frame.style.top = this.state_data.position_y + 'px';
 			if (trigger_layout_change === true) PageManager.onLayoutChange.Invoke();
 		}
 	}
