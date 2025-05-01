@@ -113,7 +113,7 @@ export class PageInstance
 		let new_parent = this.DetermineBodyParent();
 		if (this.e_body.parentElement !== new_parent) 
 		{
-			DebugLog.Log("Moved Page to root: " + new_parent.id);
+			//DebugLog.Log("Moved Page to root: " + new_parent.id);
 			this.SetParentElement(new_parent);
 		}
 	}

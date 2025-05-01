@@ -121,14 +121,17 @@ export class SharedData
 				if ('expander' in desc && typeof desc.expander === 'function')
 				{
 					DebugLog.Log('expanded field: ' + desc.label);
-					const try_expand = _ =>
+					const try_expand = record =>
 					{
-						try { return desc.expander(_); }
+						try
+						{
+							record[desc.key] = desc.expander(record[desc.key]);
+						}
 						catch (e)
 						{
-							DebugLog.Log('error expanding field: ' + e, "#f55");
-							return _;
+							DebugLog.Log('error expanding field ' + desc.key + ': ' + e, "#f55");
 						}
+						return record;
 					};
 					page_items = page_items.map(try_expand);
 				}

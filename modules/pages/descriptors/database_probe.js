@@ -46,7 +46,14 @@ export class DatabaseProbe extends PageDescriptor
 							if (c.classList) c.classList.remove('panel-button-selected');
 						}
 						x.classList.add('panel-button-selected');
-						this.SetTableData(instance, sd.instance.datasource.list_title, sd.instance.data, sd.instance.datasource.data_model.field_descs, x => x[sd.instance.datasource.label_field], x => x[sd.instance.datasource.sorting_field]);
+						this.SetTableData(
+							instance,
+							sd.instance.datasource.list_title,
+							sd.instance.data,
+							sd.instance.datasource.data_model.field_descs,
+							x => x[sd.instance.datasource.label_field],
+							x => x[sd.instance.datasource.sorting_field]
+						);
 					};
 					x.addEventListener('click', view_this_table);
 				}

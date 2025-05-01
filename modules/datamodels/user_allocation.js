@@ -1,3 +1,4 @@
+import { DebugLog } from "../debuglog.js";
 import { DataTableDesc } from "./datatable_desc.js";
 
 export class UserAllocation
@@ -8,7 +9,25 @@ export class UserAllocation
 			{ key: 'Title', label: 'allocation id' },
 			{ key: 'user_id', label: 'user id', format: 'user' },
 			{ key: 'allocation_max', label: 'allocated hours' },
-			{ key: 'use_history', label: 'consumption history', format: 'object', expander: _ => typeof _ === 'string' ? JSON.parse(_) : _ },
+			{ key: 'use_history', label: 'consumption history', format: 'list', expander: UserAllocation.ExpandHistory },
 		]
 	);
+
+	static ExpandHistory(value)
+	{
+		if (typeof value === 'string') value = JSON.parse(value);
+		if (typeof value === 'object') 
+		{
+			if ('uses' in value) return value.uses;
+			DebugLog.Log(`'uses' not found in '${typeof value}'`);
+			for (let propid in value)
+			{
+				DebugLog.Log(`  > ${propid}: ${value[propid]}`);
+			}
+			return value;
+		}
+
+		DebugLog.Log(`ExpandHistory provided type '${typeof value}'`);
+		return value;
+	}
 }

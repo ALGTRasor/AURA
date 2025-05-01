@@ -11,14 +11,27 @@ export class FieldValidation
             case 'date': return FieldValidation.CheckDate;
             case 'role': return FieldValidation.CheckRoles;
             case 'object': return FieldValidation.CheckObject;
+            case 'list': return FieldValidation.CheckList;
         }
         return null;
     }
 
+    static CheckList(value)
+    {
+        //if (typeof value === 'string') value = JSON.parse(value);
+
+        let prop_count = 0;
+        for (let propid in value) prop_count++;
+        return `List with ${prop_count} items`;
+    }
+
     static CheckObject(value)
     {
-        if (typeof value === 'string') return value;
-        return [...value].length + ' properties';
+        if (typeof value === 'string') value = JSON.parse(value);
+
+        let prop_count = 0;
+        for (let propid in value) prop_count++;
+        return `Object with ${prop_count} properties`;
     }
 
     static CheckPhone(raw = '')

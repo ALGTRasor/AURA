@@ -58,7 +58,7 @@ export class PageHome extends PageDescriptor
 		TryAddButton(buttons, 'timekeep');
 		TryAddButton(buttons, 'my data');
 		TryAddButton(buttons, 'hr');
-		TryAddButton(buttons, 'settings');
+		//TryAddButton(buttons, 'settings');
 		TryAddButton(buttons, 'external links');
 		TryAddButton(buttons, 'map');
 

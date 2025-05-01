@@ -249,7 +249,7 @@ async function OnAuraInit()
 					'[N]o'
 				)
 			});
-			ActionBar.AddMenuButton('nav menu', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
+			ActionBar.AddMenuButton('home', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
 		}
 		await AppEvents.onAccountLogin.InvokeAsync();
 
