@@ -60,10 +60,13 @@ export class PageTitleBar
 		PageManager.FocusPage(this.page);
 		e.stopPropagation();
 		e.preventDefault();
-		let pageRect = this.page.e_frame.getBoundingClientRect();
+		let frame_parent_rect = this.page.e_frame.parentElement.getBoundingClientRect();
+		let frame_rect = this.page.e_frame.getBoundingClientRect();
 		//PageManager.BringToFront(this.page);
-		this.drag_start_x = e.clientX - pageRect.x;
-		this.drag_start_y = e.clientY - pageRect.y;
+		this.drag_start_mouse_x = e.clientX;
+		this.drag_start_mouse_y = e.clientY;
+		this.drag_start_x = frame_rect.x - frame_parent_rect.x;
+		this.drag_start_y = frame_rect.y - frame_parent_rect.y;
 		window.addEventListener('mousemove', this.handle_drag);
 		window.addEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.add("dragging");
@@ -73,19 +76,19 @@ export class PageTitleBar
 	{
 		e.stopPropagation();
 		e.preventDefault();
-		let pageRect = this.page.e_frame.getBoundingClientRect();
-		let pageRootRect = this.page.e_frame.parentElement.getBoundingClientRect();
+		let frame_rect = this.page.e_frame.getBoundingClientRect();
+		let frame_parent_rect = this.page.e_frame.parentElement.getBoundingClientRect();
 
-		this.drag_latest_x = e.clientX;
-		this.drag_latest_y = e.clientY;
+		let drag_mouse_delta_x = e.clientX - this.drag_start_mouse_x;
+		let drag_mouse_delta_y = e.clientY - this.drag_start_mouse_y;
 
-		let new_x = this.drag_latest_x - this.drag_start_x - pageRootRect.x;
-		let new_y = this.drag_latest_y - this.drag_start_y - pageRootRect.y;
+		let new_x = this.drag_start_x + drag_mouse_delta_x;
+		let new_y = this.drag_start_y + drag_mouse_delta_y;
 
 		new_x = Math.max(0, new_x);
 		new_y = Math.max(0, new_y);
-		new_x = Math.min(pageRootRect.width - pageRect.width, new_x);
-		new_y = Math.min(pageRootRect.height - 48, new_y);
+		new_x = Math.min(frame_parent_rect.width - frame_rect.width, new_x);
+		new_y = Math.min(frame_parent_rect.height - 48, new_y);
 
 		this.page.SetLoosePosition(new_x, new_y);
 	}
@@ -182,8 +185,10 @@ export class PageTitleBar
 
 	RefreshAllButtons()
 	{
-		let hasSiblingL = this.page.e_frame.previousElementSibling != null;
-		let hasSiblingR = this.page.e_frame.nextElementSibling != null;
+		let showMoveButtons = this.page.state_data.docked === true;
+		let hasSiblingL = showMoveButtons && this.page.e_frame.previousElementSibling != null;
+		let hasSiblingR = showMoveButtons && this.page.e_frame.nextElementSibling != null;
+
 
 		if (hasSiblingL) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageMoveL);
 

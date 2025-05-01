@@ -103,7 +103,7 @@ export class PageManager
 			if (PageManager.page_instances.length < 1)
 			{
 				PageManager.pauseLayoutChange = false;
-				PageManager.NotifyLayoutChange();
+				PageManager.AfterPageClosed();
 				return;
 			}
 			PageManager.page_instances[0].CloseInstance();
@@ -221,8 +221,9 @@ export class PageManager
 
 	static AfterPageClosed()
 	{
+		if (PageManager.pauseLayoutChange === true) return;
 		let no_pages_open = PageManager.page_instances.length < 1;
-		if (no_pages_open) PageManager.ShowNavMenu();
+		if (no_pages_open) PageManager.ShowNavMenuAfter(250, () => PageManager.page_instances.length < 1);
 		else PageManager.FocusLastPageInstance();
 		PageManager.NotifyLayoutChange();
 	}
@@ -233,7 +234,13 @@ export class PageManager
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	static ShowNavMenu(delay = 250) { window.setTimeout(() => { PageManager.TogglePageByTitle('nav menu'); }, delay); }
+	static ShowNavMenuAfter(delay = 250, condition = () => true)
+	{
+		window.setTimeout(() =>
+		{
+			if (condition && condition()) PageManager.TogglePageByTitle('nav menu');
+		}, delay);
+	}
 	static FocusLastPageInstance(delay = 250) { window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay); }
 }
 

@@ -17,9 +17,8 @@
 
 .content-pages-root
 {
-	position: relative;
-	flex-grow: 1.0;
-	flex-basis: 100%;
+	position: absolute;
+	inset: 0;
 
 	display: flex;
 	flex-wrap: wrap;
@@ -54,6 +53,21 @@
 	transition-timing-function: ease-in-out;
 }
 
+.content-page-frames-loose
+{
+	pointer-events: none;
+	display: block;
+	position: absolute;
+	overflow: hidden;
+	inset: 0;
+
+	padding: var(--gap-05);
+
+	transition-property: opacity;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
+}
+
 
 
 
@@ -65,8 +79,12 @@
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 	flex-basis: 0;
-	min-width: 20%;
+	min-width: 15rem;
+	min-height: 15rem;
 }
+
+
+
 
 
 .page-root
@@ -74,11 +92,8 @@
 	position: absolute;
 	display: block;
 
-
 	opacity: 100%;
 	scale: 100%;
-
-	min-width: 20%;
 
 	border-radius: var(--gap-05);
 	clip-path: stroke-box;
@@ -89,7 +104,7 @@
 	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 18%);
 
-	transition-property: top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
+	transition-property: rotate, top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }

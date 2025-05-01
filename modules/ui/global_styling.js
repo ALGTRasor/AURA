@@ -152,7 +152,7 @@ GlobalStyling.spacing = GlobalStyling.RegisterAspect(
     _ =>
     {
         GlobalStyling.SetRootStyleProperty('--spacing-multiplier', _.value);
-        GlobalStyling.TriggerChangeEvents(false);
+        GlobalStyling.TriggerChangeEvents(true);
     },
 );
 

@@ -96,6 +96,7 @@ export class PageHome extends PageDescriptor
 	{
 		if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
 		else instance.e_frame.style.maxWidth = '20rem';
+		instance.UpdateBodyTransform();
 	}
 }
 

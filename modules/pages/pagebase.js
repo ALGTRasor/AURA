@@ -59,21 +59,6 @@ export class PageInstance
 		else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
 		this.moving = false;
 		PageManager.onLayoutChange.Invoke();
-		return;
-
-		fadeTransformElement(
-			this.e_frame.parentElement,
-			() =>
-			{
-				if (toEnd === true) setSiblingIndex(this.e_frame, 0);
-				else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
-			},
-			() =>
-			{
-				this.moving = false;
-				PageManager.onLayoutChange.Invoke();
-			}
-		);
 	}
 
 	MoveRight(toEnd = false)
@@ -86,21 +71,6 @@ export class PageInstance
 		else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
 		this.moving = false;
 		PageManager.onLayoutChange.Invoke();
-		return;
-
-		fadeTransformElement(
-			this.e_frame.parentElement,
-			() =>
-			{
-				if (toEnd === true) setSiblingIndex(this.e_frame, this.e_frame.parentElement.childElementCount);
-				else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
-			},
-			() =>
-			{
-				this.moving = false;
-				PageManager.onLayoutChange.Invoke();
-			}
-		);
 	}
 
 	SetFrameParentElement(new_parent)
@@ -159,26 +129,16 @@ export class PageInstance
 		if (this.e_body.parentElement !== new_parent) this.SetBodyParentElement(new_parent);
 	}
 
-	DetermineBodyClassList()
+	DetermineFrameClassList()
 	{
 		if (this.state_data.docked !== true)
 		{
-			this.e_body.classList.remove('page-loose');
-			this.e_body.classList.add('page-loose');
-			this.e_body.style.resize = 'both';
-			this.e_body.style.left = this.state_data.position_x + 'px';
-			this.e_body.style.top = this.state_data.position_y + 'px';
-			this.e_body.style.width = '16rem';
-			this.e_body.style.height = '16rem';
+			this.e_frame.classList.remove('page-loose');
+			this.e_frame.classList.add('page-loose');
 		}
 		else
 		{
-			this.e_body.classList.remove('page-loose');
-			this.e_body.style.resize = 'unset';
-			this.e_body.style.left = 'unset';
-			this.e_body.style.top = 'unset';
-			this.e_body.style.width = 'unset';
-			this.e_body.style.height = 'unset';
+			this.e_frame.classList.remove('page-loose');
 		}
 	}
 
@@ -217,7 +177,7 @@ export class PageInstance
 	{
 		this.UpdateFrameParent();
 		this.UpdateBodyParent();
-		this.DetermineBodyClassList();
+		this.DetermineFrameClassList();
 		this.ApplyLoosePosition();
 		PageManager.onLayoutChange.Invoke();
 	}
@@ -308,8 +268,26 @@ export class PageInstance
 
 	UpdateBodyTransform()
 	{
-		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
+		if (!this.e_frame || !this.e_frame.parentElement) return;
+
+		if (this.state_data.docked === true)
+		{
+			this.e_frame.style.position = 'relative';
+			this.e_frame.style.left = 'unset';
+			this.e_frame.style.top = 'unset';
+			this.e_body.style.transitionDuration = 'var(--trans-dur-off-fast)';
+		}
+		else
+		{
+			this.e_frame.style.position = 'absolute';
+			this.e_frame.style.left = this.state_data.position_x;
+			this.e_frame.style.top = this.state_data.position_y;
+			this.e_body.style.transitionDuration = '0s';
+		}
+
 		let frame_rect = this.e_frame.getBoundingClientRect();
+		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
+
 		this.e_body.style.left = (frame_rect.x - frame_parent_rect.x) + 'px';
 		this.e_body.style.top = (frame_rect.y - frame_parent_rect.y) + 'px';
 		this.e_body.style.width = frame_rect.width + 'px';
