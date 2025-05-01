@@ -14,7 +14,7 @@ export class PageProjectHub extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
-		instance.e_body.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = '32rem';
 
 		instance.viewer = new RecordViewer();
 		instance.viewer.SetData(SharedData.projects.instance.data);

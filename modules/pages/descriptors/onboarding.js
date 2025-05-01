@@ -14,7 +14,7 @@ export class PageOnboarding extends PageDescriptor
 		this.icon = 'person';
 
 		this.CreateBody();
-		this.e_body.style.minWidth = '32rem';
+		this.e_frame.style.minWidth = '32rem';
 
 		this.e_content.style.flexWrap = 'nowrap';
 		this.e_content.style.flexDirection = 'column';

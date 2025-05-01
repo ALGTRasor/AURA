@@ -13,8 +13,8 @@ export class PageHome extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.minWidth = '20rem';
-		instance.e_body.style.flexGrow = '1.0';
+		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.flexGrow = '1.0';
 
 		//this.e_content.className = 'page-content-root menu-root';
 
@@ -94,8 +94,8 @@ export class PageHome extends PageDescriptor
 
 	UpdateSize(instance)
 	{
-		if (instance.state_data.expanding === true) instance.e_body.style.maxWidth = 'unset';
-		else instance.e_body.style.maxWidth = '20rem';
+		if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
+		else instance.e_frame.style.maxWidth = '20rem';
 	}
 }
 

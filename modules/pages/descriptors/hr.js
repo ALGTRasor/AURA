@@ -12,7 +12,7 @@ export class PageHR extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
-		instance.e_body.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = '32rem';
 		this.CreateHrRequestBlock(instance);
 	}
 

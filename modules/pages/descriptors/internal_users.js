@@ -14,8 +14,8 @@ export class PageInternalUsers extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.minWidth = '32rem';
-		//this.e_body.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
+		instance.e_frame.style.minWidth = '32rem';
+		//this.e_frame.style.backgroundColor = 'hsl(from var(--theme-color) h s 20%)';
 
 		instance.viewer = new RecordViewer();
 		instance.viewer.SetData(SharedData.users.instance.data);

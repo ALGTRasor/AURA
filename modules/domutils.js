@@ -129,7 +129,7 @@ export function fadeAppendChild(parent = {}, child = {}, min_scale = '95%')
     parent.appendChild(child);
 }
 
-export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_scale = '95%')
+export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_scale = '95%', afterRemove = () => { },)
 {
     if (!target) return;
 
@@ -159,6 +159,7 @@ export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_sca
             {
                 if (beforeRemove) beforeRemove();
                 if (target.remove) target.remove();
+                if (afterRemove) afterRemove();
             };
             window.setTimeout(end_fade, fade_duration_ms);
         },

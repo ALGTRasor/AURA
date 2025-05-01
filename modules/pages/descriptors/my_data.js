@@ -23,7 +23,7 @@ export class PageMyData extends PageDescriptor
 
 		instance.sub_SharedDataRefresh = {};
 
-		instance.e_body.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = '32rem';
 
 		instance.e_content.style.flexWrap = 'wrap';
 		instance.e_content.style.flexDirection = 'row';

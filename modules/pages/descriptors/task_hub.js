@@ -13,7 +13,7 @@ export class PageTaskHub extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = '32rem';
 
 		instance.viewer = new RecordViewer();
 		instance.viewer.SetData(SharedData.tasks.data);

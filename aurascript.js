@@ -72,10 +72,7 @@ function SetContentObscured(enabled = true, label = '...')
 	e_content_obscurer.style.display = window.content_obscured ? 'block' : 'none';
 	if (label) e_content_obscurer.innerText = label;
 }
-function ToggleContentObscured()
-{
-	SetContentObscured(window.content_obscured !== true);
-}
+function ToggleContentObscured() { SetContentObscured(window.content_obscured !== true); }
 
 function SetContentFaded(enabled = true)
 {
@@ -84,10 +81,7 @@ function SetContentFaded(enabled = true)
 	if (!e_content_root) return;
 	e_content_root.style.filter = window.content_faded ? 'brightness(50%) blur(0.2rem) saturate(50%)' : 'none';
 }
-function ToggleContentFaded()
-{
-	SetContentFaded(window.content_faded !== true);
-}
+function ToggleContentFaded() { SetContentFaded(window.content_faded !== true); }
 
 
 function RegisterHotkeys()
@@ -249,7 +243,7 @@ async function OnAuraInit()
 					'[N]o'
 				)
 			});
-			ActionBar.AddMenuButton('home', 'menu', _ => PageManager.OpenPageByTitle('nav menu'));
+			ActionBar.AddMenuButton('home', 'menu', _ => { PageManager.CloseAll(); });
 		}
 		await AppEvents.onAccountLogin.InvokeAsync();
 

@@ -1,9 +1,9 @@
 export function until(conditionFxn)
 {
-	const poll = resolve =>
+	const check = resolve =>
 	{
 		if (conditionFxn()) resolve();
-		else setTimeout(_ => poll(resolve), 250);
+		else setTimeout(_ => check(resolve), 250);
 	}
-	return new Promise(poll);
+	return new Promise(check);
 }

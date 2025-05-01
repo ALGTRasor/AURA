@@ -11,8 +11,8 @@ export class PageExternalLinks extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.maxWidth = '30rem';
-		instance.e_body.style.minWidth = '24rem';
+		instance.e_frame.style.maxWidth = '30rem';
+		instance.e_frame.style.minWidth = '24rem';
 
 		let e_body_root = CreatePagePanel(
 			instance.e_content, true, true, null,
@@ -87,7 +87,7 @@ export class PageExternalLinks extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		let body_rect = instance.e_body.getBoundingClientRect();
+		let body_rect = instance.e_frame.getBoundingClientRect();
 		if (body_rect.height > 400) instance.e_cookie_warning.style.display = 'block';
 		else instance.e_cookie_warning.style.display = 'none';
 	}

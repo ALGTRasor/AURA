@@ -17,8 +17,8 @@ export class PageMap extends PageDescriptor
 
 	UpdateSize(instance)
 	{
-		if (instance.state_data.expanding) instance.e_body.style.maxWidth = 'unset';
-		else instance.e_body.style.maxWidth = '17rem';
+		if (instance.state_data.expanding) instance.e_frame.style.maxWidth = 'unset';
+		else instance.e_frame.style.maxWidth = '17rem';
 	}
 
 	OnCreateElements(instance)

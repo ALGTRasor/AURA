@@ -60,7 +60,7 @@ export class PageTitleBar
 		PageManager.FocusPage(this.page);
 		e.stopPropagation();
 		e.preventDefault();
-		let pageRect = this.page.e_body.getBoundingClientRect();
+		let pageRect = this.page.e_frame.getBoundingClientRect();
 		//PageManager.BringToFront(this.page);
 		this.drag_start_x = e.clientX - pageRect.x;
 		this.drag_start_y = e.clientY - pageRect.y;
@@ -73,8 +73,8 @@ export class PageTitleBar
 	{
 		e.stopPropagation();
 		e.preventDefault();
-		let pageRect = this.page.e_body.getBoundingClientRect();
-		let pageRootRect = this.page.e_body.parentElement.getBoundingClientRect();
+		let pageRect = this.page.e_frame.getBoundingClientRect();
+		let pageRootRect = this.page.e_frame.parentElement.getBoundingClientRect();
 
 		this.drag_latest_x = e.clientX;
 		this.drag_latest_y = e.clientY;
@@ -182,12 +182,14 @@ export class PageTitleBar
 
 	RefreshAllButtons()
 	{
-		let hasSiblingL = this.page.e_body.previousElementSibling != null;
-		let hasSiblingR = this.page.e_body.nextElementSibling != null;
+		let hasSiblingL = this.page.e_frame.previousElementSibling != null;
+		let hasSiblingR = this.page.e_frame.nextElementSibling != null;
 
 		if (hasSiblingL) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageMoveL);
 
-		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
+		if (this.page.page_descriptor.title !== 'nav menu' || PageManager.page_instances.length > 1)
+			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
+
 		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
 		if (this.page.state_data.docked === true && this.page.page_descriptor.UpdateSize) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
 		if (hasSiblingR) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageMoveR);

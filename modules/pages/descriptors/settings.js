@@ -171,10 +171,10 @@ export class PageSettings extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_body.style.minWidth = '18rem';
-		instance.e_body.style.maxWidth = '32rem';
-		instance.e_body.style.flexBasis = '12rem';
-		instance.e_body.style.flexGrow = '1.0';
+		instance.e_frame.style.minWidth = '18rem';
+		instance.e_frame.style.maxWidth = '32rem';
+		instance.e_frame.style.flexBasis = '12rem';
+		instance.e_frame.style.flexGrow = '1.0';
 
 		instance.e_options_root = CreatePagePanel(
 			instance.e_content, true, true, 'min-height:1.5rem; align-content:flex-start;',

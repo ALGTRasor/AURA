@@ -1,3 +1,20 @@
+.content-page-frames-root
+{
+	display: block;
+	position: absolute;
+	overflow: hidden;
+	inset: 0;
+
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	justify-content: center;
+
+	gap: var(--gap-1);
+	padding: var(--gap-05);
+}
+
+
 .content-pages-root
 {
 	position: relative;
@@ -23,8 +40,8 @@
 
 .content-pages-loose
 {
-	display: block;
 	pointer-events: none;
+	display: block;
 	position: absolute;
 	overflow: hidden;
 	inset: 0;
@@ -41,16 +58,22 @@
 
 
 
+.page-root-frame
+{
+	display: block;
+	position: relative;
+	flex-shrink: 1.0;
+	flex-grow: 1.0;
+	flex-basis: 0;
+	min-width: 20%;
+}
 
 
 .page-root
 {
-	position: relative;
+	position: absolute;
 	display: block;
 
-	flex-shrink: 1.0;
-	flex-grow: 1.0;
-	flex-basis: 0;
 
 	opacity: 100%;
 	scale: 100%;
@@ -66,8 +89,8 @@
 	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 18%);
 
-	transition-property: background-color, box-shadow, opacity, outline-color, scale;
-	transition-duration: var(--trans-dur-on-fast);
+	transition-property: top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
+	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
 

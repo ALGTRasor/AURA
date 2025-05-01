@@ -26,6 +26,7 @@ export class PageManager
 		return null;
 	}
 
+	static pauseLayoutChange = false;
 	static onLayoutChange = new EventSource();
 
 	static sub_AutosaveOnLayoutChange = PageManager.onLayoutChange.RequestSubscription(Autosave.InvokeSoon);
@@ -93,6 +94,24 @@ export class PageManager
 				return;
 			}
 		}
+	}
+
+	static CloseAll()
+	{
+		const close_first = () =>
+		{
+			if (PageManager.page_instances.length < 1)
+			{
+				PageManager.pauseLayoutChange = false;
+				PageManager.NotifyLayoutChange();
+				return;
+			}
+			PageManager.page_instances[0].CloseInstance();
+			window.setTimeout(close_first, 50);
+		};
+
+		PageManager.pauseLayoutChange = true;
+		close_first();
 	}
 
 	static SetPageHovered(page_instance = undefined)
@@ -195,7 +214,7 @@ export class PageManager
 		}
 
 		DebugLog.SubmitGroup();
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 
 		return true;
 	}
@@ -205,6 +224,12 @@ export class PageManager
 		let no_pages_open = PageManager.page_instances.length < 1;
 		if (no_pages_open) PageManager.ShowNavMenu();
 		else PageManager.FocusLastPageInstance();
+		PageManager.NotifyLayoutChange();
+	}
+
+	static NotifyLayoutChange()
+	{
+		if (PageManager.pauseLayoutChange === true) return;
 		PageManager.onLayoutChange.Invoke();
 	}
 

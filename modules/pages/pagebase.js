@@ -17,6 +17,7 @@ export class PageInstance
 
 		this.siblingIndex = -1;
 		this.title_bar = null;
+		this.e_frame = {};
 		this.e_body = {};
 		this.e_content = {};
 		this.state_data = {};
@@ -32,30 +33,35 @@ export class PageInstance
 
 	CreateBody()
 	{
+		this.e_frame = document.createElement('div');
+		this.e_frame.id = 'page-frame-' + this.page_descriptor.title + '[' + this.instance_id + ']';
+		this.e_frame.className = 'page-root-frame';
+
 		this.e_body = document.createElement('div');
 		this.e_body.id = 'page-' + this.page_descriptor.title + '[' + this.instance_id + ']';
 		this.e_body.className = 'page-root';
 		this.e_body.addEventListener('mouseenter', _ => PageManager.SetPageHovered(this));
 		this.e_body.addEventListener('mousedown', _ => PageManager.FocusPage(this));
+
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
+
 		this.title_bar = new PageTitleBar(this, true);
 		this.title_bar.RefreshAllButtons();
-		fadeAppendChild(this.e_body, this.e_content);
 	}
 
 	MoveLeft(toEnd = false)
 	{
 		if (this.moving === true) return;
-		if (this.e_body.previousElementSibling == null) return;
+		if (this.e_frame.previousElementSibling == null) return;
 		this.moving = true;
 
 		fadeTransformElement(
-			this.e_body.parentElement,
+			this.e_frame.parentElement,
 			() =>
 			{
-				if (toEnd === true) setSiblingIndex(this.e_body, 0);
-				else this.e_body.parentElement.insertBefore(this.e_body, this.e_body.previousSibling);
+				if (toEnd === true) setSiblingIndex(this.e_frame, 0);
+				else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
 			},
 			() =>
 			{
@@ -68,15 +74,15 @@ export class PageInstance
 	MoveRight(toEnd = false)
 	{
 		if (this.moving === true) return;
-		if (this.e_body.nextElementSibling == null) return;
+		if (this.e_frame.nextElementSibling == null) return;
 		this.moving = true;
 
 		fadeTransformElement(
-			this.e_body.parentElement,
+			this.e_frame.parentElement,
 			() =>
 			{
-				if (toEnd === true) setSiblingIndex(this.e_body, this.e_body.parentElement.childElementCount);
-				else this.e_body.parentElement.insertBefore(this.e_body.nextSibling, this.e_body);
+				if (toEnd === true) setSiblingIndex(this.e_frame, this.e_frame.parentElement.childElementCount);
+				else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
 			},
 			() =>
 			{
@@ -86,7 +92,35 @@ export class PageInstance
 		);
 	}
 
-	SetParentElement(new_parent)
+	SetFrameParentElement(new_parent)
+	{
+		if (!new_parent) return;
+
+		let old_parent = this.e_frame.parentElement;
+		if (old_parent)
+		{
+			if (old_parent === new_parent) return;
+			old_parent.removeChild(this.e_frame);
+		}
+		new_parent.appendChild(this.e_frame);
+		PageManager.onLayoutChange.Invoke();
+	}
+
+	DetermineFrameParent()
+	{
+		const loose_root = 'content-page-frames-loose';
+		const docked_root = 'content-page-frames-root';
+		if (this.state_data.docked === true) return document.getElementById(docked_root);
+		return document.getElementById(loose_root);
+	}
+
+	UpdateFrameParent()
+	{
+		let new_parent = this.DetermineFrameParent();
+		if (this.e_frame.parentElement !== new_parent) this.SetFrameParentElement(new_parent);
+	}
+
+	SetBodyParentElement(new_parent)
 	{
 		if (!new_parent) return;
 
@@ -97,7 +131,7 @@ export class PageInstance
 			old_parent.removeChild(this.e_body);
 		}
 		new_parent.appendChild(this.e_body);
-		PageManager.onLayoutChange.Invoke();
+		//PageManager.onLayoutChange.Invoke();
 	}
 
 	DetermineBodyParent()
@@ -111,11 +145,7 @@ export class PageInstance
 	UpdateBodyParent()
 	{
 		let new_parent = this.DetermineBodyParent();
-		if (this.e_body.parentElement !== new_parent) 
-		{
-			//DebugLog.Log("Moved Page to root: " + new_parent.id);
-			this.SetParentElement(new_parent);
-		}
+		if (this.e_body.parentElement !== new_parent) this.SetBodyParentElement(new_parent);
 	}
 
 	DetermineBodyClassList()
@@ -174,6 +204,7 @@ export class PageInstance
 
 	ApplyDockState()
 	{
+		this.UpdateFrameParent();
 		this.UpdateBodyParent();
 		this.DetermineBodyClassList();
 		this.ApplyLoosePosition();
@@ -209,27 +240,37 @@ export class PageInstance
 		if (immediate)
 		{
 			if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
+			this.e_frame.remove();
+			this.e_frame = null;
 			this.e_body.remove();
 			this.e_body = null;
 		}
 		else
 		{
+			this.e_frame.remove();
+			this.e_frame = null;
 			fadeRemoveElement(
 				this.e_body,
-				() =>
-				{
-					if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
-				}
+				() => { },
+				'95%',
+				() => { if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this); },
 			);
 		}
 	}
 
 	CreateElements()
 	{
-		parent = this.DetermineBodyParent();
-		if (!parent) 
+		let frame_parent = this.DetermineFrameParent();
+		if (!frame_parent) 
 		{
-			DebugLog.Log("PageInstance.CreateElements failed! Null parent");
+			DebugLog.Log("PageInstance.CreateElements failed! Null frame_parent");
+			return;
+		}
+
+		let body_parent = this.DetermineBodyParent();
+		if (!body_parent) 
+		{
+			DebugLog.Log("PageInstance.CreateElements failed! Null body_parent");
 			return;
 		}
 
@@ -237,7 +278,10 @@ export class PageInstance
 		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 
-		fadeAppendChild(parent, this.e_body);
+		frame_parent.appendChild(this.e_frame);
+		fadeAppendChild(body_parent, this.e_body);
+		window.setTimeout(() => { fadeAppendChild(this.e_body, this.e_content); }, 125);
+
 		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
 		this.page_descriptor.OnOpen(this);
 	}
@@ -248,6 +292,17 @@ export class PageInstance
 		this.title_bar.RemoveAllButtons();
 		this.title_bar.RefreshAllButtons();
 		this.page_descriptor.OnLayoutChange(this);
+		this.UpdateBodyTransform();
+	}
+
+	UpdateBodyTransform()
+	{
+		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
+		let frame_rect = this.e_frame.getBoundingClientRect();
+		this.e_body.style.left = (frame_rect.x - frame_parent_rect.x) + 'px';
+		this.e_body.style.top = (frame_rect.y - frame_parent_rect.y) + 'px';
+		this.e_body.style.width = frame_rect.width + 'px';
+		this.e_body.style.height = frame_rect.height + 'px';
 	}
 
 	RequireStateProperty(property_name = '', default_value = undefined)
@@ -280,12 +335,12 @@ export class PageInstance
 		this.ApplyDockState();
 	}
 
-	CreatePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
+	CreatePanel(frame_parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
 	{
 		let classes = 'page-panel';
 		if (inset) classes += ' inset-box';
 		if (tiles) classes += ' page-panel-tiles scroll-y';
-		return addElement(parent, 'div', classes, styling, prep);
+		return addElement(frame_parent, 'div', classes, styling, prep);
 	}
 }
 
