@@ -259,7 +259,7 @@ export class PageInstance
 
 	UpdatePageContext()
 	{
-		this.siblingIndex = this.e_body ? getSiblingIndex(this.e_body) : -1;
+		this.siblingIndex = this.e_frame ? getSiblingIndex(this.e_frame) : -1;
 		this.title_bar.RemoveAllButtons();
 		this.title_bar.RefreshAllButtons();
 		this.page_descriptor.OnLayoutChange(this);
