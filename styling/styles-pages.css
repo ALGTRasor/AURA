@@ -110,12 +110,11 @@
 	scale: 100%;
 
 	border-radius: var(--gap-05);
-	clip-path: stroke-box;
 
 	outline: solid 3px transparent;
 	outline-offset: -2px;
 
-	box-shadow: -1px 1px 3px rgba(from var(--shadow-color) r g b / 0.15);
+	box-shadow: 0px 0px 5px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 18%);
 
 	transition-property: rotate, top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
@@ -128,7 +127,6 @@
 	outline-color: hsl(from var(--theme-color) h s 35%);
 	opacity: 100%;
 
-	box-shadow: -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.15);
 	background-color: hsl(from var(--theme-color) h s 24%);
 }
 
@@ -171,8 +169,13 @@
 .page-root.page-loose
 {
 	position: absolute;
-	clip-path: none;
+	box-shadow: 0px 0px 8px rgba(from var(--shadow-color) r g b / 0.95);
 }
+
+
+
+
+
 
 
 

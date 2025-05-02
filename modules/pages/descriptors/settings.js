@@ -169,20 +169,21 @@ export class PageSettings extends PageDescriptor
 	pinnable = true;
 	GetTitle() { return 'settings'; }
 	GetIcon() { return 'settings'; }
+
+	OnLayoutChange(instance)
+	{
+		if (instance.state_data.docked === true) instance.e_frame.style.maxWidth = '32rem';
+		else instance.e_frame.style.maxWidth = 'unset';
+	}
+
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
 
 		//instance.e_frame.style.minWidth = '18rem';
-		//instance.e_frame.style.maxWidth = '32rem';
+		instance.e_frame.style.maxWidth = '32rem';
 		instance.e_frame.style.flexBasis = '12rem';
 		instance.e_frame.style.flexGrow = '1.0';
-
-		// begin settings sections
-
-
-
-
 
 
 		// toggle section
@@ -241,10 +242,6 @@ export class PageSettings extends PageDescriptor
 				);
 			}
 		);
-
-
-
-
 
 
 		// theme section
@@ -347,8 +344,6 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		//instance.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
-
 		const updateColorWarning = (e) =>
 		{
 			let hue = GlobalStyling.themeColor.hue;
@@ -383,66 +378,13 @@ export class PageSettings extends PageDescriptor
 			else 
 			{
 				e.innerText = 'looks fine to me ¯\\(ツ)/¯';
-				e.style.color = '#0f0';
+				e.style.color = '#0f08';
 				e.style.display = 'block';
 			}
 		};
-
-		//instance.e_options_root.appendChild(instance.e_theme_color_warning);
 		updateColorWarning(instance.e_theme_color_warning);
 
 
-
-		// end settings sections
-
-
-		// permissions section
-		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
-			x =>
-			{
-				x.classList.remove('scroll-y');
-				x.classList.add('expanding-panel');
-				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY PERMISSIONS'; });
-
-				//const get_key = _ => _.Title.split('.')[0];
-				const get_key = _ =>
-				{
-					let last_dot_id = _.Title.split('').reverse().indexOf('.');
-					if (last_dot_id < 0) return 'global';
-					return _.Title.substring(0, _.Title.length - last_dot_id);
-				};
-				const match_first_index = (v, i, self) => self.indexOf(v) === i;
-				const not_deprecated = _ => _.permission_flags === undefined || _.permission_flags.indexOf('deprecated') < 0;
-				const group_from_key = (_, permissions) => { return { key: _, perms: permissions.filter(p => p.Title.startsWith(_)) }; };
-
-				let perms = UserAccountInfo.user_permissions.filter(not_deprecated);
-				let perm_groups = perms.map(get_key).filter(match_first_index).map(_ => group_from_key(_, perms));
-				let base_hue = Math.random();
-				for (let gid in perm_groups)
-				{
-					let hue = base_hue;
-					base_hue += 0.45;
-					perm_groups[gid].color = `hsl(${Math.round(hue * 3600) * 0.1}deg 30% 100%)`;
-				}
-
-				for (let pid in perms)
-				{
-					let info = perms[pid];
-					let group = perm_groups.find(x => info.Title.startsWith(x.key));
-					CreatePagePanel(
-						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
-						y =>
-						{
-							y.innerText = info.permission_name;
-							y.title = info.permission_desc;
-							y.style.setProperty('--theme-color', group.color);
-							y.classList.add('hover-lift');
-						}
-					);
-				}
-			}
-		);
 
 		// modules section
 		if (false && DevMode.active)
@@ -507,6 +449,53 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
+		// permissions section
+		CreatePagePanel(
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			x =>
+			{
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY PERMISSIONS'; });
+
+				//const get_key = _ => _.Title.split('.')[0];
+				const get_key = _ =>
+				{
+					let last_dot_id = _.Title.split('').reverse().indexOf('.');
+					if (last_dot_id < 0) return 'global';
+					return _.Title.substring(0, _.Title.length - last_dot_id);
+				};
+				const match_first_index = (v, i, self) => self.indexOf(v) === i;
+				const not_deprecated = _ => _.permission_flags === undefined || _.permission_flags.indexOf('deprecated') < 0;
+				const group_from_key = (_, permissions) => { return { key: _, perms: permissions.filter(p => p.Title.startsWith(_)) }; };
+
+				let perms = UserAccountInfo.user_permissions.filter(not_deprecated);
+				let perm_groups = perms.map(get_key).filter(match_first_index).map(_ => group_from_key(_, perms));
+				let base_hue = Math.random();
+				for (let gid in perm_groups)
+				{
+					let hue = base_hue;
+					base_hue += 0.45;
+					perm_groups[gid].color = `hsl(${Math.round(hue * 3600) * 0.1}deg 30% 100%)`;
+				}
+
+				for (let pid in perms)
+				{
+					let info = perms[pid];
+					let group = perm_groups.find(x => info.Title.startsWith(x.key));
+					CreatePagePanel(
+						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
+						y =>
+						{
+							y.innerText = info.permission_name;
+							y.title = info.permission_desc;
+							y.style.setProperty('--theme-color', group.color);
+							y.classList.add('hover-lift');
+						}
+					);
+				}
+			}
+		);
 
 		// about aura section
 		if (false && DevMode.active)

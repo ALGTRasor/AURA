@@ -126,8 +126,7 @@ function RegisterHotkeys()
 				let target = PageManager.GetHotkeyTarget();
 				if (m.none && target)
 				{
-					target.state_data.expanding = target.state_data.expanding !== true;
-					if (target.page_descriptor.UpdateSize) target.page_descriptor.UpdateSize(target);
+					target.ToggleExpanding();
 				}
 			},
 			{ action_description: 'Toggle Active Page Expanding', key_description: 'Spacebar', requires_target: true }

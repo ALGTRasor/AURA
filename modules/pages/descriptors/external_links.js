@@ -87,8 +87,11 @@ export class PageExternalLinks extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		let body_rect = instance.e_frame.getBoundingClientRect();
-		if (body_rect.height > 400) instance.e_cookie_warning.style.display = 'block';
+		if (instance.state_data.docked === true) instance.e_frame.style.maxWidth = '32rem';
+		else instance.e_frame.style.maxWidth = 'unset';
+
+		let frame_rect = instance.e_frame.getBoundingClientRect();
+		if (frame_rect.height > 400) instance.e_cookie_warning.style.display = 'block';
 		else instance.e_cookie_warning.style.display = 'none';
 	}
 }

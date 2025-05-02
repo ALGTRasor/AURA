@@ -36,6 +36,7 @@ export class TitleBarButtonDescriptor
 	static PageToggleDocked = new TitleBarButtonDescriptor(
 		(data) =>
 		{
+			return 'flip_to_front';
 			if (!('page' in data)) return 'flip_to_front';
 			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
 			if (is_page_docked(data.page)) return 'flip_to_front';
@@ -73,11 +74,7 @@ export class TitleBarButtonDescriptor
 		{
 			if ('page' in data)
 			{
-				let page_desc = data.page.page_descriptor;
-				data.page.state_data.expanding = data.page.state_data.expanding !== true;
-				if (page_desc.UpdateSize) page_desc.UpdateSize(data.page);
-				data.page.UpdateBodyTransform();
-				PageManager.onLayoutChange.Invoke();
+				data.page.ToggleExpanding();
 			}
 		},
 		(data) =>

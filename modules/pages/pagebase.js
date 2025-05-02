@@ -156,6 +156,7 @@ export class PageInstance
 
 	TryUndock()
 	{
+		this.state_data.expanding = false;
 		this.state_data.docked = false;
 
 		let frame_rect = this.e_frame.getBoundingClientRect();
@@ -195,6 +196,14 @@ export class PageInstance
 		this.state_data.position_x = Math.round(new_x);
 		this.state_data.position_y = Math.round(new_y);
 		this.ApplyFrameState(true);
+	}
+
+	ToggleExpanding()
+	{
+		this.state_data.expanding = this.state_data.expanding !== true;
+		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
+		this.UpdateBodyTransform();
+		PageManager.onLayoutChange.Invoke();
 	}
 
 	CloseInstance() { this.page_descriptor.CloseInstance(this); }
