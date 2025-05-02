@@ -68,7 +68,7 @@ export class TitleBarButtonDescriptor
 	static PageToggleExpanding = new TitleBarButtonDescriptor(
 		(data) =>
 		{
-			return 'resize';
+			return data.page.state_data.docked === true ? 'fit_page_width' : 'fit_screen';
 		},
 		(e, data) =>
 		{

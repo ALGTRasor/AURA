@@ -8,7 +8,7 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageTaskHub extends PageDescriptor
 {
-	GetTitle() { return 'task hub'; }
+	GetTitle() { return 'task tracker'; }
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
@@ -49,4 +49,4 @@ export class PageTaskHub extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageTaskHub('task hub', 'tasks.view'));
+PageManager.RegisterPage(new PageTaskHub('task tracker', 'tasks.view'));

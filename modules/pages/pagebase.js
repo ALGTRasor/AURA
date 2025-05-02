@@ -131,8 +131,8 @@ export class PageInstance
 
 	DetermineFrameClassList()
 	{
-		this.e_frame.classList.remove('page-loose');
-		if (this.state_data.docked !== true) this.e_frame.classList.add('page-loose');
+		this.e_body.classList.remove('page-loose');
+		if (this.state_data.docked !== true) this.e_body.classList.add('page-loose');
 	}
 
 	SetDepth(depth = 10)

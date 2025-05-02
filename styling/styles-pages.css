@@ -166,10 +166,10 @@
 	background: rgba(from var(--theme-color) r g b / 0.0);
 }
 
-.page-root.page-loose
+.page-loose
 {
-	position: absolute;
-	box-shadow: 0px 0px 8px rgba(from var(--shadow-color) r g b / 0.95);
+	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.9);
+	clip-path: none;
 }
 
 

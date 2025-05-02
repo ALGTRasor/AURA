@@ -49,23 +49,22 @@ export class PageHome extends PageDescriptor
 		let buttons = [];
 
 		TryAddButton(buttons, 'project hub');
-		TryAddButton(buttons, 'task hub');
+		TryAddButton(buttons, 'task tracker');
 		TryAddButton(buttons, 'contact logs');
+		TryAddButton(buttons, 'timekeep');
 		TryAddButton(buttons, 'internal users');
 		TryAddButton(buttons, 'external contacts');
+		TryAddButton(buttons, 'user dashboard');
 		TryAddButton(buttons, 'reports');
-		TryAddButton(buttons, 'timekeep');
-		TryAddButton(buttons, 'my data');
 		TryAddButton(buttons, 'hr');
 		//TryAddButton(buttons, 'settings');
-		TryAddButton(buttons, 'external links');
-		TryAddButton(buttons, 'map');
+		//TryAddButton(buttons, 'map');
 
-		if (DevMode.active)
-		{
-			TryAddButton(buttons, 'database probe');
-			TryAddButton(buttons, 'demo panel');
-		}
+		if (UserAccountInfo.HasPermission('app.events.access')) TryAddButton(buttons, 'database probe');
+		if (DevMode.active) TryAddButton(buttons, 'demo panel');
+
+		TryAddButton(buttons, 'external links');
+		TryAddButton(buttons, 'help');
 
 		instance.menu.CreateElements(instance.e_content, buttons);
 
@@ -93,8 +92,6 @@ export class PageHome extends PageDescriptor
 
 	UpdateSize(instance)
 	{
-		//if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
-		//else instance.e_frame.style.maxWidth = '20rem';
 		instance.UpdateBodyTransform();
 		this.OnLayoutChange(instance);
 	}

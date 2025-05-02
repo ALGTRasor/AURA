@@ -29,6 +29,7 @@ import { Fax } from "./modules/fax.js";
 
 
 import './modules/pages/descriptors/onboarding.js';
+import './modules/pages/descriptors/help.js';
 import './modules/pages/descriptors/home.js';
 import './modules/pages/descriptors/settings.js';
 import './modules/pages/descriptors/internal_users.js';
@@ -36,7 +37,7 @@ import './modules/pages/descriptors/external_contacts.js';
 import './modules/pages/descriptors/project_hub.js';
 import './modules/pages/descriptors/task_hub.js';
 import './modules/pages/descriptors/timekeep.js';
-import './modules/pages/descriptors/my_data.js';
+import './modules/pages/descriptors/user_dashboard.js';
 import './modules/pages/descriptors/hr.js';
 import './modules/pages/descriptors/database_probe.js';
 import './modules/pages/descriptors/external_links.js';
@@ -107,13 +108,13 @@ function RegisterHotkeys()
 	);
 
 	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Page: Nav Menu' }));
-	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Page: My Data' }));
+	Hotkeys.Register(new HotkeyDescriptor('u', m => { if (m.none) PageManager.TogglePageByTitle('user dashboard'); }, { action_description: 'Page: User Dashboard' }));
 	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Page: HR', permission: 'hr.access' }));
 	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }, { action_description: 'Page: Internal Users', permission: 'users.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }, { action_description: 'Page: External Contacts', permission: 'contacts.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Page: Project Hub', permission: 'projects.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('timekeep'); }, { action_description: 'Page: Time Log', permission: 'keep.time' }));
-	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task hub'); }, { action_description: 'Page: Task Hub', permission: 'tasks.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task tracker'); }, { action_description: 'Page: Task Tracker', permission: 'tasks.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
 	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log' }));
 

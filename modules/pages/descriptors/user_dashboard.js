@@ -15,7 +15,7 @@ import { addElement, CreatePagePanel } from "../../domutils.js";
 
 export class PageMyData extends PageDescriptor
 {
-	GetTitle() { return 'my data'; }
+	GetTitle() { return 'user dashboard'; }
 	GetIcon() { return 'person'; }
 	OnCreateElements(instance)
 	{
@@ -140,4 +140,4 @@ export class PageMyData extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('my data', 'aura.access'));
+PageManager.RegisterPage(new PageMyData('user dashboard', 'aura.access'));
