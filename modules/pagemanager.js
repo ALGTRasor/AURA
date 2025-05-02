@@ -17,6 +17,7 @@ export class PageManager
 	static page_instances = [];
 	static page_instance_focused = null;
 	static page_instance_hovered = null;
+	static pages_being_dragged = 0;
 
 	static GetHotkeyTarget()
 	{

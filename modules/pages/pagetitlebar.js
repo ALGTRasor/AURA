@@ -71,6 +71,7 @@ export class PageTitleBar
 		window.addEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.add("dragging");
 		this.page.DisableBodyTransitions();
+		PageManager.pages_being_dragged += 1;
 	};
 
 	#HandleDrag(e)
@@ -102,6 +103,8 @@ export class PageTitleBar
 		window.removeEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.remove("dragging");
 		this.page.EnableBodyTransitions();
+
+		PageManager.pages_being_dragged -= 1;
 	};
 
 	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '', sortOrder = 0)

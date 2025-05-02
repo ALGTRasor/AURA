@@ -1,5 +1,7 @@
+import { About } from "../../about.js";
 import { AppEvents } from "../../appevents.js";
 import { Autosave } from "../../autosave.js";
+import { DevMode } from "../../devmode.js";
 import { addElement, CreatePagePanel } from "../../domutils.js";
 import { clamp } from "../../mathutils.js";
 import { Modules } from "../../modules.js";
@@ -176,180 +178,220 @@ export class PageSettings extends PageDescriptor
 		instance.e_frame.style.flexBasis = '12rem';
 		instance.e_frame.style.flexGrow = '1.0';
 
-		instance.e_options_root = CreatePagePanel(
-			instance.e_content, true, true, 'min-height:1.5rem; align-content:flex-start;',
+		// begin settings sections
+
+
+
+
+
+
+		// toggle section
+		CreatePagePanel(
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
 			{
 				x.classList.remove('scroll-y');
 				x.classList.add('expanding-panel');
-				x.classList.add('hide-expander');
-				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'MY SETTINGS'; });
+				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'OPTIONS'; });
+
+				instance.e_toggle_layoutrestore = new SettingToggle(
+					x, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Whether or not the page layout will be restored when you load the app, or reset.',
+					_ =>
+					{
+						UserSettings.SetOptionValue('pagemanager-restore-layout', _.toggled === true);
+						Autosave.InvokeSoon();
+					}
+				);
+
+
+				instance.e_toggle_limitwidth = new SettingToggle(
+					x, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
+					_ =>
+					{
+						GlobalStyling.limitContentWidth.enabled = _.toggled === true;
+						GlobalStyling.limitContentWidth.Apply(true);
+					}
+				);
+
+				instance.e_toggle_hidesensitive = new SettingToggle(
+					x, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
+					_ =>
+					{
+						GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
+						GlobalStyling.hideSensitiveInfo.Apply(true);
+					}
+				);
+
+				instance.e_toggle_spotlight = new SettingToggle(
+					x, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
+					_ =>
+					{
+						GlobalStyling.spotlight.enabled = _.toggled === true;
+						GlobalStyling.spotlight.Apply(true);
+					}
+				);
+
+				instance.e_toggle_debuglog = new SettingToggle(
+					x, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
+					_ =>
+					{
+						GlobalStyling.showDebugLog.enabled = _.toggled === true;
+						GlobalStyling.showDebugLog.Apply(true);
+					}
+				);
 			}
 		);
 
-		instance.e_toggle_layoutrestore = new SettingToggle(
-			instance.e_options_root, 'remember layout', 'restore_page', UserSettings.GetOptionValue('pagemanager-restore-layout') === true, () => 'Whether or not the page layout will be restored when you load the app, or reset.',
-			_ =>
+
+
+
+
+
+		// theme section
+		CreatePagePanel(
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			x =>
 			{
-				UserSettings.SetOptionValue('pagemanager-restore-layout', _.toggled === true);
-				Autosave.InvokeSoon();
+				x.classList.remove('scroll-y');
+				x.classList.add('expanding-panel');
+				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
+				addElement(x, 'div', '', title_style, _ => { _.innerText = 'THEME'; });
+
+
+
+				instance.e_slider_themehue = new SettingSlider(
+					x, 'hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
+					_ =>
+					{
+						GlobalStyling.themeColor.hue = _.value;
+						GlobalStyling.themeColor.Apply(true);
+						_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+						_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
+						updateColorWarning(instance.e_theme_color_warning);
+					}
+				);
+
+				instance.e_slider_themesat = new SettingSlider(
+					x, 'saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
+					_ =>
+					{
+						GlobalStyling.themeColor.saturation = _.value;
+						GlobalStyling.themeColor.Apply(true);
+						_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
+						_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
+						updateColorWarning(instance.e_theme_color_warning);
+					}
+				);
+
+
+
+				instance.e_slider_contrast = new SettingSlider(
+					x, 'contrast', 'contrast', GlobalStyling.themeContrast.value, 0.05, () => 'UI theme contrast',
+					_ =>
+					{
+						GlobalStyling.themeContrast.value = _.value;
+						GlobalStyling.themeContrast.Apply(true);
+						updateColorWarning(instance.e_theme_color_warning);
+					}
+				);
+
+				instance.e_slider_brightness = new SettingSlider(
+					x, 'brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.05, () => 'UI theme brightness',
+					_ =>
+					{
+						GlobalStyling.themeBrightness.value = _.value;
+						GlobalStyling.themeBrightness.Apply(true);
+						updateColorWarning(instance.e_theme_color_warning);
+					}
+				);
+
+
+
+
+
+				instance.e_toggle_lightmode = new SettingToggle(
+					x, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
+					_ =>
+					{
+						GlobalStyling.lightMode.enabled = _.toggled === true;
+						GlobalStyling.lightMode.Apply(true);
+					}
+				);
+
+
+
+				instance.e_slider_spacing = new SettingSlider(
+					x, 'spacing', 'compress', GlobalStyling.spacing.value, 0.125, () => 'UI spacing',
+					_ =>
+					{
+						GlobalStyling.spacing.value = _.value;
+						GlobalStyling.spacing.Apply(true);
+					}
+				);
+
+				instance.e_slider_animspeed = new SettingSlider(
+					x, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.05, () => 'UI animation speed',
+					_ =>
+					{
+						GlobalStyling.animationSpeed.value = _.value;
+						GlobalStyling.animationSpeed.Apply(true);
+					}
+				);
+
+				instance.e_theme_color_warning = addElement(x, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 			}
 		);
 
-		instance.e_toggle_lightmode = new SettingToggle(
-			instance.e_options_root, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
-			_ =>
-			{
-				GlobalStyling.lightMode.enabled = _.toggled === true;
-				GlobalStyling.lightMode.Apply(true);
-			}
-		);
-
-		instance.e_toggle_limitwidth = new SettingToggle(
-			instance.e_options_root, 'limit width', 'width_wide', GlobalStyling.limitContentWidth.enabled === true, () => 'Whether or not to limit the width of the app to match a typical screen ratio (useful for wider screens)',
-			_ =>
-			{
-				GlobalStyling.limitContentWidth.enabled = _.toggled === true;
-				GlobalStyling.limitContentWidth.Apply(true);
-			}
-		);
-
-		instance.e_toggle_hidesensitive = new SettingToggle(
-			instance.e_options_root, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
-			_ =>
-			{
-				GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
-				GlobalStyling.hideSensitiveInfo.Apply(true);
-			}
-		);
-
-		instance.e_toggle_spotlight = new SettingToggle(
-			instance.e_options_root, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
-			_ =>
-			{
-				GlobalStyling.spotlight.enabled = _.toggled === true;
-				GlobalStyling.spotlight.Apply(true);
-			}
-		);
-
-		instance.e_toggle_debuglog = new SettingToggle(
-			instance.e_options_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
-			_ =>
-			{
-				GlobalStyling.showDebugLog.enabled = _.toggled === true;
-				GlobalStyling.showDebugLog.Apply(true);
-			}
-		);
-
-
-
-
-
-
-		instance.e_slider_spacing = new SettingSlider(
-			instance.e_options_root, 'spacing', 'compress', GlobalStyling.spacing.value, 0.125, () => 'UI spacing',
-			_ =>
-			{
-				GlobalStyling.spacing.value = _.value;
-				GlobalStyling.spacing.Apply(true);
-			}
-		);
-
-		instance.e_slider_animspeed = new SettingSlider(
-			instance.e_options_root, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.05, () => 'UI animation speed',
-			_ =>
-			{
-				GlobalStyling.animationSpeed.value = _.value;
-				GlobalStyling.animationSpeed.Apply(true);
-			}
-		);
-
-
-
-
-
-
-
-
-		instance.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
+		//instance.e_theme_color_warning = addElement(null, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 
 		const updateColorWarning = (e) =>
 		{
 			let hue = GlobalStyling.themeColor.hue;
 			let sat = GlobalStyling.themeColor.saturation;
 			let contrast = GlobalStyling.themeContrast.value;
+			let brightness = GlobalStyling.themeBrightness.value;
+
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
 			{
 				e.innerText = 'COLOR MIGHT CONFLICT WITH COLOR CODING';
+				e.style.color = '#fa0';
 				e.style.display = 'block';
 			}
 			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
 			{
 				e.innerText = 'COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.style.color = '#fa0';
 				e.style.display = 'block';
 			}
 			else if (contrast < 0.25 || contrast > 0.75)
 			{
 				e.innerText = 'CONTRAST MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.style.color = '#fa0';
+				e.style.display = 'block';
+			}
+			else if (brightness < 0.25 || brightness > 0.75)
+			{
+				e.innerText = 'BRIGHTNESS MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
+				e.style.color = '#fa0';
 				e.style.display = 'block';
 			}
 			else 
 			{
-				e.innerText = '';
-				e.style.display = 'none';
+				e.innerText = 'looks fine to me ¯\\(ツ)/¯';
+				e.style.color = '#0f0';
+				e.style.display = 'block';
 			}
 		};
 
-		instance.e_options_root.appendChild(instance.e_theme_color_warning);
+		//instance.e_options_root.appendChild(instance.e_theme_color_warning);
 		updateColorWarning(instance.e_theme_color_warning);
 
-		instance.e_slider_themehue = new SettingSlider(
-			instance.e_options_root, 'theme hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
-			_ =>
-			{
-				GlobalStyling.themeColor.hue = _.value;
-				GlobalStyling.themeColor.Apply(true);
-				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
-				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning(instance.e_theme_color_warning);
-			}
-		);
-
-		instance.e_slider_themesat = new SettingSlider(
-			instance.e_options_root, 'theme saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
-			_ =>
-			{
-				GlobalStyling.themeColor.saturation = _.value;
-				GlobalStyling.themeColor.Apply(true);
-				_.e_icon.style.color = 'hsl(from var(--theme-color) h 100% 50%)';
-				_.e_icon.style.textShadow = '0px 0px 0.5rem hsl(from var(--theme-color) h 100% 50%)';
-				updateColorWarning(instance.e_theme_color_warning);
-			}
-		);
 
 
-
-		instance.e_slider_contrast = new SettingSlider(
-			instance.e_options_root, 'theme contrast', 'contrast', GlobalStyling.themeContrast.value, 0.05, () => 'UI theme contrast',
-			_ =>
-			{
-				GlobalStyling.themeContrast.value = _.value;
-				GlobalStyling.themeContrast.Apply(true);
-				updateColorWarning(instance.e_theme_color_warning);
-			}
-		);
-
-		instance.e_slider_brightness = new SettingSlider(
-			instance.e_options_root, 'theme brightness', 'brightness_7', GlobalStyling.themeBrightness.value, 0.05, () => 'UI theme brightness',
-			_ =>
-			{
-				GlobalStyling.themeBrightness.value = _.value;
-				GlobalStyling.themeBrightness.Apply(true);
-				updateColorWarning(instance.e_theme_color_warning);
-			}
-		);
+		// end settings sections
 
 
+		// permissions section
 		CreatePagePanel(
 			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
@@ -397,29 +439,34 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
-			x =>
-			{
-				x.classList.remove('scroll-y');
-				x.classList.add('expanding-panel');
-				addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'LOADED MODULES'; });
-				for (let report_id in Modules.reported)
+		// modules section
+		if (DevMode.active)
+		{
+			CreatePagePanel(
+				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+				x =>
 				{
-					let module_info = Modules.reported[report_id];
-					CreatePagePanel(
-						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
-						_ =>
-						{
-							_.innerText = module_info.name;
-							_.title = module_info.desc;
-							_.classList.add('hover-lift');
-						}
-					);
+					x.classList.remove('scroll-y');
+					x.classList.add('expanding-panel');
+					addElement(x, 'div', '', 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;', _ => { _.innerText = 'LOADED MODULES'; });
+					for (let report_id in Modules.reported)
+					{
+						let module_info = Modules.reported[report_id];
+						CreatePagePanel(
+							x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
+							_ =>
+							{
+								_.innerText = module_info.name;
+								_.title = module_info.desc;
+								_.classList.add('hover-lift');
+							}
+						);
+					}
 				}
-			}
-		);
+			);
+		}
 
+		// hotkeys section
 		CreatePagePanel(
 			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
 			x =>
@@ -455,25 +502,43 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
-			x =>
-			{
-				x.classList.remove('scroll-y');
-				x.classList.add('expanding-panel');
-				const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
-				addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
 
-				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
-				const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });
-				addAbout('AURA stands for Arrow User Resource Assistant.');
-				addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
-				addAbout('AURA utilizes a Microsoft account for login, but is prepared to accomodate database backends outside of the Microsoft ecosystem.');
-				addAbout('AURA itself has no external dependencies, thus it can run in any standard web browser and could be made portable to run locally on any device with a standard browser. This also means AURA avoids any vulnerabilities that might be introduced by commonly used web dependencies like <a href="https://www.upguard.com/blog/critical-middleware-bypass-vulnerability-in-next-js-cve-2025-29927" target="_blank">Next.js</a>.');
-				addAbout('AURA is a static site, meaning it runs entirely on your device aside from external service calls like SharePoint.');
-				addAbout('© 2025 Arrow Land Group LLC');
-			}
-		);
+		// about aura section
+		if (DevMode.active)
+		{
+			CreatePagePanel(
+				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+				x =>
+				{
+					x.classList.remove('scroll-y');
+					x.classList.add('expanding-panel');
+					const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
+					addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
+
+					const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
+					const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });
+
+					About.GetLines().then(
+						_ => 
+						{
+							for (let aboutid in About.all)
+							{
+								addAbout(About.all[aboutid]);
+							}
+						}
+					);
+
+
+
+					//addAbout('AURA stands for Arrow User Resource Assistant.');
+					//addAbout('AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.');
+					//addAbout('AURA utilizes a Microsoft account for login, but is prepared to accomodate database backends outside of the Microsoft ecosystem.');
+					//addAbout('AURA itself has no external dependencies, thus it can run in any standard web browser and could be made portable to run locally on any device with a standard browser. This also means AURA avoids any vulnerabilities that might be introduced by commonly used web dependencies like <a href="https://www.upguard.com/blog/critical-middleware-bypass-vulnerability-in-next-js-cve-2025-29927" target="_blank">Next.js</a>.');
+					//addAbout('AURA is a static site, meaning it runs entirely on your device aside from external service calls like SharePoint.');
+					//addAbout('© 2025 Arrow Land Group LLC');
+				}
+			);
+		}
 	}
 
 	AddSlider(label = '', icon = '', tooltip = '', option_id = '', step = 0.0, extra = data => { }, extraOnDrag = data => { })

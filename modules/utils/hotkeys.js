@@ -28,7 +28,7 @@ export class HotkeyDescriptor
     {
         if (this.disabled === true)
         {
-            DebugLog.Log(' ! hotkey ignored: specific hotkey disabled');
+            DebugLog.Log(' ! hotkey ignored: this hotkey is disabled');
             return;
         }
         if (!this.key || this.key.length < 1)
@@ -41,11 +41,8 @@ export class HotkeyDescriptor
             DebugLog.Log(' ! hotkey skipped: event invalid');
             return;
         }
-        if (event.key !== this.key)
-        {
-            //DebugLog.Log(` ! hotkey skipped: key mismatch : ${event.key} !== ${this.key}`);
-            return;
-        }
+        if (event.key !== this.key) return;
+
         if (!this.keyAction)
         {
             DebugLog.Log(' ! hotkey skipped: no keyAction');
@@ -55,8 +52,7 @@ export class HotkeyDescriptor
         let msg = ` + hotkey executed: ${event.key}`;
         for (let mid in modifiers)
         {
-            let fact = modifiers[mid];
-            if (fact === true) msg += `+[${mid}]`;
+            if (modifiers[mid] === true) msg += `+[${mid}]`;
         }
         DebugLog.Log(msg);
 

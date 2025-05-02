@@ -1,0 +1,6 @@
+#AURA stands for Arrow User Resource Assistant.
+#AURA is a home-grown tool used to manage company operations at Arrow Land Group on several distinct levels.
+#AURA utilizes a Microsoft account for login, but is prepared to accomodate database backends outside of the Microsoft ecosystem.
+#AURA itself has no external dependencies, thus it can run in any standard web browser and could be made portable to run locally on any device with a standard browser. This also means AURA avoids any vulnerabilities that might be introduced by commonly used web dependencies like <a href="https://www.upguard.com/blog/critical-middleware-bypass-vulnerability-in-next-js-cve-2025-29927" target="_blank">Next.js</a>.
+#AURA is a static site, meaning it runs entirely on your device aside from external service calls like SharePoint.
+© 2025 Arrow Land Group LLC

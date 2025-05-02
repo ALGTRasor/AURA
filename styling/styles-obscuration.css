@@ -20,6 +20,11 @@
 	user-select: none;
 }
 
+.obscured-light
+{
+	filter: brightness(50%) blur(0.2rem) saturate(50%);
+}
+
 .disabled
 {
 	user-select: none;

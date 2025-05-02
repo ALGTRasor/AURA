@@ -77,9 +77,12 @@ function ToggleContentObscured() { SetContentObscured(window.content_obscured !=
 function SetContentFaded(enabled = true)
 {
 	window.content_faded = enabled === true;
+
 	let e_content_root = document.getElementById('content-root');
 	if (!e_content_root) return;
-	e_content_root.style.filter = window.content_faded ? 'brightness(50%) blur(0.2rem) saturate(50%)' : 'none';
+
+	e_content_root.classList.remove('obscured-light');
+	if (window.content_faded === true) e_content_root.classList.add('obscured-light');
 }
 function ToggleContentFaded() { SetContentFaded(window.content_faded !== true); }
 
@@ -127,7 +130,7 @@ function RegisterHotkeys()
 					if (target.page_descriptor.UpdateSize) target.page_descriptor.UpdateSize(target);
 				}
 			},
-			{ action_description: 'Toggle Active Page Expanding (if applicable)', key_description: 'Spacebar', requires_target: true }
+			{ action_description: 'Toggle Active Page Expanding', key_description: 'Spacebar', requires_target: true }
 		)
 	);
 
@@ -139,7 +142,7 @@ function RegisterHotkeys()
 				let target = PageManager.GetHotkeyTarget();
 				if (m.ctrl === true && target) target.MoveLeft(m.shift);
 			},
-			{ action_description: 'Move Active Page Left (if applicable)', key_description: 'ctrl+left', requires_target: true }
+			{ action_description: 'Move Active Page Left', key_description: 'ctrl﹢←', requires_target: true }
 		)
 	);
 
@@ -151,7 +154,7 @@ function RegisterHotkeys()
 				let target = PageManager.GetHotkeyTarget();
 				if (m.ctrl === true && target != null) target.MoveRight(m.shift);
 			},
-			{ action_description: 'Move Active Page Right (if applicable)', key_description: 'ctrl+right', requires_target: true }
+			{ action_description: 'Move Active Page Right', key_description: 'ctrl﹢→', requires_target: true }
 		)
 	);
 
@@ -163,7 +166,7 @@ function RegisterHotkeys()
 				let target = PageManager.GetHotkeyTarget();
 				if (m.ctrl === true && target != null) target.CloseInstance();
 			},
-			{ action_description: 'Close Active Page', key_description: 'ctrl+x', requires_target: true }
+			{ action_description: 'Close Active Page', key_description: 'ctrl﹢x', requires_target: true }
 		)
 	);
 }
@@ -181,7 +184,11 @@ async function OnAuraInit()
 	window.e_content_root = document.getElementById('content-body');
 	let e_content_obscurer = document.getElementById('content-body-obscurer');
 	let e_action_bar = document.getElementById('action-bar');
-	e_action_bar.addEventListener('mouseenter', _ => { SetContentFaded(true); });
+	e_action_bar.addEventListener('mouseenter', _ =>
+	{
+		if (PageManager.pages_being_dragged > 0) return;
+		SetContentFaded(true);
+	});
 	e_action_bar.addEventListener('mouseleave', _ => { SetContentFaded(false); });
 
 	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
