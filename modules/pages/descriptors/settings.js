@@ -218,7 +218,7 @@ export class PageSettings extends PageDescriptor
 				);
 
 				instance.e_toggle_hidesensitive = new SettingToggle(
-					x, 'obscure sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
+					x, 'hide sensitive info', 'visibility_lock', GlobalStyling.hideSensitiveInfo.enabled === true, () => 'Whether or not sensitive information like contact details will be obscured until you hover over them.',
 					_ =>
 					{
 						GlobalStyling.hideSensitiveInfo.enabled = _.toggled === true;
@@ -235,7 +235,7 @@ export class PageSettings extends PageDescriptor
 					}
 				);
 
-				if (DevMode.active)
+				if (DevMode.active === true)
 				{
 					instance.e_toggle_debuglog = new SettingToggle(
 						x, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
@@ -393,7 +393,7 @@ export class PageSettings extends PageDescriptor
 
 
 		// modules section
-		if (false && DevMode.active)
+		if (DevMode.active === true)
 		{
 			CreatePagePanel(
 				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',

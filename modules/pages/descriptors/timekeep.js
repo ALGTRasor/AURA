@@ -7,7 +7,7 @@ const style_panel_label = 'text-align:center; align-content:center; position:abs
 
 export class PageTimekeep extends PageDescriptor
 {
-	GetTitle() { return 'timekeep'; }
+	GetTitle() { return 'time keeper'; }
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
@@ -43,4 +43,4 @@ export class PageTimekeep extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageTimekeep('timekeep', 'time.keep'));
+PageManager.RegisterPage(new PageTimekeep('time keeper', 'time.keep'));

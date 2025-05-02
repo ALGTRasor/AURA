@@ -79,8 +79,8 @@
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 	flex-basis: 0;
-	min-width: 15rem;
-	min-height: 15rem;
+	min-width: 13rem;
+	min-height: 13rem;
 }
 
 .page-root-frame::after
@@ -705,18 +705,16 @@
 
 .menu-root
 {
-	position: absolute;
-	inset: 0;
+	position: relative;
+	flex-basis: 0%;
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
 
 	display: flex;
 	flex-direction: column;
 
 	padding: 0rem;
-	inset: var(--gap-1);
 	border-radius: var(--gap-1);
-
-	overflow: hidden;
-	clip-path: stroke-box;
 
 	background-color: hsl(from var(--theme-color) h s 12%);
 
@@ -732,12 +730,12 @@
 	align-content: center;
 	font-weight: bold;
 
-	min-height: 0;
+	min-height: 0.5rem;
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 
-	padding-left: 0.5rem;
-	padding-right: 0.5rem;
+	padding-left: var(--gap-05);
+	padding-right: var(--gap-05);
 
 	color: var(--theme-color-text-40);
 
@@ -748,8 +746,8 @@
 
 .menu-button:hover
 {
-	padding-left: calc(0.5rem + 4px);
-	padding-right: calc(0.5rem - 4px);
+	padding-left: calc(var(--gap-05) + 4px);
+	padding-right: calc(var(--gap-05) - 4px);
 
 	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	color: var(--theme-color-text);

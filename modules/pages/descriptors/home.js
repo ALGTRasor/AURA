@@ -2,7 +2,7 @@ import { DebugLog } from "../../debuglog.js";
 import { DevMode } from "../../devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
-import { UserAccountInfo } from "../../useraccount.js";
+import { UserAccountInfo, UserAccountManager } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class PageHome extends PageDescriptor
@@ -13,11 +13,9 @@ export class PageHome extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.flexGrow = '1.0';
+		instance.e_frame.style.minWidth = '20rem';
 
-		//this.e_content.className = 'page-content-root menu-root';
-
-		instance.menu = new QuickMenu();
+		instance.menu_main = new QuickMenu();
 
 		let TryAddButton = (buttons = [], id, label) => 
 		{
@@ -51,22 +49,28 @@ export class PageHome extends PageDescriptor
 		TryAddButton(buttons, 'project hub');
 		TryAddButton(buttons, 'task tracker');
 		TryAddButton(buttons, 'contact logs');
-		TryAddButton(buttons, 'timekeep');
-		TryAddButton(buttons, 'internal users');
-		TryAddButton(buttons, 'external contacts');
+		TryAddButton(buttons, 'field notes');
+		TryAddButton(buttons, 'time keeper');
+		TryAddButton(buttons, 'directory');
 		TryAddButton(buttons, 'user dashboard');
 		TryAddButton(buttons, 'reports');
 		TryAddButton(buttons, 'hr');
-		//TryAddButton(buttons, 'settings');
-		//TryAddButton(buttons, 'map');
-
-		if (UserAccountInfo.HasPermission('app.events.access')) TryAddButton(buttons, 'database probe');
-		if (DevMode.active) TryAddButton(buttons, 'demo panel');
-
 		TryAddButton(buttons, 'external links');
 		TryAddButton(buttons, 'help');
 
-		instance.menu.CreateElements(instance.e_content, buttons);
+		instance.menu_main.CreateElements(instance.e_content, buttons);
+		instance.menu_main.e_root.style.flexGrow = buttons.length;
+
+		let has_data_access = UserAccountInfo.HasPermission('app.events.access');
+		if (has_data_access || DevMode.active === true)
+		{
+			let buttons_extra = [];
+			TryAddButton(buttons_extra, 'database probe');
+			if (DevMode.active === true) TryAddButton(buttons_extra, 'demo panel');
+			instance.menu_extra = new QuickMenu();
+			instance.menu_extra.CreateElements(instance.e_content, buttons_extra);
+			instance.menu_extra.e_root.style.flexGrow = buttons_extra.length;
+		}
 
 		instance.e_content.style.justifyContent = 'center';
 	}

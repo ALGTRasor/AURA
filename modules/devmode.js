@@ -22,18 +22,42 @@ export class DevMode
 
 		let e_toggle_root = CreatePagePanel(document.getElementById('action-bar'), true, false);
 		e_toggle_root.style.position = 'absolute';
-		e_toggle_root.style.top = '0.25rem';
-		e_toggle_root.style.bottom = '0.25rem';
-		e_toggle_root.style.right = '5rem';
-		e_toggle_root.style.width = '11rem';
+		e_toggle_root.style.top = '0.125rem';
+		e_toggle_root.style.bottom = '0.125rem';
+		e_toggle_root.style.right = '4.2rem';
+		e_toggle_root.style.width = '6rem';
+		e_toggle_root.style.cursor = 'pointer';
 
 		let e_toggle = CreatePagePanel(e_toggle_root, false, false);
-		e_toggle.innerText = 'Disable Dev Mode';
+		e_toggle.innerText = 'Dev Mode';
+		e_toggle.style.setProperty('--theme-color', '#0fa');
 		e_toggle.style.fontSize = '0.7rem';
+		e_toggle.style.fontWeight = 'normal';
 		e_toggle.style.position = 'absolute';
-		e_toggle.style.inset = 'var(--gap-025)';
+		e_toggle.style.inset = 'var(--gap-05) 1rem var(--gap-05) 1rem';
 		e_toggle.style.alignSelf = 'center';
 		e_toggle.style.alignContent = 'center';
+		e_toggle.classList.add('hover-lift');
+		e_toggle.style.cursor = 'pointer';
+
+		e_toggle.addEventListener(
+			'click',
+			() =>
+			{
+				if (DevMode.active === true)
+				{
+					e_toggle.style.opacity = '30%';
+					e_toggle.style.setProperty('--theme-color', '#aaa');
+					DevMode.Deactivate();
+				}
+				else
+				{
+					e_toggle.style.opacity = '100%';
+					e_toggle.style.setProperty('--theme-color', '#0fa');
+					DevMode.Activate();
+				}
+			}
+		);
 
 	}
 

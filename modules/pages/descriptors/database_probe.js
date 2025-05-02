@@ -124,4 +124,4 @@ export class DatabaseProbe extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new DatabaseProbe('database probe', 'aura.access'));
+PageManager.RegisterPage(new DatabaseProbe('database probe', 'app.events.access'));
