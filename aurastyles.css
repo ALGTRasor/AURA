@@ -52,13 +52,7 @@
 
 
 
-.notransitions
-{
-	-webkit-transition: none !important;
-	-moz-transition: none !important;
-	-o-transition: none !important;
-	transition: none !important;
-}
+
 
 
 html
@@ -71,6 +65,7 @@ html
 	background: var(--theme-color-background);
 	color: var(--theme-color-text);
 }
+
 
 body
 {
@@ -87,6 +82,29 @@ body
 	font-family: AtkinsonHyperlegible;
 	font-size: var(--font-size);
 	letter-spacing: calc(0.15 * var(--font-size));
+}
+
+.notransitions
+{
+	animation: none !important;
+	transition-duration: 0s !important;
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-o-transition: none !important;
+	transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce)
+{
+	body *
+	{
+		animation: none !important;
+		transition-duration: 0s !important;
+		-webkit-transition: none !important;
+		-moz-transition: none !important;
+		-o-transition: none !important;
+		transition: none !important;
+	}
 }
 
 
