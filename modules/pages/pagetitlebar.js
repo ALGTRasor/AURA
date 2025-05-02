@@ -34,9 +34,9 @@ export class PageTitleBar
 
 	UpdateDraggable()
 	{
-		let dock_state_changed = this.page.state_data.docked === this.draggable;
-		if (dock_state_changed !== true) return;
-		if (this.page.state_data.docked === true) this.#MakeNotDraggable(); else this.#MakeDraggable();
+		//let dock_state_changed = this.page.state_data.docked === this.draggable;
+		//if (dock_state_changed !== true) return;
+		if (this.page.state_data.docked === true || this.page.state_data.expanding === true) this.#MakeNotDraggable(); else this.#MakeDraggable();
 	}
 
 	#MakeDraggable()
@@ -70,6 +70,7 @@ export class PageTitleBar
 		window.addEventListener('mousemove', this.handle_drag);
 		window.addEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.add("dragging");
+		this.page.DisableBodyTransitions();
 	};
 
 	#HandleDrag(e)
@@ -100,6 +101,7 @@ export class PageTitleBar
 		window.removeEventListener('mousemove', this.handle_drag);
 		window.removeEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.remove("dragging");
+		this.page.EnableBodyTransitions();
 	};
 
 	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '', sortOrder = 0)
@@ -196,7 +198,10 @@ export class PageTitleBar
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
 
 		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
-		if (this.page.state_data.docked === true && this.page.page_descriptor.UpdateSize) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
+
+		if (this.page.page_descriptor.UpdateSize || this.page.state_data.docked === false)
+			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
+
 		if (hasSiblingR) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageMoveR);
 
 		this.SortButtons(this.e_buttons_left);

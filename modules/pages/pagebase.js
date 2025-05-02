@@ -95,7 +95,7 @@ export class PageInstance
 		return document.getElementById(loose_root);
 	}
 
-	UpdateFrameParent()
+	CheckFrameParent()
 	{
 		let new_parent = this.DetermineFrameParent();
 		if (this.e_frame.parentElement !== new_parent) this.SetFrameParentElement(new_parent);
@@ -123,7 +123,7 @@ export class PageInstance
 		return document.getElementById(loose_root);
 	}
 
-	UpdateBodyParent()
+	CheckBodyParent()
 	{
 		let new_parent = this.DetermineBodyParent();
 		if (this.e_body.parentElement !== new_parent) this.SetBodyParentElement(new_parent);
@@ -131,15 +131,8 @@ export class PageInstance
 
 	DetermineFrameClassList()
 	{
-		if (this.state_data.docked !== true)
-		{
-			this.e_frame.classList.remove('page-loose');
-			this.e_frame.classList.add('page-loose');
-		}
-		else
-		{
-			this.e_frame.classList.remove('page-loose');
-		}
+		this.e_frame.classList.remove('page-loose');
+		if (this.state_data.docked !== true) this.e_frame.classList.add('page-loose');
 	}
 
 	SetDepth(depth = 10)
@@ -156,50 +149,52 @@ export class PageInstance
 		if (this.e_body) this.e_body.style.zIndex = this.state_data.depth;
 	}
 
-	TryToggleDocked() { if (this.state_data.docked === true) this.TryUndock(); else this.TryDock(); }
+	TryToggleDocked()
+	{
+		if (this.state_data.docked === true) this.TryUndock(); else this.TryDock();
+	}
 
 	TryUndock()
 	{
 		this.state_data.docked = false;
-		this.ApplyDockState();
-		if (!this.state_data.position_x) this.state_data.position_x = 0;
-		if (!this.state_data.position_y) this.state_data.position_y = 0;
+
+		let frame_rect = this.e_frame.getBoundingClientRect();
+		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
+
+		this.state_data.position_x = frame_rect.x - frame_parent_rect.x;
+		this.state_data.position_y = frame_rect.y - frame_parent_rect.y;
+		this.state_data.width = frame_rect.width;
+		this.state_data.height = frame_rect.height;
+
+		this.DisableBodyTransitions();
+		this.ApplyFrameState();
+		this.EnableBodyTransitions();
 	}
 
 	TryDock()
 	{
-		if (this.page_descriptor.dockable !== true) return;
 		this.state_data.docked = this.page_descriptor.dockable === true;
-		this.ApplyDockState();
+		this.ApplyFrameState();
 	}
 
-	ApplyDockState()
+	ApplyFrameState(lite = false)
 	{
-		this.UpdateFrameParent();
-		this.UpdateBodyParent();
-		this.DetermineFrameClassList();
-		this.ApplyLoosePosition();
+		if (lite === false)
+		{
+			this.CheckFrameParent();
+			this.CheckBodyParent();
+			this.DetermineFrameClassList();
+		}
+		this.UpdateBodyTransform();
 		PageManager.onLayoutChange.Invoke();
 	}
 
-	ApplyLoosePosition(trigger_layout_change = true)
+	// called from titlebar drag event
+	SetLoosePosition(new_x = 0, new_y = 0)
 	{
-		if (!this.e_frame) return;
-		if (!this.e_frame.style) return;
-		if (this.state_data.docked !== true)
-		{
-			this.e_frame.style.left = this.state_data.position_x + 'px';
-			this.e_frame.style.top = this.state_data.position_y + 'px';
-			if (trigger_layout_change === true) PageManager.onLayoutChange.Invoke();
-		}
-	}
-
-	SetLoosePosition(new_x = 0, new_y = 0, trigger_layout_change = true)
-	{
-		if (this.state_data.docked === true) return;
 		this.state_data.position_x = Math.round(new_x);
 		this.state_data.position_y = Math.round(new_y);
-		this.ApplyLoosePosition(trigger_layout_change);
+		this.ApplyFrameState(true);
 	}
 
 	CloseInstance() { this.page_descriptor.CloseInstance(this); }
@@ -261,32 +256,51 @@ export class PageInstance
 	{
 		this.siblingIndex = this.e_frame ? getSiblingIndex(this.e_frame) : -1;
 		this.title_bar.RemoveAllButtons();
-		this.title_bar.RefreshAllButtons();
-		this.page_descriptor.OnLayoutChange(this);
 		this.UpdateBodyTransform();
+		this.page_descriptor.OnLayoutChange(this);
+		this.title_bar.RefreshAllButtons();
 	}
+
+	EnableBodyTransitions() { this.e_body.style.transitionDuration = 'var(--trans-dur-off-fast)'; }
+	DisableBodyTransitions() { this.e_body.style.transitionDuration = '0s'; }
 
 	UpdateBodyTransform()
 	{
 		if (!this.e_frame || !this.e_frame.parentElement) return;
+
+		this.state_data.position_x = Math.round(this.state_data.position_x);
+		this.state_data.position_y = Math.round(this.state_data.position_y);
+
+		let frame_rect = this.e_frame.getBoundingClientRect();
+		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
 		if (this.state_data.docked === true)
 		{
 			this.e_frame.style.position = 'relative';
 			this.e_frame.style.left = 'unset';
 			this.e_frame.style.top = 'unset';
-			this.e_body.style.transitionDuration = 'var(--trans-dur-off-fast)';
+			this.e_frame.style.width = 'unset';
+			this.e_frame.style.height = 'unset';
 		}
 		else
 		{
 			this.e_frame.style.position = 'absolute';
-			this.e_frame.style.left = this.state_data.position_x;
-			this.e_frame.style.top = this.state_data.position_y;
-			this.e_body.style.transitionDuration = '0s';
+			if (this.state_data.expanding === true)
+			{
+				this.e_frame.style.left = 0;
+				this.e_frame.style.top = 0;
+				this.e_frame.style.width = frame_parent_rect.width + 'px';
+				this.e_frame.style.height = frame_parent_rect.height + 'px';
+			}
+			else
+			{
+				this.e_frame.style.left = this.state_data.position_x + 'px';
+				this.e_frame.style.top = this.state_data.position_y + 'px';
+				this.e_frame.style.width = this.state_data.width + 'px';
+				this.e_frame.style.height = this.state_data.height + 'px';
+			}
 		}
 
-		let frame_rect = this.e_frame.getBoundingClientRect();
-		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
 		this.e_body.style.left = (frame_rect.x - frame_parent_rect.x) + 'px';
 		this.e_body.style.top = (frame_rect.y - frame_parent_rect.y) + 'px';
@@ -301,7 +315,8 @@ export class PageInstance
 
 	ValidateStateData()
 	{
-		this.RequireStateProperty('docked', this.page_descriptor.dockable);
+		this.RequireStateProperty('docked', true);
+		this.RequireStateProperty('expanding', false);
 	}
 
 	UpdateStateData(state_data = undefined)
@@ -321,7 +336,7 @@ export class PageInstance
 	ApplyStateData()
 	{
 		this.ValidateStateData();
-		this.ApplyDockState();
+		this.ApplyFrameState();
 	}
 
 	CreatePanel(frame_parent = {}, inset = false, tiles = false, styling = '', prep = e => { })

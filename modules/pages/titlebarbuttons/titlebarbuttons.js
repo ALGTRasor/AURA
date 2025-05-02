@@ -73,12 +73,11 @@ export class TitleBarButtonDescriptor
 		{
 			if ('page' in data)
 			{
-				if (data.page.page_descriptor.UpdateSize)
-				{
-					data.page.state_data.expanding = !data.page.state_data.expanding;
-					data.page.page_descriptor.UpdateSize(data.page);
-					PageManager.onLayoutChange.Invoke();
-				}
+				let page_desc = data.page.page_descriptor;
+				data.page.state_data.expanding = data.page.state_data.expanding !== true;
+				if (page_desc.UpdateSize) page_desc.UpdateSize(data.page);
+				data.page.UpdateBodyTransform();
+				PageManager.onLayoutChange.Invoke();
 			}
 		},
 		(data) =>
@@ -87,7 +86,7 @@ export class TitleBarButtonDescriptor
 			if ('page' in data)
 			{
 				if (is_page_expanding(data.page)) return 'Collapse this page';
-				return 'Allow this page to expand';
+				return 'Expand this page';
 			}
 			return 'Toggle this page expanding to fill available space';
 		},
