@@ -2,7 +2,7 @@ import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 
-const developer_ids = ['brian.bristow', 't.rasor', 't.wink'];
+const developer_ids = ['t.rasor'];
 
 export class DevMode
 {
