@@ -120,6 +120,7 @@ class SettingSlider extends SettingControl
 
 	DragEnd(e)
 	{
+		this.e_slider.blur();
 		window.removeEventListener('mouseup', e => this.DragEnd(e));
 		window.removeEventListener('mousemove', e => this.HandleMouse(e));
 		this.HandleMouse(e, true); // last update on mouse up

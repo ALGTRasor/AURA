@@ -26,7 +26,7 @@ export class SlideSelector
             this.e_root, false, false,
             'position:absolute; z-index:-99;'
             + 'transition-property:top,left,width,height;'
-            + 'transition-duration:var(--trans-dur-off-slow);'
+            + 'transition-duration:var(--trans-dur-off-fast);'
             + 'transition-timing-function:ease-in-out;'
         );
         this.e_selector.style.padding = '0';
