@@ -516,7 +516,9 @@
 	transition-timing-function: ease-in-out;
 }
 
-.page-panel.expanding-panel:hover
+.page-panel.expanding-panel:hover,
+.page-panel.expanding-panel:focus,
+.page-panel.expanding-panel:focus-within
 {
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: 0s;

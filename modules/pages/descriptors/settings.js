@@ -43,6 +43,7 @@ class SettingSlider extends SettingControl
 	{
 		this.e_slider = document.createElement('div');
 		this.e_slider.className = 'setting-root setting-root-slider';
+		this.e_slider.tabIndex = '0';
 
 		if (this.icon)
 		{
@@ -88,6 +89,8 @@ class SettingSlider extends SettingControl
 	HandleMouse(e, force = false) 
 	{
 		if (!this.dragging) return;
+
+		this.e_slider.focus();
 
 		const update_delay_ms = 50;
 		let now = new Date();
@@ -232,14 +235,17 @@ export class PageSettings extends PageDescriptor
 					}
 				);
 
-				instance.e_toggle_debuglog = new SettingToggle(
-					x, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
-					_ =>
-					{
-						GlobalStyling.showDebugLog.enabled = _.toggled === true;
-						GlobalStyling.showDebugLog.Apply(true);
-					}
-				);
+				if (DevMode.active)
+				{
+					instance.e_toggle_debuglog = new SettingToggle(
+						x, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
+						_ =>
+						{
+							GlobalStyling.showDebugLog.enabled = _.toggled === true;
+							GlobalStyling.showDebugLog.Apply(true);
+						}
+					);
+				}
 			}
 		);
 

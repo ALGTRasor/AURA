@@ -1,4 +1,5 @@
 import { DebugLog } from "./debuglog.js";
+import { CreatePagePanel } from "./domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 
@@ -9,7 +10,32 @@ export class DevMode
 	static onActivate = new EventSource();
 	static onDeactivate = new EventSource();
 
+	static toggle_created = false;
 	static active = false;
+
+	//8293
+
+	static TryCreateToggle()
+	{
+		if (DevMode.toggle_created === true) return;
+		DevMode.toggle_created = true;
+
+		let e_toggle_root = CreatePagePanel(document.getElementById('action-bar'), true, false);
+		e_toggle_root.style.position = 'absolute';
+		e_toggle_root.style.top = '0.25rem';
+		e_toggle_root.style.bottom = '0.25rem';
+		e_toggle_root.style.right = '5rem';
+		e_toggle_root.style.width = '11rem';
+
+		let e_toggle = CreatePagePanel(e_toggle_root, false, false);
+		e_toggle.innerText = 'Disable Dev Mode';
+		e_toggle.style.fontSize = '0.7rem';
+		e_toggle.style.position = 'absolute';
+		e_toggle.style.inset = 'var(--gap-025)';
+		e_toggle.style.alignSelf = 'center';
+		e_toggle.style.alignContent = 'center';
+
+	}
 
 	static ValidateDeveloperId(user_id)
 	{
@@ -23,6 +49,8 @@ export class DevMode
 		DevMode.onActivate.Invoke();
 		DevMode.active = true;
 		DebugLog.Log(' ~ dev mode active');
+
+		DevMode.TryCreateToggle();
 	}
 	static Deactivate()
 	{
