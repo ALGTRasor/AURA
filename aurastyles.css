@@ -186,6 +186,44 @@ body
 
 
 
+.rainbow-background-h
+{
+	background-image: linear-gradient(to right, red, green, blue, red);
+}
+
+.rainbow-foreground-h::after
+{
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	z-index: 100000;
+	inset: 0;
+	background-image: linear-gradient(to right, red, green, blue, red);
+	opacity: 50%;
+}
+
+.gradient-value-foreground-h::after
+{
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	z-index: 100000;
+	inset: 0;
+	background-image: linear-gradient(to right, black, white);
+	opacity: 50%;
+}
+
+.gradient-saturation-foreground-h::after
+{
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	z-index: 100000;
+	inset: 0;
+	background-image: linear-gradient(to right, hsl(from var(--theme-color) h 0% 20%), hsl(from var(--theme-color) h 100% 20%));
+	opacity: 50%;
+}
+
 
 
 

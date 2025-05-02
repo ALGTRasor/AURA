@@ -173,8 +173,8 @@ export class PageSettings extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '18rem';
-		instance.e_frame.style.maxWidth = '32rem';
+		//instance.e_frame.style.minWidth = '18rem';
+		//instance.e_frame.style.maxWidth = '32rem';
 		instance.e_frame.style.flexBasis = '12rem';
 		instance.e_frame.style.flexGrow = '1.0';
 
@@ -270,6 +270,8 @@ export class PageSettings extends PageDescriptor
 						updateColorWarning(instance.e_theme_color_warning);
 					}
 				);
+				instance.e_slider_themehue.e_slider.classList.add('rainbow-foreground-h');
+				instance.e_slider_themehue.e_fill.style.backgroundOpacity = '0%';
 
 				instance.e_slider_themesat = new SettingSlider(
 					x, 'saturation', 'opacity', GlobalStyling.themeColor.saturation, 0.05, () => 'UI theme saturation',
@@ -282,6 +284,8 @@ export class PageSettings extends PageDescriptor
 						updateColorWarning(instance.e_theme_color_warning);
 					}
 				);
+				instance.e_slider_themesat.e_slider.classList.add('gradient-saturation-foreground-h');
+				instance.e_slider_themesat.e_fill.style.backgroundOpacity = '50%';
 
 
 
@@ -304,6 +308,7 @@ export class PageSettings extends PageDescriptor
 						updateColorWarning(instance.e_theme_color_warning);
 					}
 				);
+				instance.e_slider_brightness.e_slider.classList.add('gradient-value-foreground-h');
 
 
 
@@ -363,13 +368,13 @@ export class PageSettings extends PageDescriptor
 				e.style.color = '#fa0';
 				e.style.display = 'block';
 			}
-			else if (contrast < 0.25 || contrast > 0.75)
+			else if (contrast < 0.15 || contrast > 0.85)
 			{
 				e.innerText = 'CONTRAST MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
 				e.style.color = '#fa0';
 				e.style.display = 'block';
 			}
-			else if (brightness < 0.25 || brightness > 0.75)
+			else if (brightness < 0.15 || (brightness > 0.75 && contrast > 0.75))
 			{
 				e.innerText = 'BRIGHTNESS MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
 				e.style.color = '#fa0';
@@ -440,7 +445,7 @@ export class PageSettings extends PageDescriptor
 		);
 
 		// modules section
-		if (DevMode.active)
+		if (false && DevMode.active)
 		{
 			CreatePagePanel(
 				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
@@ -504,7 +509,7 @@ export class PageSettings extends PageDescriptor
 
 
 		// about aura section
-		if (DevMode.active)
+		if (false && DevMode.active)
 		{
 			CreatePagePanel(
 				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',

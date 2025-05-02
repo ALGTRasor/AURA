@@ -161,10 +161,10 @@ export class PageInstance
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
-		this.state_data.position_x = frame_rect.x - frame_parent_rect.x;
-		this.state_data.position_y = frame_rect.y - frame_parent_rect.y;
-		this.state_data.width = frame_rect.width;
-		this.state_data.height = frame_rect.height;
+		this.state_data.position_x = frame_rect.x - frame_parent_rect.x + 8;
+		this.state_data.position_y = frame_rect.y - frame_parent_rect.y + 8;
+		this.state_data.width = frame_rect.width - 16;
+		this.state_data.height = frame_rect.height - 16;
 
 		this.DisableBodyTransitions();
 		this.ApplyFrameState();
