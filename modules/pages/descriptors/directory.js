@@ -11,15 +11,13 @@ export class PageDirectory extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
-		instance.slide_mode = new SlideSelector();
 
+		instance.slide_mode = new SlideSelector();
 		const modes = [
 			{ label: 'INTERNAL', on_click: _ => { } },
 			{ label: 'EXTERNAL', on_click: _ => { } }
 		];
 		instance.slide_mode.CreateElements(instance.e_content, modes);
-		instance.slide_mode.e_root.style.maxHeight = '2.5rem';
-		instance.slide_mode.SelectIndex(0);
 
 		CreatePagePanel(instance.e_content, true, false);
 	}

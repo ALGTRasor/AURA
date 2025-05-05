@@ -49,12 +49,11 @@ export class HotkeyDescriptor
             return;
         }
 
+        /*
         let msg = ` + hotkey executed: ${event.key}`;
-        for (let mid in modifiers)
-        {
-            if (modifiers[mid] === true) msg += `+[${mid}]`;
-        }
+        for (let mid in modifiers){ if (modifiers[mid] === true) msg += `+[${mid}]`; }
         DebugLog.Log(msg);
+        */
 
         this.keyAction(modifiers);
 

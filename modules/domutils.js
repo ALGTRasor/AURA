@@ -1,3 +1,7 @@
+import { AnimJob } from "./AnimJob.js";
+import { lerp } from "./mathutils.js";
+import { until } from "./until.js";
+
 export function addElement(parent = {}, tag = 'div', className = '', style = '', prep = e => { })
 {
     let e = document.createElement((tag && tag.length > 0) ? tag : 'div');
@@ -70,6 +74,31 @@ export function secondsDelta(x = new Date(), y = new Date())
     if (x > y) delta = x - y;
     else delta = y - x;
     return delta * 0.001;
+}
+
+
+
+
+export async function FadeElement(target, opacity_from = 0, opacity_to = 100, duration_seconds = 0.125)
+{
+    if (!target) return;
+
+    let phase = 0.0;
+
+    const step_size = 1.0 / Math.max(0.05, duration_seconds);
+    const apply_opacity = _ => target.style.filter = `opacity(${_}%)`;
+    const step_fade = (dt) =>
+    {
+        phase += dt * step_size;
+        apply_opacity(lerp(opacity_from, opacity_to, phase));
+    };
+
+    let anim = new AnimJob(30, step_fade);
+    apply_opacity(opacity_from);
+    anim.Start();
+    await until(_ => phase >= 1.0);
+    anim.Stop();
+    apply_opacity(opacity_to);
 }
 
 
@@ -167,19 +196,88 @@ export function fadeRemoveElement(target = {}, beforeRemove = () => { }, min_sca
     );
 }
 
+export function fadeReplaceElement(e_old = {}, e_new = {}, fade_duration = 125, remove_action = e => { e.remove(); })
+{
+    let valid_old = e_old && e_old.style;
+    let valid_new = e_new && e_new.style;
+
+    let og_values = {
+        opacity: '100%',
+        transitionProperty: 'none',
+        transitionDuration: '0s'
+    };
+    let e_parent = null;
+
+    function fetch_og_values() 
+    {
+        if (valid_old) 
+        {
+            e_parent = e_old.parentElement;
+        }
+        if (valid_new) 
+        {
+            og_values.opacity = e_new.style.opacity;
+            og_values.transitionProperty = e_new.style.transitionProperty;
+        }
+    };
+
+    function fade_out_old()
+    {
+        if (valid_old) 
+        {
+            e_old.style.opacity = '0%';
+            e_new.style.transitionProperty = 'opacity';
+        }
+        if (valid_new)
+        {
+            e_new.style.transitionDuration = '0s';
+            e_new.style.opacity = '0%';
+        }
+    };
+
+    function fade_in_new() 
+    {
+        if (valid_new)
+        {
+            if (e_parent && e_parent.appendChild) e_parent.appendChild(e_new);
+            e_new.style.transitionProperty = 'opacity';
+            e_new.style.transitionDuration = fade_duration + 'ms';
+            e_new.style.opacity = og_values.opacity;
+        }
+        if (valid_old)
+        {
+            if (remove_action) remove_action(e_old);
+            else e_old.remove();
+        }
+    };
+
+    function cleanup()
+    {
+        e_new.style.removeProperty('transition-property');
+        e_new.style.removeProperty('transition-duration');
+        e_new.style.removeProperty('opacity');
+    };
+
+    fetch_og_values();
+    fade_out_old();
+    window.setTimeout(fade_in_new, fade_duration);
+    window.setTimeout(cleanup, fade_duration * 2);
+
+}
+
 export function fadeTransformElement(target = {}, transformation = () => { }, after = () => { })
 {
     if (!target) return;
 
     let def_pointerEvents = 'unset';
     let def_userSelect = 'unset';
-    let def_filter = 'none';
+    let def_transition = 'none';
 
     if (target.style)
     {
         def_pointerEvents = target.style.pointerEvents;
         def_userSelect = target.style.userSelect;
-        def_filter = target.style.filter;
+        def_transition = target.style.transitionProperty;
         target.style.pointerEvents = 'none';
         target.style.userSelect = 'none';
     }
@@ -188,8 +286,9 @@ export function fadeTransformElement(target = {}, transformation = () => { }, af
     {
         if (target.style)
         {
-            target.style.opacity = '20%';
-            target.style.filter = 'blur(0.25rem)';
+            target.style.transitionProperty = 'opacity';
+            target.style.opacity = '0%';
+            //target.style.filter = 'blur(0.25rem)';
         }
     };
 
@@ -205,13 +304,13 @@ export function fadeTransformElement(target = {}, transformation = () => { }, af
             target.style.opacity = '100%';
             target.style.pointerEvents = def_pointerEvents;
             target.style.userSelect = def_userSelect;
-            target.style.filter = def_filter;
+            target.style.transitionProperty = def_transition;
         }
 
         if (after) after();
     };
 
     window.setTimeout(start_fade, 10);
-    window.setTimeout(mid_fade, fade_duration_quick_ms + 10);
-    window.setTimeout(end_fade, fade_duration_quick_ms * 2 + 10);
+    window.setTimeout(mid_fade, fade_duration_ms + 10);
+    window.setTimeout(end_fade, fade_duration_ms * 2 + 10);
 }

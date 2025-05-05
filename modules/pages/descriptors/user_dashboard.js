@@ -1,5 +1,4 @@
 import { AccountUser } from "../../datamodels/account_user.js";
-import { DataFieldDesc } from "../../datamodels/datafield_desc.js";
 import { HrRequest } from "../../datamodels/hr_request.js";
 import { InternalUser } from "../../datamodels/internal_user.js";
 import { SharedData } from "../../datashared.js";
@@ -9,8 +8,108 @@ import { RecordFormUtils } from "../../ui/recordform.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
+import { addElement, CreatePagePanel, FadeElement } from "../../domutils.js";
+import { SlideSelector } from "../../ui/slide_selector.js";
+import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
-import { addElement, CreatePagePanel } from "../../domutils.js";
+
+
+
+
+
+
+
+
+export class UserDashboardInfo extends PanelContent
+{
+	OnCreateElements()
+	{
+		this.e_root = CreatePagePanel(this.e_parent, true, false);
+		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'Account Info');
+
+
+	}
+
+	OnRefreshElements()
+	{
+		RecordFormUtils.CreateRecordInfoList(this.e_root, UserAccountInfo.user_info, InternalUser.data_model.field_descs);
+		//RecordFormUtils.CreateRecordInfoList(this.e_root, UserAccountInfo.account_info, AccountUser.data_model.field_descs);
+	}
+
+	OnRemoveElements()
+	{
+		this.e_root.remove();
+	}
+}
+
+export class UserDashboardHr extends PanelContent
+{
+	OnCreateElements()
+	{
+		this.e_root = CreatePagePanel(this.e_parent, true, false);
+		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'HR Info');
+		this.viewer_hr_requests = new RecordViewer();
+	}
+	OnRefreshElements()
+	{
+		this.viewer_hr_requests.RemoveElements();
+		const sort = (x, y) =>
+		{
+			if (x.request_name < y.request_name) return -1;
+			if (x.request_name > y.request_name) return 1;
+			return 0;
+		};
+		this.viewer_hr_requests.SetListItemSorter(sort);
+		this.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
+		this.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(this.page_instance, records));
+		this.viewer_hr_requests.SetData(UserAccountInfo.hr_info.requests);
+		this.viewer_hr_requests.CreateElements(this.e_root);
+	}
+	OnRemoveElements()
+	{
+		this.e_root.remove();
+	}
+
+	BuildRecordView_HrReqs(instance, records = [])
+	{
+		if (!records || records.length < 1) return;
+
+		for (let id in records)
+		{
+			let record = records[id];
+			let e_info_root = CreatePagePanel(this.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
+			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.request_name; });
+			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, HrRequest.data_model.field_descs, 'info', records.length < 2);
+		}
+	}
+}
+
+export class UserDashboardDocs extends PanelContent
+{
+	OnCreateElements()
+	{
+		this.e_root = CreatePagePanel(this.e_parent, true, false);
+		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'Documents');
+	}
+	OnRefreshElements()
+	{
+	}
+	OnRemoveElements()
+	{
+		this.e_root.remove();
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 
 export class PageMyData extends PageDescriptor
@@ -22,18 +121,88 @@ export class PageMyData extends PageDescriptor
 		if (!instance) return;
 
 		instance.sub_SharedDataRefresh = {};
+		instance.sub_modeChange = {};
 
 		instance.e_frame.style.minWidth = '32rem';
 
-		instance.e_content.style.flexWrap = 'wrap';
-		instance.e_content.style.flexDirection = 'row';
+		let mode_slider = new SlideSelector();
+		instance.mode_slider = mode_slider;
 
-		instance.viewer_hr_requests = new RecordViewer();
+		const modes = [
+			{ label: 'INFO', on_click: _ => { } },
+			{ label: 'DOCUMENTS', on_click: _ => { } },
+			{ label: 'HR', on_click: _ => { } }
+		];
+		mode_slider.CreateElements(instance.e_content, modes);
+		mode_slider.e_root.style.flexBasis = 'fit-content';
+		mode_slider.e_root.style.flexShrink = '0.0';
+		mode_slider.e_root.style.flexGrow = '0.0';
 
-		this.CreateAccountInfoBlock(instance);
-		this.CreateUserInfoBlock(instance);
-		this.CreateHrBlock(instance);
-		this.UpdateBlocks(instance);
+		const instance_content_root = instance.e_content;
+		instance.content_info = new UserDashboardInfo(instance_content_root);
+		instance.content_docs = new UserDashboardDocs(instance_content_root);
+		instance.content_hr = new UserDashboardHr(instance_content_root);
+		instance.content_hr.page_instance = instance;
+
+		const _afterModeChange = () => { this.AfterModeChange(instance); };
+		instance.sub_modeChange = mode_slider.afterSelectionChanged.RequestSubscription(_afterModeChange);
+	}
+
+	AfterModeChange(instance)
+	{
+		instance.mode_slider.SetDisabled(true);
+
+		let selected_index = -1;
+		selected_index = instance.mode_slider.selected_index;
+		if (typeof selected_index !== 'number') selected_index = Number.parseInt(selected_index);
+
+		if (selected_index < 0)
+		{
+			instance.mode_slider.SetDisabled(false);
+			return;
+		}
+
+		instance.content_previous = instance.content_current;
+		switch (selected_index)
+		{
+			case 0: instance.content_current = instance.content_info; break;
+			case 1: instance.content_current = instance.content_docs; break;
+			case 2: instance.content_current = instance.content_hr; break;
+		}
+
+
+
+		instance.mode_slider.SetDisabled(false);
+
+		const prev = instance.content_previous;
+		const curr = instance.content_current;
+
+		const fade_prev = async () =>
+		{
+			if (prev) await FadeElement(prev.e_root, 100, 0);
+		};
+
+		const fade_next = async () =>
+		{
+			if (curr) await FadeElement(curr.e_root, 0, 100);
+		};
+
+		fade_prev().then(
+			_ =>
+			{
+				if (prev) prev.RemoveElements();
+				if (curr)
+				{
+					curr.CreateElements();
+					curr.RefreshElements();
+				}
+			}
+		).then(fade_next);
+	}
+
+	RemoveAccountInfoBlock(instance)
+	{
+		if (instance.e_account_info) instance.e_account_info.remove();
 	}
 
 	CreateAccountInfoBlock(instance)
@@ -102,6 +271,11 @@ export class PageMyData extends PageDescriptor
 
 	UpdateBlocks(instance)
 	{
+		instance.content_info.RefreshElements();
+		instance.content_docs.RefreshElements();
+		instance.content_hr.RefreshElements();
+		return;
+
 		this.UpdateAccountInfoBlock(instance);
 		DebugLog.Log('...updated account info block');
 		this.UpdateUserInfoBlock(instance);
@@ -136,7 +310,14 @@ export class PageMyData extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		instance.viewer_hr_requests.RefreshElementVisibility();
+		window.setTimeout(
+			() =>
+			{
+				instance.mode_slider.ApplySelection();
+				//instance.viewer_hr_requests.RefreshElementVisibility();
+			},
+			250
+		);
 	}
 }
 

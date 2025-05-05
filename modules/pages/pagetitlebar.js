@@ -1,6 +1,6 @@
-import { addElement, setSiblingIndex } from "../domutils.js";
+import { addElement } from "../domutils.js";
 import { PageManager } from "../pagemanager.js";
-import { PageTitleBarButton, TitleBarButtonDescriptor } from "./titlebarbuttons/titlebarbuttons.js";
+import { PageTitleBarButton, TitleBarButtonDescriptor } from "./titlebarbuttons.js";
 
 
 

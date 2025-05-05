@@ -1,12 +1,26 @@
 import { addElement, CreatePagePanel } from "../domutils.js";
+import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
 
 export class SlideSelector
 {
+    e_root = {};
+    e_items = [];
+    disabled = false;
+    selected_index = -1;
+    afterSelectionChanged = new EventSource();
+
     constructor()
     {
         this.e_root = {};
         this.e_items = [];
+        this.selected_index = -1;
+        this.afterSelectionChanged = new EventSource();
+    }
+
+    SetDisabled(disabled = true)
+    {
+        this.disabled = disabled;
     }
 
     CreateElements(parent, items = [])
@@ -14,13 +28,19 @@ export class SlideSelector
         if (this.created === true) return;
 
         this.e_root = CreatePagePanel(
-            parent, true, false, 'letter-spacing:0.15rem; gap:0; border:none;',
+            parent, true, false, 'letter-spacing:0.15rem; gap:0; border:none; margin:2px;',
             x =>
             {
                 x.classList.add('menu-root');
+                x.style.flexBasis = 'max-content';
                 x.style.flexDirection = 'row';
+                x.style.flexWrap = 'wrap';
+                x.style.flexGrow = '0.0';
+                x.style.flexShrink = '0.0';
+                x.style.padding = 'var(--gap-05)';
             }
         );
+        // account for surrounding panels having a 2px border
 
         this.e_selector = CreatePagePanel(
             this.e_root, false, false,
@@ -47,19 +67,68 @@ export class SlideSelector
             this.e_items.push(e_item);
         };
 
-        this.SelectIndex();
         this.created = true;
+        window.setTimeout(() => { this.SelectIndex(0, true); }, 333);
     }
 
-    SelectIndex(index = 0)
+    CanSkipSelection(index = 0, forced = false)
     {
+        if (this.disabled === true) return true;
+        if (this.selected_index < 0) return false;
+        if (this.selected_index != index) return false;
+        return forced === false;
+    }
+
+    SelectIndex(index = 0, force_change = false)
+    {
+        if (typeof index !== 'number') index = Number.parseInt(index);
+        if (this.CanSkipSelection(index, force_change) === true) return;
+
         this.selected_index = index;
-        let item_rect = this.e_items[index].getBoundingClientRect();
+        this.ApplySelection();
+
+        if (this.afterSelectionChanged) this.afterSelectionChanged.Invoke();
+    }
+
+    ApplySelection()
+    {
+        for (let item_id in this.e_items)
+        {
+            this.e_items[item_id].style.removeProperty('color');
+            this.e_items[item_id].style.pointerEvents = 'all';
+            this.e_items[item_id].style.cursor = 'pointer';
+            this.e_items[item_id].style.opacity = '50%';
+        }
+
+        if (this.selected_index < 0)
+        {
+            this.e_selector.style.left = '0px';
+            this.e_selector.style.top = '0px';
+            this.e_selector.style.width = '0px';
+            this.e_selector.style.height = '0px';
+            return;
+        }
+
+        let selected_item = this.e_items[this.selected_index];
+        let item_rect = selected_item.getBoundingClientRect();
+        selected_item.style.color = 'hsl(from var(--theme-color) h s 50%)';
+        selected_item.style.cursor = 'default';
+        selected_item.style.pointerEvents = 'none';
+        selected_item.style.opacity = '100%';
+
+        const border_width = 0;
+        const border_width2 = border_width * 2;
         let parent_rect = this.e_root.getBoundingClientRect();
-        this.e_selector.style.left = ((item_rect.x - parent_rect.x) + 4) + 'px';
-        this.e_selector.style.top = ((item_rect.y - parent_rect.y) + 4) + 'px';
-        this.e_selector.style.width = (item_rect.width - 8) + 'px';
-        this.e_selector.style.height = (item_rect.height - 8) + 'px';
+
+        let itemL = item_rect.x - parent_rect.x + border_width;
+        let itemT = item_rect.y - parent_rect.y + border_width;
+        let itemW = item_rect.width - border_width2;
+        let itemH = item_rect.height - border_width2;
+
+        this.e_selector.style.left = (100 * itemL / parent_rect.width) + '%';
+        this.e_selector.style.top = (100 * itemT / parent_rect.height) + '%';
+        this.e_selector.style.width = (100 * itemW / parent_rect.width) + '%';
+        this.e_selector.style.height = (100 * itemH / parent_rect.height) + '%';
     }
 
     RemoveElements()
@@ -71,6 +140,7 @@ export class SlideSelector
 
     AddButton(index = 0, text = '', on_click = e => { })
     {
+        const id = index;
         return addElement(
             this.e_root, 'div', 'menu-button', null,
             x =>
@@ -78,7 +148,12 @@ export class SlideSelector
                 x.innerText = text ? text : '???';
                 x.title = text;
                 x.style.background = 'none';
-                x.addEventListener('click', _ => { on_click(_); this.SelectIndex(index); });
+                x.style.opacity = '50%';
+                x.style.padding = 'calc(var(--gap-05) + 4px)';
+                x.style.alignContent = 'center';
+                x.style.textAlign = 'center';
+                x.style.minWidth = '6rem';
+                x.addEventListener('click', _ => { on_click(_); this.SelectIndex(id, false); });
             }
         );
     }
