@@ -123,7 +123,7 @@ function RegisterHotkeys()
 	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('time keeper'); }, { action_description: 'Page: Time Keeper', permission: 'keep.time' }));
 	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task tracker'); }, { action_description: 'Page: Task Tracker', permission: 'tasks.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
-	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log', permission: 'app.events.access' }));
+	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log', dev_only: true }));
 
 
 	Hotkeys.Register(
@@ -278,10 +278,10 @@ async function OnAuraInit()
 
 		RegisterHotkeys();
 
-		let should_restore_layout = UserAccountInfo.aura_access && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
+		let should_restore_layout = UserAccountInfo.HasAppAccess() && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
 		if (!should_restore_layout || !PageManager.RestoreCachedLayout())
 		{
-			if (UserAccountInfo.aura_access === true) PageManager.OpenPageByTitle('nav menu');
+			if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
 			else PageManager.OpenPageByTitle('onboarding');
 		}
 		await Fax.RefreshFact();

@@ -16,6 +16,7 @@ export class HotkeyDescriptor
             if ('action_description' in extra) this.action_description = extra.action_description;
             if ('requires_target' in extra) this.requires_target = extra.requires_target;
             if ('permission' in extra) this.permission = extra.permission;
+            if ('dev_only' in extra) this.dev_only = extra.dev_only;
         }
     }
 

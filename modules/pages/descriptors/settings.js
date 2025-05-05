@@ -450,6 +450,7 @@ export class PageSettings extends PageDescriptor
 				{
 					let hotkey = Hotkeys.descriptors[hotkey_id];
 					if ('permission' in hotkey && !UserAccountInfo.HasPermission(hotkey.permission)) continue;
+					if ('dev_only' in hotkey && hotkey.dev_only !== DevMode.active) continue;
 					let label = 'key_description' in hotkey ? hotkey.key_description : hotkey.key;
 					addKey(label, hotkey.action_description, 'Select to trigger this hotkey now', hotkey.requires_target !== true);
 				}
