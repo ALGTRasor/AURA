@@ -109,4 +109,4 @@ export class PageHome extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHome('nav menu', 'aura.access'));
+PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission));

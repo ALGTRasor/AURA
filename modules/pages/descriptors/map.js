@@ -1,6 +1,7 @@
 import { addElement } from "../../domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { FieldValuePanel } from "../../ui/panel_field_value.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
 
@@ -77,4 +78,4 @@ export class PageMap extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMap('map', 'aura.access'));
+PageManager.RegisterPage(new PageMap('map', UserAccountInfo.app_access_permission));

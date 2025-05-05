@@ -3,7 +3,7 @@ import { AppEvents } from "../../appevents.js";
 import { Autosave } from "../../autosave.js";
 import { DevMode } from "../../devmode.js";
 import { addElement, CreatePagePanel } from "../../domutils.js";
-import { clamp } from "../../mathutils.js";
+import { clamp } from "../../utils/mathutils.js";
 import { Modules } from "../../modules.js";
 import { PageManager } from "../../pagemanager.js";
 import { GlobalStyling } from "../../ui/global_styling.js";

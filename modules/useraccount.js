@@ -401,7 +401,7 @@ export class UserAccountInfo
 	{
 		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
-		UserAccountInfo.aura_access = UserAccountInfo.user_info && UserAccountInfo.user_info.user_permissions && UserAccountInfo.user_info.user_permissions.indexOf('aura.access') > -1;
+		UserAccountInfo.aura_access = UserAccountInfo.HasAppAccess();
 	}
 
 	static IndexOfPermission(permission_id = '')
@@ -413,6 +413,10 @@ export class UserAccountInfo
 		}
 		return -1;
 	}
+
+	static app_access_permission = 'aura.access';
+
+	static HasAppAccess() { return UserAccountInfo.HasPermission(UserAccountInfo.app_access_permission); }
 
 	static HasPermission(permission_id = '')
 	{

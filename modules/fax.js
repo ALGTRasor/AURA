@@ -1,6 +1,6 @@
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
-import { until } from "./until.js";
+import { until } from "./utils/until.js";
 
 export class Fax
 {

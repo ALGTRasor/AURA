@@ -4,6 +4,7 @@ import { PageManager } from "../../pagemanager.js";
 import { ExternalContactList } from "../../ui/panel_external_contact_list.js";
 import { InternalUserList } from "../../ui/panel_internal_user_list.js";
 import { ProjectList } from "../../ui/panel_project_list.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class PageDemoPanel extends PageDescriptor
@@ -74,4 +75,4 @@ export class PageDemoPanel extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageDemoPanel('demo panel', 'aura.access'));
+PageManager.RegisterPage(new PageDemoPanel('demo panel', UserAccountInfo.app_access_permission));

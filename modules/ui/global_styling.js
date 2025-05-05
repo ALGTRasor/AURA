@@ -3,7 +3,7 @@ import { DebugLog } from "../debuglog.js";
 import { EventSource } from "../eventsource.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
-import { clamp } from "../mathutils.js";
+import { clamp } from "../utils/mathutils.js";
 
 export class GlobalStylingAspect
 {

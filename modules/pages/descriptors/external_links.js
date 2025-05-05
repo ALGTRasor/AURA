@@ -1,6 +1,7 @@
 import { SharedData } from "../../datashared.js";
 import { addElement, CreatePagePanel } from "../../domutils.js";
 import { PageManager } from "../../pagemanager.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class PageExternalLinks extends PageDescriptor
@@ -96,4 +97,4 @@ export class PageExternalLinks extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageExternalLinks('external links', 'aura.access'));
+PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission));

@@ -321,4 +321,4 @@ export class PageMyData extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('user dashboard', 'aura.access'));
+PageManager.RegisterPage(new PageMyData('user dashboard', UserAccountInfo.app_access_permission));

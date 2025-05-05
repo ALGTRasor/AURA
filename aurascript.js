@@ -98,7 +98,7 @@ function RegisterHotkeys()
 {
 	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '` or ~', action_description: 'Toggle Light Mode' }));
 
-	if (!UserAccountInfo.HasPermission('aura.access')) return;
+	if (!UserAccountInfo.HasAppAccess()) return;
 
 	Hotkeys.Register(
 		new HotkeyDescriptor('s',

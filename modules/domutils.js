@@ -1,6 +1,6 @@
 import { AnimJob } from "./AnimJob.js";
-import { lerp } from "./mathutils.js";
-import { until } from "./until.js";
+import { lerp } from "./utils/mathutils.js";
+import { until } from "./utils/until.js";
 
 export function addElement(parent = {}, tag = 'div', className = '', style = '', prep = e => { })
 {
