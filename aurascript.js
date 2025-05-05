@@ -50,6 +50,9 @@ import './modules/pages/descriptors/map.js';
 
 
 
+
+
+
 function CheckWindowSizeChanged()
 {
 	let changedW = window.lastViewportW !== window.visualViewport.width;
@@ -180,6 +183,7 @@ function RegisterHotkeys()
 
 async function OnAuraInit()
 {
+
 	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
 	window.loop_detectWindowSizeChange = new AnimJob(100, CheckWindowSizeChanged);
 	window.loop_detectWindowSizeChange.Start();
@@ -240,20 +244,34 @@ async function OnAuraInit()
 		SharePoint.StartProcessingQueue();
 		await CheckIdentity();
 
-		ActionBar.AddMenuButton('settings', 'settings', _ => PageManager.OpenPageByTitle('settings'));
+		ActionBar.AddMenuButton(
+			'settings', 'settings',
+			_ => PageManager.OpenPageByTitle('settings'),
+			_ =>
+			{
+				_.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.';
+			}
+		);
 		if (UserAccountInfo.aura_access === true)
 		{
-			ActionBar.AddMenuButton('refresh', 'refresh', _ =>
-			{
-				OverlayManager.ShowConfirmDialog(
-					_ => { RequestSharedDataRefresh(); },
-					_ => { },
-					'Refresh all shared data?<br><br>'
-					+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
-					'[Y]ES',
-					'[N]o'
-				)
-			});
+			ActionBar.AddMenuButton(
+				'refresh', 'refresh',
+				_ =>
+				{
+					OverlayManager.ShowConfirmDialog(
+						_ => { RequestSharedDataRefresh(); },
+						_ => { },
+						'Refresh all shared data?<br><br>'
+						+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
+						'[Y]ES',
+						'[N]o'
+					)
+				},
+				_ =>
+				{
+					_.title = 'Refresh all Shared Data.\nShared Data includes all company, client, and employee related data.\nShared Data does not include local app settings.\nRefreshing Shared Data can take several seconds to complete.';
+				}
+			);
 			ActionBar.AddMenuButton('home', 'menu', _ => { PageManager.CloseAll(); });
 		}
 		await AppEvents.onAccountLogin.InvokeAsync();

@@ -6,6 +6,7 @@ import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { RequestBatchRequest, SharePoint } from "./sharepoint.js";
+import { AppInfo } from "./app_info.js";
 
 
 export class SharedDataTable
@@ -300,4 +301,4 @@ export class SharedData
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(() => { SharedData.LoadData(true) });
 
-Modules.Report('Shared Data', 'This module acts as an entrypoint for many aspects of AURA which need access to the same online data.');
+Modules.Report('Shared Data', `This module acts as an entrypoint for any aspect of ${AppInfo.name} which need access to shared online data.`);

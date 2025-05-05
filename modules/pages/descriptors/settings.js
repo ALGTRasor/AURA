@@ -504,7 +504,7 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		// about aura section
+		// about section
 		if (false && DevMode.active)
 		{
 			CreatePagePanel(
@@ -514,7 +514,7 @@ export class PageSettings extends PageDescriptor
 					x.classList.remove('scroll-y');
 					x.classList.add('expanding-panel');
 					const title_style = 'text-align:center;font-size:0.8rem;font-weight:bold;min-width:100%;letter-spacing:2px;height:1.75rem;align-content:center;';
-					addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT AURA'; });
+					addElement(x, 'div', '', title_style, _ => { _.innerText = 'ABOUT ' + AppInfo.name.toUpperCase(); });
 
 					const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
 					const addAbout = (text = '') => CreatePagePanel(x, false, false, about_style, _ => { _.innerHTML = text; });

@@ -1,3 +1,4 @@
+import { AppInfo } from "./app_info.js";
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
@@ -79,5 +80,5 @@ export class UserSettings
 }
 
 
-Modules.Report('User Settings', 'This module stores users options that affect general aspects of AURA.');
+Modules.Report('User Settings', `This module stores users options that affect general aspects of ${AppInfo.name}.`);
 Autosave.HookSaveEvent(() => { UserSettings.SaveToStorage(); });

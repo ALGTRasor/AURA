@@ -77,19 +77,20 @@ export class PageHome extends PageDescriptor
 
 	AddMenuButton(text = '', onclick = () => { }, permissions_required = [])
 	{
-		if (permissions_required && permissions_required.length > 0)
-		{
-			for (let perm_id in permissions_required)
-			{
-				let perm_id_granted = UserAccountInfo.user_permissions.findIndex(x => x === perm_id);
-				if (perm_id_granted < 0) return;
-			}
-		}
+		if (permissions_required && permissions_required.length > 0 && UserAccountInfo.HasPermission(perm_id) !== true) return;
 
 		let e_btn_menu = document.createElement('div');
 		e_btn_menu.className = 'menu-button';
-		e_btn_menu.innerText = text ? text : '???';
-		e_btn_menu.title = text;
+		if (text)
+		{
+			e_btn_menu.innerText = text;
+			e_btn_menu.title = text;
+		}
+		else
+		{
+			e_btn_menu.innerText = '???';
+			e_btn_menu.title = text;
+		}
 		e_btn_menu.addEventListener('click', onclick);
 		this.e_content.appendChild(e_btn_menu);
 	}

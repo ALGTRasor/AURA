@@ -1,3 +1,4 @@
+import { AppInfo } from "./app_info.js";
 import { Modules } from "./modules.js";
 
 export class Timers
@@ -59,4 +60,4 @@ export class Timers
 	}
 }
 
-Modules.Report('Timers', 'This module adds a shared timer system for tracking the network or computation time for specific aspects of AURA. Used to debug.');
+Modules.Report('Timers', `This module adds a shared timer system for tracking the network or computation time for specific aspects of ${AppInfo.name}. Used to debug.`);

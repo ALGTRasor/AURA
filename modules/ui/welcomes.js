@@ -45,7 +45,7 @@ export class Welcome
             // onboarding user
             else if (UserAccountInfo.is_alg_account) queueWelcome(`Hello, ${user_name_full}!`);
             //external user
-            else queueWelcome('AURA doesn\'t recognize you!');
+            else queueWelcome(AppInfo.name + ' doesn\'t recognize you!');
         }
         else
         {

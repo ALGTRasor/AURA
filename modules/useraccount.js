@@ -389,7 +389,7 @@ export class UserAccountInfo
 {
 	static account_info = {}; // auth account info
 	static user_info = {}; // internal user / employee info
-	static user_permissions = []; // internal user aura permissions
+	static user_permissions = []; // internal user permissions
 
 	static hr_info = {}; // internal user hr data
 
@@ -439,7 +439,7 @@ export class UserAccountInfo
 			DebugLog.Log('...downloaded user info');
 			DebugLog.Log('display name: ' + UserAccountInfo.user_info.display_name_full);
 			DebugLog.Log('user properties: ' + prop_count);
-			DebugLog.Log('aura access: ' + (UserAccountInfo.aura_access === true));
+			DebugLog.Log('app access: ' + (UserAccountInfo.aura_access === true));
 		}
 		else
 		{

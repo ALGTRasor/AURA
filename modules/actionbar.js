@@ -1,7 +1,8 @@
+import { AppInfo } from "./app_info.js";
 import { addElement } from "./domutils.js";
 import { Modules } from "./modules.js";
 import { OverlayManager } from "./ui/overlays.js";
-import { UserAccountInfo, UserAccountManager, UserAccountProvider } from "./useraccount.js";
+import { UserAccountManager } from "./useraccount.js";
 
 export class ActionBar
 {
@@ -23,7 +24,7 @@ export class ActionBar
 			ActionBar.e_button_root, 'div', 'action-bar-button', null,
 			_ =>
 			{
-				_.innerHTML = label.toUpperCase();//`<span id='action-bar-btn-login-label'>${label}</span>`;
+				_.innerHTML = label.toUpperCase();
 				if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
 				_.title = label.toUpperCase();
 
@@ -49,11 +50,15 @@ export class ActionBar
 					() => { fxn.ForceLogOut(); },
 					() => { },
 					'Are you sure you want to log out?<br><br>'
-					+ '<span style="opacity:50%;font-size:0.85rem;">NOTE: AURA requires an active log in to function. You will be prompted to select another account.</span>',
+					+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function. You will be prompted to select another account.</span>`,
 					'[Y]es, Change Account',
 					'[N]o'
 				),
-				_ => { _.id = 'action-bar-btn-logout'; }
+				_ =>
+				{
+					_.id = 'action-bar-btn-logout';
+					_.title = `Disconnect your tenant account from ${AppInfo.name}.\nThis will not log you out of your tenant sites or tools, only ${AppInfo.name}.\nLogging out will bring you back to tenant account selection.\nA valid login is required to use ${AppInfo.name}.`;
+				}
 			);
 		}
 		else
@@ -65,7 +70,11 @@ export class ActionBar
 					const prompt_login = 'You will be prompted to select an account on the following screen.';
 					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => fxn.AttemptLogin())])
 				},
-				_ => _.id = 'action-bar-btn-login'
+				_ =>
+				{
+					_.id = 'action-bar-btn-login';
+					_.title = 'Log in with your tenant account';
+				}
 			);
 		}
 	}
