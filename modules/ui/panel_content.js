@@ -1,5 +1,7 @@
 export class PanelContent
 {
+	static Nothing = new PanelContent(null);
+
 	created = false;
 	e_parent = undefined;
 

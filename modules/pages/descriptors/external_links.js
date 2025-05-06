@@ -1,5 +1,5 @@
 import { SharedData } from "../../datashared.js";
-import { addElement, CreatePagePanel } from "../../domutils.js";
+import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";

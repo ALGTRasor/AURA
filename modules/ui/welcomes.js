@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { secondsDelta } from "../domutils.js";
+import { secondsDelta } from "../utils/domutils.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { OverlayManager } from "./overlays.js";
 
@@ -41,7 +41,7 @@ export class Welcome
         if (window.found_tokens === true)
         {
             // existing user
-            if (UserAccountInfo.aura_access) welcome_default();
+            if (UserAccountInfo.app_access) welcome_default();
             // onboarding user
             else if (UserAccountInfo.is_alg_account) queueWelcome(`Hello, ${user_name_full}!`);
             //external user
@@ -57,7 +57,7 @@ export class Welcome
             else
             {
                 // existing user
-                if (UserAccountInfo.aura_access) welcome_default();
+                if (UserAccountInfo.app_access) welcome_default();
                 // onboarding user
                 else if (UserAccountInfo.is_alg_account) welcome_default();
             }

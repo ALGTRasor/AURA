@@ -1,7 +1,7 @@
 import { DataFieldDesc } from "../datamodels/datafield_desc.js";
 import { SharedData } from "../datashared.js";
 import { DebugLog } from "../debuglog.js";
-import { addElement, CreatePagePanel } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { FieldValidation } from "../utils/field_validation.js";
 

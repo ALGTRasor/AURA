@@ -8,7 +8,7 @@ import { RecordFormUtils } from "../../ui/recordform.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
-import { addElement, CreatePagePanel, FadeElement } from "../../domutils.js";
+import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
@@ -146,6 +146,8 @@ export class PageMyData extends PageDescriptor
 
 		const _afterModeChange = () => { this.AfterModeChange(instance); };
 		instance.sub_modeChange = mode_slider.afterSelectionChanged.RequestSubscription(_afterModeChange);
+
+		mode_slider.SelectIndexAfterDelay(0, 333, true);
 	}
 
 	AfterModeChange(instance)

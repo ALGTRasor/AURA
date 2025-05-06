@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex, setSiblingIndex } from "../domutils.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
@@ -270,7 +270,7 @@ export class PageInstance
 		this.title_bar.RefreshAllButtons();
 	}
 
-	EnableBodyTransitions() { this.e_body.style.transitionDuration = 'var(--trans-dur-off-fast)'; }
+	EnableBodyTransitions() { this.e_body.style.transitionDuration = 'var(--trans-dur-off-slow)'; }
 	DisableBodyTransitions() { this.e_body.style.transitionDuration = '0s'; }
 
 	UpdateBodyTransform()

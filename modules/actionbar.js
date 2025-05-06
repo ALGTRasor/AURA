@@ -1,5 +1,5 @@
 import { AppInfo } from "./app_info.js";
-import { addElement } from "./domutils.js";
+import { addElement } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
 import { OverlayManager } from "./ui/overlays.js";
 import { UserAccountManager } from "./useraccount.js";

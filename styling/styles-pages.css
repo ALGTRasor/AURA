@@ -10,7 +10,7 @@
 	flex-direction: row;
 	justify-content: center;
 
-	gap: var(--gap-1);
+	gap: var(--gap-05);
 	padding: var(--gap-05);
 }
 
@@ -28,7 +28,7 @@
 	box-shadow: inset -2px 2px 6px rgba(from var(--shadow-color) r g b / 0.2);
 	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 
-	gap: var(--gap-1);
+	gap: var(--gap-05);
 	padding: var(--gap-05);
 
 	transition-property: opacity, filter;
@@ -50,7 +50,7 @@
 
 	transition-property: opacity;
 	transition-duration: var(--trans-dur-off-slow);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in;
 }
 
 .content-page-frames-loose
@@ -118,8 +118,8 @@
 	background-color: hsl(from var(--theme-color) h s 18%);
 
 	transition-property: rotate, top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
-	transition-duration: var(--trans-dur-off-fast);
-	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
 .page-root:hover
@@ -137,6 +137,7 @@
 	user-select: none;
 
 	position: absolute;
+	border-radius: var(--gap-05);
 	inset: 0;
 
 	background: rgba(from hsl(from var(--theme-color) h s 25%) r g b / 0.25);
@@ -199,6 +200,8 @@
 	font-size: 90%;
 
 	background: #0002;
+
+	border-radius: var(--gap-05);
 }
 
 .page-title
@@ -498,7 +501,7 @@
 	transition-property: rotate, opacity;
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: var(--trans-dur-off-veryslow);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
 .page-panel.expanding-panel:hover::after
@@ -513,7 +516,7 @@
 	transition-property: max-height;
 	transition-duration: var(--trans-dur-off-veryslow);
 	transition-delay: var(--trans-dur-off-veryslow);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
 .page-panel.expanding-panel:hover,
@@ -881,7 +884,7 @@
 
 	transition-property: transform;
 	transition-duration: var(--trans-dur-off-slow);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
 .setting-root:hover > span

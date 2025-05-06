@@ -395,13 +395,13 @@ export class UserAccountInfo
 
 	static has_ms_account = false;
 	static is_alg_account = false;
-	static aura_access = false;
+	static app_access = false;
 
 	static UpdateIdentity()
 	{
 		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
-		UserAccountInfo.aura_access = UserAccountInfo.HasAppAccess();
+		UserAccountInfo.app_access = UserAccountInfo.HasAppAccess();
 	}
 
 	static IndexOfPermission(permission_id = '')
@@ -443,7 +443,7 @@ export class UserAccountInfo
 			DebugLog.Log('...downloaded user info');
 			DebugLog.Log('display name: ' + UserAccountInfo.user_info.display_name_full);
 			DebugLog.Log('user properties: ' + prop_count);
-			DebugLog.Log('app access: ' + (UserAccountInfo.aura_access === true));
+			DebugLog.Log('app access: ' + (UserAccountInfo.app_access === true));
 		}
 		else
 		{

@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, AddPagePanelInsetShadow, CreatePagePanel } from "../domutils.js";
+import { addElement, AddPagePanelInsetShadow, CreatePagePanel } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 
 export class RecordViewer

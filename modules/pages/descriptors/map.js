@@ -1,4 +1,4 @@
-import { addElement } from "../../domutils.js";
+import { addElement } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { FieldValuePanel } from "../../ui/panel_field_value.js";
 import { UserAccountInfo } from "../../useraccount.js";

@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, CreatePagePanel } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 
 export class QuickMenu

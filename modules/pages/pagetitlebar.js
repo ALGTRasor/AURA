@@ -1,4 +1,4 @@
-import { addElement } from "../domutils.js";
+import { addElement } from "../utils/domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBarButton, TitleBarButtonDescriptor } from "./titlebarbuttons.js";
 

@@ -54,19 +54,19 @@ export class PageHome extends PageDescriptor
 		TryAddButton(buttons, 'directory');
 		TryAddButton(buttons, 'user dashboard');
 		TryAddButton(buttons, 'reports');
-		TryAddButton(buttons, 'hr');
 		TryAddButton(buttons, 'external links');
 		TryAddButton(buttons, 'help');
 
 		instance.menu_main.CreateElements(instance.e_content, buttons);
 		instance.menu_main.e_root.style.flexGrow = buttons.length;
 
-		let has_data_access = UserAccountInfo.HasPermission('app.events.access');
-		if (has_data_access || DevMode.active === true)
+		let buttons_extra = [];
+		TryAddButton(buttons_extra, 'hr');
+		if (UserAccountInfo.HasPermission('app.events.access')) TryAddButton(buttons_extra, 'database probe');
+		if (DevMode.active === true) TryAddButton(buttons_extra, 'demo panel');
+
+		if (buttons_extra.length > 0)
 		{
-			let buttons_extra = [];
-			TryAddButton(buttons_extra, 'database probe');
-			if (DevMode.active === true) TryAddButton(buttons_extra, 'demo panel');
 			instance.menu_extra = new QuickMenu();
 			instance.menu_extra.CreateElements(instance.e_content, buttons_extra);
 			instance.menu_extra.e_root.style.flexGrow = buttons_extra.length;

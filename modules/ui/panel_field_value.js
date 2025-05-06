@@ -1,4 +1,4 @@
-import { addElement, CreatePagePanel } from "../domutils.js";
+import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { EventSource } from "../eventsource.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { PanelBase } from "./panel_base.js";

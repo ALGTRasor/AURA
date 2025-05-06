@@ -2,25 +2,33 @@ import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
 
-export class SlideSelector
+export class ExpandingSummary
 {
     e_root = {};
-    e_items = [];
-    disabled = false;
-    selected_index = -1;
-    afterSelectionChanged = new EventSource();
+    expanded = false;
 
     constructor()
     {
         this.e_root = {};
-        this.e_items = [];
-        this.selected_index = -1;
-        this.afterSelectionChanged = new EventSource();
+        this.expanded = false;
+        this.afterExpand = new EventSource();
+        this.afterCollapse = new EventSource();
     }
 
-    SetDisabled(disabled = true)
+    SetExpanded(expanded = true)
+    {
+        if (expanded === true) this.Expand();
+        else this.Collapse();
+    }
+
+    Expand()
     {
         this.disabled = disabled;
+    }
+
+    Collapse()
+    {
+
     }
 
     CreateElements(parent, items = [])

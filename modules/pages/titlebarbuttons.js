@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement } from "../domutils.js";
+import { addElement } from "../utils/domutils.js";
 
 export class TitleBarButtonDescriptor
 {

@@ -1,4 +1,4 @@
-import { CreatePagePanel } from "../domutils.js";
+import { CreatePagePanel } from "../utils/domutils.js";
 import { PanelBase } from "./panel_base.js";
 import { FieldValuePanel } from "./panel_field_value.js";
 

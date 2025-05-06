@@ -1,5 +1,5 @@
 import { SharedData } from "../../datashared.js";
-import { CreatePagePanel } from "../../domutils.js";
+import { CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { ExternalContactList } from "../../ui/panel_external_contact_list.js";
 import { InternalUserList } from "../../ui/panel_internal_user_list.js";

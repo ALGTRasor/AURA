@@ -2,7 +2,7 @@ import { About } from "../../about.js";
 import { AppEvents } from "../../appevents.js";
 import { Autosave } from "../../autosave.js";
 import { DevMode } from "../../devmode.js";
-import { addElement, CreatePagePanel } from "../../domutils.js";
+import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { clamp } from "../../utils/mathutils.js";
 import { Modules } from "../../modules.js";
 import { PageManager } from "../../pagemanager.js";
@@ -330,7 +330,7 @@ export class PageSettings extends PageDescriptor
 
 
 				instance.e_slider_spacing = new SettingSlider(
-					x, 'spacing', 'compress', GlobalStyling.spacing.value, 0.125, () => 'UI spacing',
+					x, 'spacing', 'compress', GlobalStyling.spacing.value, 0.05, () => 'UI spacing',
 					_ =>
 					{
 						GlobalStyling.spacing.value = _.value;

@@ -28,7 +28,7 @@ import { Fax } from "./modules/fax.js";
 
 
 
-import './modules/pages/descriptors/onboarding.js';
+import './modules/pages/descriptors/user_dashboard.js';
 import './modules/pages/descriptors/help.js';
 import './modules/pages/descriptors/home.js';
 import './modules/pages/descriptors/settings.js';
@@ -40,7 +40,6 @@ import './modules/pages/descriptors/task_hub.js';
 import './modules/pages/descriptors/contact_logs.js';
 import './modules/pages/descriptors/field_notes.js';
 import './modules/pages/descriptors/timekeep.js';
-import './modules/pages/descriptors/user_dashboard.js';
 import './modules/pages/descriptors/hr.js';
 import './modules/pages/descriptors/database_probe.js';
 import './modules/pages/descriptors/external_links.js';
@@ -96,7 +95,7 @@ function ToggleContentFaded() { SetContentFaded(window.content_faded !== true); 
 
 function RegisterHotkeys()
 {
-	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '` or ~', action_description: 'Toggle Light Mode' }));
+	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '~', action_description: 'Toggle Light Mode' }));
 
 	if (!UserAccountInfo.HasAppAccess()) return;
 
@@ -115,14 +114,13 @@ function RegisterHotkeys()
 
 	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Page: Nav Menu' }));
 	Hotkeys.Register(new HotkeyDescriptor('u', m => { if (m.none) PageManager.TogglePageByTitle('user dashboard'); }, { action_description: 'Page: User Dashboard' }));
-	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Page: HR', permission: 'hr.access' }));
+	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
 	Hotkeys.Register(new HotkeyDescriptor('d', m => { if (m.none) PageManager.TogglePageByTitle('directory'); }, { action_description: 'Page: Directory', permission: 'users.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('i', m => { if (m.none) PageManager.TogglePageByTitle('internal users'); }, { action_description: 'Page: Internal Users', permission: 'users.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('e', m => { if (m.none) PageManager.TogglePageByTitle('external contacts'); }, { action_description: 'Page: External Contacts', permission: 'contacts.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Page: Project Hub', permission: 'projects.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('time keeper'); }, { action_description: 'Page: Time Keeper', permission: 'keep.time' }));
 	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task tracker'); }, { action_description: 'Page: Task Tracker', permission: 'tasks.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
+	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Page: Project Hub', permission: 'projects.view' }));
+	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Page: HR', permission: 'hr.access' }));
+	Hotkeys.Register(new HotkeyDescriptor('/', m => { if (m.none) PageManager.TogglePageByTitle('help'); }, { key_description: '?', action_description: 'Page: Help' }));
 	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log', dev_only: true }));
 
 
@@ -247,12 +245,13 @@ async function OnAuraInit()
 		ActionBar.AddMenuButton(
 			'settings', 'settings',
 			_ => PageManager.OpenPageByTitle('settings'),
-			_ =>
-			{
-				_.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.';
-			}
+			_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
 		);
-		if (UserAccountInfo.aura_access === true)
+
+
+		await AppEvents.onAccountLogin.InvokeAsync();
+
+		if (UserAccountInfo.HasAppAccess())
 		{
 			ActionBar.AddMenuButton(
 				'refresh', 'refresh',
@@ -269,12 +268,14 @@ async function OnAuraInit()
 				},
 				_ =>
 				{
-					_.title = 'Refresh all Shared Data.\nShared Data includes all company, client, and employee related data.\nShared Data does not include local app settings.\nRefreshing Shared Data can take several seconds to complete.';
+					_.title = 'Refresh all Shared Data.'
+						+ '\nShared Data does include all company, client, and employee related data.'
+						+ '\nShared Data does not include local app settings.'
+						+ '\nRefreshing Shared Data might take several seconds to complete.';
 				}
 			);
 			ActionBar.AddMenuButton('home', 'menu', _ => { PageManager.CloseAll(); });
 		}
-		await AppEvents.onAccountLogin.InvokeAsync();
 
 		RegisterHotkeys();
 
@@ -282,7 +283,7 @@ async function OnAuraInit()
 		if (!should_restore_layout || !PageManager.RestoreCachedLayout())
 		{
 			if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
-			else PageManager.OpenPageByTitle('onboarding');
+			else PageManager.OpenPageByTitle('user dashboard');
 		}
 		await Fax.RefreshFact();
 

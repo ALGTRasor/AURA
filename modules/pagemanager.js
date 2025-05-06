@@ -1,6 +1,6 @@
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
-import { setSiblingIndex } from "./domutils.js";
+import { setSiblingIndex } from "./utils/domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageDescriptor, PageInstance } from "./pages/pagebase.js";

@@ -1,4 +1,4 @@
-import { addElement } from "../domutils.js";
+import { addElement } from "../utils/domutils.js";
 import { PanelBase } from "./panel_base.js";
 import { RecordSummaryPanel } from "./panel_record_summary.js";
 

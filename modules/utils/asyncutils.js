@@ -1,0 +1,1 @@
+export async function import_js_module(path) { return await import(path); }
