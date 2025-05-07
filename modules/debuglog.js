@@ -24,10 +24,10 @@ class DebugLogGroup
 
 	IsValid() { return typeof this.title === 'string' && this.title.length > 0; }
 
-	Append(message = '')
+	Append(message = '', color = '')
 	{
 		this.messages.push(message);
-		this.AppendElements(message);
+		this.AppendElements(message, color);
 	}
 
 	RecreateElements()
@@ -36,9 +36,17 @@ class DebugLogGroup
 		for (let message_id in this.messages) this.AppendElements(this.messages[message_id]);
 	}
 
-	AppendElements(message = '')
+	AppendElements(message = '', color = '')
 	{
-		addElement(this.e_root, 'div', 'debug-log-item', null, _ => { _.innerText = message; _.title = message; });
+		addElement(
+			this.e_root, 'div', 'debug-log-item', null,
+			_ =>
+			{
+				_.title = message;
+				_.innerText = message;
+				_.style.color = color;
+			}
+		);
 	}
 }
 
@@ -47,12 +55,8 @@ class DebugLogGroup
 export class DebugLog
 {
 	static lskeys = { show_debug_log: 'show-debug-log' };
+
 	static created = false;
-
-	//static ui = {};
-	//static entries = [];
-	//static entry_elements = [];
-
 	static active_group = null;
 
 	static StartNewGroup(title = '')
@@ -73,10 +77,7 @@ export class DebugLog
 		return DebugLog.created === true;
 	}
 
-	static CanCreateElements()
-	{
-		return DevMode.active === true && GlobalStyling.showDebugLog.enabled === true;
-	}
+	static CanCreateElements() { return DevMode.active === true && GlobalStyling.showDebugLog.enabled === true; }
 
 	static CreateElements()
 	{
@@ -98,27 +99,27 @@ export class DebugLog
 		DebugLog.created = false;
 	}
 
-	static RecreateElements() { DebugLog.RemoveElements(); DebugLog.CreateElements(); }
-
 	static Show() { if (DebugLog.VerifyCreated() === true) DebugLog.e_root.style.display = 'flex'; }
 	static Hide() { if (DebugLog.created === true) DebugLog.e_root.style.display = 'none'; }
 	static RefreshVisibility() { if (DebugLog.CanCreateElements() === true) DebugLog.Show(); else DebugLog.Hide(); }
+	static RecreateElements() { DebugLog.RemoveElements(); DebugLog.CreateElements(); }
 
 	static Log(message, appendToConsole = true, color = '', allow_duplicates = false)
 	{
 		message = message.trim();
 
-		if (DebugLog.active_group) 
-		{
-			DebugLog.active_group.Append(message);
-		}
+		if (DebugLog.active_group) DebugLog.active_group.Append(message, color);
 		else
 		{
-			let e_log_entry = document.createElement('div');
-			e_log_entry.className = 'debug-log-item';
-			e_log_entry.innerHTML = message;
-			e_log_entry.title = message;
-			if (DebugLog.e_root) DebugLog.e_root.appendChild(e_log_entry);
+			addElement(
+				DebugLog.e_root, 'div', 'debug-log-item', null,
+				_ =>
+				{
+					_.innerHTML = message;
+					_.title = message;
+					if (typeof color === 'string' && color.length > 0) _.color = color;
+				}
+			);
 		}
 		if (appendToConsole) console.info(message);
 	}
