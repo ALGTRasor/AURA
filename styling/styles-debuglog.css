@@ -1,42 +1,37 @@
 .debug-log-root
 {
 	z-index: 100000;
-	position: absolute;
-	bottom: calc(var(--gap-1) + var(--info-bar-height));
-	left: var(--gap-1);
-	transform-origin: 0% 100%;
-	transform: scale(80%);
+	cursor: default;
+	overflow: hidden;
+	clip-path: stroke-box;
 
 	display: flex;
+	opacity: 30%;
 	flex-direction: column;
-	justify-content: end;
 
-	overflow-x: hidden;
-	overflow-y: hidden;
-	scrollbar-width: 0;
-
+	position: absolute;
+	left: var(--gap-1);
+	bottom: calc(var(--gap-1) + var(--info-bar-height));
+	padding: var(--gap-025);
 	min-width: 12rem;
-	max-width: 24rem;
+	max-width: 32rem;
 	min-height: 4rem;
 	max-height: 8rem;
 
-	border-radius: var(--gap-05);
-	clip-path: stroke-box;
-
-	background: var(--theme-color-background);
-	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.25));
-	outline-offset: -1px;
+	transform-origin: 0% 100%;
+	transform: scale(80%);
 
 	font-family: AtkinsonHyperlegibleLight;
 	letter-spacing: normal;
 	word-spacing: normal;
-	font-weight: light;
-	font-size: 86%;
+	font-weight: lighter;
+	font-size: 0.7rem;
 
-	padding: var(--gap-025);
+	border-radius: var(--gap-05);
+	background: var(--theme-color-background);
 
-	opacity: 30%;
-	cursor: default;
+	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.25));
+	outline-offset: -1px;
 
 	transition-property: max-height, opacity, outline-color, transform, box-shadow;
 	transition-duration: var(--trans-dur-off-veryslow);
@@ -46,14 +41,16 @@
 
 .debug-log-root:hover
 {
-	box-shadow: inset -2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25);
-	overflow-y: auto;
+	overflow: hidden auto;
 	transform: scale(99.9%);
 	max-height: 80vh;
 	opacity: 100%;
+
+	box-shadow: inset -2px 2px 8px rgba(from var(--shadow-color) r g b / 0.25);
+	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.5));
+
 	transition-delay: 0s;
 	transition-duration: var(--trans-dur-off-slow);
-	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.5));
 }
 
 
@@ -64,42 +61,82 @@
 
 
 
+
+.debug-log-group
+{
+	display: flex;
+	position: relative;
+
+	flex-direction: column;
+	justify-content: end;
+	overflow: hidden;
+	justify-content: start;
+
+	flex-shrink: 0.0;
+
+	line-height: 1rem;
+	min-height: 1rem;
+
+	margin-left: var(--gap-05);
+	padding: var(--gap-05);
+
+	background: transparent;
+	border-top: solid 2px hsl(from var(--theme-color-text) h s 10%);
+	border-bottom: solid 2px hsl(from var(--theme-color-text) h s 5%);
+
+	color: var(--theme-color-text-30);
+	font-size: 0.7rem;
+
+	transition-delay: 0.1s;
+	transition-property: border-color, background-color, color;
+	transition-duration: var(--trans-dur-on-slow);
+	transition-timing-function: ease-in-out;
+}
+
+.debug-log-group:hover
+{
+	background: rgba(from hsl(from var(--theme-color-text) h s 50%) r g b / 0.1);
+	border-top: solid 2px hsl(from var(--theme-color-text) h s 50%);
+	border-bottom: solid 2px hsl(from var(--theme-color-text) h s 50%);
+	color: var(--theme-color-text);
+	transition-delay: 0s;
+}
+
+
+
 .debug-log-item
 {
 	display: flex;
 	position: relative;
 	flex-shrink: 0.0;
 
-
-	height: auto;
-	margin-top: 1px;
-	margin-bottom: 1px;
-	padding: 0.125rem 3rem 0.125rem 0.5rem;
+	padding: var(--gap-025);
+	padding-left: calc(var(--gap-1) + 8px);
+	align-content: center;
 
 	background: transparent;
 
-	border-width: 0 0 0 0px;
+	border-width: 0 0 0 0;
 	border-style: solid;
 	border-color: #fff0;
 
-	font-size: 85%;
-
 	opacity: 50%;
-	align-content: center;
 
-	transition-property: border, opacity, color;
-	transition-duration: var(--trans-dur-off-slow);
+	transition-property: padding, border, opacity, color;
+	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
 }
 
 .debug-log-item:hover
 {
+	padding-left: var(--gap-1);
+
 	border-color: #fff;
 	border-width: 0 0 0 4px;
+
 	opacity: 100%;
-	background: var(--theme-color-20);
+	background: var(--theme-color-10);
 	color: var(--theme-color-text);
-	transition-duration: var(--trans-dur-on-fast);
 }
 
 .debug-log-item-count

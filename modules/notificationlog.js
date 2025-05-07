@@ -58,7 +58,7 @@ export class NotificationLog
 		let ui = NotificationLog.ui;
 
 		ui.e_root = document.createElement('div');
-		ui.e_root.id = 'debug-log-root';
+		ui.e_root.id = 'notification-log-root';
 		ui.e_root.className = 'debug-log-root';
 		ui.e_root.style.bottom = 'unset';
 		ui.e_root.style.justifyContent = 'start';

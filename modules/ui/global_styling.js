@@ -192,7 +192,7 @@ GlobalStyling.showDebugLog = GlobalStyling.RegisterAspect(
     _ => { UserSettings.SetOptionValue(lskey_show_debug_log, _.enabled); },
     _ =>
     {
-        DebugLog.ui.e_root.style.display = _.enabled ? 'block' : 'none';
+        DebugLog.RefreshVisibility();
         GlobalStyling.TriggerChangeEvents(false);
     },
 );

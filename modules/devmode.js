@@ -87,18 +87,18 @@ export class DevMode
 	{
 		if (DevMode.active) return;
 		Autosave.HookSaveEvent(DevMode.SaveState);
-		DevMode.onActivate.Invoke();
 		DevMode.active = true;
 		DebugLog.Log(' ~ debug mode active');
+		DevMode.onActivate.Invoke();
 
 	}
 	static Deactivate()
 	{
 		if (!DevMode.active) return;
 		Autosave.ReleaseSaveEvent(DevMode.SaveState);
-		DevMode.onDeactivate.Invoke();
 		DevMode.active = false;
 		DebugLog.Log(' ~ debug mode inactive');
+		DevMode.onDeactivate.Invoke();
 	}
 
 	static TryLoadState()

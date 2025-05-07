@@ -9,6 +9,8 @@
 	--gap-05: calc(2px + 0.45rem * var(--spacing-multiplier));
 	--gap-025: calc(2px + 0.2rem * var(--spacing-multiplier));
 
+	--ease-elastic: cubic-bezier(.4, -0.2, .6, 1.2);
+
 	--theme-color: hsl(197, 100%, 50%);
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);

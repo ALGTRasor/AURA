@@ -1,38 +1,124 @@
 import { DevMode } from "./devmode.js";
-import { Fax } from "./fax.js";
+import { addElement } from "./utils/domutils.js";
+import { GlobalStyling } from "./ui/global_styling.js";
+
+class DebugLogGroup
+{
+	static Nothing = new DebugLogGroup(null, null);
+
+	title = '';
+	e_root = {};
+	e_parent = {};
+	messages = [];
+	parent_group = DebugLogGroup.Nothing;
+
+	constructor(log_root, title = '', parent_group = null)
+	{
+		this.title = title;
+		this.parent_group = parent_group;
+		if (parent_group && parent_group.e_root) this.e_parent = parent_group.e_root;
+		else this.e_parent = log_root;
+
+		this.e_root = addElement(this.e_parent, 'div', 'debug-log-group', null, _ => { _.innerText = this.title; });
+	}
+
+	IsValid() { return typeof this.title === 'string' && this.title.length > 0; }
+
+	Append(message = '')
+	{
+		this.messages.push(message);
+		this.AppendElements(message);
+	}
+
+	RecreateElements()
+	{
+		this.e_root.innerHTML = '';
+		for (let message_id in this.messages) this.AppendElements(this.messages[message_id]);
+	}
+
+	AppendElements(message = '')
+	{
+		addElement(this.e_root, 'div', 'debug-log-item', null, _ => { _.innerText = message; _.title = message; });
+	}
+}
+
+
 
 export class DebugLog
 {
-	static entries = [];
-	static entry_elements = [];
-	static ui = {};
+	static lskeys = { show_debug_log: 'show-debug-log' };
+	static created = false;
 
-	static Create()
+	//static ui = {};
+	//static entries = [];
+	//static entry_elements = [];
+
+	static active_group = null;
+
+	static StartNewGroup(title = '')
 	{
-		if (DebugLog.ui.e_root) return;
-
-		DebugLog.ui.e_root = document.createElement('div');
-		DebugLog.ui.e_root.id = 'debug-log-root';
-		DebugLog.ui.e_root.className = 'debug-log-root';
-		document.body.appendChild(DebugLog.ui.e_root);
+		if (DebugLog.created === false) return;
+		DebugLog.active_group = new DebugLogGroup(DebugLog.e_root, title, DebugLog.active_group);
 	}
 
-	static Hide() { if (DebugLog.ui.e_root) DebugLog.ui.e_root.style.display = 'none'; }
-	static Show() { if (DebugLog.ui.e_root) DebugLog.ui.e_root.style.display = 'flex'; }
+	static CloseCurrentGroup()
+	{
+		if (DebugLog.created === false) return;
+		if (DebugLog.active_group) DebugLog.active_group = DebugLog.active_group.parent_group;
+	}
 
-	static async FillFax() { for (let x = 0; x < 30; x++) DebugLog.Log(await Fax.GetOne(), false); }
+	static VerifyCreated()
+	{
+		if (DebugLog.created !== true) DebugLog.CreateElements();
+		return DebugLog.created === true;
+	}
+
+	static CanCreateElements()
+	{
+		return DevMode.active === true && GlobalStyling.showDebugLog.enabled === true;
+	}
+
+	static CreateElements()
+	{
+		if (DebugLog.created === true) return;
+		if (DebugLog.CanCreateElements() === false) return;
+
+		if (DebugLog.e_root) document.body.appendChild(DebugLog.e_root);
+		else DebugLog.e_root = addElement(document.body, 'div', 'debug-log-root', null, _ => { _.id = 'debug-log-root'; });
+
+		DebugLog.created = true;
+
+		this.RefreshVisibility();
+	}
+
+	static RemoveElements()
+	{
+		if (DebugLog.created !== true) return;
+		DebugLog.e_root.remove();
+		DebugLog.created = false;
+	}
+
+	static RecreateElements() { DebugLog.RemoveElements(); DebugLog.CreateElements(); }
+
+	static Show() { if (DebugLog.VerifyCreated() === true) DebugLog.e_root.style.display = 'flex'; }
+	static Hide() { if (DebugLog.created === true) DebugLog.e_root.style.display = 'none'; }
+	static RefreshVisibility() { if (DebugLog.CanCreateElements() === true) DebugLog.Show(); else DebugLog.Hide(); }
 
 	static Log(message, appendToConsole = true, color = '', allow_duplicates = false)
 	{
 		message = message.trim();
 
-		if (DebugLog.current_group && DebugLog.current_group.name)
+		if (DebugLog.active_group) 
 		{
-			DebugLog.current_group.entries.push(message);
+			DebugLog.active_group.Append(message);
 		}
 		else
 		{
-			DebugLog.AppendMessageElement(message, color, allow_duplicates);
+			let e_log_entry = document.createElement('div');
+			e_log_entry.className = 'debug-log-item';
+			e_log_entry.innerHTML = message;
+			e_log_entry.title = message;
+			if (DebugLog.e_root) DebugLog.e_root.appendChild(e_log_entry);
 		}
 		if (appendToConsole) console.info(message);
 	}
@@ -47,8 +133,11 @@ export class DebugLog
 		return '';
 	}
 
+	/*
 	static AppendMessageElement(message, color = '', allow_duplicates = false)
 	{
+		if (DebugLog.VerifyCreated() !== true) return;
+
 		if (!allow_duplicates && DebugLog.entry_elements.length > 0 && DebugLog.entry_elements[DebugLog.entry_elements.length - 1].title == message)
 		{
 			let last_e = DebugLog.entry_elements[DebugLog.entry_elements.length - 1];
@@ -70,79 +159,43 @@ export class DebugLog
 
 			DebugLog.entry_elements.push(e_log_entry);
 
-			if (!DebugLog.ui.e_root) DebugLog.Create();
-			DebugLog.ui.e_root.appendChild(e_log_entry);
+			DebugLog.e_root.appendChild(e_log_entry);
 		}
 	}
+	*/
 
 	static Clear()
 	{
-		for (let e in DebugLog.entry_elements) e.remove();
-		DebugLog.entry_elements = [];
-		DebugLog.ui.e_root.innerHTML = '';
+		DebugLog.e_root.innerHTML = '';
+		DebugLog.e_root.innerHTML = '';
 	}
 
-	static open_groups = [];
-	static current_group = {};
+
 	static StartGroup(group_name)
 	{
-		DebugLog.current_group = { name: group_name, entries: [], e_top: {} };
-		DebugLog.open_groups.push(DebugLog.current_group);
-		DebugLog.current_group.e_top = DebugLog.InjectSeparator(group_name, 'var(--theme-color-20)');
-		DebugLog.current_group.e_top.style.borderRadius = '6px 6px 0px 0px';
-		DebugLog.current_group.e_top.style.marginTop = '2px';
-		return DebugLog.current_group.e_top;
+		DebugLog.StartNewGroup(group_name);
 	}
 
 	static SubmitGroup(background = '', color = '')
 	{
-		if (DebugLog.open_groups.length < 1 || !DebugLog.current_group || !DebugLog.current_group.name) return; // no group was open
-		for (let eid in DebugLog.current_group.entries) DebugLog.AppendMessageElement(DebugLog.current_group.entries[eid]);
-
-		let e_sep = DebugLog.InjectSeparator(null, 'var(--theme-color-20)');
-		e_sep.style.borderRadius = '0px 0px 3px 3px';
-		e_sep.style.marginBottom = '2px';
-
-		DebugLog.open_groups.splice(DebugLog.open_groups.length - 1, 1);
-
-		let e_seps = { e_top: DebugLog.current_group.e_top, e_bottom: e_sep };
-
-		if (DebugLog.open_groups.length < 1) DebugLog.current_group = null;
-		else DebugLog.current_group = DebugLog.open_groups[DebugLog.open_groups.length - 1];
-
-		if (background && background.length > 0)
+		if (DebugLog.active_group)
 		{
-			e_seps.e_top.style.background = background;
-			e_seps.e_bottom.style.background = background;
+			if (typeof background === 'string' && background.length > 0) DebugLog.active_group.e_root.style.setProperty('--theme-color', background);
+			if (typeof color === 'string' && color.length > 0) DebugLog.active_group.e_root.style.setProperty('color', color);
 		}
-		if (color && color.length > 0)
-		{
-			e_seps.e_top.style.color = color;
-			e_seps.e_bottom.style.color = color;
-		}
-
-		return e_seps;
-	}
-
-	static InjectSeparator(text, color = '')
-	{
-		let e_sep = document.createElement('div');
-		e_sep.className = 'debug-log-separator';
-		if (text) e_sep.innerText = text;
-		if (color && color.length > 0) e_sep.style.background = color;
-		e_sep.style.marginLeft = (DebugLog.open_groups.length * 6) + "px";
-		DebugLog.ui.e_root.appendChild(e_sep);
-		return e_sep;
+		DebugLog.CloseCurrentGroup();
 	}
 }
 
 if (!window.fxn) window.fxn = {};
 window.fxn.DebugLog = DebugLog.Log;
 
-DevMode.AddActivateAction(DebugLog.Show);
-DevMode.AddDeactivateAction(DebugLog.Hide);
-
-DebugLog.Create();
-DebugLog.Hide();
-
-DebugLog.StartGroup('initializing');
+window.setTimeout(
+	_ =>
+	{
+		DevMode.AddActivateAction(_ => DebugLog.RefreshVisibility());
+		DevMode.AddDeactivateAction(_ => DebugLog.RemoveElements());
+		DebugLog.RefreshVisibility();
+	},
+	300
+);
