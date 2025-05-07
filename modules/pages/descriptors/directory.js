@@ -6,8 +6,9 @@ import { PageDescriptor } from "../pagebase.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SharedData } from "../../datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
+import { ExpandingSummary } from "../../ui/expanding_summary.js";
 
-const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:wrap; gap:var(--gap-025); overflow: auto hidden;';
+const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--gap-025); overflow: hidden auto;';
 const style_directory_summary = 'position:relative; background:hsl(from var(--theme-color) h s 20%); border-radius:var(--gap-05); align-content:center; text-align:left; padding:var(--gap-1); font-size:0.8rem; flex-grow:0.0;';
 
 
@@ -24,6 +25,8 @@ const search_records = (records = [], record_check = _ => { return true; }) =>
 class DirectoryContentInternal extends PanelContent
 {
 	search_term = '';
+	e_summaries = [];
+
 	OnCreateElements()
 	{
 		this.e_summaries = [];
@@ -45,7 +48,9 @@ class DirectoryContentInternal extends PanelContent
 		for (let id in filtered)
 		{
 			let user = filtered[id];
-			this.e_summaries.push(addElement(this.e_root, 'div', 'page-panel panel-button', style_directory_summary, _ => _.innerText = user.display_name_full));
+			let e_user = new ExpandingSummary(user.display_name_full);
+			e_user.CreateElements(this.e_root);
+			this.e_summaries.push(e_user);
 		}
 	}
 	OnRemoveElements() { this.e_root.remove(); }
@@ -75,7 +80,9 @@ class DirectoryContentExternal extends PanelContent
 		for (let id in filtered)
 		{
 			let contact = filtered[id];
-			this.e_summaries.push(addElement(this.e_root, 'div', 'page-panel panel-button', style_directory_summary, _ => _.innerText = contact.contact_name));
+			let e_contact = new ExpandingSummary(contact.contact_name);
+			e_contact.CreateElements(this.e_root);
+			this.e_summaries.push(e_contact);
 		}
 	}
 	OnRemoveElements() { this.e_root.remove(); }
