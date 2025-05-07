@@ -21,6 +21,16 @@ export class SlideSelector
     SetDisabled(disabled = true)
     {
         this.disabled = disabled;
+        if (disabled === true)
+        {
+            this.e_root.style.cursor = 'wait';
+            this.e_root.style.pointerEvents = 'none';
+        }
+        else
+        {
+            this.e_root.style.pointerEvents = 'all';
+            this.e_root.style.cursor = 'pointer';
+        }
     }
 
     CreateElements(parent, items = [])

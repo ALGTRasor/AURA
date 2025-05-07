@@ -8,7 +8,7 @@ import { SharedData } from "../../datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
 
-const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--gap-025); align-content:flex-start; overflow: hidden auto;';
+const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); overflow: hidden auto;';
 
 const search_records = (records = [], record_check = _ => { return true; }) =>
 {
@@ -20,10 +20,16 @@ const search_records = (records = [], record_check = _ => { return true; }) =>
 	return passed;
 }
 
-class DirectoryContentInternal extends PanelContent
+class DirectoryContentBase extends PanelContent
 {
+	e_root = {};
+	summaries = [];
 	search_term = '';
-	e_summaries = [];
+	page_instance = {};
+
+	get_data = () => [];
+	get_entry_title = _ => 'NO ITEM TITLE';
+	get_entry_search_blob = _ => '';
 
 	constructor(e_parent, page_instance)
 	{
@@ -33,75 +39,51 @@ class DirectoryContentInternal extends PanelContent
 
 	OnCreateElements()
 	{
-		this.e_summaries = [];
 		this.e_root = addElement(this.e_parent, 'div', null, style_directory_root);
 		this.OnRefreshElements();
 	}
 
 	OnRefreshElements()
 	{
-		for (let eid in this.e_summaries) this.e_summaries[eid].RemoveElements();
+		for (let eid in this.summaries) this.summaries[eid].RemoveElements();
 
-		let filtered = search_records(
-			SharedData.users.instance.data,
-			_ => { return this.search_term.length < 1 || _.display_name_full.toLowerCase().indexOf(this.search_term) > -1; }
-		);
+		const filter_record = _ => { return this.search_term.length < 1 || this.get_entry_search_blob(_).indexOf(this.search_term) > -1; };
+		let filtered = search_records(this.get_data(), filter_record);
 
 		for (let id in filtered)
 		{
-			let user = filtered[id];
-			let e_user = new ExpandingSummary(user.display_name_full);
-			e_user.CreateElements(this.e_root);
-			e_user.e_root.style.minHeight = '1.5rem';
-			e_user.e_root.style.minWidth = '18rem';
-			this.e_summaries.push(e_user);
+			let entry = filtered[id];
+			let e_entry = new ExpandingSummary(this.get_entry_title(entry));
+			e_entry.CreateElements(this.e_root);
+			e_entry.e_root.style.minHeight = '1.25rem';
+			e_entry.e_root.style.textOverflow = 'ellipsis';
+			e_entry.e_root.style.textWrapMode = 'nowrap';
+			e_entry.e_root.style.flexGrow = '0.0';
+			e_entry.before_expand = () => this.CollapseAll();
+			this.summaries.push(e_entry);
 		}
 	}
 
-	OnRemoveElements() { this.e_root.remove(); }
+	CollapseAll() { for (let id in this.summaries) this.summaries[id].Collapse(); }
+	OnRemoveElements() { console.warn('removed elements'); this.e_root.remove(); }
 }
 
-class DirectoryContentExternal extends PanelContent
+class DirectoryContentInternal extends DirectoryContentBase
 {
-	search_term = '';
-
-	constructor(e_parent, page_instance)
-	{
-		super(e_parent);
-		this.page_instance = page_instance;
-	}
-
-	OnCreateElements()
-	{
-		this.e_summaries = [];
-		this.e_root = addElement(this.e_parent, 'div', null, style_directory_root);
-		this.OnRefreshElements();
-	}
-
-	OnRefreshElements()
-	{
-		for (let eid in this.e_summaries) this.e_summaries[eid].remove();
-		let filtered = search_records(
-			SharedData.contacts.instance.data,
-			_ => 
-			{
-				return this.search_term.length < 1 || _.contact_name.toLowerCase().indexOf(this.search_term) > -1;
-			}
-		);
-
-		for (let id in filtered)
-		{
-			let contact = filtered[id];
-			let e_contact = new ExpandingSummary(contact.contact_name);
-			e_contact.CreateElements(this.e_root);
-			e_contact.e_root.style.minHeight = '1.5rem';
-			e_contact.e_root.style.minWidth = '30rem';
-			this.e_summaries.push(e_contact);
-		}
-	}
-
-	OnRemoveElements() { this.e_root.remove(); }
+	get_data = () => SharedData.users.instance.data;
+	get_entry_title = _ => _.display_name_full;
+	get_entry_search_blob = _ => _.display_name_full.toLowerCase().trim();
+	constructor(e_parent, page_instance) { super(e_parent, page_instance); }
 }
+
+class DirectoryContentExternal extends DirectoryContentBase
+{
+	get_data = () => SharedData.contacts.instance.data;
+	get_entry_title = _ => _.contact_name;
+	get_entry_search_blob = _ => _.contact_name.toLowerCase().trim();
+	constructor(e_parent, page_instance) { super(e_parent, page_instance); }
+}
+
 
 export class PageDirectory extends PageDescriptor
 {
@@ -162,16 +144,24 @@ export class PageDirectory extends PageDescriptor
 		}
 	}
 
-	IsValidContent(content = PanelContent.Nothing) { return content && content.RemoveElements; }
+	IsValidContent(content = PanelContent.Nothing) { return content && 'RemoveElements' in content; }
 
 	SetContent(instance, content_next = PanelContent.Nothing)
 	{
-		if (content_next === instance.content_current) return;
+		if (content_next === instance.content_current)
+		{
+			console.warn('same next content');
+			return;
+		}
 
-		if (!this.IsValidContent(content_next)) return;
+		if (this.IsValidContent(content_next) === false)
+		{
+			console.warn('invalid next content');
+			return;
+		}
 
 		instance.slide_directory.SetDisabled(true);
-		if (this.IsValidContent(instance.content_current)) 
+		if (this.IsValidContent(instance.content_current) === true) 
 		{
 			FadeElement(
 				instance.content_current.e_root, 100, 0, 0.125
@@ -183,9 +173,11 @@ export class PageDirectory extends PageDescriptor
 					instance.content_current.CreateElements();
 				}
 			).then(
-				async _ => await FadeElement(instance.content_current.e_root, 0, 100, 0.125)
-			).then(
-				_ => { instance.slide_directory.SetDisabled(false); }
+				async _ =>
+				{
+					instance.slide_directory.SetDisabled(false);
+					await FadeElement(instance.content_current.e_root, 0, 100, 0.125);
+				}
 			);
 		}
 		else
@@ -204,7 +196,7 @@ export class PageDirectory extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true && instance.state_data.expanding === false) instance.e_frame.style.maxWidth = '32rem';
+		if (instance.state_data.docked === true && instance.state_data.expanding === false) instance.e_frame.style.maxWidth = '24rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 
 		window.setTimeout(() => instance.slide_directory.ApplySelection(), 250);

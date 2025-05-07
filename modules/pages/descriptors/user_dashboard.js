@@ -248,7 +248,7 @@ export class PageMyData extends PageDescriptor
 		instance.e_hr.style.minWidth = '80%';
 		instance.e_hr.style.minHeight = '36rem';
 
-		instance.viewer_hr_requests.CreateElements(instance.e_hr);
+		instance.content_hr.viewer_hr_requests.CreateElements(instance.e_hr);
 		this.UpdateHrBlock(instance);
 
 		instance.e_content.appendChild(instance.e_hr);
@@ -257,18 +257,18 @@ export class PageMyData extends PageDescriptor
 
 	UpdateHrBlock(instance)
 	{
-		instance.viewer_hr_requests.RemoveElements();
+		instance.content_hr.viewer_hr_requests.RemoveElements();
 		const sort = (x, y) =>
 		{
 			if (x.request_name < y.request_name) return -1;
 			if (x.request_name > y.request_name) return 1;
 			return 0;
 		};
-		instance.viewer_hr_requests.SetListItemSorter(sort);
-		instance.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
-		instance.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(instance, records));
-		instance.viewer_hr_requests.SetData(UserAccountInfo.hr_info.requests);
-		instance.viewer_hr_requests.CreateElements(instance.e_hr);
+		instance.content_hr.viewer_hr_requests.SetListItemSorter(sort);
+		instance.content_hr.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
+		instance.content_hr.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(instance, records));
+		instance.content_hr.viewer_hr_requests.SetData(UserAccountInfo.hr_info.requests);
+		instance.content_hr.viewer_hr_requests.CreateElements(instance.e_hr);
 	}
 
 	UpdateBlocks(instance)
@@ -293,7 +293,7 @@ export class PageMyData extends PageDescriptor
 		for (let id in records)
 		{
 			let record = records[id];
-			let e_info_root = CreatePagePanel(instance.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
+			let e_info_root = CreatePagePanel(instance.content_hr.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
 			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.request_name; });
 			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
 			RecordFormUtils.CreateRecordInfoList(e_info_body, record, HrRequest.data_model.field_descs, 'info', records.length < 2);
@@ -310,13 +310,22 @@ export class PageMyData extends PageDescriptor
 		SharedData.onLoaded.RemoveSubscription(instance.sub_SharedDataRefresh);
 	}
 
+	UpdateSize(instance)
+	{
+		instance.UpdateBodyTransform();
+		this.OnLayoutChange(instance);
+	}
+
 	OnLayoutChange(instance)
 	{
+		if (instance.state_data.docked === true && instance.state_data.expanding === false) instance.e_frame.style.maxWidth = '36rem';
+		else instance.e_frame.style.maxWidth = 'unset';
+
 		window.setTimeout(
 			() =>
 			{
 				instance.mode_slider.ApplySelection();
-				//instance.viewer_hr_requests.RefreshElementVisibility();
+				if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
 			},
 			250
 		);
