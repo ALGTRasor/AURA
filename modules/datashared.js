@@ -7,6 +7,7 @@ import { EventSource } from "./eventsource.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { RequestBatchRequest, SharePoint } from "./sharepoint.js";
 import { AppInfo } from "./app_info.js";
+import { NotificationLog } from "./notificationlog.js";
 
 
 export class SharedDataTable
@@ -82,6 +83,7 @@ export class SharedData
 		SharedData.loading = true;
 		Timers.Start(timer_shareddataload);
 		DebugLog.StartGroup('loading shared data');
+		NotificationLog.Log('Refreshing Shared Data');
 
 		if (useCache === true)
 		{
@@ -96,6 +98,7 @@ export class SharedData
 
 			if (all_from_cache)
 			{
+				NotificationLog.Log('Using Cached Shared Data');
 				DebugLog.Log('...using cached shared data');
 				DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
 				DebugLog.SubmitGroup();
@@ -169,7 +172,9 @@ export class SharedData
 		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();
 
-		DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
+		let ms_str = Timers.Stop(timer_shareddataload) + 'ms';
+		NotificationLog.Log(`Shared Data Refreshed (${ms_str})`);
+		DebugLog.Log('shared data load delta: ' + ms_str);
 		DebugLog.SubmitGroup();
 
 		SharedData.loading = false;

@@ -40,14 +40,11 @@ class DirectoryContentInternal extends PanelContent
 
 	OnRefreshElements()
 	{
-		for (let eid in this.e_summaries) this.e_summaries[eid].remove();
+		for (let eid in this.e_summaries) this.e_summaries[eid].RemoveElements();
 
 		let filtered = search_records(
 			SharedData.users.instance.data,
-			_ => 
-			{
-				return this.search_term.length < 1 || _.display_name_full.toLowerCase().indexOf(this.search_term) > -1;
-			}
+			_ => { return this.search_term.length < 1 || _.display_name_full.toLowerCase().indexOf(this.search_term) > -1; }
 		);
 
 		for (let id in filtered)

@@ -2,6 +2,7 @@ import { AnimJob } from "./AnimJob.js";
 import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
+import { NotificationLog } from "./notificationlog.js";
 import { RunningTimeout } from "./utils/running_timeout.js";
 
 export class Autosave
@@ -25,7 +26,9 @@ export class Autosave
 		Autosave.source.Invoke();
 
 		Autosave.last_invoke_ts = new Date();
-		DebugLog.Log('~ Autosave', false);
+
+		NotificationLog.Log('Saved', '#0f0');
+
 		Autosave.StartPulseAnimation();
 		Autosave.e_lastsaved.style.aspectRatio = '1.0';
 		Autosave.e_lastsaved.style.height = '100%';

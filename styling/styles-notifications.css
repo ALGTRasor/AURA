@@ -1,0 +1,66 @@
+.notification-log-root
+{
+	z-index: 250000;
+	cursor: default;
+	overflow: hidden;
+
+	pointer-events: none;
+
+	display: flex;
+	flex-direction: column;
+	align-items: end;
+
+	position: absolute;
+	right: var(--gap-1);
+	bottom: calc(var(--gap-1) + var(--info-bar-height));
+	padding: var(--gap-025);
+	gap: 0;
+
+	min-width: 8rem;
+
+	font-family: AtkinsonHyperlegibleLight;
+	letter-spacing: normal;
+	word-spacing: normal;
+	font-weight: lighter;
+	font-size: 0.7rem;
+}
+
+
+.notification-log-item
+{
+	display: flex;
+	position: relative;
+
+	padding: 0;
+	padding-left: calc(var(--gap-1) + 2rem);
+	padding-right: var(--gap-1);
+	flex-shrink: 0.0;
+	max-height: 0px;
+
+	background: transparent;
+
+	align-content: center;
+	text-shadow: -2px 2px 1px #000;
+	text-align: right;
+
+	transition-property: max-height, opacity;
+	transition-duration: var(--trans-dur-on-fast);
+	transition-timing-function: ease-in-out;
+}
+
+.notification-log-item-count
+{
+	position: absolute;
+	left: var(--gap-025);
+	top: 0;
+	bottom: 0;
+	text-align: center;
+	background: #222a;
+	padding-right: 0.2rem;
+	padding-left: 0.2rem;
+	color: var(--theme-color-text);
+	outline: solid 2px black;
+	font-size: 80%;
+	align-content: center;
+	align-self: center;
+}

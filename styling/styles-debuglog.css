@@ -14,6 +14,7 @@
 	left: var(--gap-1);
 	bottom: calc(var(--gap-1) + var(--info-bar-height));
 	padding: var(--gap-025);
+
 	min-width: 24rem;
 	max-width: 32rem;
 	min-height: 4rem;

@@ -181,13 +181,13 @@ function RegisterHotkeys()
 
 async function OnAuraInit()
 {
-
 	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
 	window.loop_detectWindowSizeChange = new AnimJob(100, CheckWindowSizeChanged);
 	window.loop_detectWindowSizeChange.Start();
 
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
+
 	let e_content_obscurer = document.getElementById('content-body-obscurer');
 	let e_action_bar = document.getElementById('action-bar');
 	e_action_bar.addEventListener('mouseenter', _ =>
@@ -201,6 +201,9 @@ async function OnAuraInit()
 	window.e_account_profile_picture.style.display = 'none';
 
 	SetErrorProxy();
+
+	NotificationLog.Create();
+	NotificationLog.Log('Initializing');
 
 	window.args = {};
 	let q = window.location.search.substring(1).split('&');
@@ -225,21 +228,27 @@ async function OnAuraInit()
 	if ('spoof-mail' in window.args) window.spoof_data.mail = window.args['spoof-mail'];
 	//window.spoof_data = sdanger;
 
+	NotificationLog.Log('Loading Settings');
 	UserSettings.LoadFromStorage();
 	GlobalStyling.Load();
 	//UserSettings.HookOptionEvents();
 
+	NotificationLog.Log('Checking Authorization');
 	await UserAccountManager.CheckWindowLocationForCodes();
+	NotificationLog.Log('Attempting Tenant Login');
 	await UserAccountManager.AttemptAutoLogin();
 	ActionBar.UpdateAccountButton();
 
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
 	{
+		NotificationLog.Log('Downloading User Info');
 		await UserAccountInfo.DownloadUserInfo();
 
 		window.e_account_profile_picture.style.display = 'block';
 
 		SharePoint.StartProcessingQueue();
+
+		NotificationLog.Log('Propagating Identity');
 		await CheckIdentity();
 
 		ActionBar.AddMenuButton(
@@ -248,9 +257,9 @@ async function OnAuraInit()
 			_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
 		);
 
-
 		await AppEvents.onAccountLogin.InvokeAsync();
 
+		NotificationLog.Log('Validating Access');
 		if (UserAccountInfo.HasAppAccess())
 		{
 			ActionBar.AddMenuButton(
@@ -287,13 +296,14 @@ async function OnAuraInit()
 		}
 		await Fax.RefreshFact();
 
-		NotificationLog.Create();
+		NotificationLog.Log('Ready');
 
 		SetContentObscured(false);
 		window.addEventListener('keyup', HandleKeyUp);
 	}
 	else
 	{
+		NotificationLog.Log('Login Required');
 		SetContentObscured(true, 'Login Required');
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();
@@ -362,6 +372,8 @@ const get_grad = (deg, ca, pa, cb, pb) =>
 	return 'linear-gradient(' + deg + 'deg, #' + ca + ' ' + pa + '%, #' + cb + ' ' + pb + '%)';
 }
 const e_spotlight = document.getElementById('spotlight');
+const info_label = document.getElementById('info-bar-marquee');
+
 function SpotlightElement(e_target)
 {
 	if (!e_target) return;
@@ -396,8 +408,6 @@ function SpotlightElement(e_target)
 	].join(', ');
 	e_spotlight.style.backgroundImage = newbackimage;
 }
-
-const info_label = document.getElementById('info-bar-marquee');
 
 function RefreshGlobalTooltip(e)
 {

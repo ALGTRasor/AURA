@@ -3,6 +3,7 @@ import { DebugLog } from "./debuglog.js";
 import { CreatePagePanel } from "./utils/domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
+import { NotificationLog } from "./notificationlog.js";
 
 const developer_ids = ['t.rasor'];
 
@@ -89,6 +90,7 @@ export class DevMode
 		Autosave.HookSaveEvent(DevMode.SaveState);
 		DevMode.active = true;
 		DebugLog.Log(' ~ debug mode active');
+		NotificationLog.Log('Activated Debug Mode');
 		DevMode.onActivate.Invoke();
 
 	}
@@ -98,6 +100,7 @@ export class DevMode
 		Autosave.ReleaseSaveEvent(DevMode.SaveState);
 		DevMode.active = false;
 		DebugLog.Log(' ~ debug mode inactive');
+		NotificationLog.Log('Deactivated Debug Mode');
 		DevMode.onDeactivate.Invoke();
 	}
 
