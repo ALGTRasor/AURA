@@ -1,4 +1,4 @@
-import { addElement, CreatePagePanel } from "../utils/domutils.js";
+import { addElement } from "../utils/domutils.js";
 import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
 
@@ -45,7 +45,7 @@ export class ExpandingSummary
     CreateElements(parent)
     {
         if (this.created === true) return;
-        this.e_root = addElement(parent, 'div', 'page-panel panel-button', 'flex-grow:0.0; flex-shrink:0.0; min-width:10rem;', _ => _.innerText = this.title);
+        this.e_root = addElement(parent, 'div', 'page-panel panel-button', 'flex-basis:0; flex-grow:1.0; flex-shrink:0.0; align-content:center; padding-left:0.5rem;', _ => _.innerText = this.title);
         this.e_root.addEventListener('click', _ => this.ToggleExpanded());
         this.created = true;
     }

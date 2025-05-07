@@ -8,9 +8,7 @@ import { SharedData } from "../../datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
 
-const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--gap-025); overflow: hidden auto;';
-const style_directory_summary = 'position:relative; background:hsl(from var(--theme-color) h s 20%); border-radius:var(--gap-05); align-content:center; text-align:left; padding:var(--gap-1); font-size:0.8rem; flex-grow:0.0;';
-
+const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--gap-025); align-content:flex-start; overflow: hidden auto;';
 
 const search_records = (records = [], record_check = _ => { return true; }) =>
 {
@@ -27,12 +25,19 @@ class DirectoryContentInternal extends PanelContent
 	search_term = '';
 	e_summaries = [];
 
+	constructor(e_parent, page_instance)
+	{
+		super(e_parent);
+		this.page_instance = page_instance;
+	}
+
 	OnCreateElements()
 	{
 		this.e_summaries = [];
 		this.e_root = addElement(this.e_parent, 'div', null, style_directory_root);
 		this.OnRefreshElements();
 	}
+
 	OnRefreshElements()
 	{
 		for (let eid in this.e_summaries) this.e_summaries[eid].remove();
@@ -50,9 +55,12 @@ class DirectoryContentInternal extends PanelContent
 			let user = filtered[id];
 			let e_user = new ExpandingSummary(user.display_name_full);
 			e_user.CreateElements(this.e_root);
+			e_user.e_root.style.minHeight = '1.5rem';
+			e_user.e_root.style.minWidth = '18rem';
 			this.e_summaries.push(e_user);
 		}
 	}
+
 	OnRemoveElements() { this.e_root.remove(); }
 }
 
@@ -60,12 +68,19 @@ class DirectoryContentExternal extends PanelContent
 {
 	search_term = '';
 
+	constructor(e_parent, page_instance)
+	{
+		super(e_parent);
+		this.page_instance = page_instance;
+	}
+
 	OnCreateElements()
 	{
 		this.e_summaries = [];
 		this.e_root = addElement(this.e_parent, 'div', null, style_directory_root);
 		this.OnRefreshElements();
 	}
+
 	OnRefreshElements()
 	{
 		for (let eid in this.e_summaries) this.e_summaries[eid].remove();
@@ -82,9 +97,12 @@ class DirectoryContentExternal extends PanelContent
 			let contact = filtered[id];
 			let e_contact = new ExpandingSummary(contact.contact_name);
 			e_contact.CreateElements(this.e_root);
+			e_contact.e_root.style.minHeight = '1.5rem';
+			e_contact.e_root.style.minWidth = '30rem';
 			this.e_summaries.push(e_contact);
 		}
 	}
+
 	OnRemoveElements() { this.e_root.remove(); }
 }
 
@@ -93,11 +111,11 @@ export class PageDirectory extends PageDescriptor
 	title = 'directory';
 	icon = 'contacts';
 
-
 	ApplyFilters(instance)
 	{
-		instance.directory_internal.search_term = instance.filter_search.value.trim().toLowerCase();
-		instance.directory_external.search_term = instance.directory_internal.search_term;
+		instance.search_term = instance.filter_search.value.trim().toLowerCase();
+		instance.directory_internal.search_term = instance.search_term;
+		instance.directory_external.search_term = instance.search_term;
 		instance.directory_internal.RefreshElements();
 		instance.directory_external.RefreshElements();
 	}
@@ -113,7 +131,7 @@ export class PageDirectory extends PageDescriptor
 		];
 		instance.slide_directory.CreateElements(instance.e_content, directories);
 
-		instance.filters_root = CreatePagePanel(instance.e_content, true, false, 'flex-grow:0.0;flex-shrink:0.0;flex-basis:1.5rem;');
+		instance.filters_root = CreatePagePanel(instance.e_content, true, false, 'flex-grow:0.0; flex-shrink:0.0; flex-basis:1.5rem;');
 		instance.filter_dirty = new RunningTimeout(() => this.ApplyFilters(instance), 0.5, false, 150);
 
 		instance.filter_search = addElement(
@@ -129,8 +147,8 @@ export class PageDirectory extends PageDescriptor
 
 		instance.content_current = null;
 		instance.directory_content_root = CreatePagePanel(instance.e_content, true, false);
-		instance.directory_internal = new DirectoryContentInternal(instance.directory_content_root);
-		instance.directory_external = new DirectoryContentExternal(instance.directory_content_root);
+		instance.directory_internal = new DirectoryContentInternal(instance.directory_content_root, instance);
+		instance.directory_external = new DirectoryContentExternal(instance.directory_content_root, instance);
 
 		const _afterDirChange = () => { this.OnDirectoryChange(instance); };
 		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(_afterDirChange);
