@@ -1,4 +1,3 @@
-import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel, FadeElement } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { until } from "../utils/until.js";

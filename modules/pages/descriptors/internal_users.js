@@ -1,6 +1,5 @@
 import { InternalUser } from "../../datamodels/internal_user.js";
 import { SharedData } from "../../datashared.js";
-import { DebugLog } from "../../debuglog.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { RecordFormUtils } from "../../ui/recordform.js";

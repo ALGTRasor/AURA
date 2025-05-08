@@ -1,7 +1,6 @@
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { CreatePagePanel } from "./utils/domutils.js";
-import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
 import { AppEvents } from "./appevents.js";

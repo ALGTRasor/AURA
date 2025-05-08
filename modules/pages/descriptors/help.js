@@ -1,4 +1,3 @@
-
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
 

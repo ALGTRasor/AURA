@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { addElement, fadeAppendChild, fadeRemoveElement, fadeTransformElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";

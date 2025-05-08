@@ -1,5 +1,4 @@
 import { About } from "../../about.js";
-import { AppEvents } from "../../appevents.js";
 import { Autosave } from "../../autosave.js";
 import { DevMode } from "../../devmode.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
