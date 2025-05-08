@@ -2,7 +2,7 @@
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
 
-export class PageFieldNotes extends PageDescriptor
+export class PageScratchPad extends PageDescriptor
 {
 	title = 'scratch pad';
 	icon = 'notepad';
@@ -27,4 +27,4 @@ export class PageFieldNotes extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageFieldNotes('scratch pad'));
+PageManager.RegisterPage(new PageScratchPad('scratch pad'), 'x', 'Scratch Pad');

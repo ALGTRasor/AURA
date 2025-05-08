@@ -6,6 +6,7 @@ import { Modules } from "./modules.js";
 import { PageDescriptor } from "./pages/pagebase.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./devmode.js";
+import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";
 
 const lskey_page_layout = 'pagemanager_layout';
 
@@ -30,7 +31,82 @@ export class PageManager
 
 	static sub_AutosaveOnLayoutChange = PageManager.onLayoutChange.RequestSubscription(Autosave.InvokeSoon);
 
-	static RegisterPage(page = PageDescriptor.Nothing) { PageManager.page_descriptors.push(page); }
+	static RegisterHotkeys()
+	{
+		Hotkeys.Register(
+			new HotkeyDescriptor(
+				' ',
+				(m, e) =>
+				{
+					let target = PageManager.GetHotkeyTarget();
+					if (m.none && target)
+					{
+						target.ToggleExpanding();
+					}
+				},
+				{ action_description: 'Toggle Active Page Expanding', key_description: 'Spacebar', requires_target: true }
+			)
+		);
+
+		Hotkeys.Register(
+			new HotkeyDescriptor(
+				'ArrowLeft',
+				(m, e) =>
+				{
+					let target = PageManager.GetHotkeyTarget();
+					if (m.ctrl === true && target) target.MoveLeft(m.shift);
+				},
+				{ action_description: 'Move Active Page Left', key_description: 'ctrl﹢←', requires_target: true }
+			)
+		);
+
+		Hotkeys.Register(
+			new HotkeyDescriptor(
+				'ArrowRight',
+				(m, e) =>
+				{
+					let target = PageManager.GetHotkeyTarget();
+					if (m.ctrl === true && target != null) target.MoveRight(m.shift);
+				},
+				{ action_description: 'Move Active Page Right', key_description: 'ctrl﹢→', requires_target: true }
+			)
+		);
+
+		Hotkeys.Register(
+			new HotkeyDescriptor(
+				'x',
+				(m, e) =>
+				{
+					let target = PageManager.GetHotkeyTarget();
+					if (m.ctrl === true && target != null) target.CloseInstance();
+				},
+				{ action_description: 'Close Active Page', key_description: 'ctrl﹢x', requires_target: true }
+			)
+		);
+	}
+
+	static RegisterPage(page = PageDescriptor.Nothing, hotkey = '', hotkey_description = '')
+	{
+		PageManager.page_descriptors.push(page);
+
+		if (typeof hotkey === 'string' && hotkey.length > 0)
+		{
+			Hotkeys.Register(
+				new HotkeyDescriptor(
+					hotkey,
+					m =>
+					{
+						if (m.none) PageManager.TogglePageByTitle(page.title);
+					},
+					{
+						action_description: 'Page: ' + hotkey_description,
+						permission: page.permission
+					}
+				)
+			);
+		}
+	}
+
 	static GetDescriptorIndex(page_title = '')
 	{
 		for (let pdid = 0; pdid < PageManager.page_descriptors.length; pdid++)

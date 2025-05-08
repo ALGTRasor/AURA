@@ -660,4 +660,4 @@ export class PageSettings extends PageDescriptor
 }
 
 
-PageManager.RegisterPage(new PageSettings('settings'));
+PageManager.RegisterPage(new PageSettings('settings'), 's', 'Settings');

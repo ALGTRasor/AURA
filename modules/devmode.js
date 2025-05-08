@@ -10,6 +10,7 @@ const developer_ids = ['t.rasor'];
 export class DevMode
 {
 	static toggle_created = false;
+	static available = false;
 	static active = false;
 
 	static TryCreateToggle()
@@ -73,8 +74,10 @@ export class DevMode
 
 	static ValidateDeveloperId(user_id)
 	{
+		DevMode.available = false;
 		if (developer_ids.indexOf(user_id) > -1) 
 		{
+			DevMode.available = true;
 			DevMode.TryCreateToggle();
 			DevMode.TryLoadState();
 			DevMode.update_toggle();

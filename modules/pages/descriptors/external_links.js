@@ -3,6 +3,7 @@ import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
+import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 
 export class PageExternalLinks extends PageDescriptor
 {
@@ -99,4 +100,4 @@ export class PageExternalLinks extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission));
+PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission), 'l', 'External Links');

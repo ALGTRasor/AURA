@@ -360,6 +360,19 @@ div[valuechanged]
 }
 
 
+.hover-lift
+{
+	z-index: 0;
+	scale: 95%;
+}
+
+.hover-lift:hover
+{
+	z-index: 10;
+	scale: 105%;
+}
+
+
 
 .page-root textarea[valuechanged],
 .page-root textarea[valuechanged]:hover

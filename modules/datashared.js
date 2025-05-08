@@ -83,7 +83,6 @@ export class SharedData
 		SharedData.loading = true;
 		Timers.Start(timer_shareddataload);
 		DebugLog.StartGroup('loading shared data');
-		NotificationLog.Log('Refreshing Shared Data');
 
 		if (useCache === true)
 		{

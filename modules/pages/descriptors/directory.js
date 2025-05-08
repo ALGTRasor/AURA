@@ -7,6 +7,7 @@ import { PanelContent } from "../../ui/panel_content.js";
 import { SharedData } from "../../datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
+import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 
 const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); overflow: hidden auto;';
 
@@ -203,4 +204,4 @@ export class PageDirectory extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageDirectory('directory'));
+PageManager.RegisterPage(new PageDirectory('directory'), 'd', 'Directory', 'users.view');

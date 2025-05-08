@@ -63,4 +63,4 @@ export class PageProjectHub extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageProjectHub('project hub', 'projects.view'));
+PageManager.RegisterPage(new PageProjectHub('project hub', 'projects.view'), 'p', 'Project Hub');

@@ -3,6 +3,7 @@ import { DevMode } from "../../devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
 import { UserAccountInfo } from "../../useraccount.js";
+import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 import { PageDescriptor } from "../pagebase.js";
 
 /*
@@ -173,4 +174,4 @@ export class PageHome extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission));
+PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission), 'n', 'Nav Menu');

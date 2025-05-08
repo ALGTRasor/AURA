@@ -18,4 +18,4 @@ export class PageHelp extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHelp('help'));
+PageManager.RegisterPage(new PageHelp('help'), '/', 'Help');

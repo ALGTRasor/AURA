@@ -1,10 +1,11 @@
 import { DebugLog } from "../debuglog.js";
+import { DevMode } from "../devmode.js";
 
 export class HotkeyDescriptor
 {
     static Nothing = new HotkeyDescriptor();
 
-    constructor(key = '', keyAction = modifiers => { }, extra = {})
+    constructor(key = '', keyAction = (modifiers, event) => { }, extra = {})
     {
         this.key = key;
         this.keyAction = keyAction;
@@ -50,13 +51,19 @@ export class HotkeyDescriptor
             return;
         }
 
+        if (this.dev_only === true && DevMode.available === false)
+        {
+            DebugLog.Log(' ! hotkey skipped: debug only');
+            return;
+        }
+
         /*
         let msg = ` + hotkey executed: ${event.key}`;
         for (let mid in modifiers){ if (modifiers[mid] === true) msg += `+[${mid}]`; }
         DebugLog.Log(msg);
         */
 
-        this.keyAction(modifiers);
+        this.keyAction(modifiers, event);
 
         event.stopPropagation();
         event.preventDefault();
@@ -97,8 +104,7 @@ export class Hotkeys
 
     static Emulate(key = '', ctrl = false, alt = false, shift = false)
     {
-        if (typeof key !== 'string') return;
-        if (key.length < 1) return;
+        if (typeof key !== 'string' || key.length < 1) return;
 
         Hotkeys.EvaluateKeyEvent({ key: key, ctrlKey: ctrl, altKey: alt, shiftKey: shift });
     }

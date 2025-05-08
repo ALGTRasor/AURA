@@ -55,4 +55,4 @@ export class PageHR extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHR('hr', 'hr.access'));
+PageManager.RegisterPage(new PageHR('hr', 'hr.access'), 'h', 'HR');

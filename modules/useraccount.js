@@ -26,7 +26,8 @@ const CLIENT_ID = "ea723209-ebaa-402a-8ff0-ffe4a49b3282";
 const CLIENT_SCOPES = [
 	'openid',
 	'user.read',
-	'Sites.ReadWrite.All'
+	'Sites.ReadWrite.All',
+	'Files.Read.All'
 ].join(' ');
 
 export class UserAccountProvider

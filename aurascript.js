@@ -39,7 +39,7 @@ import './modules/pages/descriptors/external_contacts.js';
 import './modules/pages/descriptors/project_hub.js';
 import './modules/pages/descriptors/task_hub.js';
 import './modules/pages/descriptors/contact_logs.js';
-import './modules/pages/descriptors/field_notes.js';
+import './modules/pages/descriptors/scratchpad.js';
 import './modules/pages/descriptors/timekeep.js';
 import './modules/pages/descriptors/hr.js';
 import './modules/pages/descriptors/database_probe.js';
@@ -96,85 +96,21 @@ function ToggleContentFaded() { SetContentFaded(window.content_faded !== true); 
 
 function RegisterHotkeys()
 {
-	Hotkeys.Register(new HotkeyDescriptor('`', m => { if (m.none) ToggleLightMode(); }, { key_description: '~', action_description: 'Toggle Light Mode' }));
-
 	if (!UserAccountInfo.HasAppAccess()) return;
 
-	Hotkeys.Register(
-		new HotkeyDescriptor('s',
-			m =>
-			{
-				if (m.ctrl) Autosave.InvokeNow();
-				if (m.none) PageManager.TogglePageByTitle('settings');
-			},
-			{
-				action_description: 'Page: Settings'
-			}
-		)
-	);
+	const hkaction_lightmode = (m, e) => { if (m.none) ToggleLightMode(); };
+	const hkinfo_lightmode = { key_description: '~', action_description: 'Toggle Light Mode' };
+	Hotkeys.Register(new HotkeyDescriptor('`', hkaction_lightmode, hkinfo_lightmode));
 
-	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Page: Nav Menu' }));
-	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Page: User Dashboard' }));
-	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
-	Hotkeys.Register(new HotkeyDescriptor('d', m => { if (m.none) PageManager.TogglePageByTitle('directory'); }, { action_description: 'Page: Directory', permission: 'users.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('time keeper'); }, { action_description: 'Page: Time Keeper', permission: 'keep.time' }));
-	Hotkeys.Register(new HotkeyDescriptor('t', m => { if (m.none) PageManager.TogglePageByTitle('task tracker'); }, { action_description: 'Page: Task Tracker', permission: 'tasks.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('p', m => { if (m.none) PageManager.TogglePageByTitle('project hub'); }, { action_description: 'Page: Project Hub', permission: 'projects.view' }));
-	Hotkeys.Register(new HotkeyDescriptor('h', m => { if (m.none) PageManager.TogglePageByTitle('hr'); }, { action_description: 'Page: HR', permission: 'hr.access' }));
-	Hotkeys.Register(new HotkeyDescriptor('/', m => { if (m.none) PageManager.TogglePageByTitle('help'); }, { key_description: '?', action_description: 'Page: Help' }));
-	Hotkeys.Register(new HotkeyDescriptor('0', m => { if (m.none) ToggleDebugLog(); }, { action_description: 'Toggle Debug Log', dev_only: true }));
+	const hkaction_save = (m, e) => { if (m.ctrl) Autosave.InvokeNow(); };
+	const hkinfo_save = { key_description: 'ctrl﹢s', action_description: 'Save Settings' };
+	Hotkeys.Register(new HotkeyDescriptor('s', hkaction_save, hkinfo_save));
 
+	const hkaction_debuglog = (m, e) => { if (m.none) ToggleDebugLog(); };
+	const hkinfo_debuglog = { action_description: 'Toggle Debug Log', dev_only: true };
+	Hotkeys.Register(new HotkeyDescriptor('0', hkaction_debuglog, hkinfo_debuglog));
 
-	Hotkeys.Register(
-		new HotkeyDescriptor(
-			' ',
-			m =>
-			{
-				let target = PageManager.GetHotkeyTarget();
-				if (m.none && target)
-				{
-					target.ToggleExpanding();
-				}
-			},
-			{ action_description: 'Toggle Active Page Expanding', key_description: 'Spacebar', requires_target: true }
-		)
-	);
-
-	Hotkeys.Register(
-		new HotkeyDescriptor(
-			'ArrowLeft',
-			m =>
-			{
-				let target = PageManager.GetHotkeyTarget();
-				if (m.ctrl === true && target) target.MoveLeft(m.shift);
-			},
-			{ action_description: 'Move Active Page Left', key_description: 'ctrl﹢←', requires_target: true }
-		)
-	);
-
-	Hotkeys.Register(
-		new HotkeyDescriptor(
-			'ArrowRight',
-			m =>
-			{
-				let target = PageManager.GetHotkeyTarget();
-				if (m.ctrl === true && target != null) target.MoveRight(m.shift);
-			},
-			{ action_description: 'Move Active Page Right', key_description: 'ctrl﹢→', requires_target: true }
-		)
-	);
-
-	Hotkeys.Register(
-		new HotkeyDescriptor(
-			'x',
-			m =>
-			{
-				let target = PageManager.GetHotkeyTarget();
-				if (m.ctrl === true && target != null) target.CloseInstance();
-			},
-			{ action_description: 'Close Active Page', key_description: 'ctrl﹢x', requires_target: true }
-		)
-	);
+	PageManager.RegisterHotkeys();
 }
 
 
@@ -236,7 +172,6 @@ async function OnAuraInit()
 
 	NotificationLog.Log('Checking Authorization');
 	await UserAccountManager.CheckWindowLocationForCodes();
-	NotificationLog.Log('Attempting Tenant Login');
 	await UserAccountManager.AttemptAutoLogin();
 	ActionBar.UpdateAccountButton();
 
@@ -249,7 +184,6 @@ async function OnAuraInit()
 
 		SharePoint.StartProcessingQueue();
 
-		NotificationLog.Log('Propagating Identity');
 		await CheckIdentity();
 
 		ActionBar.AddMenuButton(
@@ -260,7 +194,6 @@ async function OnAuraInit()
 
 		await AppEvents.onAccountLogin.InvokeAsync();
 
-		NotificationLog.Log('Validating Access');
 		if (UserAccountInfo.HasAppAccess())
 		{
 			ActionBar.AddMenuButton(

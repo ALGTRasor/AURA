@@ -77,7 +77,7 @@ export class DebugLog
 		return DebugLog.created === true;
 	}
 
-	static CanCreateElements() { return DevMode.active === true && GlobalStyling.showDebugLog.enabled === true; }
+	static CanCreateElements() { return DevMode.available === true && GlobalStyling.showDebugLog.enabled === true; }
 
 	static CreateElements()
 	{

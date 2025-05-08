@@ -12,6 +12,7 @@ import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.j
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
+import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 
 
 
@@ -333,4 +334,4 @@ export class PageMyData extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission));
+PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission), 'm', 'My Data');
