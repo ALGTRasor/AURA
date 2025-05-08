@@ -3,13 +3,9 @@ import { DebugLog } from "./debuglog.js";
 import { setSiblingIndex } from "./utils/domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
-import { PageDescriptor, PageInstance } from "./pages/pagebase.js";
-import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
+import { PageDescriptor } from "./pages/pagebase.js";
+import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./devmode.js";
-import { NotificationLog } from "./notificationlog.js";
-
-//const e_actionbar_title_label = document.getElementById('action-bar-title');
-const e_pages_root = document.getElementById('content-pages-root');
 
 const lskey_page_layout = 'pagemanager_layout';
 
