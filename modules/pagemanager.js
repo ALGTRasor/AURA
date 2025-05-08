@@ -6,6 +6,7 @@ import { Modules } from "./modules.js";
 import { PageDescriptor, PageInstance } from "./pages/pagebase.js";
 import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
 import { DevMode } from "./devmode.js";
+import { NotificationLog } from "./notificationlog.js";
 
 //const e_actionbar_title_label = document.getElementById('action-bar-title');
 const e_pages_root = document.getElementById('content-pages-root');
@@ -252,6 +253,6 @@ export class PageManager
 	static FocusLastPageInstance(delay = 250) { window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay); }
 }
 
-Modules.Report('Page Manager', 'This module opens and closes pages and remembers their layout (if the option is enabled)');
+Modules.Report('Page Manager', 'This module registers Page Descriptors and caches the current page layout when applicable');
 
 Autosave.HookSaveEvent(PageManager.CacheCurrentLayout);

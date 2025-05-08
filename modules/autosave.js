@@ -3,6 +3,7 @@ import { DebugLog } from "./debuglog.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
+import { UserAccountInfo } from "./useraccount.js";
 import { RunningTimeout } from "./utils/running_timeout.js";
 
 export class Autosave
@@ -23,6 +24,9 @@ export class Autosave
 			window.clearTimeout(Autosave.invokesoon_tid);
 			Autosave.invokesoon_tid = -1;
 		}
+
+		if (UserAccountInfo.is_alg_account !== true) return;
+
 		Autosave.source.Invoke();
 
 		Autosave.last_invoke_ts = new Date();
