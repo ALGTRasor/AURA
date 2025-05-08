@@ -1,5 +1,3 @@
-import { DBConfig } from "../../dbconfig.js";
-import { DebugLog } from "../../debuglog.js";
 import { PageManager } from "../../pagemanager.js";
 import { SharePoint } from "../../sharepoint.js";
 import { UserAccountInfo } from "../../useraccount.js";
