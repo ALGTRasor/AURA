@@ -7,6 +7,10 @@ import { RecordFormUtils } from "../../ui/recordform.js";
 
 export class DatabaseProbe extends PageDescriptor
 {
+	extra_page = true;
+	debug_page = true;
+	order_index = 9999;
+
 	GetTitle() { return 'database probe'; }
 
 	OnCreateElements(instance)

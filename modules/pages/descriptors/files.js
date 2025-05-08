@@ -1,11 +1,11 @@
-
+import { DebugLog } from "../../debuglog.js";
 import { PageManager } from "../../pagemanager.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
-export class PageFieldNotes extends PageDescriptor
+export class PageFiles extends PageDescriptor
 {
-	title = 'scratch pad';
-	icon = 'notepad';
+	title = 'files';
 
 	OnCreateElements(instance)
 	{
@@ -27,4 +27,4 @@ export class PageFieldNotes extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageFieldNotes('scratch pad'));
+PageManager.RegisterPage(new PageFiles('files', UserAccountInfo.app_access_permission));

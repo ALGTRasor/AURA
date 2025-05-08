@@ -32,6 +32,7 @@ import './modules/pages/descriptors/user_dashboard.js';
 import './modules/pages/descriptors/help.js';
 import './modules/pages/descriptors/home.js';
 import './modules/pages/descriptors/settings.js';
+import './modules/pages/descriptors/files.js';
 import './modules/pages/descriptors/directory.js';
 import './modules/pages/descriptors/internal_users.js';
 import './modules/pages/descriptors/external_contacts.js';
@@ -113,7 +114,7 @@ function RegisterHotkeys()
 	);
 
 	Hotkeys.Register(new HotkeyDescriptor('n', m => { if (m.none) PageManager.TogglePageByTitle('nav menu'); }, { action_description: 'Page: Nav Menu' }));
-	Hotkeys.Register(new HotkeyDescriptor('u', m => { if (m.none) PageManager.TogglePageByTitle('user dashboard'); }, { action_description: 'Page: User Dashboard' }));
+	Hotkeys.Register(new HotkeyDescriptor('m', m => { if (m.none) PageManager.TogglePageByTitle('my data'); }, { action_description: 'Page: User Dashboard' }));
 	Hotkeys.Register(new HotkeyDescriptor('l', m => { if (m.none) PageManager.TogglePageByTitle('external links'); }, { action_description: 'Page: External Links' }));
 	Hotkeys.Register(new HotkeyDescriptor('d', m => { if (m.none) PageManager.TogglePageByTitle('directory'); }, { action_description: 'Page: Directory', permission: 'users.view' }));
 	Hotkeys.Register(new HotkeyDescriptor('k', m => { if (m.none) PageManager.TogglePageByTitle('time keeper'); }, { action_description: 'Page: Time Keeper', permission: 'keep.time' }));

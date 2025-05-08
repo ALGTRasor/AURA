@@ -171,6 +171,9 @@ class SettingToggle extends SettingControl
 export class PageSettings extends PageDescriptor
 {
 	pinnable = true;
+	extra_page = true;
+	hidden_page = true;
+
 	GetTitle() { return 'settings'; }
 	GetIcon() { return 'settings'; }
 

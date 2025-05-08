@@ -9,6 +9,8 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageInternalUsers extends PageDescriptor
 {
+	hidden_page = true;
+
 	GetTitle() { return 'internal users'; }
 	OnCreateElements(instance)
 	{

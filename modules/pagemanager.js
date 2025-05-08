@@ -5,6 +5,7 @@ import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageDescriptor, PageInstance } from "./pages/pagebase.js";
 import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
+import { DevMode } from "./devmode.js";
 
 //const e_actionbar_title_label = document.getElementById('action-bar-title');
 const e_pages_root = document.getElementById('content-pages-root');
@@ -153,8 +154,14 @@ export class PageManager
 		if (page_id < 0) return false;
 
 		let page_desc = PageManager.page_descriptors[page_id];
-		if (typeof page_desc.permission === 'string' && page_desc.permission.length > 0)
-			return UserAccountInfo.HasPermission(page_desc.permission);
+
+		if (
+			typeof page_desc.permission === 'string'
+			&& page_desc.permission.length > 0
+			&& UserAccountInfo.HasPermission(page_desc.permission) === false
+		) return false;
+
+		if (page_desc.debug_page === true && DevMode.active === false) return false;
 
 		return true;
 	}

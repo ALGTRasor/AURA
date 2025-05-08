@@ -4,14 +4,12 @@ import { CreatePagePanel } from "./utils/domutils.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
+import { AppEvents } from "./appevents.js";
 
 const developer_ids = ['t.rasor'];
 
 export class DevMode
 {
-	static onActivate = new EventSource();
-	static onDeactivate = new EventSource();
-
 	static toggle_created = false;
 	static active = false;
 
@@ -91,7 +89,7 @@ export class DevMode
 		DevMode.active = true;
 		DebugLog.Log(' ~ debug mode active');
 		NotificationLog.Log('Activated Debug Mode');
-		DevMode.onActivate.Invoke();
+		AppEvents.onDebugModeActivated.Invoke();
 
 	}
 	static Deactivate()
@@ -101,7 +99,7 @@ export class DevMode
 		DevMode.active = false;
 		DebugLog.Log(' ~ debug mode inactive');
 		NotificationLog.Log('Deactivated Debug Mode');
-		DevMode.onDeactivate.Invoke();
+		AppEvents.onDebugModeDeactivated.Invoke();
 	}
 
 	static TryLoadState()
@@ -122,11 +120,11 @@ export class DevMode
 		localStorage.setItem(lskey_devmode_state, JSON.stringify({ active: DevMode.active }));
 	}
 
-	static AddActivateAction(action = () => { }) { return DevMode.onActivate.RequestSubscription(action); }
-	static RemoveActivateAction(action_sub) { DevMode.onActivate.RemoveSubscription(action_sub); }
+	static AddActivateAction(action = () => { }) { return AppEvents.onDebugModeActivated.RequestSubscription(action); }
+	static RemoveActivateAction(action_sub) { AppEvents.onDebugModeActivated.RemoveSubscription(action_sub); }
 
-	static AddDeactivateAction(action = () => { }) { return DevMode.onDeactivate.RequestSubscription(action); }
-	static RemoveDeactivateAction(action_sub) { DevMode.onDeactivate.RemoveSubscription(action_sub); }
+	static AddDeactivateAction(action = () => { }) { return AppEvents.onDebugModeDeactivated.RequestSubscription(action); }
+	static RemoveDeactivateAction(action_sub) { AppEvents.onDebugModeDeactivated.RemoveSubscription(action_sub); }
 }
 
 Modules.Report('Developer Mode', 'This module adds debug functionality, if you have the expected permissions.');

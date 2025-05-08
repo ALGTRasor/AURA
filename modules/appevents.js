@@ -10,5 +10,7 @@ export class AppEvents
 	static onAccountLoginFailed = new EventSource();
 
 	static onSaveSettings = new EventSource();
-	static onSaveSettings = new EventSource();
+
+	static onDebugModeActivated = new EventSource();
+	static onDebugModeDeactivated = new EventSource();
 }

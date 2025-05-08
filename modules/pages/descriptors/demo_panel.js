@@ -9,6 +9,10 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageDemoPanel extends PageDescriptor
 {
+	extra_page = true;
+	debug_page = true;
+	order_index = 9999;
+
 	GetTitle() { return 'demo panel'; }
 	OnCreateElements(instance)
 	{

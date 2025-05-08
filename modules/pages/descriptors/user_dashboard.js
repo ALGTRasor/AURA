@@ -114,8 +114,9 @@ export class UserDashboardDocs extends PanelContent
 
 export class PageMyData extends PageDescriptor
 {
-	GetTitle() { return 'user dashboard'; }
-	GetIcon() { return 'person'; }
+	title = 'my data';
+	icon = 'person';
+
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
@@ -332,4 +333,4 @@ export class PageMyData extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('user dashboard', UserAccountInfo.app_access_permission));
+PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission));

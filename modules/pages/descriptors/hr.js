@@ -8,6 +8,9 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageHR extends PageDescriptor
 {
+	extra_page = true;
+	order_index = -9999;
+
 	GetTitle() { return 'hr'; }
 	OnCreateElements(instance)
 	{

@@ -7,6 +7,8 @@ import { PageDescriptor } from "../pagebase.js";
 export class PageExternalLinks extends PageDescriptor
 {
 	pinnable = true;
+	extra_page = true;
+
 	GetTitle() { return 'external links'; }
 	OnCreateElements(instance)
 	{

@@ -2,11 +2,28 @@ import { DebugLog } from "../../debuglog.js";
 import { DevMode } from "../../devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
-import { UserAccountInfo, UserAccountManager } from "../../useraccount.js";
+import { UserAccountInfo } from "../../useraccount.js";
+import { FadeElement } from "../../utils/domutils.js";
 import { PageDescriptor } from "../pagebase.js";
+
+/*
+EXPECTED PAGE ORDER:
+project hub
+task tracker
+contact logs
+field notes
+time keeper
+directory
+user dashboard
+reports
+external links
+help
+*/
 
 export class PageHome extends PageDescriptor
 {
+	hidden_page = true;
+
 	GetTitle() { return 'nav menu'; }
 
 	OnCreateElements(instance)
@@ -14,65 +31,113 @@ export class PageHome extends PageDescriptor
 		if (!instance) return;
 
 		instance.e_frame.style.minWidth = '20rem';
+		instance.e_content.style.justifyContent = 'center';
 
 		instance.menu_main = new QuickMenu();
+		instance.menu_extra = new QuickMenu();
 
-		let TryAddButton = (buttons = [], id, label) => 
+		this.Populate(instance);
+
+		const repopulate = _ =>
 		{
-			if (PageManager.IsPageAvailable(id))
-			{
-				buttons.push(
-					{
-						label: (label ? label : id).toUpperCase(),
-						on_click: _ =>
-						{
-							DebugLog.Log('nav attempt -> ' + id);
-							if (_.shiftKey === true) 
-							{
-								let desc_id = PageManager.GetDescriptorIndex(id);
-								let desc = PageManager.page_descriptors[desc_id];
-								PageManager.OpenPageFromDescriptor(desc, undefined, true);
-							}
-							else
-							{
-								PageManager.TogglePageByTitle(id);
-							}
-						}
-					}
-				);
-			}
+			(
+				async () =>
+				{
+					instance.menu_extra.FadeOutButtons();
+					await instance.menu_main.FadeOutButtons();
+				}
+			)().then(
+				_ => this.Populate(instance)
+			).then(
+				async () =>
+				{
+					instance.menu_extra.FadeInButtons();
+					await instance.menu_main.FadeInButtons();
+				}
+			);
+		};
+		instance.sub_debug_on = DevMode.AddActivateAction(repopulate);
+		instance.sub_debug_off = DevMode.AddDeactivateAction(repopulate);
+	}
 
+	OnRemoveElements(instance)
+	{
+		DevMode.RemoveActivateAction(instance.sub_debug_on);
+		DevMode.RemoveDeactivateAction(instance.sub_debug_off);
+	}
+
+	Populate(instance)
+	{
+		const TryAddButton = (button_list = [], desc = {}) => 
+		{
+			let id = desc.title;
+			if (PageManager.IsPageAvailable(id) === false) return;
+
+			const button_label = id.toUpperCase();
+			const button_order_id = ('order_index' in desc) ? desc.order_index : 0;
+			const button_action = e =>
+			{
+				if (e.shiftKey === true) PageManager.OpenPageFromDescriptor(desc, undefined, true);
+				else PageManager.TogglePageByTitle(id);
+			};
+
+			button_list.push(
+				{
+					label: button_label,
+					order_index: button_order_id,
+					on_click: button_action
+				}
+			);
 		};
 
-		let buttons = [];
+		instance.menu_main.RemoveElements();
+		instance.menu_extra.RemoveElements();
 
-		TryAddButton(buttons, 'project hub');
-		TryAddButton(buttons, 'task tracker');
-		TryAddButton(buttons, 'contact logs');
-		TryAddButton(buttons, 'field notes');
-		TryAddButton(buttons, 'time keeper');
-		TryAddButton(buttons, 'directory');
-		TryAddButton(buttons, 'user dashboard');
-		TryAddButton(buttons, 'reports');
-		TryAddButton(buttons, 'external links');
-		TryAddButton(buttons, 'help');
+		let buttons = [];
+		let buttons_extra = [];
+
+		for (let page_desc_id in PageManager.page_descriptors)
+		{
+			let page_desc = PageManager.page_descriptors[page_desc_id];
+			if (page_desc.hidden_page === true || page_desc.extra_page === true) continue;
+			TryAddButton(buttons, page_desc);
+		}
+
+		for (let page_desc_id in PageManager.page_descriptors)
+		{
+			let page_desc = PageManager.page_descriptors[page_desc_id];
+			if (page_desc.hidden_page === true || page_desc.extra_page !== true) continue;
+			TryAddButton(buttons_extra, page_desc);
+		}
+
+		const sort_alpha = (a, b) =>
+		{
+			if (a.label < b.label) return -1;
+			if (a.label > b.label) return 1;
+			return 0;
+		};
+
+		const sort_order_index = (a, b) =>
+		{
+			if (a.order_index < b.order_index) return -1;
+			if (a.order_index > b.order_index) return 1;
+			return 0;
+		};
+
+		buttons.sort(sort_alpha);
+		buttons.sort(sort_order_index);
+
+		buttons_extra.sort(sort_alpha);
+		buttons_extra.sort(sort_order_index);
 
 		instance.menu_main.CreateElements(instance.e_content, buttons);
 		instance.menu_main.e_root.style.flexGrow = buttons.length;
 
-		let buttons_extra = [];
-		TryAddButton(buttons_extra, 'hr');
-		if (UserAccountInfo.HasPermission('app.events.access')) TryAddButton(buttons_extra, 'database probe');
-		if (DevMode.active === true) TryAddButton(buttons_extra, 'demo panel');
-
 		if (buttons_extra.length > 0)
 		{
-			instance.menu_extra = new QuickMenu();
 			instance.menu_extra.CreateElements(instance.e_content, buttons_extra);
 			instance.menu_extra.e_root.style.flexGrow = buttons_extra.length;
 		}
-
-		instance.e_content.style.justifyContent = 'center';
 	}
 
 	AddMenuButton(text = '', onclick = () => { }, permissions_required = [])

@@ -368,6 +368,7 @@ export class PageDescriptor
 	instances = [];
 
 	dockable = true;
+	order_index = 0;
 
 	constructor(title = '', permission = '', icon = '', description = '')
 	{

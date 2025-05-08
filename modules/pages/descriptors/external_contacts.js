@@ -8,6 +8,8 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageExternalContacts extends PageDescriptor
 {
+	hidden_page = true;
+
 	GetTitle() { return 'external contacts'; }
 	OnCreateElements(instance)
 	{
