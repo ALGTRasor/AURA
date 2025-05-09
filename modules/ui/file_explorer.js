@@ -115,14 +115,14 @@ export class FileExplorer extends PanelContent
             if ('file' in driveitem) 
             {
                 const file_button_style = 'display:block; position:absolute;'
-                    + 'top:50%; right:var(--gap-1); transform:translate(0%,-50%); transform-origin:50% 0%;'
+                    + 'top:50%; left:var(--gap-1); transform:translate(0%,-50%); transform-origin:50% 0%;'
                     + 'aspect-ratio:1.0; height:min(1rem, 100%); width:auto;'
                     + 'border:solid 2px hsl(from var(--theme-color) h s 50%);'
                     + 'background:hsl(from var(--theme-color) h s 30%); cursor:pointer;'
                     + 'border-radius:var(--gap-05);';
 
                 driveitem.type = 'file';
-                _.style.paddingRight = '4rem';
+                _.style.paddingLeft = '4rem';
 
                 addElement(
                     _, 'div', 'hover-lift',
@@ -151,7 +151,7 @@ export class FileExplorer extends PanelContent
                 {
                     addElement(
                         _, 'div', 'hover-lift',
-                        file_button_style + 'right:calc(1.5rem + var(--gap-1));',
+                        file_button_style + 'left:calc(1.5rem + var(--gap-1));',
                         e_btn_view =>
                         {
                             e_btn_view.addEventListener('click', e => { window.open(driveitem.webUrl, '_blank'); });
@@ -167,10 +167,17 @@ export class FileExplorer extends PanelContent
             else if ('folder' in driveitem)
             {
                 driveitem.type = 'folder';
+
                 _.style.setProperty('--theme-color', '#fb0');
                 _.style.cursor = 'pointer';
                 _.style.paddingLeft = '1rem';
-                _.innerHTML = ' / ' + driveitem.name;
+
+                const count_prefix = "<span style='display:block;position:absolute;top:50%;right:0.5rem;"
+                    + "transform:translate(0%,-50%);opacity:80%;font-size:80%;'>";
+                const count_suffix = "</span>";
+                _.innerHTML = driveitem.name;
+                if ('childCount' in driveitem.folder) _.innerHTML += `${count_prefix}${driveitem.folder.childCount} children${count_suffix}`;
+                else _.style.setProperty('--theme-color', '#fa47');
 
                 _.addEventListener(
                     'click',
@@ -193,10 +200,23 @@ export class FileExplorer extends PanelContent
         FileExplorer.FetchFolderItems('ALG Internal', relative_path).then(
             items => 
             {
-
-
                 if (items)
                 {
+                    items.sort((x, y) =>
+                    {
+                        if (x.name > y.name) return 1;
+                        if (x.name < y.name) return -1;
+                        return 0;
+                    });
+
+
+                    items.sort((x, y) =>
+                    {
+                        if (x.folder && y.file) return -1;
+                        if (x.file && y.folder) return 1;
+                        return 0;
+                    });
+
                     let valid_path = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
                     if (valid_path)
                     {
