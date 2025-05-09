@@ -7,8 +7,148 @@ export class FileExplorer extends PanelContent
 {
     static root_library_name = 'ALGFileLibrary';
 
+    DetermineFileType(item_info = {})
+    {
+        let type_str = 'unknown';
+        if ('folder' in item_info) type_str = 'folder';
+        if ('file' in item_info) type_str = 'file';
+        return type_str;
+    }
+
+    get_item_created_string = item_info =>
+    {
+        if ('createdBy' in item_info && 'user' in item_info.createdBy)
+        {
+            let d = new Date(item_info.createdDateTime).toLocaleString();
+            return `Created by ${item_info.createdBy.user.displayName} @ ${d}`;
+        }
+        return undefined;
+    };
+
+    get_item_modified_string = item_info =>
+    {
+        if ('lastModifiedBy' in item_info && 'user' in item_info.lastModifiedBy)
+        {
+            let d = new Date(item_info.lastModifiedDateTime).toLocaleString();
+            return `Modified by ${item_info.lastModifiedBy.user.displayName} @ ${d}`;
+        }
+        return undefined;
+    };
+
+    prepare_file_element = (_, file_info) =>
+    {
+        const file_button_style = 'display:block; position:absolute;'
+            + 'top:50%; left:var(--gap-1); transform:translate(0%,-50%); transform-origin:50% 0%;'
+            + 'aspect-ratio:1.0; height:min(1rem, 100%); width:auto;'
+            + 'border:solid 2px hsl(from var(--theme-color) h s 50%);'
+            + 'background:hsl(from var(--theme-color) h s 30%); cursor:pointer;'
+            + 'border-radius:var(--gap-05);';
+
+        _.style.paddingLeft = '4rem';
+        _.title = file_info.name;
+
+        addElement(
+            _, 'div', 'hover-lift',
+            file_button_style,
+            e_btn_dl =>
+            {
+                e_btn_dl.addEventListener(
+                    'click',
+                    e =>
+                    {
+                        if (this.loading_items === true) return;
+                        this.DownloadFile(file_info['@microsoft.graph.downloadUrl']);
+                    }
+                );
+                e_btn_dl.title = 'Download File:\n' + file_info.name;
+                addElement(
+                    e_btn_dl, 'i', 'material-symbols',
+                    'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
+                    + 'line-height:0.9rem; font-size:0.9rem;',
+                    e_icon_dl => { e_icon_dl.innerText = 'download'; }
+                );
+            }
+        );
+
+        const viewable_extensions = ['xlsx', 'pdf', 'docx', 'doc', 'csv', 'txt', 'png', 'jpeg', 'jpg', 'gif'];
+        const can_view = file_name => viewable_extensions.indexOf(file_name.split('.').at(-1)) > -1;
+
+        if (can_view(file_info.name) === true)
+        {
+            addElement(
+                _, 'div', 'hover-lift',
+                file_button_style + 'left:calc(1.5rem + var(--gap-1));',
+                e_btn_view =>
+                {
+                    e_btn_view.addEventListener('click', e => { window.open(file_info.webUrl, '_blank'); });
+                    e_btn_view.title = 'View File Online:\n' + file_info.name;
+                    addElement(
+                        e_btn_view, 'i', 'material-symbols', 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); line-height:0.9rem; font-size:0.9rem;',
+                        e_icon_dl => { e_icon_dl.innerText = 'open_in_new'; }
+                    );
+                }
+            );
+        }
+    };
+
+    prepare_folder_element = (_, folder_info) =>
+    {
+        _.style.setProperty('--theme-color', '#fb0');
+        _.style.cursor = 'pointer';
+        _.style.paddingLeft = '1rem';
+
+        const count_prefix = "<span style='display:block;position:absolute;top:50%;right:0.5rem;"
+            + "transform:translate(0%,-50%);opacity:80%;font-size:80%;'>";
+        const count_suffix = "</span>";
+
+        _.innerHTML = folder_info.name;
+        _.title = "Open Folder:\n" + folder_info.name;
+
+        if ('childCount' in folder_info.folder) _.innerHTML += `${count_prefix}${folder_info.folder.childCount} children${count_suffix}`;
+        else _.style.setProperty('--theme-color', '#fa47');
+
+        _.addEventListener(
+            'click',
+            _ =>
+            {
+                if (this.loading_items === true) return;
+                const rgx_get_rel_path = /(https?:\/\/[\w\.]+\.com)\/sites\/([^\/]+)\/([^\/]+)\/(.+)/;
+                let rgxmatch = decodeURIComponent(folder_info.webUrl).match(rgx_get_rel_path);
+                if (rgxmatch) this.Navigate(rgxmatch[4]);
+                else this.Navigate(folder_info.webUrl);
+            }
+        );
+    };
+
+    prepare_item_element = (_, driveitem) =>
+    {
+        _.innerHTML = driveitem.name;
+
+        driveitem.type = this.DetermineFileType(driveitem);
+
+        switch (driveitem.type)
+        {
+            case 'file':
+                this.prepare_file_element(_, driveitem);
+                break;
+            case 'folder':
+                this.prepare_folder_element(_, driveitem);
+                break;
+        }
+
+        let createdBy = this.get_item_created_string(driveitem);
+        if (createdBy) _.title += '\n' + createdBy;
+
+        let modifiedBy = this.get_item_modified_string(driveitem);
+        if (modifiedBy) _.title += '\n' + modifiedBy;
+    };
+
+
+
+
     OnCreateElements()
     {
+        this.relative_base_path = '';
         this.relative_path_current = '';
 
         this.loading_items = false;
@@ -36,7 +176,7 @@ export class FileExplorer extends PanelContent
 
         this.e_items_root = CreatePagePanel(
             this.e_root, true, false,
-            'display:flex;flex-direction:column;gap:var(--gap-025);',
+            'display:flex; gap:0; flex-direction:column;',
             _ => { _.classList.add('scroll-y'); }
         );
 
@@ -45,8 +185,6 @@ export class FileExplorer extends PanelContent
     }
     OnRefreshElements() { }
     OnRemoveElements() { this.e_root.remove(); }
-
-
 
 
     OnStartLoading()
@@ -63,184 +201,43 @@ export class FileExplorer extends PanelContent
         this.load_blocker.style.pointerEvents = 'none';
     }
 
-    DownloadFile(file_url = '')
+    DownloadFile(file_url = '') { window.open(file_url, '_blank'); }
+
+    SetDisplayPath(relative_path = '')
     {
-        window.open(file_url, '_blank');
-        return;
-
-        if ('e_file_view' in this && 'remove' in this.e_file_view) this.e_file_view.remove();
-        this.e_file_view = CreatePagePanel(
-            this.e_root, true, false, 'all:unset; display:block; position:absolute; pointer-events:none; width:0; height:0;',
-            _ => { _.innerHTML = `<embed src="${file_url}" width="500" height="375" type="application/pdf">`; }
-        );
-    }
-
-    Navigate(relative_path)
-    {
-        this.relative_path_current = relative_path;
-
-        let path_html = FileExplorer.root_library_name + '/' + relative_path;
-
-        const highlight_prefix = `<span style='color:hsl(from var(--theme-color) h s 70%); font-weight:bold; font-size:0.8rem; padding:var(--gap-025); background:hsl(from var(--theme-color) h s 30%); border-radius:var(--gap-05);'>`;
+        const highlight_prefix = `<span style='color:hsl(from var(--theme-color) h s 70%); font-weight:bold;`
+            + `font-size:0.8rem; padding:var(--gap-025); background:hsl(from var(--theme-color) h s 30%);`
+            + `border-radius:var(--gap-05);'>`;
         const highlight_suffix = `</span>`;
         const highlight_last = (_, id, all) =>
         {
             if (id >= (all.length - 1)) return `${highlight_prefix}${_}${highlight_suffix}`;
             return _;
         };
+
+        let path_html = FileExplorer.root_library_name + '/' + relative_path;
         path_html = path_html.split('/').filter(_ => _.length > 0).map(highlight_last).join('/');
         this.e_path_root.innerHTML = path_html;
         this.e_path_root.title = (FileExplorer.root_library_name + '/' + relative_path).split('/').filter(_ => _.length > 0).join(' / ');
+    }
 
-        const rgx_get_rel_path = /(https?:\/\/[\w\.]+\.com)\/sites\/([^\/]+)\/([^\/]+)\/(.+)/;
+    Navigate(relative_path)
+    {
+        this.relative_path_current = relative_path;
 
-        const prep_site_element = (_, site) =>
-        {
-            _.innerHTML = `${site.displayName} [${site.name}] <br>${site.webUrl}`;
-            _.title = site.description;
-        };
-
-        const prep_drive_element = (_, drive) =>
-        {
-            _.innerHTML = `[${drive.driveType}] ${drive.name}<br>${drive.webUrl}`;
-            _.title = drive.description;
-        };
-
-        const prep_driveitem_element = (_, driveitem) =>
-        {
-            _.innerHTML = driveitem.name;
-            _.title = "Open Folder:\n" + driveitem.name;
-
-            driveitem.type = 'unknown';
-            if ('file' in driveitem) 
-            {
-                const file_button_style = 'display:block; position:absolute;'
-                    + 'top:50%; left:var(--gap-1); transform:translate(0%,-50%); transform-origin:50% 0%;'
-                    + 'aspect-ratio:1.0; height:min(1rem, 100%); width:auto;'
-                    + 'border:solid 2px hsl(from var(--theme-color) h s 50%);'
-                    + 'background:hsl(from var(--theme-color) h s 30%); cursor:pointer;'
-                    + 'border-radius:var(--gap-05);';
-
-                driveitem.type = 'file';
-                _.style.paddingLeft = '4rem';
-
-                addElement(
-                    _, 'div', 'hover-lift',
-                    file_button_style,
-                    e_btn_dl =>
-                    {
-                        e_btn_dl.addEventListener(
-                            'click',
-                            e =>
-                            {
-                                if (this.loading_items === true) return;
-                                this.DownloadFile(driveitem['@microsoft.graph.downloadUrl']);
-                            }
-                        );
-                        e_btn_dl.title = 'Download File:\n' + driveitem.name;
-                        addElement(
-                            e_btn_dl, 'i', 'material-symbols', 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); line-height:0.9rem; font-size:0.9rem;',
-                            e_icon_dl => { e_icon_dl.innerText = 'download'; }
-                        );
-                    }
-                );
-
-                const viewable_extensions = ['xlsx', 'pdf', 'docx', 'doc', 'csv', 'txt', 'png', 'jpeg', 'jpg', 'gif'];
-                const can_view = file_name => viewable_extensions.indexOf(file_name.split('.').at(-1)) > -1;
-                if (can_view(driveitem.name) === true)
-                {
-                    addElement(
-                        _, 'div', 'hover-lift',
-                        file_button_style + 'left:calc(1.5rem + var(--gap-1));',
-                        e_btn_view =>
-                        {
-                            e_btn_view.addEventListener('click', e => { window.open(driveitem.webUrl, '_blank'); });
-                            e_btn_view.title = 'View File Online:\n' + driveitem.name;
-                            addElement(
-                                e_btn_view, 'i', 'material-symbols', 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); line-height:0.9rem; font-size:0.9rem;',
-                                e_icon_dl => { e_icon_dl.innerText = 'open_in_new'; }
-                            );
-                        }
-                    );
-                }
-            }
-            else if ('folder' in driveitem)
-            {
-                driveitem.type = 'folder';
-
-                _.style.setProperty('--theme-color', '#fb0');
-                _.style.cursor = 'pointer';
-                _.style.paddingLeft = '1rem';
-
-                const count_prefix = "<span style='display:block;position:absolute;top:50%;right:0.5rem;"
-                    + "transform:translate(0%,-50%);opacity:80%;font-size:80%;'>";
-                const count_suffix = "</span>";
-                _.innerHTML = driveitem.name;
-                if ('childCount' in driveitem.folder) _.innerHTML += `${count_prefix}${driveitem.folder.childCount} children${count_suffix}`;
-                else _.style.setProperty('--theme-color', '#fa47');
-
-                _.addEventListener(
-                    'click',
-                    _ =>
-                    {
-                        if (this.loading_items === true) return;
-                        let rgxmatch = decodeURIComponent(driveitem.webUrl).match(rgx_get_rel_path);
-                        if (rgxmatch) this.Navigate(rgxmatch[4]);
-                        else this.Navigate(driveitem.webUrl);
-                    }
-                );
-            }
-            if ('createdBy' in driveitem && 'user' in driveitem.createdBy) _.title += `\nCreated by ${driveitem.createdBy.user.displayName} (${driveitem.createdBy.user.email})`;
-            if ('lastModifiedBy' in driveitem && 'user' in driveitem.lastModifiedBy) _.title += `\nModified by ${driveitem.lastModifiedBy.user.displayName} (${driveitem.lastModifiedBy.user.email})`;
-        };
+        this.SetDisplayPath(this.relative_path_current);
 
         this.e_items_root.innerHTML = '';
         this.OnStartLoading();
 
-        FileExplorer.FetchFolderItems('ALG Internal', relative_path).then(
+        FileExplorer.FetchFolderItems(
+            'ALG Internal', relative_path
+        ).then(
             items => 
             {
                 if (items)
                 {
-                    items.sort((x, y) =>
-                    {
-                        if (x.name > y.name) return 1;
-                        if (x.name < y.name) return -1;
-                        return 0;
-                    });
-
-
-                    items.sort((x, y) =>
-                    {
-                        if (x.folder && y.file) return -1;
-                        if (x.file && y.folder) return 1;
-                        return 0;
-                    });
-
-                    let valid_path = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
-                    if (valid_path)
-                    {
-                        CreatePagePanel(
-                            this.e_items_root, false, false,
-                            'font-size:0.7rem; flex-grow:0.0;',
-                            _ =>
-                            {
-                                let parent_path_parts = relative_path.split('/');
-                                parent_path_parts.splice(parent_path_parts.length - 1, 1);
-                                const parent_path = parent_path_parts.join('/');
-                                prep_driveitem_element(_, { folder: {}, webUrl: parent_path, name: '← back to ' + FileExplorer.root_library_name + '/' + parent_path });
-                            }
-                        );
-                    }
-
-                    for (let id in items)
-                    {
-                        CreatePagePanel(
-                            this.e_items_root, false, false,
-                            'font-size:0.7rem; flex-grow:0.0; flex-shrink:0.0;',
-                            _ => prep_driveitem_element(_, items[id])
-                        );
-                    }
+                    this.PopulateList(relative_path, items);
                     this.OnStopLoading();
                 }
                 else
@@ -250,6 +247,70 @@ export class FileExplorer extends PanelContent
                 }
             }
         );
+    }
+
+    static sort_name = (x, y) =>
+    {
+        if (x.name > y.name) return 1;
+        if (x.name < y.name) return -1;
+        return 0;
+    };
+
+    static sort_type = (x, y) =>
+    {
+        if (x.folder && y.file) return -1;
+        if (x.file && y.folder) return 1;
+        return 0;
+    };
+
+    static sort_modified = (x, y) =>
+    {
+        let xdt = new Date(x.lastModifiedDateTime);
+        let ydt = new Date(y.lastModifiedDateTime);
+        if (xdt > ydt) return -1;
+        if (xdt < ydt) return 1;
+        return 0;
+    };
+
+    static sort_created = (x, y) =>
+    {
+        let xdt = new Date(x.createdDateTime);
+        let ydt = new Date(y.createdDateTime);
+        if (xdt > ydt) return -1;
+        if (xdt < ydt) return 1;
+        return 0;
+    };
+
+    PopulateList(relative_path = '', items = [])
+    {
+        items.sort(FileExplorer.sort_name);
+        items.sort(FileExplorer.sort_type);
+
+        let valid_parent = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
+        if (valid_parent === true)
+        {
+            CreatePagePanel(
+                this.e_items_root, false, false,
+                'font-size:0.7rem; flex-grow:0.0; align-self:flex-start; padding:calc(var(--gap-05) + 0.25rem);',
+                _ =>
+                {
+                    let parent_path_parts = relative_path.split('/');
+                    parent_path_parts.splice(parent_path_parts.length - 1, 1);
+                    const parent_path = parent_path_parts.join('/');
+                    let parent_name = parent_path_parts.splice(parent_path_parts.length - 1, 1);
+                    this.prepare_item_element(_, { folder: {}, webUrl: parent_path, name: '← ' + parent_name });
+                }
+            );
+        }
+
+        for (let id in items)
+        {
+            CreatePagePanel(
+                this.e_items_root, false, false,
+                'font-size:0.75rem; flex-grow:0.0; flex-shrink:0.0; border-radius:0;',
+                _ => this.prepare_item_element(_, items[id])
+            );
+        }
     }
 
     static site_id = ''; // cached id for the site where the file store lives
@@ -284,7 +345,7 @@ export class FileExplorer extends PanelContent
         {
             relative_path = encodeURIComponent(relative_path);
             await FileExplorer.ValidateDriveId(site_name);
-            return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=id,name,file,folder,createdBy,lastModifiedBy,webUrl,@microsoft.graph.downloadUrl`)).value;
+            return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl`)).value;
         }
         else 
         {

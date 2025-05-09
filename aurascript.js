@@ -50,6 +50,21 @@ import './modules/pages/descriptors/map.js';
 
 
 
+function NotifyReauthorizeRequest()
+{
+	DebugLog.Log('authentication required! auth error status from batch request');
+	UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
+	OverlayManager.ShowConfirmDialog(
+		_ => { UserAccountManager.RequestLogin(); },
+		_ => { },
+		'Account token expired or invalid! Authentication required.',
+		'REAUTHENTICATE',
+		'IGNORE'
+	);
+}
+AppEvents.onAuthorizationFailure.RequestSubscription(NotifyReauthorizeRequest);
+
+
 
 
 

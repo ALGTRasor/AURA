@@ -14,7 +14,7 @@ export class PageFiles extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '36rem';
+		instance.e_frame.style.minWidth = '32rem';
 		instance.e_content.style.overflow = 'hidden';
 		instance.e_explorer_root = CreatePagePanel(
 			instance.e_content, true, false,
@@ -37,8 +37,8 @@ export class PageFiles extends PageDescriptor
 	OnLayoutChange(instance)
 	{
 		let fixed_width = instance.state_data.docked === true && instance.state_data.expanding === false;
-		if (fixed_width === true) instance.e_frame.style.maxWidth = '36rem';
-		else instance.e_frame.style.maxWidth = 'unset';
+		if (fixed_width === true) instance.e_frame.style.maxWidth = '32rem';
+		else instance.e_frame.style.maxWidth = '64rem';
 	}
 }
 

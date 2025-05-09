@@ -1,3 +1,4 @@
+import { AppEvents } from "./appevents.js";
 import { DataSource } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 import { DebugLog } from "./debuglog.js";
@@ -84,7 +85,8 @@ export class SharePoint
 				let new_batch_count = SharePoint.batchQueue.length;
 				let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
 				DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
-				await SharePoint.ProcessBatchRequests(new_batch); // processing may enqueue additional requests, especially from pagination
+				await SharePoint.ProcessBatchRequests(new_batch);
+				// processing may enqueue additional requests, typically due to pagination
 				DebugLog.SubmitGroup('#0ff4');
 			}
 
@@ -160,15 +162,7 @@ export class SharePoint
 			// unauthorized to perform batch
 			else if (resp.status >= 401 && resp.status <= 499)
 			{
-				DebugLog.Log('authentication required! auth error status from batch request');
-				UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
-				OverlayManager.ShowConfirmDialog(
-					_ => { UserAccountManager.RequestLogin(); },
-					_ => { },
-					'Account token expired or invalid! Authentication required.',
-					'REAUTHENTICATE',
-					'IGNORE'
-				);
+				AppEvents.onAuthorizationFailure.Invoke();
 			}
 		}
 	}
@@ -228,6 +222,11 @@ export class SharePoint
 
 		let resp = await fetch(url, { method: 'get', headers: req_headers });
 		if (resp.status == 200) return await resp.json();
+		// unauthorized to perform batch
+		if (resp.status >= 401 && resp.status <= 403)
+		{
+			AppEvents.onAuthorizationFailure.Invoke();
+		}
 		return null;
 	}
 

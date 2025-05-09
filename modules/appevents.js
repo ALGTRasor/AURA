@@ -11,6 +11,8 @@ export class AppEvents
 
 	static onSaveSettings = new EventSource();
 
+	static onAuthorizationFailure = new EventSource();
+
 	static onDebugModeActivated = new EventSource();
 	static onDebugModeDeactivated = new EventSource();
 }

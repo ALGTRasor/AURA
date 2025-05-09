@@ -34,14 +34,14 @@ export class Welcome
             welcomed_now = true;
         }
 
-        let user_name_full = UserAccountInfo.account_info.display_name;
+        let user_name_full = UserAccountInfo.account_info ? (UserAccountInfo.account_info.display_name ?? 'user') : 'user';
         let user_name_short = user_name_full.split(' ')[0];
         const welcome_default = () => queueWelcome(`Welcome back, ${user_name_short}!`);
 
         if (window.found_tokens === true)
         {
             // existing user
-            if (UserAccountInfo.app_access) welcome_default();
+            if (UserAccountInfo.HasAppAccess()) welcome_default();
             // onboarding user
             else if (UserAccountInfo.is_alg_account) queueWelcome(`Hello, ${user_name_full}!`);
             //external user
