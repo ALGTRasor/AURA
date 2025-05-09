@@ -1,6 +1,7 @@
 import { DevMode } from "./devmode.js";
 import { addElement } from "./utils/domutils.js";
 import { GlobalStyling } from "./ui/global_styling.js";
+import { NotificationLog } from "./notificationlog.js";
 
 class DebugLogGroup
 {
@@ -107,6 +108,8 @@ export class DebugLog
 	static Log(message, appendToConsole = true, color = '', allow_duplicates = false)
 	{
 		message = message.trim();
+
+		if (DevMode.active === true) NotificationLog.Log(message, color);
 
 		if (DebugLog.active_group) DebugLog.active_group.Append(message, color);
 		else

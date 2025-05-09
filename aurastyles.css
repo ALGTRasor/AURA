@@ -258,7 +258,7 @@ body
 	outline: solid 0px transparent;
 	scale: 95%;
 
-	transition-property: background, color, scale, rotate, outline;
+	transition-property: background-color, color, scale, rotate, outline;
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
 }
@@ -363,7 +363,7 @@ div[valuechanged]
 .hover-lift
 {
 	z-index: 0;
-	scale: 95%;
+	scale: 100%;
 }
 
 .hover-lift:hover

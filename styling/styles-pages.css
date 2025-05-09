@@ -47,6 +47,7 @@
 
 	border-radius: 0;
 	padding: var(--gap-05);
+	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 
 	transition-property: opacity;
 	transition-duration: var(--trans-dur-off-slow);
@@ -695,7 +696,7 @@
 
 
 
-.page-root:hover > .page-title-bar
+.page-root:hover .page-title-bar
 {
 	color: hsl(from var(--theme-color) h s 70%);
 }

@@ -13,6 +13,7 @@ import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
 import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
+import { FileExplorer } from "../../ui/file_explorer.js";
 
 
 
@@ -92,6 +93,10 @@ export class UserDashboardDocs extends PanelContent
 	{
 		this.e_root = CreatePagePanel(this.e_parent, true, false);
 		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'Documents');
+
+		this.explorer = new FileExplorer(this.e_root);
+		this.explorer.base_relative_path = 'ALGUserDocs/HR/' + UserAccountInfo.account_info.user_id;
+		this.explorer.CreateElements();
 	}
 	OnRefreshElements()
 	{
