@@ -232,7 +232,7 @@ async function OnAuraInit()
 						+ '\nRefreshing Shared Data might take several seconds to complete.';
 				}
 			);
-			ActionBar.AddMenuButton('home', 'menu', _ => { PageManager.CloseAll(); });
+			ActionBar.AddMenuButton('home', 'menu', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
 		}
 
 		RegisterHotkeys();

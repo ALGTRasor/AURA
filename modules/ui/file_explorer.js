@@ -7,6 +7,8 @@ export class FileExplorer extends PanelContent
 {
     static root_library_name = 'ALGFileLibrary';
 
+    autonavigate = true;
+
     DetermineFileType(item_info = {})
     {
         let type_str = 'unknown';
@@ -97,14 +99,19 @@ export class FileExplorer extends PanelContent
         _.style.cursor = 'pointer';
         _.style.paddingLeft = '1rem';
 
-        const count_prefix = "<span style='display:block;position:absolute;top:50%;right:0.5rem;"
-            + "transform:translate(0%,-50%);opacity:80%;font-size:80%;'>";
-        const count_suffix = "</span>";
+        const count_style = 'display:block; position:absolute; top:50%; right:0.5rem; transform:translate(0%, -50%);'
+            + 'opacity:80%; font-size:80%;';
 
         _.innerHTML = folder_info.name;
         _.title = "Open Folder:\n" + folder_info.name;
 
-        if ('childCount' in folder_info.folder) _.innerHTML += `${count_prefix}${folder_info.folder.childCount} children${count_suffix}`;
+        if ('childCount' in folder_info.folder) 
+        {
+            if (folder_info.folder.childCount > 0)
+                addElement(_, 'span', null, count_style, _ => { _.innerHTML = folder_info.folder.childCount + ' children' });
+            else
+                addElement(_, 'span', null, count_style, _ => { _.innerHTML = 'empty'; _.style.color = '#ff0'; });
+        }
         else _.style.setProperty('--theme-color', '#fa47');
 
         _.addEventListener(
@@ -160,7 +167,7 @@ export class FileExplorer extends PanelContent
 
         this.load_blocker = addElement(
             this.e_root, 'div', null,
-            'position:absolute;inset:0;z-index:100;user-select:none;cursor:wait;'
+            'position:absolute; inset:0; z-index:100; user-select:none; cursor:wait;'
             + 'transition-property:opacity; transition-duration:var(--trans-dur-on-slow); transition-timing-function:ease-in-out;'
             + 'backdrop-filter:blur(1px) brightness(80%);'
         );
@@ -169,19 +176,23 @@ export class FileExplorer extends PanelContent
         this.e_path_root = CreatePagePanel(
             this.e_root, true, false,
             'flex-grow:0.0; flex-shrink:0.0; font-size:0.7rem;'
-            + 'direction:rtl; padding-right:calc(var(--gap-1) + 2px); padding-left:calc(var(--gap-1) + 2px);'
-            + 'align-content:center; text-align:left; text-overflow:ellipsis; text-wrap:nowrap; word-wrap:anywhere;',
-            _ => _.innerHTML = 'root'
+        );
+
+        this.e_path_label = addElement(
+            this.e_path_root, 'div', null,
+            'position:absolute; inset:0; align-content:center; overflow:hidden;'
+            + 'padding-right:var(--gap-05); padding-left:var(--gap-05);'
+            + 'padding-top:var(--gap-025); padding-bottom:var(--gap-025);'
+            + 'direction:rtl; text-align:left; text-overflow:ellipsis; text-wrap:nowrap; word-wrap:anywhere;'
         );
 
         this.e_items_root = CreatePagePanel(
             this.e_root, true, false,
-            'display:flex; gap:0; flex-direction:column;',
+            'display:flex; gap:0; flex-direction:column; padding:0;',
             _ => { _.classList.add('scroll-y'); }
         );
 
-        window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
-
+        if (this.autonavigate === true) window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
     }
     OnRefreshElements() { }
     OnRemoveElements() { this.e_root.remove(); }
@@ -217,12 +228,13 @@ export class FileExplorer extends PanelContent
 
         let path_html = FileExplorer.root_library_name + '/' + relative_path;
         path_html = path_html.split('/').filter(_ => _.length > 0).map(highlight_last).join('/');
-        this.e_path_root.innerHTML = path_html;
-        this.e_path_root.title = (FileExplorer.root_library_name + '/' + relative_path).split('/').filter(_ => _.length > 0).join(' / ');
+        this.e_path_label.innerHTML = path_html;
+        this.e_path_label.title = (FileExplorer.root_library_name + '/' + relative_path).split('/').filter(_ => _.length > 0).join(' / ');
     }
 
     Navigate(relative_path)
     {
+        if (typeof relative_path !== 'string' || relative_path.length < 1) relative_path = this.base_relative_path ?? '';
         this.relative_path_current = relative_path;
 
         this.SetDisplayPath(this.relative_path_current);
@@ -231,14 +243,22 @@ export class FileExplorer extends PanelContent
         this.OnStartLoading();
 
         FileExplorer.FetchFolderItems(
-            'ALG Internal', relative_path
+            'ALG Internal', this.relative_path_current
         ).then(
-            items => 
+            result => 
             {
-                if (items)
+                if (result)
                 {
-                    this.PopulateList(relative_path, items);
-                    this.OnStopLoading();
+                    if (result.status == 404)
+                    {
+                        this.e_items_root.innerHTML = 'FOLDER NOT FOUND';
+                        this.OnStopLoading();
+                    }
+                    else
+                    {
+                        this.PopulateList(this.relative_path_current, result);
+                        this.OnStopLoading();
+                    }
                 }
                 else
                 {
@@ -283,6 +303,9 @@ export class FileExplorer extends PanelContent
 
     PopulateList(relative_path = '', items = [])
     {
+        if (!items) return;
+        if (items.status == 404) return;
+
         items.sort(FileExplorer.sort_name);
         items.sort(FileExplorer.sort_type);
 
@@ -291,7 +314,7 @@ export class FileExplorer extends PanelContent
         {
             CreatePagePanel(
                 this.e_items_root, false, false,
-                'font-size:0.7rem; flex-grow:0.0; align-self:flex-start; padding:calc(var(--gap-05) + 0.25rem);',
+                'font-size:0.7rem; flex-grow:0.0; align-self:flex-start; padding:calc(var(--gap-05) + 0.25rem); box-shadow:none;',
                 _ =>
                 {
                     let parent_path_parts = relative_path.split('/');
@@ -307,7 +330,7 @@ export class FileExplorer extends PanelContent
         {
             CreatePagePanel(
                 this.e_items_root, false, false,
-                'font-size:0.75rem; flex-grow:0.0; flex-shrink:0.0; border-radius:0;',
+                'font-size:0.75rem; flex-grow:0.0; flex-shrink:0.0; border-radius:0; box-shadow:none;',
                 _ => this.prepare_item_element(_, items[id])
             );
         }
@@ -345,12 +368,16 @@ export class FileExplorer extends PanelContent
         {
             relative_path = encodeURIComponent(relative_path);
             await FileExplorer.ValidateDriveId(site_name);
-            return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl`)).value;
+            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl`);
+            if (resp && resp.value) return resp.value;
+            return resp;
         }
         else 
         {
             await FileExplorer.ValidateDriveId(site_name);
-            return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`)).value;
+            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`);
+            if (resp && resp.value) return resp.value;
+            return resp;
         }
     }
 }

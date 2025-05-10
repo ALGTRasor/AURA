@@ -227,7 +227,7 @@ export class SharePoint
 		{
 			AppEvents.onAuthorizationFailure.Invoke();
 		}
-		return null;
+		return resp;
 	}
 
 
