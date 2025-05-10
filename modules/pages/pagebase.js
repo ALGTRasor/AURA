@@ -43,11 +43,16 @@ export class PageInstance
 		this.e_body.addEventListener('mouseenter', _ => PageManager.SetPageHovered(this));
 		this.e_body.addEventListener('mousedown', _ => PageManager.FocusPage(this));
 
+		this.e_body.tabIndex = '0';
+
 		this.e_content = document.createElement('div');
 		this.e_content.className = 'page-content-root';
 
 		this.title_bar = new PageTitleBar(this, true);
 		this.title_bar.RefreshAllButtons();
+		this.title_bar.tabIndex = '0';
+
+		this.e_body.focus();
 	}
 
 	MoveLeft(toEnd = false)

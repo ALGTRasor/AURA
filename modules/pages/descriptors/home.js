@@ -145,6 +145,7 @@ export class PageHome extends PageDescriptor
 		if (permissions_required && permissions_required.length > 0 && UserAccountInfo.HasPermission(perm_id) !== true) return;
 
 		let e_btn_menu = document.createElement('div');
+		e_btn_menu.tabIndex = '0';
 		e_btn_menu.className = 'menu-button';
 		if (text)
 		{

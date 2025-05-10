@@ -123,7 +123,7 @@
 	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
-.page-root:hover
+.page-root:focus-within
 {
 	outline-color: hsl(from var(--theme-color) h s 35%);
 	opacity: 100%;
@@ -233,7 +233,9 @@
 	transition-timing-function: ease-in-out;
 }
 
-.page-title-bar:hover .page-title-buttons
+.page-title-bar:hover .page-title-buttons,
+.page-title-bar:focus .page-title-buttons,
+.page-title-bar:focus-within .page-title-buttons
 {
 	opacity: 100%;
 }

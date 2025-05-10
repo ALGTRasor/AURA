@@ -41,6 +41,7 @@ export class SlideSelector
             parent, true, false, 'letter-spacing:0.15rem; gap:0; border:none; margin:2px;',
             x =>
             {
+                x.tabIndex = '0';
                 x.classList.add('menu-root');
                 x.style.flexBasis = 'max-content';
                 x.style.flexDirection = 'row';
@@ -160,6 +161,7 @@ export class SlideSelector
             x =>
             {
                 x.innerText = text ? text : '???';
+                x.tabIndex = '0';
                 x.title = text;
                 x.style.background = 'none';
                 x.style.opacity = '50%';

@@ -19,7 +19,14 @@ export class QuickMenu
         this.e_parent = parent;
         this.items = items;
 
-        this.e_root = CreatePagePanel(parent, true, false, 'letter-spacing:0.15rem; gap:0;', x => { x.className += ' menu-root'; });
+        this.e_root = CreatePagePanel(
+            parent, true, false,
+            'letter-spacing:0.15rem; gap:0;',
+            x =>
+            {
+                x.className += ' menu-root';
+            }
+        );
 
         for (let item_id in this.items)
         {
@@ -92,6 +99,7 @@ export class QuickMenu
             x =>
             {
                 x.innerText = text ? text : '???';
+                x.tabIndex = '0';
                 x.title = text;
                 x.addEventListener('click', on_click);
             }

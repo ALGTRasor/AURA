@@ -338,15 +338,17 @@ iframe
 
 
 
-.page-panel div:focus-within:not(.scroll-y)::after
+.page-root div:focus-within:not(.scroll-y)::after
 {
 	pointer-events: none;
 	user-select: none;
 
+	z-index: 10000000;
+
 	content: '';
 	position: absolute;
 	inset: 0;
-	outline: dashed 1px #ff06 !important;
+	outline: dashed 1px #fff3 !important;
 	outline-offset: -3px !important;
 
 	border-radius: 0.5rem;

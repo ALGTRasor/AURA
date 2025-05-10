@@ -121,7 +121,9 @@ export class PageTitleBar
 		let b = new PageTitleBarButton(parent, descriptor);
 		b.SetInstanceData({ button: b, page: this.page });
 
+		b.e_root.tabIndex = '0';
 		b.e_root.sortOrder = descriptor.sort_order;
+
 		if (descriptor.color && descriptor.color.length > 0) b.e_root.style.setProperty('--theme-color', descriptor.color);
 
 		this.buttons.push(b);
@@ -134,6 +136,7 @@ export class PageTitleBar
 		if (!this.page) return;
 
 		this.e_root = addElement(this.page.e_body, 'div', 'page-title-bar');
+		this.e_root.tabIndex = '0';
 
 		this.e_title = addElement(this.e_root, 'div', 'page-title');
 
@@ -141,6 +144,9 @@ export class PageTitleBar
 		const style_buttons_shared = 'flex-grow:1.0; gap:2px; padding:0 2px 0 2px;';
 		this.e_buttons_left = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared);
 		this.e_buttons_right = addElement(this.e_buttons, 'div', 'page-title-buttons', style_buttons_shared + 'justify-content:end; flex-direction:row-reverse;');
+
+		//this.e_buttons_left.tabIndex = '0';
+		//this.e_buttons_right.tabIndex = '0';
 
 		if (this.icon)
 		{

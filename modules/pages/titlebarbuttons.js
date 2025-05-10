@@ -129,6 +129,8 @@ export class PageTitleBarButton
 			_ =>
 			{
 				_.style.zIndex = 30;
+				_.tabIndex = '0';
+
 				if (typeof descriptor.tooltip === 'function') _.title = descriptor.tooltip({});
 				else _.title = descriptor.tooltip;
 				_.addEventListener(

@@ -211,6 +211,7 @@ export class PageManager
 
 		PageManager.page_instance_focused = page_instance;
 		PageManager.page_instance_focused.e_body.classList.add('page-focused');
+		page_instance.title_bar.e_root.focus();
 		if (page_instance.state_data.docked !== true) PageManager.BringToFront(page_instance);
 	}
 

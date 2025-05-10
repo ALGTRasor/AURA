@@ -164,6 +164,7 @@ export class FileExplorer extends PanelContent
             this.e_parent, false, false,
             'display:flex;flex-direction:column;flex-wrap:nowrap;flex-basis:100%;flex-grow:1.0;flex-shrink:1.0;'
         );
+        this.e_root.tabIndex = '0';
 
         this.load_blocker = addElement(
             this.e_root, 'div', null,
@@ -189,7 +190,11 @@ export class FileExplorer extends PanelContent
         this.e_items_root = CreatePagePanel(
             this.e_root, true, false,
             'display:flex; gap:0; flex-direction:column; padding:0;',
-            _ => { _.classList.add('scroll-y'); }
+            _ =>
+            {
+                _.classList.add('scroll-y');
+                _.tabIndex = '0';
+            }
         );
 
         if (this.autonavigate === true) window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
@@ -317,6 +322,7 @@ export class FileExplorer extends PanelContent
                 'font-size:0.7rem; flex-grow:0.0; align-self:flex-start; padding:calc(var(--gap-05) + 0.25rem); box-shadow:none;',
                 _ =>
                 {
+                    _.tabIndex = '0';
                     let parent_path_parts = relative_path.split('/');
                     parent_path_parts.splice(parent_path_parts.length - 1, 1);
                     const parent_path = parent_path_parts.join('/');
@@ -331,7 +337,11 @@ export class FileExplorer extends PanelContent
             CreatePagePanel(
                 this.e_items_root, false, false,
                 'font-size:0.75rem; flex-grow:0.0; flex-shrink:0.0; border-radius:0; box-shadow:none;',
-                _ => this.prepare_item_element(_, items[id])
+                _ =>
+                {
+                    this.prepare_item_element(_, items[id]);
+                    _.tabIndex = '0';
+                }
             );
         }
     }
