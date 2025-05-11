@@ -22,6 +22,7 @@ import { OverlayManager } from "./modules/ui/overlays.js";
 import { PageManager } from "./modules/pagemanager.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
+import { DBLayer } from "./modules/dblayer.js";
 import { SharedData } from "./modules/datashared.js";
 import { DB_SharePoint, SharePoint } from "./modules/sharepoint.js";
 import { Fax } from "./modules/fax.js";
@@ -47,7 +48,6 @@ import './modules/pages/descriptors/database_probe.js';
 import './modules/pages/descriptors/external_links.js';
 import './modules/pages/descriptors/demo_panel.js';
 import './modules/pages/descriptors/map.js';
-import { DBLayer } from "./modules/dblayer.js";
 
 
 

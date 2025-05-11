@@ -1142,7 +1142,9 @@
 .file-explorer-item:hover
 {
 	z-index: 10;
-	box-shadow: 0 0 1rem rgba(from var(--shadow-color) r g b / 0.25);
+
+	background-color: hsl(from var(--theme-color) h s 25%);
+	box-shadow: 0 0 0.5rem rgba(from var(--shadow-color) r g b / 0.5);
 }
 
 
@@ -1162,10 +1164,10 @@
 
 .file-explorer-item:hover .file-explorer-item-title
 {
-	padding-left: var(--gap-05);
-	padding-right: 0;
+	padding-left: var(--gap-025);
+	padding-right: var(--gap-025);
 
-	scale: 105%;
+	scale: 102%;
 }
 
 
@@ -1184,6 +1186,7 @@
 	font-size: 80%;
 
 	text-transform: uppercase;
+	letter-spacing: 0.1rem;
 }
 
 

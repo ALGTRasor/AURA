@@ -56,13 +56,15 @@ export class FileExplorer extends PanelContent
         _.classList.add('file-explorer-file');
 
         let item_type_info = get_type_info(file_info.name);
-        if (item_type_info) _.style.setProperty('background-color', 'hsl(from ' + item_type_info.color + ' h 30% 20%)');
-
         _.title = file_info.name;
 
-        addElement(
+        let e_item_info = addElement(
             _, 'div', 'file-explorer-item-info', null,
-            _ => { _.innerHTML = item_type_info ? item_type_info.label : 'file'; }
+            _ =>
+            {
+                _.innerHTML = item_type_info ? item_type_info.label : 'file';
+                if (item_type_info) _.style.color = 'hsl(from ' + item_type_info.color + ' h s 75%)';
+            }
         );
 
         let e_btn_root = CreatePagePanel(_, true, false, null, _ => _.classList.add('file-explorer-item-buttons-root'));
