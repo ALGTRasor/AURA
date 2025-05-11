@@ -2,6 +2,7 @@ import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
 import { SharePoint } from "../sharepoint.js";
+import { FileTypes } from "../utils/filetypes.js";
 
 export class FileExplorer extends PanelContent
 {
@@ -39,31 +40,29 @@ export class FileExplorer extends PanelContent
 
     prepare_file_element = (_, file_info) =>
     {
-        const viewable_extensions = ['xlsx', 'pdf', 'docx', 'doc', 'csv', 'txt', 'png', 'jpeg', 'jpg', 'gif'];
-        const can_view = file_name => viewable_extensions.indexOf(file_name.split('.').at(-1)) > -1;
-
-        const get_type_info = (name = '') => 
-        {
-            if (name.endsWith('.csv')) return { color: '#0ff', label: 'CSV' };
-            if (name.endsWith('.pdf')) return { color: '#f00', label: 'PDF' };
-            if (name.endsWith('.ppt') || name.endsWith('.pptx') || name.endsWith('.pot') || name.endsWith('.potx')) return { color: '#f80', label: 'PowerPoint' };
-            if (name.endsWith('.pps') || name.endsWith('.ppsx')) return { color: '#fa0', label: 'PPT Slideshow' };
-            if (name.endsWith('.docx') || name.endsWith('.docm') || name.endsWith('.doc')) return { color: '#00f', label: 'Word' };
-            if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm')) return { color: '#0f0', label: 'Excel' };
-            return undefined;
-        };
-
         _.classList.add('file-explorer-file');
 
-        let item_type_info = get_type_info(file_info.name);
+        let item_type_info = FileTypes.GetInfo(file_info.name);
         _.title = file_info.name;
 
-        let e_item_info = addElement(
+        addElement(
             _, 'div', 'file-explorer-item-info', null,
             _ =>
             {
-                _.innerHTML = item_type_info ? item_type_info.label : 'file';
-                if (item_type_info) _.style.color = 'hsl(from ' + item_type_info.color + ' h s 75%)';
+                addElement(
+                    _, 'span', null, 'padding:var(--gap-05); border-radius:var(--gap-05);',
+                    _ =>
+                    {
+                        if (item_type_info)
+                        {
+                            _.innerHTML = item_type_info.label;
+                            _.title = item_type_info.description;
+                            _.style.backgroundColor = 'hsl(from ' + item_type_info.color + ' h 50% 25%)';
+                        }
+                        else
+                            _.innerHTML = 'file';
+                    }
+                );
             }
         );
 
@@ -89,7 +88,7 @@ export class FileExplorer extends PanelContent
             }
         );
 
-        if (can_view(file_info.name) === true)
+        if (item_type_info && item_type_info.viewable === true)
         {
             addElement(
                 e_btn_root, 'div', 'file-explorer-item-button', null,
@@ -183,16 +182,16 @@ export class FileExplorer extends PanelContent
         this.e_path_back.style.minWidth = '0';
         this.e_path_back.style.maxWidth = '0';
 
-        this.e_path_label = addElement(this.e_path_root, 'div', null, null, _ => _.classList.add('file-explorer-nav-path'));
+        this.e_path_label = addElement(this.e_path_root, 'div', 'file-explorer-nav-path');
+
         this.e_items_root = CreatePagePanel(
             this.e_root, true, false, null,
             _ =>
             {
                 _.classList.add('file-explorer-items-root');
-                _.classList.add('scroll-y');
-                _.tabIndex = '0';
             }
         );
+        this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
 
         if (this.autonavigate === true) window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
     }
@@ -239,7 +238,7 @@ export class FileExplorer extends PanelContent
 
         this.SetDisplayPath(this.relative_path_current);
 
-        this.e_items_root.innerHTML = '';
+        this.e_items_container.innerHTML = '';
         this.OnStartLoading();
 
         FileExplorer.FetchFolderItems(
@@ -251,7 +250,7 @@ export class FileExplorer extends PanelContent
                 {
                     if (result.status == 404)
                     {
-                        this.e_items_root.innerHTML = 'FOLDER NOT FOUND';
+                        this.e_items_container.innerHTML = 'FOLDER NOT FOUND';
                         this.OnStopLoading();
                     }
                     else
@@ -262,7 +261,7 @@ export class FileExplorer extends PanelContent
                 }
                 else
                 {
-                    this.e_items_root.innerHTML = 'FAILED TO GET PATH ITEMS!';
+                    this.e_items_container.innerHTML = 'FAILED TO GET PATH ITEMS!';
                     this.OnStopLoading();
                 }
             }
@@ -271,6 +270,7 @@ export class FileExplorer extends PanelContent
 
     static sort_name = (x, y) =>
     {
+        return x.name.localeCompare(y.name);
         if (x.name > y.name) return 1;
         if (x.name < y.name) return -1;
         return 0;
@@ -344,7 +344,7 @@ export class FileExplorer extends PanelContent
         for (let id in items)
         {
             CreatePagePanel(
-                this.e_items_root, false, false, null,
+                this.e_items_container, false, false, null,
                 _ =>
                 {
                     _.classList.add('file-explorer-item');

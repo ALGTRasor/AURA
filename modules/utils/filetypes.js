@@ -1,0 +1,62 @@
+export class FileType
+{
+	extensions = ['.txt'];
+	label = 'File';
+	color = '#fff';
+	description = 'This is a file.';
+
+	constructor(extensions = ['.txt'], label = 'File', color = '#fff', description = 'This is a file.', viewable = true)
+	{
+		this.extensions = extensions;
+		this.color = color;
+		this.label = label;
+		this.description = description;
+		this.viewable = viewable;
+	}
+
+	MatchExtension(file_name = '')
+	{
+		for (let eid in this.extensions)
+		{
+			if (file_name.endsWith(this.extensions[eid])) return true;
+		}
+		return false;
+	}
+}
+
+export class FileTypes
+{
+	static known = [
+		new FileType(['.txt'], 'TXT', '#fff', 'This is a plain text file',),
+		new FileType(['.jpg', '.jpeg'], 'JPG', '#fe0', 'This is a JPG image'),
+		new FileType(['.csv'], 'CSV', '#0ff', 'This is a CSV (comma separated value) file', false),
+		new FileType(['.pdf'], 'PDF', '#f40', 'This is a PDF (Adobe\'s Portable Document Format) file'),
+		new FileType(['.docx', '.docm', '.doc'], 'Word', '#35f', 'This is a Word Document file'),
+		new FileType(['.xlsx', '.xls', '.xlsm'], 'Excel', '#6f6', 'This is a Excel Spreadsheet file'),
+		new FileType(['.pps', '.ppsx'], 'PPT Slideshow', '#fa0', 'This is a PowerPoint Slideshow file'),
+		new FileType(['.ppt', '.pptx', '.pot', '.potx'], 'PowerPoint', '#f82', 'This is a PowerPoint file'),
+	];
+
+	static known_extensions = FileTypes.known.flatMap(_ => _.extensions);
+	static IsKnown(file_name = 'file.txt')
+	{
+		return FileTypes.known_extensions.indexOf(file_name.split('.').at(-1)) > -1;
+	}
+
+	static GetInfoIndex(file_name = 'file.txt')
+	{
+		for (let kid in FileTypes.known)
+		{
+			if (FileTypes.known[kid].MatchExtension(file_name))
+				return kid;
+		}
+		return -1;
+	}
+
+	static GetInfo(file_name = 'file.txt')
+	{
+		let info_index = FileTypes.GetInfoIndex(file_name);
+		if (info_index > -1) return FileTypes.known[info_index];
+		return undefined;
+	}
+}

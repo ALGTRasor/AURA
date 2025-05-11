@@ -1108,10 +1108,20 @@
 
 .file-explorer-items-root
 {
+	padding: var(--gap-05);
+	overflow: hidden;
+}
+
+.file-explorer-items-container
+{
 	display: flex;
 	flex-direction: column;
 	gap: 0;
 	padding: 0;
+	max-height: 100%;
+
+	border-radius: var(--gap-025);
+	clip-path: fill-box;
 }
 
 .file-explorer-item:nth-child(even)
@@ -1138,6 +1148,10 @@
 	padding-right: var(--gap-1);
 
 	border: none;
+
+	transition-property: background-color, box-shadow, opacity;
+	transition-duration: var(--trans-dur-off-fast);
+	transition-timing-function: ease-in-out;
 }
 .file-explorer-item:hover
 {
@@ -1157,9 +1171,9 @@
 
 	transform-origin: 0% 50%;
 
-	transition-property: padding-left, scale;
+	transition-property: scale, padding-left, padding-right;
 	transition-duration: var(--trans-dur-off-fast);
-	transition-timing-function: ease;
+	transition-timing-function: ease-in-out;
 }
 
 .file-explorer-item:hover .file-explorer-item-title
@@ -1167,9 +1181,15 @@
 	padding-left: var(--gap-025);
 	padding-right: var(--gap-025);
 
-	scale: 102%;
+
 }
 
+
+.file-explorer-item:hover .file-explorer-item-info
+{
+	opacity: 100%;
+	scale: 105%;
+}
 
 .file-explorer-item-info
 {
@@ -1187,6 +1207,10 @@
 
 	text-transform: uppercase;
 	letter-spacing: 0.1rem;
+
+	transition-property: opacity, scale;
+	transition-duration: var(--trans-dur-off-fast);
+	transition-timing-function: ease;
 }
 
 
@@ -1251,7 +1275,7 @@
 
 	transition-property: scale;
 	transition-duration: var(--trans-dur-off-fast);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: ease;
 }
 .file-explorer-item-button:hover i
 {
@@ -1266,8 +1290,6 @@
 	cursor: pointer;
 	--theme-color: #c99a54;
 	padding: var(--gap-1);
-
-	border-radius: var(--gap-025);
 }
 
 .file-explorer-file

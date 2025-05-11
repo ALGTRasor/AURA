@@ -340,6 +340,7 @@ iframe
 
 .page-root div:focus-within:not(.scroll-y)::after
 {
+	display: none;
 	pointer-events: none;
 	user-select: none;
 
@@ -348,8 +349,8 @@ iframe
 	content: '';
 	position: absolute;
 	inset: 0;
-	outline: dashed 1px #fff3 !important;
-	outline-offset: -3px !important;
+	outline: dashed 1px #fff;
+	outline-offset: -1px;
 
 	border-radius: 0.5rem;
 }
