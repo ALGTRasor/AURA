@@ -55,7 +55,7 @@ export class SlideSelector
 
         this.e_selector = CreatePagePanel(
             this.e_root, false, false,
-            'position:absolute; z-index:-99;'
+            'position:absolute; z-index:2;'
             + 'transition-property:top,left,width,height;'
             + 'transition-duration:var(--trans-dur-off-slow);'
         );
@@ -163,6 +163,7 @@ export class SlideSelector
                 x.innerText = text ? text : '???';
                 x.tabIndex = '0';
                 x.title = text;
+                x.style.zIndex = '5';
                 x.style.background = 'none';
                 x.style.opacity = '50%';
                 x.style.padding = 'calc(var(--gap-025) + 4px)';

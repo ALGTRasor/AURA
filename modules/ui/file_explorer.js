@@ -39,19 +39,36 @@ export class FileExplorer extends PanelContent
 
     prepare_file_element = (_, file_info) =>
     {
-        const file_button_style = 'display:block; position:absolute;'
-            + 'top:50%; left:var(--gap-1); transform:translate(0%,-50%); transform-origin:50% 0%;'
-            + 'aspect-ratio:1.0; height:min(1rem, 100%); width:auto;'
-            + 'border:solid 2px hsl(from var(--theme-color) h s 50%);'
-            + 'background:hsl(from var(--theme-color) h s 30%); cursor:pointer;'
-            + 'border-radius:var(--gap-05);';
+        const viewable_extensions = ['xlsx', 'pdf', 'docx', 'doc', 'csv', 'txt', 'png', 'jpeg', 'jpg', 'gif'];
+        const can_view = file_name => viewable_extensions.indexOf(file_name.split('.').at(-1)) > -1;
 
-        _.style.paddingLeft = '4rem';
+        const get_type_info = (name = '') => 
+        {
+            if (name.endsWith('.csv')) return { color: '#0ff', label: 'CSV' };
+            if (name.endsWith('.pdf')) return { color: '#f00', label: 'PDF' };
+            if (name.endsWith('.ppt') || name.endsWith('.pptx') || name.endsWith('.pot') || name.endsWith('.potx')) return { color: '#f80', label: 'PowerPoint' };
+            if (name.endsWith('.pps') || name.endsWith('.ppsx')) return { color: '#fa0', label: 'PPT Slideshow' };
+            if (name.endsWith('.docx') || name.endsWith('.docm') || name.endsWith('.doc')) return { color: '#00f', label: 'Word' };
+            if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm')) return { color: '#0f0', label: 'Excel' };
+            return undefined;
+        };
+
+        _.classList.add('file-explorer-file');
+
+        let item_type_info = get_type_info(file_info.name);
+        if (item_type_info) _.style.setProperty('background-color', 'hsl(from ' + item_type_info.color + ' h 30% 20%)');
+
         _.title = file_info.name;
 
         addElement(
-            _, 'div', 'hover-lift',
-            file_button_style,
+            _, 'div', 'file-explorer-item-info', null,
+            _ => { _.innerHTML = item_type_info ? item_type_info.label : 'file'; }
+        );
+
+        let e_btn_root = CreatePagePanel(_, true, false, null, _ => _.classList.add('file-explorer-item-buttons-root'));
+
+        addElement(
+            e_btn_root, 'div', 'file-explorer-item-button', null,
             e_btn_dl =>
             {
                 e_btn_dl.addEventListener(
@@ -64,53 +81,41 @@ export class FileExplorer extends PanelContent
                 );
                 e_btn_dl.title = 'Download File:\n' + file_info.name;
                 addElement(
-                    e_btn_dl, 'i', 'material-symbols',
-                    'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-                    + 'line-height:0.9rem; font-size:0.9rem;',
+                    e_btn_dl, 'i', 'material-symbols', null,
                     e_icon_dl => { e_icon_dl.innerText = 'download'; }
                 );
             }
         );
 
-        const viewable_extensions = ['xlsx', 'pdf', 'docx', 'doc', 'csv', 'txt', 'png', 'jpeg', 'jpg', 'gif'];
-        const can_view = file_name => viewable_extensions.indexOf(file_name.split('.').at(-1)) > -1;
-
         if (can_view(file_info.name) === true)
         {
             addElement(
-                _, 'div', 'hover-lift',
-                file_button_style + 'left:calc(1.5rem + var(--gap-1));',
+                e_btn_root, 'div', 'file-explorer-item-button', null,
                 e_btn_view =>
                 {
                     e_btn_view.addEventListener('click', e => { window.open(file_info.webUrl, '_blank'); });
                     e_btn_view.title = 'View File Online:\n' + file_info.name;
                     addElement(
-                        e_btn_view, 'i', 'material-symbols', 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); line-height:0.9rem; font-size:0.9rem;',
+                        e_btn_view, 'i', 'material-symbols', null,
                         e_icon_dl => { e_icon_dl.innerText = 'open_in_new'; }
                     );
                 }
             );
         }
+
     };
 
     prepare_folder_element = (_, folder_info) =>
     {
-        _.style.setProperty('--theme-color', '#fb0');
-        _.style.cursor = 'pointer';
-        _.style.paddingLeft = '1rem';
-
-        const count_style = 'display:block; position:absolute; top:50%; right:0.5rem; transform:translate(0%, -50%);'
-            + 'opacity:80%; font-size:80%;';
-
-        _.innerHTML = folder_info.name;
+        _.classList.add('file-explorer-folder');
         _.title = "Open Folder:\n" + folder_info.name;
 
         if ('childCount' in folder_info.folder) 
         {
             if (folder_info.folder.childCount > 0)
-                addElement(_, 'span', null, count_style, _ => { _.innerHTML = folder_info.folder.childCount + ' children' });
+                addElement(_, 'span', 'file-explorer-item-info', null, _ => { _.innerHTML = 'folder: ' + folder_info.folder.childCount + ' items' });
             else
-                addElement(_, 'span', null, count_style, _ => { _.innerHTML = 'empty'; _.style.color = '#ff0'; });
+                addElement(_, 'span', 'file-explorer-item-info', null, _ => { _.innerHTML = 'empty folder'; _.style.color = '#ff0'; });
         }
         else _.style.setProperty('--theme-color', '#fa47');
 
@@ -129,7 +134,7 @@ export class FileExplorer extends PanelContent
 
     prepare_item_element = (_, driveitem) =>
     {
-        _.innerHTML = driveitem.name;
+        addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerHTML = driveitem.name; });
 
         driveitem.type = this.DetermineFileType(driveitem);
 
@@ -160,38 +165,28 @@ export class FileExplorer extends PanelContent
 
         this.loading_items = false;
 
-        this.e_root = CreatePagePanel(
-            this.e_parent, false, false,
-            'display:flex;flex-direction:column;flex-wrap:nowrap;flex-basis:100%;flex-grow:1.0;flex-shrink:1.0;'
-        );
+        this.e_root = CreatePagePanel(this.e_parent, false, false, null, _ => _.classList.add('file-explorer-root'));
         this.e_root.tabIndex = '0';
 
-        this.load_blocker = addElement(
-            this.e_root, 'div', null,
-            'position:absolute; inset:0; z-index:100; user-select:none; cursor:wait;'
-            + 'transition-property:opacity; transition-duration:var(--trans-dur-on-slow); transition-timing-function:ease-in-out;'
-            + 'backdrop-filter:blur(1px) brightness(80%);'
-        );
-
+        this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
         //this.path_dirty = new RunningTimeout(() => { this.Navigate(''); }, 0.5, false, 150);
-        this.e_path_root = CreatePagePanel(
-            this.e_root, true, false,
-            'flex-grow:0.0; flex-shrink:0.0; font-size:0.7rem;'
-        );
 
-        this.e_path_label = addElement(
-            this.e_path_root, 'div', null,
-            'position:absolute; inset:0; align-content:center; overflow:hidden;'
-            + 'padding-right:var(--gap-05); padding-left:var(--gap-05);'
-            + 'padding-top:var(--gap-025); padding-bottom:var(--gap-025);'
-            + 'direction:rtl; text-align:left; text-overflow:ellipsis; text-wrap:nowrap; word-wrap:anywhere;'
-        );
+        this.e_path_root = CreatePagePanel(this.e_root, true, false, null, _ => _.classList.add('file-explorer-nav-bar'));
 
+        this.e_path_back = CreatePagePanel(this.e_path_root, false, false, null, _ => _.classList.add('file-explorer-nav-button'));
+        this.e_path_back.addEventListener('click', e => { this.TryNavigateBack(this.relative_path_current); });
+        this.e_path_back.style.borderWidth = '0';
+        this.e_path_back.style.paddingLeft = '0';
+        this.e_path_back.style.paddingRight = '0';
+        this.e_path_back.style.minWidth = '0';
+        this.e_path_back.style.maxWidth = '0';
+
+        this.e_path_label = addElement(this.e_path_root, 'div', null, null, _ => _.classList.add('file-explorer-nav-path'));
         this.e_items_root = CreatePagePanel(
-            this.e_root, true, false,
-            'display:flex; gap:0; flex-direction:column; padding:0;',
+            this.e_root, true, false, null,
             _ =>
             {
+                _.classList.add('file-explorer-items-root');
                 _.classList.add('scroll-y');
                 _.tabIndex = '0';
             }
@@ -221,9 +216,7 @@ export class FileExplorer extends PanelContent
 
     SetDisplayPath(relative_path = '')
     {
-        const highlight_prefix = `<span style='color:hsl(from var(--theme-color) h s 70%); font-weight:bold;`
-            + `font-size:0.8rem; padding:var(--gap-025); background:hsl(from var(--theme-color) h s 30%);`
-            + `border-radius:var(--gap-05);'>`;
+        const highlight_prefix = `<span class='file-explorer-nav-path-highlight'>`;
         const highlight_suffix = `</span>`;
         const highlight_last = (_, id, all) =>
         {
@@ -306,6 +299,14 @@ export class FileExplorer extends PanelContent
         return 0;
     };
 
+    TryNavigateBack(relative_path)
+    {
+        let parent_path_parts = relative_path.split('/');
+        parent_path_parts.splice(parent_path_parts.length - 1, 1);
+        let parent_path = parent_path_parts.join('/');
+        this.Navigate(parent_path);
+    }
+
     PopulateList(relative_path = '', items = [])
     {
         if (!items) return;
@@ -317,28 +318,34 @@ export class FileExplorer extends PanelContent
         let valid_parent = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
         if (valid_parent === true)
         {
-            CreatePagePanel(
-                this.e_items_root, false, false,
-                'font-size:0.7rem; flex-grow:0.0; align-self:flex-start; padding:calc(var(--gap-05) + 0.25rem); box-shadow:none;',
-                _ =>
-                {
-                    _.tabIndex = '0';
-                    let parent_path_parts = relative_path.split('/');
-                    parent_path_parts.splice(parent_path_parts.length - 1, 1);
-                    const parent_path = parent_path_parts.join('/');
-                    let parent_name = parent_path_parts.splice(parent_path_parts.length - 1, 1);
-                    this.prepare_item_element(_, { folder: {}, webUrl: parent_path, name: '← ' + parent_name });
-                }
-            );
+            let parent_path_parts = relative_path.split('/');
+            parent_path_parts.splice(parent_path_parts.length - 1, 1);
+            let parent_name = parent_path_parts.splice(parent_path_parts.length - 1, 1);
+
+            this.e_path_back.style.removeProperty('padding-left');
+            this.e_path_back.style.removeProperty('padding-right');
+            this.e_path_back.style.maxWidth = '4rem';
+            this.e_path_back.style.pointerEvents = 'all';
+            this.e_path_back.title = 'Navigate back to ' + parent_name;
+            this.e_path_back.innerHTML = '← Back';
+        }
+        else
+        {
+            this.e_path_back.style.pointerEvents = 'none';
+            this.e_path_back.style.paddingRight = '0';
+            this.e_path_back.style.paddingLeft = '0';
+            this.e_path_back.style.minWidth = '0';
+            this.e_path_back.style.maxWidth = '0';
+            this.e_path_back.innerHTML = '←';
         }
 
         for (let id in items)
         {
             CreatePagePanel(
-                this.e_items_root, false, false,
-                'font-size:0.75rem; flex-grow:0.0; flex-shrink:0.0; border-radius:0; box-shadow:none;',
+                this.e_items_root, false, false, null,
                 _ =>
                 {
+                    _.classList.add('file-explorer-item');
                     this.prepare_item_element(_, items[id]);
                     _.tabIndex = '0';
                 }
@@ -378,7 +385,8 @@ export class FileExplorer extends PanelContent
         {
             relative_path = encodeURIComponent(relative_path);
             await FileExplorer.ValidateDriveId(site_name);
-            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl`);
+            const fields = 'id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl';
+            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=${fields}`);
             if (resp && resp.value) return resp.value;
             return resp;
         }

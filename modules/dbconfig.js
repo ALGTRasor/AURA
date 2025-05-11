@@ -1,39 +1,43 @@
 import { Modules } from "./modules.js";
 
-const url_ms_graph = 'https://graph.microsoft.com/v1.0/';
-const url_ms_graph_sites = url_ms_graph + 'sites/';
-
 export class DBConfig
 {
-	static web_name = 'arrowlandgroup.sharepoint.com';
+	static Nothing = new DBConfig();
 
-	static loaded = false;
-	static loading = false;
+	loaded = false;
+	loading = false;
 
-	static async Load()
+	async DoLoad()
 	{
-		if (!DBConfig.loading) 
-		{
-			DBConfig.loading = true;
-
-			//DBConfig.web_name = blob.web_name;
-
-			DBConfig.loading = false;
-			DBConfig.loaded = true;
-		}
+		// await dbconfig info load
+		this.web_name = '';
+		this.site_name = '';
+		this.path_root = '';
+		this.path_user_docs_root = '';
+		this.path_user_files = '';
+		this.path_user_hr = '';
 	}
 
-	static async GetWebURL()
+	async Load()
 	{
-		if (!DBConfig.loaded) await DBConfig.Load();
-		return url_ms_graph_sites + DBConfig.web_name;
+		if (this.loading === true) return;
+		this.loading = true;
+		await this.DoLoad();
+		this.loading = false;
+		this.loaded = true;
 	}
 
-	static async GetWebBatchURL()
+	async GetWebURL()
 	{
-		if (!DBConfig.loaded) await DBConfig.Load();
-		return '/sites/' + DBConfig.web_name;
+		await this.Load();
+		return this.web_name;
+	}
+
+	async GetWebBatchURL()
+	{
+		await this.Load();
+		return this.web_name;
 	}
 }
 
-Modules.Report("Database Config", "This module works as an abstraction layer for an interchangeable database backend.");
+Modules.Report("Database Config", "This module adds a database config class to configure different database backends to work with a DBLayer instance.");

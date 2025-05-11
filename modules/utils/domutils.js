@@ -52,18 +52,24 @@ export function setSiblingIndex(element = {}, new_index = 0)
 
 
 
-export function CreatePagePanel(parent = {}, inset = false, tiles = false, styling = '', prep = e => { })
+
+export function AddInsetShadowOverlay(_)
+{
+    addElement(_, 'div', 'inset-shadow-overlay');
+}
+
+export function CreatePagePanel(parent = {}, inset = false, tiles = false, styling = '', prep = _ => { })
 {
     let classes = 'page-panel';
     if (inset) classes += ' inset-box';
     if (tiles) classes += ' page-panel-tiles scroll-y';
-    let e = addElement(parent, 'div', classes, styling, prep);
-    return e;
-}
-
-export function AddPagePanelInsetShadow(e_panel)
-{
-    addElement(e_panel, 'div', 'page-panel-inset-shadow');
+    return addElement(
+        parent, 'div', classes, styling,
+        _ =>
+        {
+            if (inset) AddInsetShadowOverlay(_);
+            if (prep) prep(_);
+        });
 }
 
 

@@ -56,7 +56,8 @@ export class ExpandingSummary
     {
         if (this.created === true) return;
         this.e_root = addElement(
-            parent, 'div', 'page-panel panel-button', 'flex-basis:0; flex-grow:1.0; flex-shrink:0.0; align-content:start; padding-left:0.5rem;',
+            parent, 'div', 'page-panel panel-button',
+            'flex-basis:0; flex-grow:1.0; flex-shrink:0.0; align-content:start; padding-left:0.5rem;',
             _ =>
             {
                 _.innerText = this.title;

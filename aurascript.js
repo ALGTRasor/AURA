@@ -23,7 +23,7 @@ import { PageManager } from "./modules/pagemanager.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { SharedData } from "./modules/datashared.js";
-import { SharePoint } from "./modules/sharepoint.js";
+import { DB_SharePoint, SharePoint } from "./modules/sharepoint.js";
 import { Fax } from "./modules/fax.js";
 
 
@@ -33,6 +33,7 @@ import './modules/pages/descriptors/help.js';
 import './modules/pages/descriptors/home.js';
 import './modules/pages/descriptors/settings.js';
 import './modules/pages/descriptors/files.js';
+import './modules/pages/descriptors/pdf_view.js';
 import './modules/pages/descriptors/directory.js';
 import './modules/pages/descriptors/internal_users.js';
 import './modules/pages/descriptors/external_contacts.js';
@@ -46,6 +47,7 @@ import './modules/pages/descriptors/database_probe.js';
 import './modules/pages/descriptors/external_links.js';
 import './modules/pages/descriptors/demo_panel.js';
 import './modules/pages/descriptors/map.js';
+import { DBLayer } from "./modules/dblayer.js";
 
 
 
@@ -140,7 +142,6 @@ async function OnAuraInit()
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
 
-	let e_content_obscurer = document.getElementById('content-body-obscurer');
 	let e_action_bar = document.getElementById('action-bar');
 	e_action_bar.addEventListener('mouseenter', _ =>
 	{
@@ -183,7 +184,6 @@ async function OnAuraInit()
 	NotificationLog.Log('Loading Settings');
 	UserSettings.LoadFromStorage();
 	GlobalStyling.Load();
-	//UserSettings.HookOptionEvents();
 
 	NotificationLog.Log('Checking Authorization');
 	await UserAccountManager.CheckWindowLocationForCodes();
@@ -192,6 +192,8 @@ async function OnAuraInit()
 
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
 	{
+		DBLayer.config = new DB_SharePoint();
+
 		NotificationLog.Log('Downloading User Info');
 		await UserAccountInfo.DownloadUserInfo();
 

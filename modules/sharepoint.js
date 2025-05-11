@@ -1,6 +1,7 @@
 import { AppEvents } from "./appevents.js";
 import { DataSource } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
+import { DBLayer } from "./dblayer.js";
 import { DebugLog } from "./debuglog.js";
 import { Modules } from "./modules.js";
 import { OverlayManager } from "./ui/overlays.js";
@@ -42,15 +43,45 @@ export class RequestBatch
 	ClearRequests() { this.requests = []; }
 }
 
+export class DB_SharePoint extends DBConfig
+{
+	async DoLoad()
+	{
+		// await dbconfig info load
+
+		this.url_ms_graph = 'https://graph.microsoft.com/v1.0/';
+		this.url_ms_graph_sites = this.url_ms_graph + 'sites/';
+
+		this.web_name = 'arrowlandgroup.sharepoint.com';
+		this.site_name = 'ALGInternal';
+		this.path_root = 'Shared Documents/ALGFileLibrary/';
+		this.path_user_docs_root = 'ALGUserDocs/';
+		this.path_user_files = this.path_user_docs_root + 'Users/';
+		this.path_user_hr = this.path_user_docs_root + 'HR/';
+	}
+
+	async GetWebURL()
+	{
+		await this.Load();
+		return this.url_ms_graph_sites + this.web_name;
+	}
+
+	async GetWebBatchURL()
+	{
+		await this.Load();
+		return '/sites/' + this.web_name;
+	}
+}
+
 export class SharePoint
 {
-	static async GetSiteUrl(site_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name; }
-	static async GetListUrl(site_name, list_name) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
-	static async GetItemsUrl(site_name, list_name, item_id) { return await DBConfig.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
+	static async GetSiteUrl(site_name) { return await DBLayer.GetWebURL() + ':/sites/' + site_name; }
+	static async GetListUrl(site_name, list_name) { return await DBLayer.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static async GetItemsUrl(site_name, list_name, item_id) { return await DBLayer.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
 
-	static async GetSiteBatchUrl(site_name) { return await DBConfig.GetWebBatchURL() + ':/sites/' + site_name; }
-	static async GetListBatchUrl(site_name, list_name) { return await DBConfig.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
-	static async GetItemsBatchUrl(site_name, list_name, item_id) { return await DBConfig.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
+	static async GetSiteBatchUrl(site_name) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name; }
+	static async GetListBatchUrl(site_name, list_name) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static async GetItemsBatchUrl(site_name, list_name, item_id) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
 
 	static intervalId_ProcessQueue = -1;
 	static processingBatch = false;

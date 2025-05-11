@@ -1,10 +1,9 @@
+import { DBLayer } from "../../dblayer.js";
 import { PageManager } from "../../pagemanager.js";
-import { SharePoint } from "../../sharepoint.js";
 import { FileExplorer } from "../../ui/file_explorer.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { UserAccountInfo } from "../../useraccount.js";
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
-import { RunningTimeout } from "../../utils/running_timeout.js";
+import { CreatePagePanel } from "../../utils/domutils.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class PageFiles extends PageDescriptor
@@ -44,7 +43,7 @@ export class PageFiles extends PageDescriptor
 			{
 				case 0: instance.explorer.base_relative_path = 'Clients'; break;
 				case 1: instance.explorer.base_relative_path = 'ClientsArchive'; break;
-				case 2: instance.explorer.base_relative_path = 'ALGUserDocs/Users/' + UserAccountInfo.account_info.user_id; break;
+				case 2: instance.explorer.base_relative_path = DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id; break;
 				default: instance.explorer.base_relative_path = 'All Files'; break;
 			}
 			instance.explorer.Navigate();

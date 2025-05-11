@@ -66,7 +66,7 @@ class DirectoryContentBase extends PanelContent
 	}
 
 	CollapseAll() { for (let id in this.summaries) this.summaries[id].Collapse(); }
-	OnRemoveElements() { console.warn('removed elements'); this.e_root.remove(); }
+	OnRemoveElements() { this.e_root.remove(); }
 }
 
 class DirectoryContentInternal extends DirectoryContentBase
