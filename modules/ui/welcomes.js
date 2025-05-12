@@ -8,75 +8,74 @@ export class Welcome
 {
     static min_delta_minutes = 15;
     static lskey_timestamp_last = 'ts-welcome-latest';
+    static info = {};
 
-    static GetTimestamp()
-    {
-        return localStorage.getItem(Welcome.lskey_timestamp_last);
-    }
-
-    static ResetTimer()
-    {
-        localStorage.setItem(Welcome.lskey_timestamp_last, new Date());
-    }
+    static GetTimestamp() { return localStorage.getItem(Welcome.lskey_timestamp_last); }
+    static ResetTimer() { localStorage.setItem(Welcome.lskey_timestamp_last, new Date()); }
 
     static GetWelcomeInfo()
     {
-        let info = {};
-        info.ts = Welcome.GetTimestamp();
-        info.delta_min = 0;
-        info.recent = false;
-        if (info.ts)
+        Welcome.info = {
+            ts: Welcome.GetTimestamp(),
+            delta_min: 0,
+            welcomed: false,
+            recent: false,
+            user_name_full: UserAccountInfo.account_info ? (UserAccountInfo.account_info.display_name ?? 'user') : 'user'
+        };
+
+        if (Welcome.info.ts)
         {
-            info.ts = new Date(info.ts);
-            info.delta_min = secondsDelta(info.ts) / 60.0;
-            info.recent = info.delta_min < Welcome.min_delta_minutes;
+            Welcome.info.ts = new Date(Welcome.info.ts);
+            Welcome.info.delta_min = secondsDelta(Welcome.info.ts) / 60.0;
+            Welcome.info.recent = Welcome.info.delta_min < Welcome.min_delta_minutes;
         }
-        return info;
+        Welcome.info.user_name_short = Welcome.info.user_name_full.split(' ')[0];
     }
+
+    static showWelcome(msg = '') 
+    {
+        OverlayManager.ShowChoiceDialog(msg, [OverlayManager.OkayChoice()]);
+        Welcome.ResetTimer();
+    };
+
+    static queueWelcome(msg)
+    {
+        if (Welcome.info.welcomed === true) return;
+        window.setTimeout(_ => { showWelcome(msg); }, 200);
+        Welcome.info.welcomed = true;
+    }
+
+    static welcome_default() { Welcome.queueWelcome(`Welcome back, ${Welcome.user_name_short}!`); }
 
     static ShowWelcomeMessage()
     {
-        let welcomed_now = false;
-        let info = Welcome.GetWelcomeInfo();
-
-        const showWelcome = (msg = '') =>
-        {
-            OverlayManager.ShowChoiceDialog(msg, [OverlayManager.OkayChoice()]);
-            Welcome.ResetTimer();
-        };
-        const queueWelcome = msg =>
-        {
-            if (welcomed_now === true) return;
-            window.setTimeout(_ => { showWelcome(msg); }, 200);
-            welcomed_now = true;
-        }
-
-        let user_name_full = UserAccountInfo.account_info ? (UserAccountInfo.account_info.display_name ?? 'user') : 'user';
-        let user_name_short = user_name_full.split(' ')[0];
-        const welcome_default = () => queueWelcome(`Welcome back, ${user_name_short}!`);
-
-        if (window.found_tokens === true)
-        {
-            // existing user
-            if (UserAccountInfo.HasAppAccess()) welcome_default();
-            // onboarding user
-            else if (UserAccountInfo.is_alg_account) queueWelcome(`Hello, ${user_name_full}!`);
-            //external user
-            else queueWelcome(AppInfo.name + ' doesn\'t recognize you!');
-        }
-        else // did not find tokens
-        {
-            if (info.recent)
-            {
-                DebugLog.Log(`welcomed ${Math.round(info.delta_min)} / ${Welcome.min_delta_minutes} minutes ago`);
-            }
-            else
-            {
-                if (UserAccountInfo.app_access) welcome_default();
-                else if (UserAccountInfo.is_alg_account) welcome_default(); // onboarding user
-            }
-        }
-
+        Welcome.GetWelcomeInfo();
+        if (window.found_tokens === true) Welcome.OnFoundTokens();
+        else Welcome.OnNoTokens();
         Welcome.ResetTimer();
+    }
+
+    static OnFoundTokens()
+    {
+        // existing user
+        if (UserAccountInfo.HasAppAccess()) Welcome.welcome_default();
+        // onboarding user
+        else if (UserAccountInfo.is_alg_account) Welcome.queueWelcome(`Hello, ${Welcome.user_name_full}!`);
+        //external user
+        else Welcome.queueWelcome(AppInfo.name + ' doesn\'t recognize you!');
+    }
+
+    static OnNoTokens()
+    {
+        if (Welcome.info.recent) 
+        {
+            DebugLog.Log(`welcomed ${Math.round(Welcome.info.delta_min)} / ${Welcome.min_delta_minutes} minutes ago`);
+            return;
+        }
+        else
+        {
+            if (UserAccountInfo.app_access) Welcome.welcome_default();
+            else if (UserAccountInfo.is_alg_account) Welcome.welcome_default(); // onboarding user
+        }
     }
 }
