@@ -32,6 +32,7 @@ export class PageHome extends PageDescriptor
 
 		instance.e_frame.style.minWidth = '20rem';
 		instance.e_content.style.justifyContent = 'center';
+		instance.e_content.style.gap = 'var(--gap-05)';
 
 		instance.menu_main = new QuickMenu();
 		instance.menu_extra = new QuickMenu();

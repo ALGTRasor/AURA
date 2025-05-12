@@ -40,6 +40,7 @@ export class FileTypes
 	static known_extensions = FileTypes.known.flatMap(_ => _.extensions);
 	static IsKnown(file_name = 'file.txt')
 	{
+		file_name = file_name.toLowerCase();
 		return FileTypes.known_extensions.indexOf(file_name.split('.').at(-1)) > -1;
 	}
 
@@ -55,6 +56,7 @@ export class FileTypes
 
 	static GetInfo(file_name = 'file.txt')
 	{
+		file_name = file_name.toLowerCase();
 		let info_index = FileTypes.GetInfoIndex(file_name);
 		if (info_index > -1) return FileTypes.known[info_index];
 		return undefined;

@@ -384,6 +384,7 @@
 	border: none;
 	background-color: hsl(from var(--theme-color) h s 12%);
 }
+
 .page-panel.inset-box:hover
 {
 	background-color: hsl(from var(--theme-color) h s 10%);
@@ -398,6 +399,7 @@
 	position: absolute;
 	inset: 0;
 }
+
 .inset-shadow-overlay::after
 {
 	content: '';
@@ -1093,6 +1095,7 @@
 	text-wrap: nowrap;
 	word-wrap: anywhere;
 }
+
 .file-explorer-nav-path-highlight
 {
 	padding: var(--gap-025);
@@ -1153,6 +1156,7 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
+
 .file-explorer-item:hover
 {
 	z-index: 10;
@@ -1249,7 +1253,7 @@
 
 	transition-property: scale, opacity;
 	transition-duration: var(--trans-dur-off-fast);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: ease;
 }
 
 .file-explorer-item-button:hover
@@ -1258,6 +1262,12 @@
 	scale: 120%;
 	color: white;
 	border-color: hsl(from var(--theme-color) h s 50%);
+}
+
+.file-explorer-item-button:active
+{
+	scale: 110%;
+	border-color: white;
 }
 
 .file-explorer-item-button i
@@ -1277,6 +1287,7 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
 }
+
 .file-explorer-item-button:hover i
 {
 	scale: 100%;

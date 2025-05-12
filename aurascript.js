@@ -248,6 +248,7 @@ async function OnAuraInit()
 		await Fax.RefreshFact();
 
 		NotificationLog.Log('Ready');
+		Welcome.ShowWelcomeMessage();
 
 		SetContentObscured(false);
 		window.addEventListener('keyup', HandleKeyUp);
@@ -261,7 +262,6 @@ async function OnAuraInit()
 	}
 
 	GlobalStyling.Apply();
-	Welcome.ShowWelcomeMessage();
 
 	DebugLog.SubmitGroup('#fff4');
 }

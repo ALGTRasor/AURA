@@ -104,6 +104,18 @@ export class FileExplorer extends PanelContent
             );
         }
 
+        addElement(
+            e_btn_root, 'div', 'file-explorer-item-button', null,
+            e_btn =>
+            {
+                e_btn.addEventListener('click', e => { });
+                e_btn.title = 'More Options';
+                addElement(
+                    e_btn, 'i', 'material-symbols', null,
+                    e_icon => { e_icon.innerText = 'more'; }
+                );
+            }
+        );
     };
 
     prepare_folder_element = (_, folder_info) =>
