@@ -268,13 +268,7 @@ export class FileExplorer extends PanelContent
         );
     }
 
-    static sort_name = (x, y) =>
-    {
-        return x.name.localeCompare(y.name);
-        if (x.name > y.name) return 1;
-        if (x.name < y.name) return -1;
-        return 0;
-    };
+    static sort_name = (x, y) => { return x.name.localeCompare(y.name); };
 
     static sort_type = (x, y) =>
     {
