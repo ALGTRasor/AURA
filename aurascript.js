@@ -24,7 +24,7 @@ import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { DBLayer } from "./modules/dblayer.js";
 import { SharedData } from "./modules/datashared.js";
-import { DB_SharePoint, SharePoint } from "./modules/sharepoint.js";
+import { DB_SharePoint } from "./modules/sharepoint.js";
 import { Fax } from "./modules/fax.js";
 
 
@@ -193,13 +193,12 @@ async function OnAuraInit()
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
 	{
 		DBLayer.config = new DB_SharePoint();
+		await DBLayer.Initialize();
 
 		NotificationLog.Log('Downloading User Info');
 		await UserAccountInfo.DownloadUserInfo();
 
 		window.e_account_profile_picture.style.display = 'block';
-
-		SharePoint.StartProcessingQueue();
 
 		await CheckIdentity();
 

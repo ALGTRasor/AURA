@@ -478,6 +478,12 @@
 	background-color: hsl(from var(--theme-color) h s 16%);
 }
 
+.page-panel.panel-button:active
+{
+	scale: 96%;
+	background-color: hsl(from var(--theme-color) h s 16%);
+}
+
 .panel-button-selected
 {
 	color: hsl(from var(--theme-color) h s 80%) !important;
@@ -1215,6 +1221,11 @@
 	transition-property: opacity, scale;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
+}
+
+.file-explorer-item-info span
+{
+	border: solid 2px gray;
 }
 
 

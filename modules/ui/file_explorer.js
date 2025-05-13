@@ -58,6 +58,7 @@ export class FileExplorer extends PanelContent
                             _.innerHTML = item_type_info.label;
                             _.title = item_type_info.description;
                             _.style.backgroundColor = 'hsl(from ' + item_type_info.color + ' h 50% 25%)';
+                            _.style.borderColor = 'hsl(from ' + item_type_info.color + ' h 50% 35%)';
                         }
                         else
                             _.innerHTML = 'file';
@@ -204,6 +205,27 @@ export class FileExplorer extends PanelContent
             }
         );
         this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
+
+        this.e_folder_actions_root = CreatePagePanel(
+            this.e_root, true, false, null,
+            _ =>
+            {
+                const add_button = (_, label = '') =>
+                {
+                    return CreatePagePanel(
+                        _, false, false, 'flex-grow:0.0;',
+                        _ =>
+                        {
+                            _.innerHTML = label;
+                            _.classList.add('panel-button');
+                        }
+                    );
+                };
+                _.classList.add('file-explorer-nav-bar');
+                this.e_btn_create_folder = add_button(_, 'CREATE FOLDER');
+            }
+        );
+
 
         if (this.autonavigate === true) window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
     }

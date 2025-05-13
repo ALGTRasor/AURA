@@ -43,45 +43,29 @@ export class RequestBatch
 	ClearRequests() { this.requests = []; }
 }
 
-export class DB_SharePoint extends DBConfig
-{
-	async DoLoad()
-	{
-		// await dbconfig info load
-
-		this.url_ms_graph = 'https://graph.microsoft.com/v1.0/';
-		this.url_ms_graph_sites = this.url_ms_graph + 'sites/';
-
-		this.web_name = 'arrowlandgroup.sharepoint.com';
-		this.site_name = 'ALGInternal';
-		this.path_root = 'Shared Documents/ALGFileLibrary/';
-		this.path_user_docs_root = 'ALGUserDocs/';
-		this.path_user_files = this.path_user_docs_root + 'Users/';
-		this.path_user_hr = this.path_user_docs_root + 'HR/';
-	}
-
-	async GetWebURL()
-	{
-		await this.Load();
-		return this.url_ms_graph_sites + this.web_name;
-	}
-
-	async GetWebBatchURL()
-	{
-		await this.Load();
-		return '/sites/' + this.web_name;
-	}
-}
-
 export class SharePoint
 {
-	static async GetSiteUrl(site_name) { return await DBLayer.GetWebURL() + ':/sites/' + site_name; }
-	static async GetListUrl(site_name, list_name) { return await DBLayer.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
-	static async GetItemsUrl(site_name, list_name, item_id) { return await DBLayer.GetWebURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
+	static url_api = 'https://graph.microsoft.com/v1.0';
+	static url_api_sites = SharePoint.url_api + '/sites';
+	static url_batch = SharePoint.url_api + '/$batch';
 
-	static async GetSiteBatchUrl(site_name) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name; }
-	static async GetListBatchUrl(site_name, list_name) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
-	static async GetItemsBatchUrl(site_name, list_name, item_id) { return await DBLayer.GetWebBatchURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
+	static web_name = 'arrowlandgroup.sharepoint.com';
+	static site_name_primary = 'ALGInternal';
+	static path_root = 'Shared Documents/ALGFileLibrary/';
+	static path_user_docs_root = 'ALGUserDocs/';
+	static path_user_files = SharePoint.path_user_docs_root + 'Users/';
+	static path_user_hr = SharePoint.path_user_docs_root + 'HR/';
+
+	static GetWebBaseURL() { return SharePoint.url_api_sites + '/' + SharePoint.web_name; }
+	static GetWebBatchBaseURL() { return '/sites/' + SharePoint.web_name; }
+
+	static GetSiteUrl(site_name) { return SharePoint.GetWebBaseURL() + ':/sites/' + site_name; }
+	static GetListUrl(site_name, list_name) { return SharePoint.GetWebBaseURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static GetItemsUrl(site_name, list_name, item_id) { return SharePoint.GetWebBaseURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
+
+	static GetSiteBatchUrl(site_name) { return SharePoint.GetWebBatchBaseURL() + ':/sites/' + site_name; }
+	static GetListBatchUrl(site_name, list_name) { return SharePoint.GetWebBatchBaseURL() + ':/sites/' + site_name + ':/lists/' + list_name; }
+	static GetItemsBatchUrl(site_name, list_name, item_id) { return SharePoint.GetWebBatchBaseURL() + ':/sites/' + site_name + ':/lists/' + list_name + ':/items/' + item_id; }
 
 	static intervalId_ProcessQueue = -1;
 	static processingBatch = false;
@@ -93,42 +77,34 @@ export class SharePoint
 		SharePoint.intervalId_ProcessQueue = window.setInterval(_ => { SharePoint.CheckProcessQueue(); }, 500);
 	}
 
-	static Enqueue(req = RequestBatchRequest.Nothing)
-	{
-		SharePoint.batchQueue.push(req);
-	}
+	static Enqueue(req = RequestBatchRequest.Nothing) { SharePoint.batchQueue.push(req); }
 
 	static CheckProcessQueue()
 	{
-		if (SharePoint.processingBatch) return;
+		if (SharePoint.processingBatch === true) return;
 		if (SharePoint.batchQueue.length < 1) return;
 		SharePoint.DoProcessQueue();
 	}
 
 	static async DoProcessQueue()
 	{
-		if (!SharePoint.processingBatch)
+		if (SharePoint.processingBatch === true) return;
+		SharePoint.processingBatch = true;
+
+		while (SharePoint.batchQueue.length > 0)
 		{
-			SharePoint.processingBatch = true;
-
-			while (SharePoint.batchQueue.length > 0)
-			{
-				let new_batch_count = SharePoint.batchQueue.length;
-				let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
-				DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
-				await SharePoint.ProcessBatchRequests(new_batch);
-				// processing may enqueue additional requests, typically due to pagination
-				DebugLog.SubmitGroup('#0ff4');
-			}
-
-			SharePoint.processingBatch = false;
+			let new_batch_count = SharePoint.batchQueue.length;
+			let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
+			DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
+			await SharePoint.ProcessBatchRequests(new_batch);
+			// processing may enqueue additional requests, typically due to pagination
+			DebugLog.SubmitGroup('#0ff4');
 		}
+
+		SharePoint.processingBatch = false;
 	}
 
-	static async WaitUntilQueueEmpty()
-	{
-		await SharePoint.DoProcessQueue();
-	}
+	static async WaitAllRequests() { await SharePoint.DoProcessQueue(); }
 
 	static GetDefaultHeaders()
 	{
@@ -153,12 +129,8 @@ export class SharePoint
 		for (let req_index in requests) requests[req_index].id = req_index;
 	}
 
-	static url_api = 'https://graph.microsoft.com/v1.0';
-	static url_batch = 'https://graph.microsoft.com/v1.0/$batch';
 	static async ProcessBatchRequests(batchRequest = {})
 	{
-		const url_ms_graph_batch = 'https://graph.microsoft.com/v1.0/$batch';
-
 		let request_objects = batchRequest.requests;
 
 		while (request_objects.length > 0)
@@ -171,7 +143,7 @@ export class SharePoint
 
 			// post the request, wait for the results
 			let resp = await fetch(
-				url_ms_graph_batch,
+				SharePoint.url_batch,
 				{
 					method: 'post',
 					headers: SharePoint.GetDefaultHeaders(),
@@ -191,7 +163,7 @@ export class SharePoint
 				}
 			}
 			// unauthorized to perform batch
-			else if (resp.status >= 401 && resp.status <= 499)
+			else if (resp.status >= 401 && resp.status <= 403)
 			{
 				AppEvents.onAuthorizationFailure.Invoke();
 			}
@@ -230,7 +202,7 @@ export class SharePoint
 
 	static async DownloadRecord(site = '', list = '', filter = '', fields = [])
 	{
-		let url = await SharePoint.GetListUrl(site, list) + '/items?select=id';
+		let url = SharePoint.GetListUrl(site, list) + '/items?select=id';
 		if (fields && fields.length > 0) url += '&expand=fields(select=' + fields.join(',') + ')';
 		if (filter && filter.length > 0) url += '&$filter=' + filter;
 		let result = await SharePoint.GetData(url);
@@ -279,9 +251,9 @@ export class SharePoint
 	}
 
 
-	static async GetURL_GetList(source = DataSource.Nothing)
+	static GetURL_GetList(source = DataSource.Nothing)
 	{
-		let url = await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id';
+		let url = SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
 		if (source.view_filter && source.view_filter.length > 0) url += '&$filter=' + source.view_filter;
 		if (source.sorting_field && source.sorting_field.length > 0) url += '&$orderby=fields/' + source.sorting_field + ' asc';
@@ -289,9 +261,9 @@ export class SharePoint
 	}
 
 
-	static async GetBatchURL_GetList(source = DataSource.Nothing)
+	static GetBatchURL_GetList(source = DataSource.Nothing)
 	{
-		let url = await SharePoint.GetListBatchUrl(source.site_name, source.list_title) + '/items?select=id';
+		let url = SharePoint.GetListBatchUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
 		if (source.view_filter && source.view_filter.length > 0) url += '&$filter=' + source.view_filter;
 		if (source.sorting_field && source.sorting_field.length > 0) url += '&$orderby=fields/' + source.sorting_field + ' asc';
@@ -300,7 +272,7 @@ export class SharePoint
 
 	static async GetListData(source = DataSource.Nothing)
 	{
-		let url = await SharePoint.GetURL_GetList(source);
+		let url = SharePoint.GetURL_GetList(source);
 		let result = await SharePoint.GetData(url);
 
 		let all_items = [];
@@ -330,18 +302,111 @@ export class SharePoint
 		return all_items.map(expand_fields);
 	}
 
-
-	static async GetURL_PatchListItem(source = DataSource.Nothing, item_id = '')
-	{
-		return await SharePoint.GetListUrl(source.site_name, source.list_title) + '/items/' + item_id + '/fields';
-	}
-
 	static async PatchListItem(source = DataSource.Nothing, item_id = '', patchData = {})
 	{
-		let url = SharePoint.GetURL_PatchListItem(source, item_id);
+		let url = SharePoint.GetListUrl(source.site_name, source.list_title) + '/items/' + item_id + '/fields';
 		let result = await SharePoint.SetData(url, patchData);
 		DebugLog.Log('Patch sharepoint list items result: ' + result);
 	}
+
+
+
+
+
+
+
+	static GetListItems(table)
+	{
+		SharePoint.Enqueue(
+			new RequestBatchRequest(
+				'get',
+				SharePoint.GetBatchURL_GetList(table.instance.datasource),
+				_ => { SharePoint.HandleListItemsResult(table, _); }
+			)
+		);
+	}
+
+
+	static HandleListItemsResult(table, result) 
+	{
+		const expand_fields = x => { return x.fields ? x.fields : x; };
+		let page_items = result.body.value.map(expand_fields);
+
+		// executes the expander on data in all DataFieldDescs that contain an expander
+		for (let field_id in table.instance.datasource.data_model.field_descs)
+		{
+			let desc = table.instance.datasource.data_model.field_descs[field_id];
+			if ('expander' in desc && typeof desc.expander === 'function')
+			{
+				DebugLog.Log('expanded field: ' + desc.label);
+				const try_expand = record =>
+				{
+					try
+					{
+						record[desc.key] = desc.expander(record[desc.key]);
+					}
+					catch (e)
+					{
+						DebugLog.Log('error expanding field ' + desc.key + ': ' + e, "#f55");
+					}
+					return record;
+				};
+				page_items = page_items.map(try_expand);
+			}
+		}
+
+		table.instance.data = table.instance.data.concat(page_items);
+		table.instance.loaded = true;
+
+		let next_page_url = result.body['@odata.nextLink'];
+		if (next_page_url)
+		{
+			table.instance.loaded = false;
+			next_page_url = next_page_url.replace(SharePoint.url_api, '');
+			let next_page_req = new RequestBatchRequest(
+				'get', next_page_url,
+				next_page_result => { SharePoint.HandleListItemsResult(table, next_page_result); }
+			);
+			SharePoint.Enqueue(next_page_req);
+			DebugLog.Log(`+ ${page_items.length} items : ${table.key} [incomplete]`);
+		}
+		else DebugLog.Log(`+ ${page_items.length} items : ${table.key}`);
+	};
 }
 
-Modules.Report('SharePoint', 'This module adds a unified SharePoint API layer.');
+
+
+
+
+
+
+
+export class DB_SharePoint extends DBConfig
+{
+	async _OnInitialize() { SharePoint.StartProcessingQueue(); }
+
+	// await processing all queued requests
+	async WaitAllRequests() { return await SharePoint.WaitAllRequests(); }
+
+	// methods for handling remotely stored data in a table / record structure
+	async GetRecords(source) { return await SharePoint.GetListItems(source); }
+	async GetRecordById(source, record_id) { }
+	async UpdateRecord(source, record_id, record_data) { return await SharePoint.PatchListItem(source, record_id, record_data); }
+	async CreateRecord(source, record_data) { }
+
+	// methods for handling remotely stored items in a folder / file structure
+	async CreateItem(path, data) { }
+	async DownloadItem(path) { }
+	async LoadItemInfo(path) { }
+	async RenameItem(path, new_name) { }
+
+	async CreateFolder(path) { }
+	async GetFolderInfo(path) { }
+	async RenameFolder(path, new_name) { }
+	async LoadItemsAtPath(path) { }
+}
+
+
+
+
+Modules.Report('SharePoint', 'This module adds a SharePoint API DBConfig and functionality.');

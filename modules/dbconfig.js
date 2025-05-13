@@ -7,37 +7,36 @@ export class DBConfig
 	loaded = false;
 	loading = false;
 
-	async DoLoad()
-	{
-		// await dbconfig info load
-		this.web_name = '';
-		this.site_name = '';
-		this.path_root = '';
-		this.path_user_docs_root = '';
-		this.path_user_files = '';
-		this.path_user_hr = '';
-	}
+	async _OnInitialize() { }
 
-	async Load()
+	async Initialize()
 	{
-		if (this.loading === true) return;
+		if (this.loading === true || this.loaded === true) return;
 		this.loading = true;
-		await this.DoLoad();
+		await this._OnInitialize();
 		this.loading = false;
 		this.loaded = true;
 	}
 
-	async GetWebURL()
-	{
-		await this.Load();
-		return this.web_name;
-	}
+	// await processing all queued requests
+	async WaitAllRequests() { }
 
-	async GetWebBatchURL()
-	{
-		await this.Load();
-		return this.web_name;
-	}
+	// methods for handling remotely stored data in a table / list structure
+	async GetRecords(source) { }
+	async GetRecordById(source, record_id) { }
+	async UpdateRecord(source, record_id, record_data) { }
+	async CreateRecord(source, record_data) { }
+
+	// methods for handling remotely stored files in a folder / file structure
+	async CreateItem(path, data) { }
+	async DownloadItem(path) { }
+	async LoadItemInfo(path) { }
+	async RenameItem(path, new_name) { }
+
+	async CreateFolder(path) { }
+	async GetFolderInfo(path) { }
+	async RenameFolder(path, new_name) { }
+	async LoadItemsAtPath(path) { }
 }
 
 Modules.Report("Database Config", "This module adds a database config class to configure different database backends to work with a DBLayer instance.");

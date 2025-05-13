@@ -1,13 +1,13 @@
 import { Modules } from "./modules.js";
-import { DataSource, DataSourceInstance } from "./datasource.js";
 import { DebugLog } from "./debuglog.js";
+import { AppInfo } from "./app_info.js";
 import { AppEvents } from "./appevents.js";
 import { Timers } from "./timers.js";
 import { EventSource } from "./eventsource.js";
-import { UserAccountInfo } from "./useraccount.js";
-import { RequestBatchRequest, SharePoint } from "./sharepoint.js";
-import { AppInfo } from "./app_info.js";
+import { DBLayer } from "./dblayer.js";
+import { DataSource, DataSourceInstance } from "./datasource.js";
 import { NotificationLog } from "./notificationlog.js";
+import { UserAccountInfo } from "./useraccount.js";
 
 
 export class SharedDataTable
@@ -68,18 +68,22 @@ export class SharedData
 		SharedData.userAllocations
 	];
 
-	static async LoadData(useCache = true)
+	static UpdateDataSourceFilters()
 	{
-		if (SharedData.loading) return;
-
-		const timer_shareddataload = 'shared data load';
-
 		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
 		DataSource.UserAllocations.view_filter = user_id_filter('user_id');
 		DataSource.TimekeepEvents.view_filter = user_id_filter('user_id');
 		DataSource.TimekeepStatuses.view_filter = user_id_filter('Title');
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
+	}
 
+	static async LoadData(useCache = true)
+	{
+		const timer_shareddataload = 'shared data load';
+
+		if (SharedData.loading) return;
+
+		SharedData.UpdateDataSourceFilters();
 		SharedData.loading = true;
 		Timers.Start(timer_shareddataload);
 		DebugLog.StartGroup('loading shared data');
@@ -112,48 +116,7 @@ export class SharedData
 		}
 
 		if (useCache === true) DebugLog.Log('fetching missing shared data...');
-		const after_download = (table, result) =>
-		{
-			const expand_fields = x => { return x.fields ? x.fields : x; };
-			let page_items = result.body.value.map(expand_fields);
 
-			// executes the expander on data in all DataFieldDescs that contain an expander
-			for (let field_id in table.instance.datasource.data_model.field_descs)
-			{
-				let desc = table.instance.datasource.data_model.field_descs[field_id];
-				if ('expander' in desc && typeof desc.expander === 'function')
-				{
-					DebugLog.Log('expanded field: ' + desc.label);
-					const try_expand = record =>
-					{
-						try
-						{
-							record[desc.key] = desc.expander(record[desc.key]);
-						}
-						catch (e)
-						{
-							DebugLog.Log('error expanding field ' + desc.key + ': ' + e, "#f55");
-						}
-						return record;
-					};
-					page_items = page_items.map(try_expand);
-				}
-			}
-
-			table.instance.data = table.instance.data.concat(page_items);
-			table.instance.loaded = true;
-
-			let next_page_url = result.body['@odata.nextLink'];
-			if (next_page_url)
-			{
-				table.instance.loaded = false;
-				next_page_url = next_page_url.replace(SharePoint.url_api, '');
-				let next_page_req = new RequestBatchRequest('get', next_page_url, _ => { after_download(table, _); });
-				SharePoint.Enqueue(next_page_req);
-				DebugLog.Log(`+ ${page_items.length} items : ${table.key} [incomplete]`);
-			}
-			else DebugLog.Log(`+ ${page_items.length} items : ${table.key}`);
-		};
 
 		for (let table_id in SharedData.all_tables)
 		{
@@ -161,12 +124,11 @@ export class SharedData
 			if (useCache === true && table.instance.loaded === true) continue;
 			if (useCache === true) DebugLog.Log('fetching ' + table.key);
 			table.instance.ClearData();
-			let url = await SharePoint.GetBatchURL_GetList(table.instance.datasource);
-			let req = new RequestBatchRequest('get', url, _ => { after_download(table, _); });
-			SharePoint.Enqueue(req);
+
+			DBLayer.GetRecords(table);
 		}
 
-		await SharePoint.WaitUntilQueueEmpty();
+		await DBLayer.WaitAllRequests();
 
 		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();

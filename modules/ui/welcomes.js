@@ -41,7 +41,7 @@ export class Welcome
     static queueWelcome(msg)
     {
         if (Welcome.info.welcomed === true) return;
-        window.setTimeout(_ => { showWelcome(msg); }, 200);
+        window.setTimeout(_ => { Welcome.showWelcome(msg); }, 200);
         Welcome.info.welcomed = true;
     }
 
