@@ -1174,6 +1174,8 @@
 
 .file-explorer-item-title
 {
+	pointer-events: none;
+
 	flex-grow: 1.0;
 	align-content: center;
 	padding-left: 0;

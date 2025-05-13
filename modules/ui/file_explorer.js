@@ -210,21 +210,26 @@ export class FileExplorer extends PanelContent
             this.e_root, true, false, null,
             _ =>
             {
-                const add_button = (_, label = '') =>
+                const add_button = (_, label = '', tooltip = '') =>
                 {
                     return CreatePagePanel(
                         _, false, false, 'flex-grow:0.0;',
                         _ =>
                         {
-                            _.innerHTML = label;
+                            _.innerText = label;
+                            _.title = tooltip;
+                            _.style.minWidth = '8rem';
+                            _.style.minHeight = '1.5rem';
+                            _.style.textAlign = 'center';
+                            _.style.alignContent = 'center';
                             _.classList.add('panel-button');
                         }
                     );
                 };
                 _.classList.add('file-explorer-nav-bar');
 
-                this.e_btn_create_folder = add_button(_, 'CREATE FOLDER');
-                this.e_btn_upload_file = add_button(_, 'UPLOAD FILE');
+                this.e_btn_create_folder = add_button(_, 'CREATE FOLDER', 'Create a new folder within the current folder.');
+                this.e_btn_upload_file = add_button(_, 'UPLOAD FILE', 'Upload a file to the current folder.');
             }
         );
 
