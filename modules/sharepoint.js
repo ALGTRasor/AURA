@@ -383,6 +383,9 @@ export class SharePoint
 
 export class DB_SharePoint extends DBConfig
 {
+	path_user_files = 'ALGUserDocs/Users/';
+	path_user_hr_files = 'ALGUserDocs/HR/';
+
 	async _OnInitialize() { SharePoint.StartProcessingQueue(); }
 
 	// await processing all queued requests

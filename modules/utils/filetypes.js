@@ -28,9 +28,13 @@ export class FileTypes
 {
 	static known = [
 		new FileType(['.txt'], 'TXT', '#fff', 'This is a plain text file',),
-		new FileType(['.jpg', '.jpeg'], 'JPG', '#fe0', 'This is a JPG image'),
-		new FileType(['.csv'], 'CSV', '#0ff', 'This is a CSV (comma separated value) file', false),
-		new FileType(['.pdf'], 'PDF', '#f40', 'This is a PDF (Adobe\'s Portable Document Format) file'),
+		new FileType(['.xml'], 'XML', '#fcf', 'This is an XML (Extensible Markup Language) file',),
+		new FileType(['.msg'], 'MSG', '#ffc', 'This is a MSG file, Outlook\'s format for storing emails, messages, tasks, appointments, etc', false),
+		new FileType(['.png'], 'PNG', '#fe0', 'This is a PNG (Portable Network Graphics) image'),
+		new FileType(['.jpg', '.jpeg'], 'JPG', '#fe0', 'This is a JP(E)G image, from the "Joint Photographic Experts Group"'),
+		new FileType(['.csv'], 'CSV', '#0ff', 'This is a CSV (Comma Separated Value) file', false),
+		new FileType(['.pdf'], 'PDF', '#f40', 'This is a PDF file, Adobe\'s Portable Document Format'),
+		new FileType(['.kmz'], 'KMZ', '#3f4', 'This is a KMZ file, a compressed version of Google Earth\'s KML', false),
 		new FileType(['.docx', '.docm', '.doc'], 'Word', '#35f', 'This is a Word Document file'),
 		new FileType(['.xlsx', '.xls', '.xlsm'], 'Excel', '#6f6', 'This is a Excel Spreadsheet file'),
 		new FileType(['.pps', '.ppsx'], 'PPT Slideshow', '#fa0', 'This is a PowerPoint Slideshow file'),

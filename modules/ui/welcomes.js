@@ -45,7 +45,7 @@ export class Welcome
         Welcome.info.welcomed = true;
     }
 
-    static welcome_default() { Welcome.queueWelcome(`Welcome back, ${Welcome.user_name_short}!`); }
+    static welcome_default() { Welcome.queueWelcome(`Welcome back, ${Welcome.info.user_name_short}!`); }
 
     static ShowWelcomeMessage()
     {
@@ -60,7 +60,7 @@ export class Welcome
         // existing user
         if (UserAccountInfo.HasAppAccess()) Welcome.welcome_default();
         // onboarding user
-        else if (UserAccountInfo.is_alg_account) Welcome.queueWelcome(`Hello, ${Welcome.user_name_full}!`);
+        else if (UserAccountInfo.is_alg_account) Welcome.queueWelcome(`Hello, ${Welcome.info.user_name_full}!`);
         //external user
         else Welcome.queueWelcome(AppInfo.name + ' doesn\'t recognize you!');
     }

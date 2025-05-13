@@ -222,7 +222,9 @@ export class FileExplorer extends PanelContent
                     );
                 };
                 _.classList.add('file-explorer-nav-bar');
+
                 this.e_btn_create_folder = add_button(_, 'CREATE FOLDER');
+                this.e_btn_upload_file = add_button(_, 'UPLOAD FILE');
             }
         );
 
@@ -276,7 +278,8 @@ export class FileExplorer extends PanelContent
         this.OnStartLoading();
 
         FileExplorer.FetchFolderItems(
-            'ALG Internal', this.relative_path_current
+            'ALGInternal', 'ALGFileLibrary',
+            this.relative_path_current
         ).then(
             result => 
             {
@@ -337,14 +340,8 @@ export class FileExplorer extends PanelContent
         this.Navigate(parent_path);
     }
 
-    PopulateList(relative_path = '', items = [])
+    RefreshBackButton(relative_path = '')
     {
-        if (!items) return;
-        if (items.status == 404) return;
-
-        items.sort(FileExplorer.sort_name);
-        items.sort(FileExplorer.sort_type);
-
         let valid_parent = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
         if (valid_parent === true)
         {
@@ -368,6 +365,35 @@ export class FileExplorer extends PanelContent
             this.e_path_back.style.maxWidth = '0';
             this.e_path_back.innerHTML = '←';
         }
+    }
+
+    PopulateList(relative_path = '', items = [])
+    {
+        this.RefreshBackButton(relative_path);
+
+        if (!items) return;
+        if (items.status == 404)
+        {
+            addElement(
+                this.e_items_container, 'div', null,
+                'opacity:50%;height:2rem;line-height:2rem;padding:var(--gap-1);',
+                _ => { _.innerText = 'Folder not found!'; }
+            );
+            return;
+        }
+
+        if (items.length < 1)
+        {
+            addElement(
+                this.e_items_container, 'div', null,
+                'opacity:50%;height:2rem;line-height:2rem;padding:var(--gap-1);',
+                _ => { _.innerText = 'This folder is empty...'; }
+            );
+            return;
+        }
+
+        items.sort(FileExplorer.sort_name);
+        items.sort(FileExplorer.sort_type);
 
         for (let id in items)
         {
@@ -384,37 +410,45 @@ export class FileExplorer extends PanelContent
     }
 
     static site_id = ''; // cached id for the site where the file store lives
+    static site_id_valid = false;
     static drive_id = ''; // cached id for the root file store
+    static drive_id_valid = false;
 
-    static async ValidateDriveId(site_name = '')
+    static async ValidateSiteId(site_name = '')
     {
-        let drive_id_invalid = typeof FileExplorer.drive_id !== 'string' || FileExplorer.drive_id.length < 1;
-        let site_id_invalid = typeof FileExplorer.site_id !== 'string' || FileExplorer.site_id.length < 1;
-        if (drive_id_invalid || site_id_invalid)
-        {
-            if (site_id_invalid)
-            {
-                if (typeof site_name !== 'string' || site_name.length < 1) return;
-                FileExplorer.site_id = (await SharePoint.GetData(SharePoint.url_api + `/sites?search=${site_name}`)).value[0].id;
-            }
-
-            let drives = (await SharePoint.GetData(SharePoint.url_api + `/sites/${FileExplorer.site_id}/drives`)).value;
-            FileExplorer.drive_id = drives.filter(_ => _.name === 'ALGFileLibrary')[0].id;
-        }
+        FileExplorer.site_id_valid = typeof FileExplorer.site_id === 'string' && FileExplorer.site_id.length > 0;
+        if (FileExplorer.site_id_valid === true) return;
+        if (typeof site_name !== 'string' || site_name.length < 1) return;
+        let site_info = await SharePoint.GetData(SharePoint.url_api + `/sites/${SharePoint.web_name}:/sites/${site_name}`);
+        if ('id' in site_info) FileExplorer.site_id = site_info.id;
+        FileExplorer.site_id_valid = typeof FileExplorer.site_id === 'string' && FileExplorer.site_id.length > 0;
     }
 
-    static async FetchRootFolderId(site_name = '')
+    static async ValidateDriveId(site_name = '', drive_name = '')
+    {
+        await FileExplorer.ValidateSiteId(site_name);
+        if (FileExplorer.site_id_valid !== true) return;
+
+        FileExplorer.drive_id_valid = typeof FileExplorer.drive_id === 'string' && FileExplorer.drive_id.length > 0;
+        if (FileExplorer.drive_id_valid === true) return;
+
+        let drives = (await SharePoint.GetData(SharePoint.url_api + `/sites/${FileExplorer.site_id}/drives`)).value;
+        FileExplorer.drive_id = drives.filter(_ => _.name === drive_name)[0].id;
+        FileExplorer.drive_id_valid = typeof FileExplorer.drive_id === 'string' && FileExplorer.drive_id.length > 0;
+    }
+
+    static async FetchRootFolderId(site_name = '', drive_name = '')
     {
         await FileExplorer.ValidateDriveId(site_name);
         return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`)).value;
     }
 
-    static async FetchFolderItems(site_name = '', relative_path = '')
+    static async FetchFolderItems(site_name = '', drive_name = '', relative_path = '')
     {
         if (typeof relative_path === 'string' && relative_path.length > 0)
         {
             relative_path = encodeURIComponent(relative_path);
-            await FileExplorer.ValidateDriveId(site_name);
+            await FileExplorer.ValidateDriveId(site_name, drive_name);
             const fields = 'id,name,file,folder,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl';
             let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=${fields}`);
             if (resp && resp.value) return resp.value;
@@ -422,7 +456,7 @@ export class FileExplorer extends PanelContent
         }
         else 
         {
-            await FileExplorer.ValidateDriveId(site_name);
+            await FileExplorer.ValidateDriveId(site_name, drive_name);
             let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`);
             if (resp && resp.value) return resp.value;
             return resp;
