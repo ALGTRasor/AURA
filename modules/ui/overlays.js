@@ -1,6 +1,7 @@
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
+import { NotificationLog } from "../notificationlog.js";
 
 export class Overlay
 {
@@ -26,10 +27,16 @@ export class Overlay
     Create()
     {
         if (this.created) return;
+
         if (!OverlayManager.created_root) OverlayManager.TryFindRootElement();
         if (!OverlayManager.created_root) { DebugLog.Log('NO OVERLAY ROOT CREATED'); return; }
 
+        document.activeElement.blur();
+
         this.e_root = addElement(OverlayManager.e_overlays_root, 'div', 'overlay-root', '', _ => { });
+        this.e_root.tabIndex = 0;
+        this.e_root.focus();
+        this.e_root.addEventListener('click', _ => { _.stopPropagation(); _.preventDefault(); });
         if (this.createOverlay) this.createOverlay(this);
         this.created = true;
 
@@ -64,7 +71,14 @@ export class OverlayManager
     {
         if (OverlayManager.created_root) return;
         OverlayManager.e_overlays_root = addElement(document.body, 'div', 'overlays-root', '', _ => { _.id = 'overlays-root'; });
-        OverlayManager.e_overlays_root.addEventListener('click', _ => { OverlayManager.HideAll(true) });
+        OverlayManager.e_overlays_root.addEventListener(
+            'mousedown',
+            _ =>
+            {
+                if (document.activeElement == null || document.activeElement == document.body || document.activeElement == document.documentElement)
+                    OverlayManager.DismissOne();
+            }
+        );
         OverlayManager.created_root = true;
     }
 
@@ -107,13 +121,23 @@ export class OverlayManager
         OverlayManager.overlays.splice(existing_id, 1);
     }
 
+    static DismissOne()
+    {
+        let next_id = OverlayManager.overlays.findIndex(_ => _.dismissable === true);
+        if (next_id > -1)
+        {
+            let next_dismissable = OverlayManager.overlays.splice(next_id, 1)[0];
+            next_dismissable.Remove();
+        }
+    }
+
     static HideAll(dismissable_only = false)
     {
         if (dismissable_only)
         {
             let dismissables = OverlayManager.overlays.filter(_ => _.dismissable === true);
-            dismissables.forEach((x, i, a) => x.Remove());
             OverlayManager.overlays = OverlayManager.overlays.filter(_ => _.dismissable !== true);
+            dismissables.forEach((x, i, a) => x.Remove());
         }
         else
         {
@@ -130,8 +154,8 @@ export class OverlayManager
         let o = OverlayManager.ShowChoiceDialog(
             prompt,
             [
-                { label: label_deny, on_click: _ => { on_deny(); _.Remove(); }, color: '#fed' },
-                { label: label_confirm, on_click: _ => { on_confirm(); _.Remove(); }, color: '#dfe' }
+                { label: label_confirm, on_click: _ => { on_confirm(); _.Remove(); }, color: '#dfe' },
+                { label: label_deny, on_click: _ => { on_deny(); _.Remove(); }, color: '#fed' }
             ]
         );
         o.handleHotkeys = e =>
@@ -144,37 +168,58 @@ export class OverlayManager
         return o;
     }
 
-    static ShowChoiceDialog(prompt = 'Are you sure?', choices = [{ label: 'YES', on_click: _ => { }, color: '#fff' }])
+    static ShowChoiceDialog(prompt = 'Are you sure?', choices = [{ label: 'YES', on_click: _ => { }, color: '#fff' }], on_cancel = () => { })
     {
-        let o = new Overlay('choice', _ => { }, _ => { });
-        o.dismissable = choices.length < 2;
+        let o = new Overlay(
+            'choice', _ => { },
+            _ =>
+            {
+                if (o.submitted !== true) on_cancel();
+            }
+        );
+        o.dismissable = true;
+        o.submitted = false;
+
+        prompt = prompt.replace('((', '<span style="color:white;">');
+        prompt = prompt.replace('))', '</span>');
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-                + 'min-height:8rem; width:min(100% - 1rem, 28rem);'
+                + 'min-height:8rem; min-width:28rem; max-width:calc(100% - 1rem);'
                 + 'display:flex; flex-direction:column; flex-wrap:nowrap;'
                 + 'outline:solid 2px orange; outline-offset:4px;';
-            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px;';
+            const style_parts = 'flex-grow:1.0; flex-shrink:0.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px; padding:var(--gap-1);';
 
             let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
 
-            CreatePagePanel(e_body, true, false, style_parts + 'color:orange; padding:1.5rem; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
+            CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
             CreatePagePanel(
-                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:row; flex-wrap:nowrap;',
+                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
                 _ =>
                 {
                     for (let cid in choices)
                     {
                         let choice = choices[cid];
                         if (!choice) continue;
+
+                        if (choice.color.length < 1) choice.color = '#fff';
                         CreatePagePanel(
                             _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:0.5rem;',
                             _ =>
                             {
                                 _.innerHTML = choice.label;
                                 _.title = choice.label;
-                                _.className += ' panel-button';
-                                if (choice.on_click) _.addEventListener('click', e => choice.on_click(o));
+                                _.classList.add('panel-button');
+                                _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
+                                if (choice.on_click)
+                                    _.addEventListener(
+                                        'click',
+                                        e =>
+                                        {
+                                            o.submitted = true;
+                                            choice.on_click(o);
+                                        }
+                                    );
                             }
                         );
                     }
@@ -183,6 +228,64 @@ export class OverlayManager
         };
         OverlayManager.overlays.push(o);
         o.Create();
+        return o;
+    }
+
+    static ShowStringDialog(prompt = 'Enter Text', default_value = 'New Text', on_submit = text => { }, on_cancel = () => { })
+    {
+        let o = new Overlay('input-string', _ => { }, _ =>
+        {
+            if (o.submitted !== true) on_cancel();
+            else on_submit(o.e_input_txt.value);
+        });
+        o.submitted = false;
+        o.dismissable = true;
+        o.createOverlay = _ =>
+        {
+            const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
+                + 'min-height:6rem; min-width:28rem; max-width:calc(100% - 1rem);'
+                + 'display:flex; flex-direction:column; flex-wrap:nowrap;'
+                + 'outline:solid 2px orange; outline-offset:4px;';
+            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px; padding:var(--gap-1);';
+
+            let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
+
+            CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
+            CreatePagePanel(
+                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
+                _ =>
+                {
+                    o.e_input_txt = addElement(
+                        _, 'input', null, null,
+                        _ =>
+                        {
+                            _.type = 'text';
+                            _.value = default_value;
+                            _.placeholder = 'Enter text...';
+                            _.style.flexBasis = '3rem';
+
+                            _.addEventListener('mousedown', e => { e.stopPropagation(); _.focus(); });
+                        }
+                    );
+
+                    CreatePagePanel(
+                        _, false, false, style_parts + '--theme-color:#4f4; padding:var(--gap-05);',
+                        _ =>
+                        {
+                            _.title = 'SUBMIT';
+                            _.innerText = 'SUBMIT';
+                            _.style.flexBasis = '1.5rem';
+                            _.classList.add('panel-button');
+                            _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
+                            _.addEventListener('click', e => { o.submitted = true; OverlayManager.DismissOne(); });
+                        }
+                    );
+                }
+            );
+        };
+        OverlayManager.overlays.push(o);
+        o.Create();
+        o.e_input_txt.focus();
         return o;
     }
 }

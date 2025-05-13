@@ -1206,19 +1206,20 @@
 .file-explorer-item-info
 {
 	display: block;
-	opacity: 80%;
+	opacity: 70%;
 
 	min-width: fit-content;
 
 	margin: 0;
 	padding: 0;
+	padding-right: var(--gap-1);
 
 	align-content: center;
 	text-align: center;
-	font-size: 80%;
+	font-size: 75%;
 
 	text-transform: uppercase;
-	letter-spacing: 0.1rem;
+	letter-spacing: 1px;
 
 	transition-property: opacity, scale;
 	transition-duration: var(--trans-dur-off-fast);
@@ -1312,7 +1313,7 @@
 .file-explorer-folder
 {
 	cursor: pointer;
-	--theme-color: #c99a54;
+	--theme-color: #c09f6d;
 	padding: var(--gap-1);
 }
 

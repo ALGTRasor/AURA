@@ -430,17 +430,21 @@ div[valuechanged]
 	background-color: rgb(56, 56, 0) !important;
 }
 
-.page-root input[type="text"],
-.page-root input[type="textarea"]
+input[type="text"],
+input[type="textarea"]
 {
 	border: unset;
 	background-color: transparent;
 	outline: solid 1px transparent;
 	outline-offset: -1px;
+	padding-left: var(--gap-1);
+	letter-spacing: 1px;
+	font-weight: normal;
+	color: hsl(from var(--theme-color) h s 60%);
 }
 
-.page-root input[type="text"]::placeholder,
-.page-root input[type="textarea"]::placeholder
+input[type="text"]::placeholder,
+input[type="textarea"]::placeholder
 {
 	color: hsl(from var(--theme-color) h s 36%);
 	font-style: italic;
@@ -449,19 +453,19 @@ div[valuechanged]
 }
 
 
-.page-root input[type="text"][disabled],
-.page-root input[type="textarea"][disabled]
+input[type="text"][disabled],
+input[type="textarea"][disabled]
 {
 	pointer-events: none !important;
 	user-select: none !important;
 }
 
-.page-root input[type="text"]:not([disabled]):hover,
-.page-root input[type="text"]:focus,
-.page-root input[type="text"]:active,
-.page-root input[type="textarea"]:not([disabled]):hover,
-.page-root input[type="textarea"]:focus,
-.page-root input[type="textarea"]:active
+input[type="text"]:not([disabled]):hover,
+input[type="text"]:focus,
+input[type="text"]:active,
+input[type="textarea"]:not([disabled]):hover,
+input[type="textarea"]:focus,
+input[type="textarea"]:active
 {
 	color: white;
 	outline: solid white 1px !important;

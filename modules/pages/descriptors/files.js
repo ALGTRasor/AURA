@@ -41,10 +41,22 @@ export class PageFiles extends PageDescriptor
 		{
 			switch (instance.root_selector.selected_index)
 			{
-				case 0: instance.explorer.base_relative_path = 'Clients'; break;
-				case 1: instance.explorer.base_relative_path = 'ClientsArchive'; break;
-				case 2: instance.explorer.base_relative_path = DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id; break;
-				default: instance.explorer.base_relative_path = 'All Files'; break;
+				case 0:
+					instance.explorer.base_relative_path = 'Clients';
+					instance.explorer.show_folder_actions = false;
+					break;
+				case 1:
+					instance.explorer.base_relative_path = 'ClientsArchive';
+					instance.explorer.show_folder_actions = false;
+					break;
+				case 2:
+					instance.explorer.base_relative_path = DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id;
+					instance.explorer.show_folder_actions = true;
+					break;
+				default:
+					instance.explorer.base_relative_path = 'All Files';
+					instance.explorer.show_folder_actions = false;
+					break;
 			}
 			instance.explorer.Navigate();
 		};

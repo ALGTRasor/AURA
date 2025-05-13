@@ -96,6 +96,8 @@ export class UserDashboardDocs extends PanelContent
 
 		this.explorer = new FileExplorer(this.e_root);
 		this.explorer.base_relative_path = 'ALGUserDocs/HR/' + UserAccountInfo.account_info.user_id;
+		this.explorer.show_folder_actions = false;
+		this.explorer.show_navigation_bar = false;
 		this.explorer.CreateElements();
 	}
 	OnRefreshElements()
