@@ -1,4 +1,5 @@
 import "./modules/windowfxn.js";
+import "./modules/utils/stringutils.js";
 import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
 import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
@@ -268,6 +269,8 @@ async function OnAuraInit()
 		await AppEvents.onAccountLogin.InvokeAsync();
 
 		PopulateActionBarButtons();
+
+		window.addEventListener('keyup', HandleKeyUp);
 		RegisterHotkeys();
 
 		let should_restore_layout = UserAccountInfo.HasAppAccess() && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
@@ -282,7 +285,6 @@ async function OnAuraInit()
 		Welcome.ShowWelcomeMessage();
 
 		SetContentObscured(false);
-		window.addEventListener('keyup', HandleKeyUp);
 	}
 	else
 	{
@@ -304,44 +306,11 @@ function HandleKeyUp(e)
 	{
 		let o = OverlayManager.overlays[OverlayManager.overlays.length - 1];
 		if (o && o.handleHotkeys) o.handleHotkeys(e);
+		return;
 	}
-	else
-	{
-		Hotkeys.EvaluateKeyEvent(e);
-	}
+
+	Hotkeys.EvaluateKeyEvent(e);
 }
-
-
-
-
-function get_console_proxy_fxn(context, method)
-{
-	return function ()
-	{
-		let new_arguments = [].concat(Array.prototype.slice.apply(arguments));
-		DebugLog.Log(new_arguments.join(' '));
-		method.apply(context, new_arguments);
-	}
-}
-
-function SetErrorProxy() { console.error = get_console_proxy_fxn(console, console.error); }
-
-String.prototype.insert = function (index, string)
-{
-	if (index < 1) return string + this;
-	if (index >= this.length) return this + string;
-	return this.substring(0, index) + string + this.substring(index, this.length);
-};
-
-String.prototype.insertFromEnd = function (index, string)
-{
-	index = this.length - index;
-	if (index < 1) return string + this;
-	if (index >= this.length) return this + string;
-	return this.substring(0, index) + string + this.substring(index, this.length);
-};
-
-
 
 
 

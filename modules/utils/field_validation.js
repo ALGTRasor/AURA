@@ -1,6 +1,18 @@
+const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
+
 export class FieldValidation
 {
-    static registered = [];
+    static registered = [
+        { format_code: 'upper', validator: _ => _.toUpperCase() },
+        { format_code: 'lower', validator: _ => _.toLowerCase() },
+        { format_code: 'url', validator: FieldValidation.CheckUrl },
+        { format_code: 'phone', validator: FieldValidation.CheckPhone },
+        { format_code: 'email', validator: FieldValidation.CheckEmail },
+        { format_code: 'date', validator: FieldValidation.CheckDate },
+        { format_code: 'address', validator: FieldValidation.CheckAddress },
+        { format_code: 'object', validator: FieldValidation.CheckObject },
+        { format_code: 'list', validator: FieldValidation.CheckList },
+    ];
 
     static RegisterValidator(format_code = '', validator = _ => _)
     {
@@ -12,7 +24,7 @@ export class FieldValidation
         );
     }
 
-    static GetValidator(format = '')
+    static GetValidator(format = '', default_validator = _ => _)
     {
         for (let vid in FieldValidation.registered)
         {
@@ -20,16 +32,7 @@ export class FieldValidation
             if (v.format_code !== format) continue;
             return v.validator;
         }
-
-        switch (format)
-        {
-            case 'phone': return FieldValidation.CheckPhone;
-            case 'email': return FieldValidation.CheckEmail;
-            case 'date': return FieldValidation.CheckDate;
-            case 'object': return FieldValidation.CheckObject;
-            case 'list': return FieldValidation.CheckList;
-        }
-        return null;
+        return default_validator;
     }
 
     static CheckList(value)
@@ -39,6 +42,18 @@ export class FieldValidation
         let prop_count = 0;
         for (let propid in value) prop_count++;
         return `List with ${prop_count} items`;
+    }
+
+    static CheckAddress(value)
+    {
+        if (value && value.length > 0) value = `<a href='${url_maps}${encodeURI(value)}' target='_blank'>${value}</a>`;
+        return value;
+    }
+
+    static CheckUrl(value)
+    {
+        if (value && value.length > 0) value = `<a href='${value}' target='_blank'>${value}</a>`;
+        return value;
     }
 
     static CheckObject(value)
