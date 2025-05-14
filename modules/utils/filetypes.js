@@ -35,6 +35,7 @@ export class FileTypes
 		new FileType(['.jpg', '.jpeg'], 'JPG', '#fe0', 'This is a JP(E)G image, from the "Joint Photographic Experts Group"'),
 		new FileType(['.csv'], 'CSV', '#0ff', 'This is a CSV (Comma Separated Value) file', false),
 		new FileType(['.pdf'], 'PDF', '#f40', 'This is a PDF file, Adobe\'s Portable Document Format'),
+		new FileType(['.kml'], 'KML', '#3f4', 'This is a KML file, Google Earth\'s Keyhole Markup Language, used to store geographic annotation', false),
 		new FileType(['.kmz'], 'KMZ', '#3f4', 'This is a KMZ file, a compressed version of Google Earth\'s KML', false),
 		new FileType(['.docx', '.docm', '.doc'], 'Word', '#35f', 'This is a Word Document file'),
 		new FileType(['.xlsx', '.xls', '.xlsm'], 'Excel', '#6f6', 'This is an Excel Spreadsheet file'),

@@ -1,4 +1,5 @@
 import { DebugLog } from "../debuglog.js";
+import { Ripples } from "../ui/ripple.js";
 import { addElement } from "../utils/domutils.js";
 
 export class TitleBarButtonDescriptor
@@ -145,6 +146,7 @@ export class PageTitleBarButton
 								_.preventDefault();
 							}
 							this.InvokeAction(_);
+							Ripples.SpawnFromEvent(_);
 						}
 					}
 				);

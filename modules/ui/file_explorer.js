@@ -81,6 +81,22 @@ class FileExplorerItem
         this.e_root.remove();
     }
 
+    RequestDelete()
+    {
+        let url_post = `${SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
+        SharePoint.SetData(url_post, null, 'delete').then(
+            _ =>
+            {
+                if (_.status == 204) NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
+                else 
+                {
+                    if (_.status == 403 && this.item_type === 'folder') NotificationLog.Log('Could Not Delete folder: It must be empty first', '#fc0');
+                    else NotificationLog.Log(`Error While Deleting ${this.item_type}: ${this.item_info.name} ||| ${_.status}`, '#f50');
+                }
+                this.explorer.Navigate(this.explorer.relative_path_current);
+            }
+        );
+    }
 
     CreateItemButtons(buttons = [])
     {
@@ -217,7 +233,24 @@ class FileExplorerItem
                                 on_click: overlay =>
                                 {
                                     OverlayManager.ShowConfirmDialog(
-                                        _ => { },
+                                        _ =>
+                                        {
+                                            const min_byte_size_warning = 10240;
+                                            if (this.item_info.size < min_byte_size_warning)
+                                            {
+                                                this.RequestDelete();
+                                            }
+                                            else 
+                                            {
+                                                OverlayManager.ShowConfirmDialog(
+                                                    _ => this.RequestDelete(),
+                                                    _ => { NotificationLog.Log('Cancelled file deletion', '#fa0'); },
+                                                    'This file contains ((' + this.item_info.size + ')) bytes of data.',
+                                                    'CONFIRM - DELETE FILE',
+                                                    'CANCEL'
+                                                );
+                                            }
+                                        },
                                         _ => { NotificationLog.Log('Cancelled file deletion', '#fa0') },
                                         'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
                                         'YES',
@@ -313,44 +346,20 @@ class FileExplorerItem
                                     OverlayManager.ShowConfirmDialog(
                                         _ =>
                                         {
-                                            const do_delete = _ =>
+                                            const min_byte_size_warning = 10240;
+                                            if (this.item_info.size < min_byte_size_warning)
                                             {
-                                                let delete_drive_id = this.explorer.drive_id;
-                                                let delete_folder_id = this.item_info.id;
-
-                                                let url_post = SharePoint.url_api + `/drives/${delete_drive_id}/items/${delete_folder_id}`;
-                                                SharePoint.SetData(url_post, null, 'delete').then(
-                                                    _ =>
-                                                    {
-                                                        if (_.status == 204) NotificationLog.Log('Deleted folder: ' + this.item_info.name, '#0f0');
-                                                        else 
-                                                        {
-                                                            if (_.status == 403)
-                                                            {
-                                                                NotificationLog.Log('Could Not Delete folder: Folder has to be empty', '#fc0');
-
-                                                            }
-                                                            else
-                                                                NotificationLog.Log('Error While Deleting folder: ' + this.item_info.name + ' ||| ' + _.status, '#f50');
-                                                        }
-                                                        this.explorer.Navigate(this.explorer.relative_path_current);
-                                                    }
-                                                );
-                                            };
-
-                                            if (this.item_info.size > 10240)
+                                                this.RequestDelete();
+                                            }
+                                            else 
                                             {
                                                 OverlayManager.ShowConfirmDialog(
-                                                    do_delete,
+                                                    _ => this.RequestDelete(),
                                                     _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0'); },
                                                     'This folder contains ((' + this.item_info.size + ')) bytes of data.',
                                                     'CONFIRM - DELETE ALL',
                                                     'CANCEL'
                                                 );
-                                            }
-                                            else
-                                            {
-                                                do_delete(_);
                                             }
                                         },
                                         _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },

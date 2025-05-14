@@ -9,6 +9,7 @@ import { Timers } from "./modules/timers.js";
 import { AnimJob } from "./modules/AnimJob.js";
 import { Autosave } from "./modules/autosave.js";
 import { RunningTimeout } from "./modules/utils/running_timeout.js";
+import { Ripples } from "./modules/ui/ripple.js";
 
 import { DevMode } from "./modules/devmode.js";
 import { DebugLog } from "./modules/debuglog.js";
@@ -141,6 +142,8 @@ async function OnAuraInit()
 
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
+
+	document.body.addEventListener('click', _ => Ripples.SpawnFromEvent(_));
 
 	let e_action_bar = document.getElementById('action-bar');
 	e_action_bar.addEventListener('mouseenter', _ =>

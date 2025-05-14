@@ -81,6 +81,7 @@ const lskey_theme_contrast = 'theme-contrast';
 const lskey_theme_brightness = 'theme-brightness';
 const lskey_theme_light_mode = 'light-mode';
 const lskey_spotlight = 'spotlight';
+const lskey_ripples = 'ripples';
 const lskey_hide_sensitive = 'hide-sensitive-info';
 const lskey_limit_width = 'limit-content-width';
 const lskey_spacing = 'spacing';
@@ -173,6 +174,15 @@ GlobalStyling.spotlight = GlobalStyling.RegisterAspect(
     {
         let e_spotlight = document.getElementById('spotlight');
         if (e_spotlight) e_spotlight.style.display = _.enabled ? 'block' : 'none';
+        GlobalStyling.TriggerChangeEvents(false);
+    },
+);
+
+GlobalStyling.ripples = GlobalStyling.RegisterAspect(
+    _ => { _.enabled = UserSettings.GetOptionValue(lskey_ripples, false); },
+    _ => { UserSettings.SetOptionValue(lskey_ripples, _.enabled); },
+    _ =>
+    {
         GlobalStyling.TriggerChangeEvents(false);
     },
 );

@@ -231,11 +231,20 @@ export class PageSettings extends PageDescriptor
 				);
 
 				instance.e_toggle_spotlight = new SettingToggle(
-					x, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted aas you hover over them. Hover over an element for a moment to see the effect.',
+					x, 'spotlight', 'highlight', GlobalStyling.spotlight.enabled === true, () => 'Whether or not elements on the page will be highlighted as you hover over them. Hover over an element for a moment to see the effect.',
 					_ =>
 					{
 						GlobalStyling.spotlight.enabled = _.toggled === true;
 						GlobalStyling.spotlight.Apply(true);
+					}
+				);
+
+				instance.e_toggle_ripples = new SettingToggle(
+					x, 'ripples', 'water_drop', GlobalStyling.ripples.enabled === true, () => 'Whether or not ripples are created where you click.',
+					_ =>
+					{
+						GlobalStyling.ripples.enabled = _.toggled === true;
+						GlobalStyling.ripples.Apply(true);
 					}
 				);
 
@@ -265,6 +274,15 @@ export class PageSettings extends PageDescriptor
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'THEME'; });
 
 
+
+				instance.e_toggle_lightmode = new SettingToggle(
+					x, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
+					_ =>
+					{
+						GlobalStyling.lightMode.enabled = _.toggled === true;
+						GlobalStyling.lightMode.Apply(true);
+					}
+				);
 
 				instance.e_slider_themehue = new SettingSlider(
 					x, 'hue', 'palette', GlobalStyling.themeColor.hue, 0.01, () => 'UI theme hue',
@@ -320,15 +338,6 @@ export class PageSettings extends PageDescriptor
 
 
 
-
-				instance.e_toggle_lightmode = new SettingToggle(
-					x, 'light mode', 'invert_colors', GlobalStyling.lightMode.enabled === true, () => 'Toggle light mode',
-					_ =>
-					{
-						GlobalStyling.lightMode.enabled = _.toggled === true;
-						GlobalStyling.lightMode.Apply(true);
-					}
-				);
 
 
 

@@ -1207,7 +1207,7 @@
 {
 	display: block;
 	cursor: help;
-	opacity: 40%;
+	opacity: 70%;
 
 	min-width: fit-content;
 
@@ -1222,13 +1222,14 @@
 	text-transform: uppercase;
 	letter-spacing: 2px;
 
-	transition-property: opacity;
+	transition-property: opacity, padding-right;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
 }
 .file-explorer-item:hover .file-explorer-item-info
 {
-	opacity: 80%;
+	opacity: 95%;
+	padding-right: calc(2 * var(--gap-1));
 }
 .file-explorer-item-info span
 {
