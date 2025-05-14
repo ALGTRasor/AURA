@@ -32,7 +32,7 @@ export class PageFiles extends PageDescriptor
 			'display:flex;flex-direction:column;flex-wrap:nowrap;'
 		);
 
-		instance.explorer = new FileExplorer(instance.e_explorer_root);
+		instance.explorer = new FileExplorer(instance.e_explorer_root, 'ALGInternal', 'ALGFileLibrary');
 		instance.explorer.base_relative_path = 'Clients';
 		instance.explorer.autonavigate = false;
 		instance.explorer.CreateElements();
@@ -61,7 +61,7 @@ export class PageFiles extends PageDescriptor
 			instance.explorer.Navigate();
 		};
 		instance.sub_root_changed = instance.root_selector.afterSelectionChanged.RequestSubscription(OnRootChange);
-		instance.root_selector.SelectIndexAfterDelay(0, 500, true);
+		instance.root_selector.SelectIndexAfterDelay(0, 250, true);
 	}
 
 
@@ -74,9 +74,16 @@ export class PageFiles extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		let fixed_width = instance.state_data.docked === true && instance.state_data.expanding === false;
-		if (fixed_width === true) instance.e_frame.style.maxWidth = '32rem';
-		else instance.e_frame.style.maxWidth = '64rem';
+		if (instance.state_data.docked === true)
+		{
+			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
+			else instance.e_frame.style.maxWidth = '32rem';
+		}
+		else
+		{
+			instance.e_frame.style.maxWidth = 'unset';
+		}
+		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 333);
 	}
 }
 

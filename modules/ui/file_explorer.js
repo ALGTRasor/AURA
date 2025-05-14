@@ -1,10 +1,11 @@
-import { addElement, CreatePagePanel } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, setSiblingIndex } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
 import { SharePoint } from "../sharepoint.js";
 import { FileTypes } from "../utils/filetypes.js";
-import { Overlay, OverlayManager } from "./overlays.js";
+import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
+import { DebugLog } from "../debuglog.js";
 
 class FileExplorerItem
 {
@@ -122,13 +123,13 @@ class FileExplorerItem
                     {
                         if (item_type_info)
                         {
-                            _.innerHTML = item_type_info.label;
+                            _.innerText = item_type_info.label;
                             _.title = item_type_info.description;
                             _.style.backgroundColor = 'hsl(from ' + item_type_info.color + ' h 50% 25%)';
                             _.style.borderColor = 'hsl(from ' + item_type_info.color + ' h 50% 35%)';
                         }
                         else
-                            _.innerHTML = 'file';
+                            _.innerText = 'file';
                     }
                 );
             }
@@ -239,9 +240,9 @@ class FileExplorerItem
         if ('childCount' in this.item_info.folder) 
         {
             if (this.item_info.folder.childCount > 0)
-                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerHTML = this.item_info.folder.childCount + ' items' });
+                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerText = this.item_info.folder.childCount + ' items' });
             else
-                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerHTML = 'empty'; _.style.color = '#fa0'; });
+                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerText = 'empty'; _.style.color = '#fa0'; });
         }
         else _.style.setProperty('--theme-color', '#fa47');
 
@@ -309,18 +310,44 @@ class FileExplorerItem
                                     OverlayManager.ShowConfirmDialog(
                                         _ =>
                                         {
+                                            const do_delete = _ =>
+                                            {
+                                                let delete_drive_id = this.explorer.drive_id;
+                                                let delete_folder_id = this.item_info.id;
+
+                                                let url_post = SharePoint.url_api + `/drives/${delete_drive_id}/items/${delete_folder_id}`;
+                                                SharePoint.SetData(url_post, null, 'delete').then(
+                                                    _ =>
+                                                    {
+                                                        if (_.status == 204) NotificationLog.Log('Deleted folder: ' + this.item_info.name, '#0f0');
+                                                        else 
+                                                        {
+                                                            if (_.status == 403)
+                                                            {
+                                                                NotificationLog.Log('Could Not Delete folder: Folder has to be empty', '#fc0');
+
+                                                            }
+                                                            else
+                                                                NotificationLog.Log('Error While Deleting folder: ' + this.item_info.name + ' ||| ' + _.status, '#f50');
+                                                        }
+                                                        this.explorer.Navigate(this.explorer.relative_path_current);
+                                                    }
+                                                );
+                                            };
+
                                             if (this.item_info.size > 10240)
                                             {
                                                 OverlayManager.ShowConfirmDialog(
-                                                    _ =>
-                                                    {
-
-                                                    },
-                                                    _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },
+                                                    do_delete,
+                                                    _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0'); },
                                                     'This folder contains ((' + this.item_info.size + ')) bytes of data.',
                                                     'CONFIRM - DELETE ALL',
                                                     'CANCEL'
                                                 );
+                                            }
+                                            else
+                                            {
+                                                do_delete(_);
                                             }
                                         },
                                         _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },
@@ -342,13 +369,26 @@ class FileExplorerItem
 
 export class FileExplorer extends PanelContent
 {
-    static root_library_name = 'ALGFileLibrary';
+    site_name = 'ALGInternal';
+    drive_name = 'ALGFileLibrary';
+
+    site_id = ''; // cached id for the site where the file store lives
+    site_id_valid = false;
+    drive_id = ''; // cached id for the root file store
+    drive_id_valid = false;
 
     autonavigate = true;
     show_navigation_bar = true;
     show_folder_actions = true;
 
     current_items = [];
+
+    constructor(e_parent, site_name = '', drive_name = '')
+    {
+        super(e_parent);
+        if (typeof site_name === 'string' && site_name.length > 0) this.site_name = site_name;
+        if (typeof drive_name === 'string' && drive_name.length > 0) this.drive_name = drive_name;
+    }
 
     OnCreateElements()
     {
@@ -363,9 +403,36 @@ export class FileExplorer extends PanelContent
         this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
         //this.path_dirty = new RunningTimeout(() => { this.Navigate(''); }, 0.5, false, 150);
 
+        this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
+        this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
+
+        if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 330);
+    }
+
+    NavigateAfter(relative_path = '', delay = 250)
+    {
+        this.navigating = true;
+        window.setTimeout(
+            () =>
+            {
+                this.Navigate(relative_path);
+                this.navigating = false;
+            }, delay
+        );
+
+    }
+
+    RefreshNavigationBar()
+    {
         if (this.show_navigation_bar === true)
         {
+            if (this.e_path_root) 
+            {
+                this.RefreshBackButton();
+                return;
+            }
             this.e_path_root = CreatePagePanel(this.e_root, true, false, null, _ => _.classList.add('file-explorer-nav-bar'));
+            setSiblingIndex(this.e_path_root, 0);
 
             this.e_path_back = CreatePagePanel(this.e_path_root, false, false, null, _ => _.classList.add('file-explorer-nav-button'));
             this.e_path_back.addEventListener('click', e => { this.TryNavigateBack(this.relative_path_current); });
@@ -376,13 +443,19 @@ export class FileExplorer extends PanelContent
             this.e_path_back.style.maxWidth = '0';
 
             this.e_path_label = addElement(this.e_path_root, 'div', 'file-explorer-nav-path');
+
+            this.SetDisplayPath(this.relative_path_current);
         }
-
-        this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
-        this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
-
-
-        if (this.autonavigate === true) window.setTimeout(() => { this.Navigate(this.base_relative_path ?? ''); }, 250);
+        else
+        {
+            if (this.e_path_root)
+            {
+                this.e_path_root.remove();
+                this.e_path_root = undefined;
+                this.e_path_back = undefined;
+                this.e_path_label = undefined;
+            }
+        }
     }
 
     CreateFolderActionElements()
@@ -394,7 +467,7 @@ export class FileExplorer extends PanelContent
                 this.e_root, true, false, null,
                 _ =>
                 {
-                    const add_button = (_, label = '', tooltip = '', click_action = e => { }) =>
+                    const add_button = (_, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
                     {
                         return CreatePagePanel(
                             _, false, false, 'flex-grow:0.0;',
@@ -403,11 +476,15 @@ export class FileExplorer extends PanelContent
                                 if (click_action) _.addEventListener('click', click_action);
                                 _.innerText = label;
                                 _.title = tooltip;
+                                if (color && color.length > 0) _.style.setProperty('--theme-color', color);
                                 _.style.minWidth = '8rem';
                                 _.style.minHeight = '1.5rem';
+                                _.style.paddingLeft = '1.5rem';
                                 _.style.textAlign = 'center';
                                 _.style.alignContent = 'center';
                                 _.classList.add('panel-button');
+
+                                if (icon && icon.length > 0) addElement(_, 'i', 'material-icons', 'position:absolute;left:0.5rem;top:50%;transform:translate(0%,-50%);opacity:40%', _ => { _.innerText = icon; });
                             }
                         );
                     };
@@ -415,12 +492,13 @@ export class FileExplorer extends PanelContent
 
 
                     add_button(
-                        _, 'CREATE FOLDER', 'Create a new folder within the current folder.',
+                        _, 'CREATE FOLDER', 'Create a new folder within the current folder.', 'create_new_folder', '#c09f6d',
                         _ => { this.TryCreateNewFolder(); }
                     );
-                    add_button(_, 'UPLOAD FILE', 'Upload a file to the current folder.');
+                    add_button(_, 'UPLOAD FILE', 'Upload a file to the current folder.', 'upload', '#4ef');
                 }
             );
+            setSiblingIndex(this.e_folder_actions_root, 1);
         }
         else
         {
@@ -435,11 +513,10 @@ export class FileExplorer extends PanelContent
 
     TryCreateNewFolder()
     {
-        const create_sp_folder = async (relative_path, folder_name) =>
+        const create_sp_folder = async (folder_name) =>
         {
-            if (FileExplorer.drive_id_valid !== true) return undefined;
-            //relative_path = encodeURIComponent(relative_path);
-            let url_post = SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children`;
+            if (this.drive_id_valid !== true) return undefined;
+            let url_post = SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
             let data_post = { name: folder_name, folder: {} };
             data_post['@microsoft.graph.conflictBehavior'] = 'rename';
             return await SharePoint.SetData(url_post, data_post, 'post');
@@ -453,10 +530,7 @@ export class FileExplorer extends PanelContent
                 if (folder_name.length > 0)
                 {
                     this.OnStartLoading();
-                    create_sp_folder(
-                        this.relative_path_current,
-                        folder_name
-                    ).then(
+                    create_sp_folder(folder_name).then(
                         resp =>
                         {
                             if (!resp)
@@ -513,31 +587,28 @@ export class FileExplorer extends PanelContent
 
         if (this.e_path_label)
         {
-            let path_html = FileExplorer.root_library_name + '/' + relative_path;
+            let path_html = this.drive_name + '/' + relative_path;
             path_html = path_html.split('/').filter(_ => _.length > 0).map(highlight_last).join('/');
+
             this.e_path_label.innerHTML = path_html;
-            this.e_path_label.title = (FileExplorer.root_library_name + '/' + relative_path).split('/').filter(_ => _.length > 0).join(' / ');
+            this.e_path_label.title = (this.drive_name + '/' + relative_path).split('/').filter(_ => _.length > 0).join(' / ');
         }
     }
 
     Navigate(relative_path)
     {
-        if (typeof relative_path !== 'string' || relative_path.length < 1)
-            relative_path = this.base_relative_path ?? '';
+        let base_path = typeof this.base_relative_path === 'string' ? this.base_relative_path : '';
+        if (typeof relative_path !== 'string' || relative_path.length < 1) relative_path = base_path ?? '';
 
         this.relative_path_current = relative_path;
-
-        this.SetDisplayPath(this.relative_path_current);
 
         this.e_items_container.innerHTML = '';
         this.OnStartLoading();
 
-        FileExplorer.FetchFolderItems(
-            'ALGInternal', 'ALGFileLibrary',
-            this.relative_path_current
-        ).then(
+        this.FetchFolderItems().then(
             result => 
             {
+                this.SetDisplayPath(this.relative_path_current);
                 if (result)
                 {
                     if (result.status == 404)
@@ -547,7 +618,7 @@ export class FileExplorer extends PanelContent
                     }
                     else
                     {
-                        this.PopulateList(this.relative_path_current, result);
+                        this.PopulateList(result);
                         this.OnStopLoading();
                     }
                 }
@@ -604,14 +675,15 @@ export class FileExplorer extends PanelContent
         this.Navigate(parent_path);
     }
 
-    RefreshBackButton(relative_path = '')
+    RefreshBackButton()
     {
-        if (!this.e_path_label) return;
+        if (!this.e_path_back) return;
 
-        let valid_parent = typeof relative_path === 'string' && relative_path.length > (typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0);
+        let base_path_length = typeof this.base_relative_path === 'string' ? this.base_relative_path.length : 0;
+        let valid_parent = typeof this.relative_path_current === 'string' && this.relative_path_current.length > base_path_length;
         if (valid_parent === true)
         {
-            let parent_path_parts = relative_path.split('/');
+            let parent_path_parts = this.relative_path_current.split('/');
             parent_path_parts.splice(parent_path_parts.length - 1, 1);
             let parent_name = parent_path_parts.splice(parent_path_parts.length - 1, 1);
 
@@ -633,9 +705,9 @@ export class FileExplorer extends PanelContent
         }
     }
 
-    PopulateList(relative_path = '', items = [])
+    PopulateList(items = [])
     {
-        this.RefreshBackButton(relative_path);
+        this.RefreshNavigationBar();
         this.CreateFolderActionElements();
 
         if (!items) return;
@@ -661,55 +733,50 @@ export class FileExplorer extends PanelContent
         }
     }
 
-    static site_id = ''; // cached id for the site where the file store lives
-    static site_id_valid = false;
-    static drive_id = ''; // cached id for the root file store
-    static drive_id_valid = false;
-
-    static async ValidateSiteId(site_name = '')
+    async ValidateSiteId()
     {
-        FileExplorer.site_id_valid = typeof FileExplorer.site_id === 'string' && FileExplorer.site_id.length > 0;
-        if (FileExplorer.site_id_valid === true) return;
-        if (typeof site_name !== 'string' || site_name.length < 1) return;
-        let site_info = await SharePoint.GetData(SharePoint.url_api + `/sites/${SharePoint.web_name}:/sites/${site_name}`);
-        if ('id' in site_info) FileExplorer.site_id = site_info.id;
-        FileExplorer.site_id_valid = typeof FileExplorer.site_id === 'string' && FileExplorer.site_id.length > 0;
+        this.site_id_valid = typeof this.site_id === 'string' && this.site_id.length > 0;
+        if (this.site_id_valid === true) return;
+        if (typeof this.site_name !== 'string' || this.site_name.length < 1) return;
+        let site_info = await SharePoint.GetData(SharePoint.url_api + `/sites/${SharePoint.web_name}:/sites/${this.site_name}`);
+        if ('id' in site_info) this.site_id = site_info.id;
+        this.site_id_valid = typeof this.site_id === 'string' && this.site_id.length > 0;
     }
 
-    static async ValidateDriveId(site_name = '', drive_name = '')
+    async ValidateDriveId()
     {
-        await FileExplorer.ValidateSiteId(site_name);
-        if (FileExplorer.site_id_valid !== true) return;
+        await this.ValidateSiteId(this.site_name);
+        if (this.site_id_valid !== true) return;
 
-        FileExplorer.drive_id_valid = typeof FileExplorer.drive_id === 'string' && FileExplorer.drive_id.length > 0;
-        if (FileExplorer.drive_id_valid === true) return;
+        this.drive_id_valid = typeof this.drive_id === 'string' && this.drive_id.length > 0;
+        if (this.drive_id_valid === true) return;
 
-        let drives = (await SharePoint.GetData(SharePoint.url_api + `/sites/${FileExplorer.site_id}/drives`)).value;
-        FileExplorer.drive_id = drives.filter(_ => _.name === drive_name)[0].id;
-        FileExplorer.drive_id_valid = typeof FileExplorer.drive_id === 'string' && FileExplorer.drive_id.length > 0;
+        let drives = (await SharePoint.GetData(SharePoint.url_api + `/sites/${this.site_id}/drives`)).value;
+        this.drive_id = drives.filter(_ => _.name === this.drive_name)[0].id;
+        this.drive_id_valid = typeof this.drive_id === 'string' && this.drive_id.length > 0;
     }
 
-    static async FetchRootFolderId(site_name = '', drive_name = '')
+    async FetchRootFolderId()
     {
-        await FileExplorer.ValidateDriveId(site_name);
-        return (await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`)).value;
+        await this.ValidateDriveId(this.site_name);
+        return (await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root/children`)).value;
     }
 
-    static async FetchFolderItems(site_name = '', drive_name = '', relative_path = '')
+    async FetchFolderItems()
     {
-        if (typeof relative_path === 'string' && relative_path.length > 0)
+        if (typeof this.relative_path_current === 'string' && this.relative_path_current.length > 0)
         {
-            relative_path = encodeURIComponent(relative_path);
-            await FileExplorer.ValidateDriveId(site_name, drive_name);
+            let relative_path_encoded = encodeURIComponent(this.relative_path_current);
+            await this.ValidateDriveId();
             const fields = 'id,name,file,folder,size,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl';
-            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root:/${relative_path}:/children?select=${fields}`);
+            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root:/${relative_path_encoded}:/children?select=${fields}`);
             if (resp && resp.value) return resp.value;
             return resp;
         }
         else 
         {
-            await FileExplorer.ValidateDriveId(site_name, drive_name);
-            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${FileExplorer.drive_id}/root/children`);
+            await this.ValidateDriveId();
+            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root/children`);
             if (resp && resp.value) return resp.value;
             return resp;
         }

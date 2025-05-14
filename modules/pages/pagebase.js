@@ -208,7 +208,7 @@ export class PageInstance
 		this.state_data.expanding = this.state_data.expanding !== true;
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 		this.UpdateBodyTransform();
-		PageManager.onLayoutChange.Invoke();
+		this.ApplyFrameState(true);
 	}
 
 	CloseInstance() { this.page_descriptor.CloseInstance(this); }

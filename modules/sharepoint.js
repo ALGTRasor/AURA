@@ -237,22 +237,25 @@ export class SharePoint
 
 	static async SetData(url, data = {}, method = 'patch')
 	{
-		let headers =
-		{
-			'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
-			'Content-Type': 'application/json'
-		};
-
 		if (data)
 		{
+			let headers =
+			{
+				'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
+				'Content-Type': 'application/json'
+			};
 			let resp = await fetch(url, { method: method, headers: headers, body: JSON.stringify(data) });
 			if (resp.status >= 200 && resp.status <= 230) return await resp.json();
 			return resp;
 		}
 		else
 		{
+			let headers =
+			{
+				'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token
+			};
 			let resp = await fetch(url, { method: method, headers: headers });
-			if (resp.status >= 200 && resp.status <= 230) return await resp.json();
+			if (resp.status >= 200 && resp.status <= 203) return await resp.json();
 			return resp;
 		}
 	}

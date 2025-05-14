@@ -1,7 +1,6 @@
+import { Modules } from "../modules.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { Modules } from "../modules.js";
-import { NotificationLog } from "../notificationlog.js";
 
 export class Overlay
 {
@@ -34,8 +33,6 @@ export class Overlay
         document.activeElement.blur();
 
         this.e_root = addElement(OverlayManager.e_overlays_root, 'div', 'overlay-root', '', _ => { });
-        this.e_root.tabIndex = 0;
-        this.e_root.focus();
         this.e_root.addEventListener('click', _ => { _.stopPropagation(); _.preventDefault(); });
         if (this.createOverlay) this.createOverlay(this);
         this.created = true;
@@ -71,6 +68,7 @@ export class OverlayManager
     {
         if (OverlayManager.created_root) return;
         OverlayManager.e_overlays_root = addElement(document.body, 'div', 'overlays-root', '', _ => { _.id = 'overlays-root'; });
+        OverlayManager.e_overlays_root.title = 'Click to dismiss popup';
         OverlayManager.e_overlays_root.addEventListener(
             'mousedown',
             _ =>
@@ -185,12 +183,14 @@ export class OverlayManager
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-                + 'min-height:8rem; min-width:28rem; max-width:calc(100% - 1rem);'
-                + 'display:flex; flex-direction:column; flex-wrap:nowrap;'
-                + 'outline:solid 2px orange; outline-offset:4px;';
-            const style_parts = 'flex-grow:1.0; flex-shrink:0.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px; padding:var(--gap-1);';
+                + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
+                + 'display:flex; flex-direction:column; flex-wrap:nowrap;';
+            const style_parts = 'flex-grow:1.0; flex-shrink:0.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1);';
 
             let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
+            e_body.tabIndex = 0;
+            e_body.focus();
+            e_body.addEventListener('mousedown', e => { e.stopPropagation(); e_body.focus(); });
 
             CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
             CreatePagePanel(
@@ -204,7 +204,7 @@ export class OverlayManager
 
                         if (choice.color.length < 1) choice.color = '#fff';
                         CreatePagePanel(
-                            _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:0.5rem;',
+                            _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:var(--gap-1);',
                             _ =>
                             {
                                 _.innerHTML = choice.label;
@@ -238,17 +238,20 @@ export class OverlayManager
             if (o.submitted !== true) on_cancel();
             else on_submit(o.e_input_txt.value);
         });
+        o.original_value = default_value;
         o.submitted = false;
         o.dismissable = true;
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-                + 'min-height:6rem; min-width:28rem; max-width:calc(100% - 1rem);'
-                + 'display:flex; flex-direction:column; flex-wrap:nowrap;'
-                + 'outline:solid 2px orange; outline-offset:4px;';
-            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:1rem; letter-spacing:2px; padding:var(--gap-1);';
+                + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
+                + 'display:flex; flex-direction:column; flex-wrap:nowrap;';
+            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1);';
 
             let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
+            e_body.addEventListener('mousedown', e => { e.stopPropagation(); e_body.focus(); });
+            e_body.tabIndex = 0;
+            e_body.focus();
 
             CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
             CreatePagePanel(
@@ -263,15 +266,28 @@ export class OverlayManager
                             _.value = default_value;
                             _.placeholder = 'Enter text...';
                             _.style.flexBasis = '3rem';
+                            _.style.padding = 'var(--gap-025)';
+                            _.style.paddingLeft = 'calc(var(--gap-1) + 0.5rem)';
 
                             _.addEventListener('mousedown', e => { e.stopPropagation(); _.focus(); });
+                            _.addEventListener(
+                                'keyup',
+                                e =>
+                                {
+                                    o.e_btn_submit.classList.remove('panel-button-disabled');
+                                    let valtrimmed = _.value.trim();
+                                    if (valtrimmed.length < 1) o.e_btn_submit.classList.add('panel-button-disabled');
+                                    else if (valtrimmed === o.original_value) o.e_btn_submit.classList.add('panel-button-disabled');
+                                }
+                            );
                         }
                     );
 
-                    CreatePagePanel(
+                    o.e_btn_submit = CreatePagePanel(
                         _, false, false, style_parts + '--theme-color:#4f4; padding:var(--gap-05);',
                         _ =>
                         {
+                            _.classList.add('panel-button-disabled');
                             _.title = 'SUBMIT';
                             _.innerText = 'SUBMIT';
                             _.style.flexBasis = '1.5rem';

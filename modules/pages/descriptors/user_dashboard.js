@@ -94,7 +94,7 @@ export class UserDashboardDocs extends PanelContent
 		this.e_root = CreatePagePanel(this.e_parent, true, false);
 		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'Documents');
 
-		this.explorer = new FileExplorer(this.e_root);
+		this.explorer = new FileExplorer(this.e_root, 'ALGInternal', 'ALGFileLibrary');
 		this.explorer.base_relative_path = 'ALGUserDocs/HR/' + UserAccountInfo.account_info.user_id;
 		this.explorer.show_folder_actions = false;
 		this.explorer.show_navigation_bar = false;

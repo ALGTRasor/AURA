@@ -482,9 +482,28 @@ input[type="textarea"]:active
 	position: absolute;
 	inset: 0;
 
-	backdrop-filter: blur(6px) contrast(70%) brightness(70%);
+	backdrop-filter: blur(2px) contrast(90%) brightness(80%);
 	z-index: 110000;
 
 	transition-property: opacity;
-	transition-duration: var(--trans-dur-off-slow);
+	transition-duration: var(--trans-dur-on-slow);
+}
+
+.overlay-root > .page-panel
+{
+	outline: solid 2px #aaa5;
+	outline-offset: 0px;
+	scale: 90%;
+	transform-origin: 0% 0%;
+
+	transition-property: scale, outline-offset;
+	transition-duration: var(--trans-dur-on-slow);
+	transition-timing-function: ease;
+}
+.overlay-root > .page-panel:focus,
+.overlay-root > .page-panel:focus-within
+{
+	outline: solid 2px orange;
+	outline-offset: 4px;
+	scale: 100%;
 }

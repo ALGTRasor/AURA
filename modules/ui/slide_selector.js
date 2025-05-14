@@ -8,6 +8,7 @@ export class SlideSelector
     e_items = [];
     disabled = false;
     selected_index = -1;
+    fixed_widths = true;
     afterSelectionChanged = new EventSource();
 
     constructor()
@@ -96,7 +97,7 @@ export class SlideSelector
 
     SelectIndex(index = 0, force_change = false)
     {
-        if (typeof index !== 'number') index = Number.parseInt(index);
+        if (typeof index === 'string') index = Number.parseInt(index);
         if (this.CanSkipSelection(index, force_change) === true) return;
 
         this.selected_index = index;
@@ -169,7 +170,8 @@ export class SlideSelector
                 x.style.padding = 'calc(var(--gap-025) + 4px)';
                 x.style.alignContent = 'center';
                 x.style.textAlign = 'center';
-                x.style.minWidth = '6rem';
+                x.style.minWidth = '0';
+                if (this.fixed_widths === true) x.style.flexBasis = '0%';
                 x.addEventListener('click', _ => { on_click(_); this.SelectIndex(id, false); });
             }
         );
