@@ -1,7 +1,7 @@
 import { AccountUser } from "../../datamodels/account_user.js";
 import { HrRequest } from "../../datamodels/hr_request.js";
 import { InternalUser } from "../../datamodels/internal_user.js";
-import { SharedData } from "../../datashared.js";
+import { SharedData } from "../../remotedata/datashared.js";
 import { DebugLog } from "../../debuglog.js";
 import { PageManager } from "../../pagemanager.js";
 import { RecordFormUtils } from "../../ui/recordform.js";
@@ -12,7 +12,6 @@ import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.j
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
-import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 import { FileExplorer } from "../../ui/file_explorer.js";
 
 

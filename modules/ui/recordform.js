@@ -1,9 +1,9 @@
-import { DataFieldDesc } from "../datamodels/datafield_desc.js";
-import { SharedData } from "../datashared.js";
+import { Modules } from "../modules.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { Modules } from "../modules.js";
 import { FieldValidation } from "../utils/field_validation.js";
+import { DataFieldDesc } from "../datamodels/datafield_desc.js";
+import { SharedData } from "../remotedata/datashared.js";
 
 const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
 const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';

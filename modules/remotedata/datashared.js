@@ -1,13 +1,13 @@
-import { Modules } from "./modules.js";
-import { DebugLog } from "./debuglog.js";
-import { AppInfo } from "./app_info.js";
-import { AppEvents } from "./appevents.js";
-import { Timers } from "./timers.js";
-import { EventSource } from "./eventsource.js";
-import { DBLayer } from "./dblayer.js";
+import { Modules } from "../modules.js";
+import { DebugLog } from "../debuglog.js";
+import { AppInfo } from "../app_info.js";
+import { AppEvents } from "../appevents.js";
+import { Timers } from "../timers.js";
+import { EventSource } from "../eventsource.js";
 import { DataSource, DataSourceInstance } from "./datasource.js";
-import { NotificationLog } from "./notificationlog.js";
-import { UserAccountInfo } from "./useraccount.js";
+import { NotificationLog } from "../notificationlog.js";
+import { UserAccountInfo } from "../useraccount.js";
+import { FieldValidation } from "../utils/field_validation.js";
 
 
 export class SharedDataTable
@@ -109,6 +109,7 @@ export class SharedData
 				SharedData.loaded = true;
 				SharedData.loading = false;
 
+				await AppEvents.onDataReloaded.InvokeAsync();
 				await SharedData.onLoaded.InvokeAsync();
 				await SharedData.onLoadedFromCache.InvokeAsync();
 				return;
@@ -125,10 +126,10 @@ export class SharedData
 			if (useCache === true) DebugLog.Log('fetching ' + table.key);
 			table.instance.ClearData();
 
-			DBLayer.GetRecords(table);
+			window.DBLayer.GetRecords(table);
 		}
 
-		await DBLayer.WaitAllRequests();
+		await window.DBLayer.WaitAllRequests();
 
 		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();
@@ -141,6 +142,7 @@ export class SharedData
 		SharedData.loading = false;
 		SharedData.loaded = true;
 
+		await AppEvents.onDataReloaded.InvokeAsync();
 		await SharedData.onLoaded.InvokeAsync();
 		await SharedData.onDownloaded.InvokeAsync();
 	}
@@ -263,8 +265,26 @@ export class SharedData
 	static GetTimekeepEventData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepEvents, id, 'user_id'); }
 	static GetTimekeepStatusData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, id); }
 	static GetAURALinksData(id = '') { return SharedData.GetSharedDatum(SharedData.auraLinks, id); }
+
+
+
+
+
+
+	static Validator_Roles(raw = '')
+	{
+		const getRoleString = (role_key = '') =>
+		{
+			let role_info = SharedData.GetRoleData(role_key)[0];
+			if (role_info) return role_info.role_name_short;
+			return role_key;
+		};
+
+		return raw.split(';').map(getRoleString).join(', ');
+	}
 }
 
 SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(() => { SharedData.LoadData(true) });
+FieldValidation.RegisterValidator('role', SharedData.Validator_Roles);
 
 Modules.Report('Shared Data', `This module acts as an entrypoint for any aspect of ${AppInfo.name} which need access to shared online data.`);

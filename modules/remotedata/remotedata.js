@@ -1,5 +1,3 @@
-import { Modules } from "./modules.js";
-
 export class RemoteDataUsage
 {
 	static bytesDownloaded = 0;

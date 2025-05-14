@@ -1,7 +1,7 @@
 import { addElement, CreatePagePanel, setSiblingIndex } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
-import { SharePoint } from "../sharepoint.js";
+import { SharePoint } from "../remotedata/sharepoint.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";

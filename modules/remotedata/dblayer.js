@@ -1,5 +1,5 @@
+import { Modules } from "../modules.js";
 import { DBConfig } from "./dbconfig.js";
-import { Modules } from "./modules.js";
 
 export class DBLayer
 {

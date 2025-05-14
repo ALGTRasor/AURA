@@ -1,4 +1,3 @@
-import { SharedData } from "../../datashared.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { ExternalContactList } from "../../ui/panel_external_contact_list.js";
@@ -31,17 +30,17 @@ export class PageDemoPanel extends PageDescriptor
 		const demos = [
 			{
 				name: 'PROJECT LIST',
-				onCreate: () => CreateDemoElements(new ProjectList(SharedData.projects.instance.data.slice(0, 7))),
+				onCreate: () => CreateDemoElements(new ProjectList(window.SharedData.projects.instance.data.slice(0, 7))),
 				onRemove: RemoveDemoElements
 			},
 			{
 				name: 'INTERNAL USER',
-				onCreate: () => CreateDemoElements(new InternalUserList(SharedData.users.instance.data.slice(0, 7))),
+				onCreate: () => CreateDemoElements(new InternalUserList(window.SharedData.users.instance.data.slice(0, 7))),
 				onRemove: RemoveDemoElements
 			},
 			{
 				name: 'EXTERNAL CONTACT',
-				onCreate: () => CreateDemoElements(new ExternalContactList(SharedData.contacts.instance.data.slice(0, 7))),
+				onCreate: () => CreateDemoElements(new ExternalContactList(window.SharedData.contacts.instance.data.slice(0, 7))),
 				onRemove: RemoveDemoElements
 			},
 		];

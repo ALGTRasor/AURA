@@ -1,19 +1,18 @@
-import { Modules } from "./modules.js";
-import { DebugLog } from "./debuglog.js";
-import { DBLayer } from "./dblayer.js";
+import { Modules } from "../modules.js";
+import { DebugLog } from "../debuglog.js";
 
-import { ExternalContact } from "./datamodels/external_contact.js";
-import { Permission } from "./datamodels/user_permission.js";
-import { InternalUser } from "./datamodels/internal_user.js";
-import { Role } from "./datamodels/role.js";
-import { Team } from "./datamodels/team.js";
-import { TaskData } from "./datamodels/task_data.js";
-import { ProjectCoreData } from "./datamodels/project_data_core.js";
-import { HrRequest } from "./datamodels/hr_request.js";
-import { TimekeepEvent, TimekeepStatus } from "./datamodels/timekeep.js";
-import { DataTableDesc } from "./datamodels/datatable_desc.js";
-import { AURALink } from "./datamodels/aura_link.js";
-import { UserAllocation } from "./datamodels/user_allocation.js";
+import { ExternalContact } from "../datamodels/external_contact.js";
+import { Permission } from "../datamodels/user_permission.js";
+import { InternalUser } from "../datamodels/internal_user.js";
+import { Role } from "../datamodels/role.js";
+import { Team } from "../datamodels/team.js";
+import { TaskData } from "../datamodels/task_data.js";
+import { ProjectCoreData } from "../datamodels/project_data_core.js";
+import { HrRequest } from "../datamodels/hr_request.js";
+import { TimekeepEvent, TimekeepStatus } from "../datamodels/timekeep.js";
+import { DataTableDesc } from "../datamodels/datatable_desc.js";
+import { AURALink } from "../datamodels/aura_link.js";
+import { UserAllocation } from "../datamodels/user_allocation.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -48,7 +47,7 @@ export class DataSource
 		this.view_filter = view_filter;
 	}
 
-	async GetData() { return await DBLayer.GetRecords(this); }
+	async GetData() { return await window.DBLayer.GetRecords(this); }
 }
 
 // class used to manage data obtained from a DataSource

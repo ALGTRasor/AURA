@@ -1,4 +1,3 @@
-import { DBLayer } from "../../dblayer.js";
 import { PageManager } from "../../pagemanager.js";
 import { FileExplorer } from "../../ui/file_explorer.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
@@ -51,7 +50,7 @@ export class PageFiles extends PageDescriptor
 					instance.explorer.show_folder_actions = false;
 					break;
 				case 3:
-					instance.explorer.base_relative_path = DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id;
+					instance.explorer.base_relative_path = window.DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id;
 					instance.explorer.show_folder_actions = true;
 					break;
 				default:

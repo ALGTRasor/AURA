@@ -87,6 +87,7 @@ export class PageManager
 
 	static RegisterPage(page = PageDescriptor.Nothing, hotkey = '', hotkey_description = '')
 	{
+		if (DevMode.active === true) console.info('registered page: ' + page.title);
 		PageManager.page_descriptors.push(page);
 
 		if (typeof hotkey === 'string' && hotkey.length > 0)

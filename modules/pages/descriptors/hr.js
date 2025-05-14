@@ -1,5 +1,5 @@
 import { HrRequest } from "../../datamodels/hr_request.js";
-import { SharedData } from "../../datashared.js";
+import { SharedData } from "../../remotedata/datashared.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { RecordFormUtils } from "../../ui/recordform.js";

@@ -10,6 +10,7 @@ export class AppEvents
 	static onAccountLoginFailed = new EventSource();
 
 	static onSaveSettings = new EventSource();
+	static onDataReloaded = new EventSource();
 
 	static onAuthorizationFailure = new EventSource();
 

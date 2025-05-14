@@ -1,6 +1,5 @@
-import { ProjectCoreData } from "../../datamodels/project_data_core.js";
 import { ProjectData } from "../../datamodels/project_data.js";
-import { SharedData } from "../../datashared.js";
+import { SharedData } from "../../remotedata/datashared.js";
 import { DebugLog } from "../../debuglog.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";

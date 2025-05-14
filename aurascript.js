@@ -1,5 +1,4 @@
 import "./modules/windowfxn.js";
-import "./modules/remotedata.js";
 import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
 import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
@@ -23,32 +22,48 @@ import { OverlayManager } from "./modules/ui/overlays.js";
 import { PageManager } from "./modules/pagemanager.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
-import { DBLayer } from "./modules/dblayer.js";
-import { SharedData } from "./modules/datashared.js";
-import { DB_SharePoint } from "./modules/sharepoint.js";
 import { Fax } from "./modules/fax.js";
 
+async function ImportDataModules()
+{
+	console.info('importing remote data modules');
 
+	const { DBLayer } = await import('./modules/remotedata/dblayer.js');
+	window.DBLayer = DBLayer;
 
-import './modules/pages/descriptors/user_dashboard.js';
-import './modules/pages/descriptors/help.js';
-import './modules/pages/descriptors/home.js';
-import './modules/pages/descriptors/settings.js';
-import './modules/pages/descriptors/files.js';
-import './modules/pages/descriptors/pdf_view.js';
-import './modules/pages/descriptors/directory.js';
-import './modules/pages/descriptors/internal_users.js';
-import './modules/pages/descriptors/external_contacts.js';
-import './modules/pages/descriptors/project_hub.js';
-import './modules/pages/descriptors/task_hub.js';
-import './modules/pages/descriptors/contact_logs.js';
-import './modules/pages/descriptors/scratchpad.js';
-import './modules/pages/descriptors/timekeep.js';
-import './modules/pages/descriptors/hr.js';
-import './modules/pages/descriptors/database_probe.js';
-import './modules/pages/descriptors/external_links.js';
-import './modules/pages/descriptors/demo_panel.js';
-import './modules/pages/descriptors/map.js';
+	const { SharedData } = await import('./modules/remotedata/datashared.js');
+	window.SharedData = SharedData;
+
+	const { RequestBatch, RequestBatchRequest, SharePoint, DB_SharePoint } = await import('./modules/remotedata/sharepoint.js');
+	window.RequestBatch = RequestBatch;
+	window.RequestBatchRequest = RequestBatchRequest;
+	window.SharePoint = SharePoint;
+	window.DB_SharePoint = DB_SharePoint;
+}
+
+async function ImportPageModules()
+{
+	console.info('importing page modules');
+	await import('./modules/pages/descriptors/home.js');
+	await import('./modules/pages/descriptors/settings.js');
+	await import('./modules/pages/descriptors/user_dashboard.js');
+	await import('./modules/pages/descriptors/help.js');
+	await import('./modules/pages/descriptors/files.js');
+	await import('./modules/pages/descriptors/pdf_view.js');
+	await import('./modules/pages/descriptors/directory.js');
+	await import('./modules/pages/descriptors/internal_users.js');
+	await import('./modules/pages/descriptors/external_contacts.js');
+	await import('./modules/pages/descriptors/project_hub.js');
+	await import('./modules/pages/descriptors/task_hub.js');
+	await import('./modules/pages/descriptors/contact_logs.js');
+	await import('./modules/pages/descriptors/scratchpad.js');
+	await import('./modules/pages/descriptors/timekeep.js');
+	await import('./modules/pages/descriptors/database_probe.js');
+	await import('./modules/pages/descriptors/external_links.js');
+	await import('./modules/pages/descriptors/demo_panel.js');
+	await import('./modules/pages/descriptors/map.js');
+	await import('./modules/pages/descriptors/hr.js');
+}
 
 
 
@@ -97,7 +112,6 @@ function SetContentObscured(enabled = true, label = '...')
 	e_content_obscurer.style.display = window.content_obscured ? 'block' : 'none';
 	if (label) e_content_obscurer.innerText = label;
 }
-function ToggleContentObscured() { SetContentObscured(window.content_obscured !== true); }
 
 function SetContentFaded(enabled = true)
 {
@@ -109,20 +123,19 @@ function SetContentFaded(enabled = true)
 	e_content_root.classList.remove('obscured-light');
 	if (window.content_faded === true) e_content_root.classList.add('obscured-light');
 }
-function ToggleContentFaded() { SetContentFaded(window.content_faded !== true); }
 
 
 function RegisterHotkeys()
 {
 	if (!UserAccountInfo.HasAppAccess()) return;
 
-	const hkaction_lightmode = (m, e) => { if (m.none) ToggleLightMode(); };
-	const hkinfo_lightmode = { key_description: '~', action_description: 'Toggle Light Mode' };
-	Hotkeys.Register(new HotkeyDescriptor('`', hkaction_lightmode, hkinfo_lightmode));
-
 	const hkaction_save = (m, e) => { if (m.ctrl) Autosave.InvokeNow(); };
 	const hkinfo_save = { key_description: 'ctrl﹢s', action_description: 'Save Settings' };
 	Hotkeys.Register(new HotkeyDescriptor('s', hkaction_save, hkinfo_save));
+
+	const hkaction_lightmode = (m, e) => { if (m.none) ToggleLightMode(); };
+	const hkinfo_lightmode = { key_description: '~', action_description: 'Toggle Light Mode' };
+	Hotkeys.Register(new HotkeyDescriptor('`', hkaction_lightmode, hkinfo_lightmode));
 
 	const hkaction_debuglog = (m, e) => { if (m.none) ToggleDebugLog(); };
 	const hkinfo_debuglog = { action_description: 'Toggle Debug Log', dev_only: true };
@@ -132,46 +145,8 @@ function RegisterHotkeys()
 }
 
 
-
-
-async function OnAuraInit()
+function CheckSpoofing()
 {
-	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
-	window.loop_detectWindowSizeChange = new AnimJob(100, CheckWindowSizeChanged);
-	window.loop_detectWindowSizeChange.Start();
-
-	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
-	window.e_content_root = document.getElementById('content-body');
-
-	document.body.addEventListener('click', _ => Ripples.SpawnFromEvent(_));
-
-	let e_action_bar = document.getElementById('action-bar');
-	e_action_bar.addEventListener('mouseenter', _ =>
-	{
-		if (PageManager.pages_being_dragged > 0) return;
-		SetContentFaded(true);
-	});
-	e_action_bar.addEventListener('mouseleave', _ => { SetContentFaded(false); });
-
-	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
-	window.e_account_profile_picture.style.display = 'none';
-
-	SetErrorProxy();
-
-	NotificationLog.Create();
-	NotificationLog.Log('Initializing');
-
-	window.args = {};
-	let q = window.location.search.substring(1).split('&');
-	for (let x in q)
-	{
-		let str = q[x];
-		let id_eq = str.indexOf('=');
-		let k = str.substring(0, id_eq);
-		let v = str.substring(id_eq + 1);
-		window.args[k] = v;
-	}
-
 	const sdanger = { user_id: 's.danger', display_name: 'Stranger Danger', mail: 's.danger@evil.corp' };
 	window.spoof_data = {};
 	if ('spoof-id' in window.args)
@@ -183,7 +158,89 @@ async function OnAuraInit()
 	if ('spoof-name' in window.args) window.spoof_data.display_name = window.args['spoof-name'];
 	if ('spoof-mail' in window.args) window.spoof_data.mail = window.args['spoof-mail'];
 	//window.spoof_data = sdanger;
+}
 
+function PrepareActionBar()
+{
+	let e_action_bar = document.getElementById('action-bar');
+	e_action_bar.addEventListener('mouseenter', _ =>
+	{
+		if (PageManager.pages_being_dragged > 0) return;
+		SetContentFaded(true);
+	});
+	e_action_bar.addEventListener('mouseleave', _ => { SetContentFaded(false); });
+
+	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
+	window.e_account_profile_picture.style.display = 'none';
+}
+
+function CheckWindowArgs()
+{
+	window.args = {};
+	let q = window.location.search.substring(1).split('&');
+	for (let x in q)
+	{
+		let str = q[x];
+		let id_eq = str.indexOf('=');
+		let k = str.substring(0, id_eq);
+		let v = str.substring(id_eq + 1);
+		window.args[k] = v;
+	}
+}
+
+function PrepareDocument()
+{
+	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
+	window.loop_detectWindowSizeChange = new AnimJob(200, CheckWindowSizeChanged);
+	window.loop_detectWindowSizeChange.Start();
+
+	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
+	window.e_content_root = document.getElementById('content-body');
+}
+
+function PopulateActionBarButtons()
+{
+	ActionBar.AddMenuButton(
+		'settings', 'settings',
+		_ => PageManager.OpenPageByTitle('settings'),
+		_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
+	);
+
+	if (UserAccountInfo.HasAppAccess())
+	{
+		ActionBar.AddMenuButton(
+			'refresh', 'refresh',
+			_ =>
+			{
+				OverlayManager.ShowConfirmDialog(
+					_ => { RequestSharedDataRefresh(); },
+					_ => { },
+					'Refresh all shared data?<br><br>'
+					+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
+					'[Y]ES',
+					'[N]o'
+				)
+			},
+			_ =>
+			{
+				_.title = 'Refresh all Shared Data.'
+					+ '\nShared Data does include all company, client, and employee related data.'
+					+ '\nShared Data does not include local app settings.'
+					+ '\nRefreshing Shared Data might take several seconds to complete.';
+			}
+		);
+		ActionBar.AddMenuButton('home', 'menu', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
+	}
+}
+
+async function OnAuraInit()
+{
+	CheckWindowArgs();
+	PrepareDocument();
+	PrepareActionBar();
+	CheckSpoofing();
+
+	NotificationLog.Create();
 	NotificationLog.Log('Loading Settings');
 	UserSettings.LoadFromStorage();
 	GlobalStyling.Load();
@@ -195,50 +252,22 @@ async function OnAuraInit()
 
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
 	{
-		DBLayer.config = new DB_SharePoint();
-		await DBLayer.Initialize();
+		await ImportPageModules();
+		await ImportDataModules();
 
-		NotificationLog.Log('Downloading User Info');
+		document.body.addEventListener('click', _ => Ripples.SpawnFromEvent(_));
+
+		window.DBLayer.config = new window.DB_SharePoint();
+		await window.DBLayer.Initialize();
+
 		await UserAccountInfo.DownloadUserInfo();
 
 		window.e_account_profile_picture.style.display = 'block';
 
 		await CheckIdentity();
-
-		ActionBar.AddMenuButton(
-			'settings', 'settings',
-			_ => PageManager.OpenPageByTitle('settings'),
-			_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
-		);
-
 		await AppEvents.onAccountLogin.InvokeAsync();
 
-		if (UserAccountInfo.HasAppAccess())
-		{
-			ActionBar.AddMenuButton(
-				'refresh', 'refresh',
-				_ =>
-				{
-					OverlayManager.ShowConfirmDialog(
-						_ => { RequestSharedDataRefresh(); },
-						_ => { },
-						'Refresh all shared data?<br><br>'
-						+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
-						'[Y]ES',
-						'[N]o'
-					)
-				},
-				_ =>
-				{
-					_.title = 'Refresh all Shared Data.'
-						+ '\nShared Data does include all company, client, and employee related data.'
-						+ '\nShared Data does not include local app settings.'
-						+ '\nRefreshing Shared Data might take several seconds to complete.';
-				}
-			);
-			ActionBar.AddMenuButton('home', 'menu', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
-		}
-
+		PopulateActionBarButtons();
 		RegisterHotkeys();
 
 		let should_restore_layout = UserAccountInfo.HasAppAccess() && UserSettings.GetOptionValue('pagemanager-restore-layout', true);

@@ -1,13 +1,11 @@
-
 import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PageDescriptor } from "../pagebase.js";
 import { PanelContent } from "../../ui/panel_content.js";
-import { SharedData } from "../../datashared.js";
+import { SharedData } from "../../remotedata/datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
-import { HotkeyDescriptor, Hotkeys } from "../../utils/hotkeys.js";
 
 const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); overflow: hidden auto;';
 

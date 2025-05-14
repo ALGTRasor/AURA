@@ -1,15 +1,31 @@
-import { SharedData } from "../datashared.js";
-
 export class FieldValidation
 {
+    static registered = [];
+
+    static RegisterValidator(format_code = '', validator = _ => _)
+    {
+        FieldValidation.registered.push(
+            {
+                format_code: format_code,
+                validator: validator
+            }
+        );
+    }
+
     static GetValidator(format = '')
     {
+        for (let vid in FieldValidation.registered)
+        {
+            let v = FieldValidation.registered[vid];
+            if (v.format_code !== format) continue;
+            return v.validator;
+        }
+
         switch (format)
         {
             case 'phone': return FieldValidation.CheckPhone;
             case 'email': return FieldValidation.CheckEmail;
             case 'date': return FieldValidation.CheckDate;
-            case 'role': return FieldValidation.CheckRoles;
             case 'object': return FieldValidation.CheckObject;
             case 'list': return FieldValidation.CheckList;
         }
@@ -137,17 +153,5 @@ export class FieldValidation
         y = y.padStart(4, '19');
 
         return `${y}-${m}-${d}`;
-    }
-
-    static CheckRoles(raw = '')
-    {
-        const getRoleString = (role_key = '') =>
-        {
-            let role_info = SharedData.GetRoleData(role_key)[0];
-            if (role_info) return role_info.role_name_short;
-            return role_key;
-        };
-
-        return raw.split(';').map(getRoleString).join(', ');
     }
 }
