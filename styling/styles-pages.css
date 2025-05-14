@@ -382,6 +382,7 @@
 .page-panel.inset-box
 {
 	border: none;
+	box-shadow: none;
 	background-color: hsl(from var(--theme-color) h s 12%);
 }
 

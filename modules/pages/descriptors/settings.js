@@ -190,6 +190,7 @@ export class PageSettings extends PageDescriptor
 		instance.e_frame.style.maxWidth = '32rem';
 		instance.e_frame.style.flexBasis = '12rem';
 		instance.e_frame.style.flexGrow = '1.0';
+		instance.e_content.style.gap = 'var(--gap-025)';
 
 
 		// toggle section

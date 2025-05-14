@@ -5,7 +5,6 @@ import { SharePoint } from "../sharepoint.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
-import { DebugLog } from "../debuglog.js";
 
 class FileExplorerItem
 {
@@ -17,8 +16,10 @@ class FileExplorerItem
         this.tooltips = [];
 
         this.DetermineFileType();
-        this.AddTimestampTooltip('createdBy', 'createdDateTime');
-        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime');
+        this.tooltips.push(this.item_type.toUpperCase());
+        this.tooltips.push(this.item_info.name);
+        this.AddTimestampTooltip('createdBy', 'createdDateTime', 'Created');
+        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'Modified');
     }
 
     DetermineFileType()
@@ -28,7 +29,7 @@ class FileExplorerItem
         if ('file' in this.item_info) this.item_type = 'file';
     }
 
-    AddTimestampTooltip(user_property = 'by', date_property = 'dateTime')
+    AddTimestampTooltip(user_property = 'by', date_property = 'dateTime', verb = 'Changed')
     {
         let hasUser = user_property in this.item_info;
         let hasDate = date_property in this.item_info;
@@ -37,15 +38,15 @@ class FileExplorerItem
 
         if (hasUser && hasDate)
         {
-            this.tooltips.push(`Created by ${valUser.user.displayName} @ ${new Date(valDate).toLocaleString()}`);
+            this.tooltips.push(`${verb} by ${valUser.user.displayName} @ ${new Date(valDate).toLocaleString()}`);
         }
         else if (hasUser && !hasDate)
         {
-            this.tooltips.push(`Created by ${valUser.user.displayName}`);
+            this.tooltips.push(`${verb} by ${valUser.user.displayName}`);
         }
         else if (!hasUser && hasDate)
         {
-            this.tooltips.push(`Created @ ${new Date(valDate).toLocaleString()}`);
+            this.tooltips.push(`${verb} @ ${new Date(valDate).toLocaleString()}`);
         }
     }
 
@@ -71,6 +72,8 @@ class FileExplorerItem
             case 'folder': this.CreateFolderElements(); break;
             case 'bundle': this.CreateFolderElements(); break;
         }
+
+        this.e_root.title = this.tooltips.join('\n');
     }
 
     RemoveElements()
@@ -139,7 +142,7 @@ class FileExplorerItem
 
         buttons.push(
             {
-                label: 'Download File:\n' + this.item_info.name,
+                label: 'Download File',
                 icon: 'download',
                 click_action: e =>
                 {
@@ -153,7 +156,7 @@ class FileExplorerItem
         {
             buttons.push(
                 {
-                    label: 'View File Online:\n' + this.item_info.name,
+                    label: 'View File Online',
                     icon: 'open_in_new',
                     click_action: e => window.open(this.item_info.webUrl, '_blank')
                 }
@@ -163,7 +166,7 @@ class FileExplorerItem
         buttons.push(
             {
                 label: 'More Options',
-                icon: 'more',
+                icon: 'more_horiz',
                 click_action: e =>
                 {
                     OverlayManager.ShowChoiceDialog(
@@ -262,7 +265,7 @@ class FileExplorerItem
         buttons.push(
             {
                 label: 'More Options',
-                icon: 'more',
+                icon: 'more_horiz',
                 click_action: e =>
                 {
                     OverlayManager.ShowChoiceDialog(
