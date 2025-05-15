@@ -137,7 +137,7 @@ class PanelUserAllocationList extends PanelContent
 
 		this.e_actions = CreatePagePanel(this.e_parent, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
-			this.e_actions, false, false, 'align-content:center;text-align:center;max-width:20rem;',
+			this.e_actions, false, false, 'align-content:center;text-align:center;max-width:12rem;',
 			_ =>
 			{
 				_.classList.add('panel-button');
