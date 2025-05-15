@@ -1,4 +1,3 @@
-import { DebugLog } from "../debuglog.js";
 import { CreatePagePanel } from "../utils/domutils.js";
 import { FieldValidation } from "../utils/field_validation.js";
 import { PanelBase } from "./panel_base.js";
@@ -11,7 +10,7 @@ export class RecordSummaryPanelBase extends PanelBase
 	GetRecordTitle() { return this.record[this.GetRecordTitleField()]; }
 
 	fields_created = false;
-	///<summary>array of FieldValuePanel</summary>
+	/// Array of FieldValuePanel
 	fields = {};
 
 	// + overrides section
@@ -27,15 +26,11 @@ export class RecordSummaryPanelBase extends PanelBase
 
 	OnCreate()
 	{
-		const style_root = 'display:flex; min-width:24rem; min-height:8rem; flex-direction:column; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:1.0; height:fit-content;';
-		const style_title = 'height:1.5rem; line-height:1.5rem; flex-basis:1.5rem; flex-grow:0.0; flex-shrink:0.0; padding-left:2rem; text-align:left; font-weight:bold; letter-spacing:1px;';
-		const style_field_block = 'display:flex; flex-basis:100%; flex-wrap:nowrap; flex-direction:column; padding:2px; gap:3px; align-content:stretch; flex-shrink:0.0; overflow-y:visible;';
-
 		this.e_root = CreatePagePanel(this.e_parent, false, false, '', _ => { _.className += ' record-summary-root'; });
 		this.e_title = CreatePagePanel(this.e_root, true, false, '', _ => { _.className += ' record-summary-title'; });
-		this.e_title.innerHTML = this.GetRecordTitle();
 		this.e_block = CreatePagePanel(this.e_root, true, false, '', _ => { _.className += ' record-summary-fields'; });
 
+		this.e_title.innerHTML = this.GetRecordTitle();
 		this.color_og_title = this.e_title.style.color;
 
 		this.fields = {};

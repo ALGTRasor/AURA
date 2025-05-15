@@ -64,6 +64,7 @@ async function ImportPageModules()
 	await import('./modules/pages/descriptors/demo_panel.js');
 	await import('./modules/pages/descriptors/map.js');
 	await import('./modules/pages/descriptors/hr.js');
+	await import('./modules/pages/descriptors/user_allocations.js');
 }
 
 

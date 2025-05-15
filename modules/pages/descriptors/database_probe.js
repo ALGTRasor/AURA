@@ -1,9 +1,9 @@
-import { SharedData } from "../../remotedata/datashared.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
 import { RecordFormUtils } from "../../ui/recordform.js";
+import { AppEvents } from "../../appevents.js";
 
 export class DatabaseProbe extends PageDescriptor
 {
@@ -31,9 +31,9 @@ export class DatabaseProbe extends PageDescriptor
 	CreateTableButtons(instance)
 	{
 		instance.e_table_buttons.innerHTML = '';
-		for (var sdi in SharedData.all_tables)
+		for (var sdi in window.SharedData.all_tables)
 		{
-			let sd = SharedData.all_tables[sdi];
+			let sd = window.SharedData.all_tables[sdi];
 			CreatePagePanel(
 				instance.e_table_buttons, false, false, 'padding:0.5rem;text-align:center;align-content:center;',
 				x =>
@@ -112,12 +112,12 @@ export class DatabaseProbe extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.sub_sharedDataCached = SharedData.onSavedToCache.RequestSubscription(_ => { this.RefeshTablesData(instance); });
+		instance.sub_sharedDataCached = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefeshTablesData(instance); });
 	}
 
 	OnClose(instance)
 	{
-		SharedData.onSavedToCache.RemoveSubscription(instance.sub_sharedDataCached);
+		AppEvents.onDataReloaded.RemoveSubscription(instance.sub_sharedDataCached);
 	}
 
 	RefeshTablesData(instance)

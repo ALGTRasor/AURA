@@ -71,7 +71,7 @@ export class SharedData
 	static UpdateDataSourceFilters()
 	{
 		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
-		DataSource.UserAllocations.view_filter = user_id_filter('user_id');
+		//DataSource.UserAllocations.view_filter = user_id_filter('user_id');
 		DataSource.TimekeepEvents.view_filter = user_id_filter('user_id');
 		DataSource.TimekeepStatuses.view_filter = user_id_filter('Title');
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;

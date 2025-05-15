@@ -5,9 +5,29 @@ import { until } from "./until.js";
 export function addElement(parent = {}, tag = 'div', className = '', style = '', prep = e => { })
 {
     let e = document.createElement((tag && tag.length > 0) ? tag : 'div');
-    if (className && className.length > 0) e.className = className;
+    if (className) 
+    {
+        if (typeof className === 'string' && className.length > 0)
+        {
+            e.className = className;
+        }
+        else if (typeof className === 'Array')
+        {
+            for (let cid in className) e.classList.add(className[cid]);
+        }
+    }
     if (style && style.length > 0) e.style = style;
-    if (prep) prep(e);
+
+    if (prep)
+    {
+        if (typeof prep === 'string' && prep.length > 0)
+        {
+            e.innerText = prep;
+            e.title = prep;
+        }
+        else if (typeof prep === 'function') prep(e);
+    }
+
     if (parent && parent.appendChild) parent.appendChild(e);
     return e;
 };

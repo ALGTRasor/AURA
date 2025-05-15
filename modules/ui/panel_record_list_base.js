@@ -1,4 +1,3 @@
-import { DebugLog } from "../debuglog.js";
 import { addElement } from "../utils/domutils.js";
 import { PanelBase } from "./panel_base.js";
 
