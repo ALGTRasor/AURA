@@ -1,7 +1,6 @@
 import { addElement, CreatePagePanel, setSiblingIndex } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
-import { SharePoint } from "../remotedata/sharepoint.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
@@ -83,8 +82,8 @@ class FileExplorerItem
 
     RequestDelete()
     {
-        let url_post = `${SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
-        SharePoint.SetData(url_post, null, 'delete').then(
+        let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
+        window.SharePoint.SetData(url_post, null, 'delete').then(
             _ =>
             {
                 if (_.status == 204) NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
@@ -96,6 +95,39 @@ class FileExplorerItem
                 this.explorer.Navigate(this.explorer.relative_path_current);
             }
         );
+    }
+
+    RequestRename()
+    {
+        if (this.explorer.drive_id_valid !== true) return undefined;
+        OverlayManager.ShowStringDialog(
+            'Rename ' + this.item_type,
+            this.item_info.name,
+            new_name =>
+            {
+                let body = {
+                    name: new_name
+                };
+                let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
+                window.SharePoint.SetData(url_post, body, 'put').then(
+                    _ =>
+                    {
+                        if ('status' in _)
+                        {
+                            NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
+                        }
+                        else
+                        {
+                            NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
+                            this.explorer.Navigate(this.explorer.relative_path_current);
+                        }
+                    }
+                );
+            },
+            () => { NotificationLog.Log(`Cancelled ${this.item_type} Rename`, '#fa0'); }
+        );
+
+
     }
 
     CreateItemButtons(buttons = [])
@@ -193,12 +225,7 @@ class FileExplorerItem
                                 color: '#0af',
                                 on_click: overlay =>
                                 {
-                                    OverlayManager.ShowStringDialog(
-                                        'Rename File',
-                                        this.item_info.name,
-                                        new_name => { },
-                                        () => { NotificationLog.Log('Cancelled File Rename', '#fa0'); }
-                                    );
+                                    this.RequestRename();
                                     overlay.Remove();
                                 }
                             },
@@ -309,12 +336,7 @@ class FileExplorerItem
                                 color: '#0af',
                                 on_click: overlay =>
                                 {
-                                    OverlayManager.ShowStringDialog(
-                                        'Rename Folder',
-                                        this.item_info.name,
-                                        new_name => { },
-                                        () => { NotificationLog.Log('Cancelled Folder Rename', '#fa0'); }
-                                    );
+                                    this.RequestRename();
                                     overlay.Remove();
                                 }
                             },
@@ -505,7 +527,7 @@ export class FileExplorer extends PanelContent
 
                     add_button(
                         _, 'CREATE FOLDER', 'Create a new folder within the current folder.', 'create_new_folder', '#c09f6d',
-                        _ => { this.TryCreateNewFolder(); }
+                        _ => { this.RequestCreateFolder(); }
                     );
                     add_button(_, 'UPLOAD FILE', 'Upload a file to the current folder.', 'upload', '#4ef');
                 }
@@ -523,17 +545,17 @@ export class FileExplorer extends PanelContent
     OnRefreshElements() { }
     OnRemoveElements() { this.e_root.remove(); }
 
-    TryCreateNewFolder()
+    async CreateFolderInRelativePath(name)
     {
-        const create_sp_folder = async (folder_name) =>
-        {
-            if (this.drive_id_valid !== true) return undefined;
-            let url_post = SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
-            let data_post = { name: folder_name, folder: {} };
-            data_post['@microsoft.graph.conflictBehavior'] = 'rename';
-            return await SharePoint.SetData(url_post, data_post, 'post');
-        };
+        if (this.drive_id_valid !== true) return undefined;
+        let url_post = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
+        let data_post = { name: name, folder: {} };
+        data_post['@microsoft.graph.conflictBehavior'] = 'rename';
+        return await window.SharePoint.SetData(url_post, data_post, 'post');
+    }
 
+    RequestCreateFolder()
+    {
         OverlayManager.ShowStringDialog(
             'New Folder Name', '',
             folder_name =>
@@ -542,7 +564,7 @@ export class FileExplorer extends PanelContent
                 if (folder_name.length > 0)
                 {
                     this.OnStartLoading();
-                    create_sp_folder(folder_name).then(
+                    this.CreateFolderInRelativePath(folder_name).then(
                         resp =>
                         {
                             if (!resp)
@@ -750,7 +772,7 @@ export class FileExplorer extends PanelContent
         this.site_id_valid = typeof this.site_id === 'string' && this.site_id.length > 0;
         if (this.site_id_valid === true) return;
         if (typeof this.site_name !== 'string' || this.site_name.length < 1) return;
-        let site_info = await SharePoint.GetData(SharePoint.url_api + `/sites/${SharePoint.web_name}:/sites/${this.site_name}`);
+        let site_info = await window.SharePoint.GetData(window.SharePoint.url_api + `/sites/${window.SharePoint.web_name}:/sites/${this.site_name}`);
         if ('id' in site_info) this.site_id = site_info.id;
         this.site_id_valid = typeof this.site_id === 'string' && this.site_id.length > 0;
     }
@@ -763,7 +785,7 @@ export class FileExplorer extends PanelContent
         this.drive_id_valid = typeof this.drive_id === 'string' && this.drive_id.length > 0;
         if (this.drive_id_valid === true) return;
 
-        let drives = (await SharePoint.GetData(SharePoint.url_api + `/sites/${this.site_id}/drives`)).value;
+        let drives = (await window.SharePoint.GetData(window.SharePoint.url_api + `/sites/${this.site_id}/drives`)).value;
         this.drive_id = drives.filter(_ => _.name === this.drive_name)[0].id;
         this.drive_id_valid = typeof this.drive_id === 'string' && this.drive_id.length > 0;
     }
@@ -771,7 +793,7 @@ export class FileExplorer extends PanelContent
     async FetchRootFolderId()
     {
         await this.ValidateDriveId(this.site_name);
-        return (await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root/children`)).value;
+        return (await window.SharePoint.GetData(window.SharePoint.url_api + `/drives/${this.drive_id}/root/children`)).value;
     }
 
     async FetchFolderItems()
@@ -781,14 +803,14 @@ export class FileExplorer extends PanelContent
             let relative_path_encoded = encodeURIComponent(this.relative_path_current);
             await this.ValidateDriveId();
             const fields = 'id,name,file,folder,size,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl';
-            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root:/${relative_path_encoded}:/children?select=${fields}`);
+            let resp = await window.SharePoint.GetData(window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${relative_path_encoded}:/children?select=${fields}`);
             if (resp && resp.value) return resp.value;
             return resp;
         }
         else 
         {
             await this.ValidateDriveId();
-            let resp = await SharePoint.GetData(SharePoint.url_api + `/drives/${this.drive_id}/root/children`);
+            let resp = await window.SharePoint.GetData(window.SharePoint.url_api + `/drives/${this.drive_id}/root/children`);
             if (resp && resp.value) return resp.value;
             return resp;
         }

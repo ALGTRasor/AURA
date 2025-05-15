@@ -28,6 +28,7 @@ export class FileTypes
 {
 	static known = [
 		new FileType(['.txt'], 'TXT', '#0f0', 'This is a plain text file'),
+		new FileType(['.zip'], 'ZIP', '#ffc', 'This is a ZIP archive, a compressed grouping of folders or files', false),
 		new FileType(['.xml'], 'XML', '#fcf', 'This is an XML (Extensible Markup Language) file', false),
 		new FileType(['.msg'], 'MSG', '#ffc', 'This is an MSG file, Outlook\'s format for storing emails, messages, tasks, appointments, etc', false),
 		new FileType(['.eml'], 'EML', '#ffc', 'This is an EML file, a plain text format for storing email messages and their details, contents, and attachments', false),

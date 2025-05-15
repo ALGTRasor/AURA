@@ -9,7 +9,9 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageProjectHub extends PageDescriptor
 {
-	GetTitle() { return 'project hub'; }
+	title = 'project hub';
+	order_index = -5;
+
 	OnCreateElements(instance)
 	{
 		if (!instance) return;

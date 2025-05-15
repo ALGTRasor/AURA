@@ -233,7 +233,7 @@ export class SharePoint
 
 
 
-	static async SetData(url, data = {}, method = 'patch')
+	static async SetData(url, data = {}, method = 'post')
 	{
 		if (data)
 		{

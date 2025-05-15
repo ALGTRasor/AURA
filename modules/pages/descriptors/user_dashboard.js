@@ -123,6 +123,7 @@ export class PageMyData extends PageDescriptor
 {
 	title = 'my data';
 	icon = 'person';
+	order_index = 5;
 
 	OnCreateElements(instance)
 	{

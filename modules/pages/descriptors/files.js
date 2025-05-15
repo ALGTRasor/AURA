@@ -8,6 +8,7 @@ import { PageDescriptor } from "../pagebase.js";
 export class PageFiles extends PageDescriptor
 {
 	title = 'files';
+	order_index = 4;
 
 	OnCreateElements(instance)
 	{
@@ -23,7 +24,7 @@ export class PageFiles extends PageDescriptor
 				{ label: 'ALL' },
 				{ label: 'ACTIVE' },
 				{ label: 'ARCHIVE' },
-				{ label: 'MY UPLOADS' }
+				{ label: 'USER' }
 			]
 		);
 

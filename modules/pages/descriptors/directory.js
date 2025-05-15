@@ -88,6 +88,7 @@ export class PageDirectory extends PageDescriptor
 {
 	title = 'directory';
 	icon = 'contacts';
+	order_index = 4;
 
 	ApplyFilters(instance)
 	{

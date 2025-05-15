@@ -7,7 +7,9 @@ const style_panel_label = 'text-align:center; align-content:center; position:abs
 
 export class PageTimekeep extends PageDescriptor
 {
-	GetTitle() { return 'time keeper'; }
+	order_index = -1;
+	title = 'time keeper';
+
 	OnCreateElements(instance)
 	{
 		if (!instance) return;

@@ -4,7 +4,9 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageContactLogs extends PageDescriptor
 {
-	GetTitle() { return 'contact logs'; }
+	title = 'contact logs';
+	order_index = -3;
+
 	CreateElements(instance)
 	{
 		if (!instance) return;

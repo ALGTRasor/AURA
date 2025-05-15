@@ -5,17 +5,22 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
 /*
-EXPECTED PAGE ORDER:
+EXPECTED PAGE ORDER
+----
 project hub
 task tracker
 contact logs
 field notes
 time keeper
 directory
+files
 user dashboard
+----
+hr
 reports
 external links
 help
+----
 */
 
 export class PageHome extends PageDescriptor

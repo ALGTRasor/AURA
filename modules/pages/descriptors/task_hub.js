@@ -8,7 +8,9 @@ import { PageDescriptor } from "../pagebase.js";
 
 export class PageTaskHub extends PageDescriptor
 {
-	GetTitle() { return 'task tracker'; }
+	title = 'task tracker';
+	order_index = -4;
+
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
