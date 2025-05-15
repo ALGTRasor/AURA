@@ -3,6 +3,7 @@ import { addElement, fadeAppendChild, fadeRemoveElement, getSiblingIndex, setSib
 import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
+import { Ripples } from "../ui/ripple.js";
 
 export class PageInstance
 {
@@ -53,6 +54,7 @@ export class PageInstance
 		this.title_bar.tabIndex = '0';
 
 		this.e_body.focus();
+		Ripples.SpawnFromElement(this.e_body);
 	}
 
 	MoveLeft(toEnd = false)
@@ -63,6 +65,7 @@ export class PageInstance
 		if (toEnd === true) setSiblingIndex(this.e_frame, 0);
 		else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
 		this.moving = false;
+		Ripples.SpawnFromElement(this.e_body);
 		PageManager.onLayoutChange.Invoke();
 	}
 
@@ -75,6 +78,7 @@ export class PageInstance
 		if (toEnd === true) setSiblingIndex(this.e_frame, this.e_frame.parentElement.childElementCount);
 		else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
 		this.moving = false;
+		Ripples.SpawnFromElement(this.e_body);
 		PageManager.onLayoutChange.Invoke();
 	}
 
@@ -157,6 +161,7 @@ export class PageInstance
 	TryToggleDocked()
 	{
 		if (this.state_data.docked === true) this.TryUndock(); else this.TryDock();
+		Ripples.SpawnFromElement(this.e_body);
 	}
 
 	TryUndock()
@@ -209,6 +214,7 @@ export class PageInstance
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 		this.UpdateBodyTransform();
 		this.ApplyFrameState(true);
+		Ripples.SpawnFromElement(this.e_body, 0);
 	}
 
 	CloseInstance() { this.page_descriptor.CloseInstance(this); }
@@ -216,6 +222,7 @@ export class PageInstance
 	RemoveElements(immediate = false)
 	{
 		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
+		Ripples.SpawnFromElement(this.e_body, 0);
 
 		if (immediate)
 		{

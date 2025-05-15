@@ -257,7 +257,7 @@ async function OnAuraInit()
 		await ImportPageModules();
 		await ImportDataModules();
 
-		document.body.addEventListener('click', _ => Ripples.SpawnFromEvent(_));
+		//document.body.addEventListener('click', _ => Ripples.SpawnFromEvent(_));
 
 		window.DBLayer.config = new window.DB_SharePoint();
 		await window.DBLayer.Initialize();

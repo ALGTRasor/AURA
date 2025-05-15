@@ -4,6 +4,7 @@ import { UserAllocation } from "../../datamodels/user_allocation.js";
 import { PageManager } from "../../pagemanager.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
+import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
 
 
@@ -27,8 +28,8 @@ class PanelUserAllocationGroup extends PanelContent
 		if (use_percent > 1.0) use_color = '#f002';
 		else if (use_percent == 1.0) use_color = '#0ff2';
 		else if (use_percent > 0.9) use_color = '#0f02';
-		let use_fill_style = `pointer-events:none;position:absolute;inset:0;width:${Math.min(1, use_percent) * 100.0}%; background:${use_color};`;
-		if (use_percent > 1.0) use_fill_style += 'border:solid 2px orange;box-sizing:border-box;';
+		let use_fill_style = `pointer-events:none;box-sizing:border-box;position:absolute;inset:0;width:${Math.min(1, use_percent) * 100.0}%; background:${use_color};`;
+		if (use_percent > 1.0) use_fill_style += 'border:solid 2px orange;';
 		else use_fill_style += 'border-right:solid 4px #fff1;';
 
 		let use_note = 'pending';
@@ -40,13 +41,13 @@ class PanelUserAllocationGroup extends PanelContent
 			e_parent, false, false, 'display:flex;padding:var(--gap-025);',
 			_ =>
 			{
-				CreatePagePanel(
-					_, true, false,
+				addElement(
+					_, 'div', null,
 					'text-align:right;align-content:center;flex-grow:0.0;flex-shrink:0.0;flex-basis:8rem;padding:var(--gap-05);',
 					_ => { _.innerText = allocation.user_id; }
 				);
 				CreatePagePanel(
-					_, true, false, 'text-align:center;flex-basis:1.0;padding:var(--gap-05);align-content:center;',
+					_, true, false, 'text-align:center;flex-basis:1.0;padding:var(--gap-05);align-content:center;border:solid 2px hsl(from var(--theme-color) h s 12%);',
 					_ =>
 					{
 						_.innerText = `${hoursUsed} of ${allocation.allocation_max} hrs used`;
@@ -79,7 +80,7 @@ class PanelUserAllocationGroup extends PanelContent
 				}
 
 				addElement(_, 'div', null, 'text-align:left;padding:calc(var(--gap-025) + 0.25rem);', _ => { _.innerText = this.group_id.toUpperCase(); });
-				addElement(_, 'div', null, 'text-align:left;font-size:75%;text-align:center;opacity:50%;', 'Allocated Users');
+				addElement(_, 'div', null, 'text-align:left;font-size:75%;text-align:center;opacity:50%;', 'Users');
 				CreatePagePanel(
 					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);',
 					_ =>
@@ -90,13 +91,13 @@ class PanelUserAllocationGroup extends PanelContent
 				);
 
 				CreatePagePanel(
-					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);',
+					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);margin:0.25rem;',
 					_ =>
 					{
 						let panel_total = PanelUserAllocationGroup.CreateAllocationRow(
 							_,
 							{
-								user_id: 'TOTAL',
+								user_id: 'OVERALL',
 								allocation_max: summary_max,
 								use_history: summary_history
 							},
@@ -117,25 +118,29 @@ class PanelUserAllocationList extends PanelContent
 	constructor(e_parent, records)
 	{
 		super(e_parent);
+		this.filter_dirty = new RunningTimeout(() => this.RefreshElements(), 0.5, false, 150);
 		this.records = records;
 	}
+
 	OnCreateElements()
 	{
-		let record_panels = [];
-		this.e_root = CreatePagePanel(
-			this.e_parent, true, false, 'display:flex;flex-direction:column;gap:var(--gap-1);padding:var(--gap-1);',
+		this.e_root = addElement(this.e_parent, 'div', null, 'position:relative;display:flex;flex-direction:column;gap:var(--gap-05);flex-basis:100%;flex-grow:1.0;');
+
+		this.e_filters_root = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;');
+		this.e_input_search = addElement(
+			this.e_filters_root, 'input', null,
+			'flex-basis:100%;padding:calc(var(--gap-1) + 2px); color:hsl(from var(--theme-color) h s 45%);',
 			_ =>
 			{
-				let records_grouped = Object.groupBy(this.records, _ => _.Title);
-				for (let group_id in records_grouped)
-				{
-					record_panels.push(new PanelUserAllocationGroup(_, group_id, records_grouped[group_id]));
-				}
+				_.type = 'text';
+				_.placeholder = 'Filter Allocations...';
+				_.addEventListener('keyup', e => { e.stopPropagation(); e.preventDefault(); this.filter_dirty.ExtendTimer(); });
 			}
 		);
-		for (let record_id in record_panels) record_panels[record_id].CreateElements();
 
-		this.e_actions = CreatePagePanel(this.e_parent, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;justify-content:space-around;');
+		this.e_root_records = CreatePagePanel(this.e_root, true, false, 'display:flex;flex-direction:column;gap:var(--gap-1);padding:var(--gap-1);');
+
+		this.e_actions = CreatePagePanel(this.e_root, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
 			this.e_actions, false, false, 'align-content:center;text-align:center;max-width:12rem;',
 			_ =>
@@ -145,9 +150,22 @@ class PanelUserAllocationList extends PanelContent
 				_.innerText = 'Create Allocation';
 			}
 		);
+
+		this.filter_dirty.ExtendTimer();
 	}
-	OnRefreshElements() { }
-	OnRemoveElements() { this.e_root.remove(); this.e_actions.remove(); }
+
+	OnRefreshElements()
+	{
+		for (let record_id in this.record_panels) this.record_panels[record_id].RemoveElements();
+
+		this.record_panels = [];
+		this.e_root_records.innerHTML = '';
+
+		let groups = Object.groupBy(this.records, _ => _.Title);
+		for (let group_id in groups) this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id]));
+		for (let record_id in this.record_panels) this.record_panels[record_id].CreateElements();
+	}
+	OnRemoveElements() { this.e_root.remove(); }
 }
 
 

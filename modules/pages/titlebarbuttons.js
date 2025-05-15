@@ -146,7 +146,7 @@ export class PageTitleBarButton
 								_.preventDefault();
 							}
 							this.InvokeAction(_);
-							Ripples.SpawnFromEvent(_);
+							//Ripples.SpawnFromEvent(_);
 						}
 					}
 				);

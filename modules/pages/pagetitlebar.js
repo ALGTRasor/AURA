@@ -1,6 +1,7 @@
 import { addElement } from "../utils/domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBarButton, TitleBarButtonDescriptor } from "./titlebarbuttons.js";
+import { Ripples } from "../ui/ripple.js";
 
 
 
@@ -72,6 +73,7 @@ export class PageTitleBar
 		this.e_title.classList.add("dragging");
 		this.page.DisableBodyTransitions();
 		PageManager.pages_being_dragged += 1;
+		Ripples.SpawnFromElement(this.page.e_body, 0);
 	};
 
 	#HandleDrag(e)
@@ -105,6 +107,7 @@ export class PageTitleBar
 		this.page.EnableBodyTransitions();
 
 		PageManager.pages_being_dragged -= 1;
+		Ripples.SpawnFromElement(this.page.e_body);
 	};
 
 	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '', sortOrder = 0)
