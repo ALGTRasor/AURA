@@ -2,7 +2,7 @@ import { AnimJob } from "./AnimJob.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
-import { UserAccountInfo } from "./useraccount.js";
+import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
 
 export class Autosave
 {
@@ -23,6 +23,7 @@ export class Autosave
 			Autosave.invokesoon_tid = -1;
 		}
 
+		if (UserAccountManager.account_provider.logged_in !== true) return;
 		if (UserAccountInfo.is_alg_account !== true) return;
 
 		Autosave.source.Invoke();
