@@ -259,6 +259,15 @@ export class PageSettings extends PageDescriptor
 						}
 					);
 				}
+
+				instance.e_slider_animspeed = new SettingSlider(
+					x, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.05, () => 'UI animation speed',
+					_ =>
+					{
+						GlobalStyling.animationSpeed.value = _.value;
+						GlobalStyling.animationSpeed.Apply(true);
+					}
+				);
 			}
 		);
 
@@ -347,15 +356,6 @@ export class PageSettings extends PageDescriptor
 					{
 						GlobalStyling.spacing.value = _.value;
 						GlobalStyling.spacing.Apply(true);
-					}
-				);
-
-				instance.e_slider_animspeed = new SettingSlider(
-					x, 'animation speed', 'speed', GlobalStyling.animationSpeed.value, 0.05, () => 'UI animation speed',
-					_ =>
-					{
-						GlobalStyling.animationSpeed.value = _.value;
-						GlobalStyling.animationSpeed.Apply(true);
 					}
 				);
 
