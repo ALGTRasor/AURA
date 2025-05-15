@@ -50,11 +50,14 @@ export class Ripples
 		let ripple_phase = 0.0;
 		const apply_phase = () =>
 		{
-			let perc = ripple_phase;
-			perc = Math.sqrt(perc);
-			perc *= 100;
+			const opacity_wave = x => 1.0 - Math.pow(2.0 * Math.sqrt(x) - 1.0, 2);
+
+			let opacity = opacity_wave(ripple_phase);
+			opacity = Math.pow(opacity, 3);
+			e_ripple.style.opacity = (opacity * 100) + '%';
+
+			let perc = ripple_phase * 100;
 			e_ripple.style.transform = `scale(${perc}%,${perc}%) translate(-50%, -50%)`;
-			e_ripple.style.opacity = ((50 - Math.abs(perc - 50)) * 2) + '%';
 		};
 
 		apply_phase();

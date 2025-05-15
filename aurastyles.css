@@ -345,14 +345,14 @@ iframe
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: max(30vw, 30vh);
-	height: max(30vw, 30vh);
+	width: max(40vw, 40vh);
+	height: max(40vw, 40vh);
 	transform-origin: 0% 0%;
 
 	opacity: 0%;
 
-	--background-image: radial-gradient(at center, #fff0 0%, #fff0 47%, #ffff 48%, #fff0 49%);
-	box-shadow: 0px 0px 0.5rem #fff5, inset 0px 0px 3rem #fff2;
+	--background-image: radial-gradient(at center, #fff0 0%, #fff0 47%, rgba(from hsl(from var(--theme-color) h s 50%) r g b / 0.1) 48%, #fff0 49%);
+	box-shadow: 0px 0px 0.5rem rgba(from hsl(from var(--theme-color) h s 50%) r g b / 0.4), inset 0px 0px 3rem rgba(from hsl(from var(--theme-color) h s 50%) r g b / 0.2);
 
 	border-radius: 100%;
 }

@@ -37,7 +37,7 @@ class PanelUserAllocationGroup extends PanelContent
 		else if (use_percent == 1.0) { use_note = 'task_alt'; use_note_color = '#0ff'; }
 
 		return CreatePagePanel(
-			e_parent, false, false, 'display:flex;',
+			e_parent, false, false, 'display:flex;padding:var(--gap-025);',
 			_ =>
 			{
 				CreatePagePanel(
@@ -55,7 +55,11 @@ class PanelUserAllocationGroup extends PanelContent
 				);
 
 				//addElement(_, 'div', null, 'flex-basis:5rem;align-content:center;font-size:80%;font-weight:bold;color:' + use_note_color + ';', use_note.toUpperCase());
-				addElement(_, 'i', 'material-symbols', 'flex-basis:2rem;text-align:center;align-content:center;opacity:80%;color:' + use_note_color + ';', use_note.toUpperCase());
+				addElement(
+					_, 'i', 'material-symbols',
+					'flex-basis:2rem;text-align:center;align-content:center;opacity:80%;font-size:1.25rem;color:' + use_note_color + ';',
+					use_note.toUpperCase()
+				);
 			}
 		);
 	}
@@ -74,9 +78,10 @@ class PanelUserAllocationGroup extends PanelContent
 					for (let hid in this.records[rid].use_history) summary_history.push(this.records[rid].use_history[hid]);
 				}
 
-				CreatePagePanel(_, true, false, 'text-align:left;padding:var(--gap-05);', _ => { _.innerText = this.group_id; });
+				addElement(_, 'div', null, 'text-align:left;padding:calc(var(--gap-025) + 0.25rem);', _ => { _.innerText = this.group_id.toUpperCase(); });
+				addElement(_, 'div', null, 'text-align:left;font-size:75%;text-align:center;opacity:50%;', 'Allocated Users');
 				CreatePagePanel(
-					_, true, false, 'display:flex;flex-direction:column;gap:var(--gap-025);',
+					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);',
 					_ =>
 					{
 						for (let rid in this.records)
@@ -85,10 +90,18 @@ class PanelUserAllocationGroup extends PanelContent
 				);
 
 				CreatePagePanel(
-					_, true, false, 'display:flex;flex-direction:column;',
+					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);',
 					_ =>
 					{
-						let panel_total = PanelUserAllocationGroup.CreateAllocationRow(_, { user_id: 'TOTAL', allocation_max: summary_max, use_history: summary_history }, true);
+						let panel_total = PanelUserAllocationGroup.CreateAllocationRow(
+							_,
+							{
+								user_id: 'TOTAL',
+								allocation_max: summary_max,
+								use_history: summary_history
+							},
+							true
+						);
 						panel_total.style.setProperty('--theme-color', '#fff');
 					}
 				);
@@ -110,7 +123,7 @@ class PanelUserAllocationList extends PanelContent
 	{
 		let record_panels = [];
 		this.e_root = CreatePagePanel(
-			this.e_parent, true, false, 'display:flex;flex-direction:column;gap:var(--gap-025);',
+			this.e_parent, true, false, 'display:flex;flex-direction:column;gap:var(--gap-1);padding:var(--gap-1);',
 			_ =>
 			{
 				let records_grouped = Object.groupBy(this.records, _ => _.Title);
@@ -122,9 +135,9 @@ class PanelUserAllocationList extends PanelContent
 		);
 		for (let record_id in record_panels) record_panels[record_id].CreateElements();
 
-		this.e_actions = CreatePagePanel(this.e_parent, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;');
+		this.e_actions = CreatePagePanel(this.e_parent, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
-			this.e_actions, false, false, 'align-content:center;text-align:center;',
+			this.e_actions, false, false, 'align-content:center;text-align:center;max-width:20rem;',
 			_ =>
 			{
 				_.classList.add('panel-button');
