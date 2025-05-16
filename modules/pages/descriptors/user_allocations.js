@@ -1,6 +1,5 @@
 
 import { AppEvents } from "../../appevents.js";
-import { UserAllocation } from "../../datamodels/user_allocation.js";
 import { PageManager } from "../../pagemanager.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
@@ -88,7 +87,7 @@ class PanelUserAllocationGroup extends PanelContent
 					{
 						addElement(
 							_, 'i', 'material-symbols',
-							'text-align:center; align-content:center; font-size:1.75rem; flex-shrink:0.0;',
+							'text-align:center; align-content:center; font-size:1.75rem; line-height:1.75rem; height:1.75rem; flex-shrink:0.0;',
 							_ =>
 							{
 								_.innerText = 'overview';
@@ -111,35 +110,42 @@ class PanelUserAllocationGroup extends PanelContent
 							_ =>
 							{
 								CreatePagePanel(
-									_, false, false, 'align-content:center;text-align:center;flex-grow:0.0;padding:0.25rem;opacity:80%;cursor:pointer;',
+									_, true, false, 'display:flex;flex-direction:row;flex-grow:0.0;flex-shrink:0.0;',
 									_ =>
 									{
-										_.classList.add('hover-lift');
-										_.classList.add('panel-button');
-										_.style.setProperty('--theme-color', '#fd5');
-										_.title = 'Send this allocation group to the archive';
+										const style_action_button = 'align-content:center;text-align:center;flex-grow:0.0;padding:0.25rem;opacity:80%;cursor:pointer;';
+										const style_action_icon = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.25rem;';
 
-										addElement(
-											_, 'i', 'material-symbols',
-											'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.25rem;',
-											_ => _.innerText = 'archive'
+										CreatePagePanel(
+											_, false, false, style_action_button,
+											_ =>
+											{
+												_.classList.add('hover-lift');
+												_.classList.add('panel-button');
+												_.style.setProperty('--theme-color', '#fb2');
+												_.title = 'Send this allocation group to the archive';
+
+												addElement(
+													_, 'i', 'material-symbols', style_action_icon,
+													_ => _.innerText = 'archive'
+												);
+											}
 										);
-									}
-								);
 
-								CreatePagePanel(
-									_, false, false, 'align-content:center;text-align:center;flex-grow:0.0;padding:0.25rem;opacity:80%;cursor:pointer;',
-									_ =>
-									{
-										_.classList.add('hover-lift');
-										_.classList.add('panel-button');
-										_.style.setProperty('--theme-color', '#5f9');
-										_.title = 'Add an allocation to this allocation group';
+										CreatePagePanel(
+											_, false, false, style_action_button,
+											_ =>
+											{
+												_.classList.add('hover-lift');
+												_.classList.add('panel-button');
+												_.style.setProperty('--theme-color', '#5f9');
+												_.title = 'Add an allocation to this allocation group';
 
-										addElement(
-											_, 'i', 'material-symbols',
-											'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.25rem;',
-											_ => _.innerText = 'add'
+												addElement(
+													_, 'i', 'material-symbols', style_action_icon,
+													_ => _.innerText = 'add'
+												);
+											}
 										);
 									}
 								);
@@ -148,8 +154,9 @@ class PanelUserAllocationGroup extends PanelContent
 					}
 				);
 
+				const style_section_title = 'text-align:left;font-size:70%;text-align:center;opacity:50%;letter-spacing:1px;';
 
-				addElement(_, 'div', null, 'text-align:left;font-size:70%;text-align:center;opacity:50%;letter-spacing:1px;', 'ALLOCATIONS');
+				addElement(_, 'div', null, style_section_title, 'ALLOCATIONS');
 				CreatePagePanel(
 					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:0;',
 					_ =>
@@ -163,23 +170,28 @@ class PanelUserAllocationGroup extends PanelContent
 					}
 				);
 
-				//addElement(_, 'div', null, 'text-align:left;font-size:75%;text-align:center;opacity:50%;', 'OVERALL');
-				CreatePagePanel(
-					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);margin:0.25rem;',
-					_ =>
-					{
-						let panel_total = PanelUserAllocationGroup.CreateAllocationRow(
-							_,
-							{
-								user_id: undefined,
-								allocation_max: summary_max,
-								use_history: summary_history
-							},
-							true
-						);
-						panel_total.style.setProperty('--theme-color', '#fff');
-					}
-				);
+				if (this.records.length > 1)
+				{
+					//addElement(_, 'div', null, style_section_title, _ => { _.style.marginTop = '0.25rem'; _.innerText = 'TOTAL'; });
+					CreatePagePanel(
+						_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-025);',
+						_ =>
+						{
+							_.style.margin = '0.25rem';
+							//_.style.marginTop = '0';
+							let panel_total = PanelUserAllocationGroup.CreateAllocationRow(
+								_,
+								{
+									user_id: undefined,
+									allocation_max: summary_max,
+									use_history: summary_history
+								},
+								true
+							);
+							panel_total.style.setProperty('--theme-color', '#fff');
+						}
+					);
+				}
 
 
 
@@ -207,7 +219,7 @@ class PanelUserAllocationList extends PanelContent
 		this.e_filters_root = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;');
 		this.e_input_search = addElement(
 			this.e_filters_root, 'input', null,
-			'flex-basis:100%;padding:calc(var(--gap-1) + 2px); color:hsl(from var(--theme-color) h s 45%);',
+			'flex-basis:100%;padding:var(--gap-05); color:hsl(from var(--theme-color) h s 45%);',
 			_ =>
 			{
 				_.type = 'text';
@@ -240,8 +252,43 @@ class PanelUserAllocationList extends PanelContent
 		this.record_panels = [];
 		this.e_root_records.innerHTML = '';
 
+		let search_strs = [];
+		if (this.e_input_search && this.e_input_search.value.length > 0)
+			search_strs = this.e_input_search.value.split(',').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0);
+
 		let groups = Object.groupBy(this.records, _ => _.Title);
-		for (let group_id in groups) this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id]));
+		for (let group_id in groups)
+		{
+			let search_blob = '';
+			let allocations = groups[group_id];
+			let filter_match = true;
+
+			if (search_strs.length > 0)
+			{
+				filter_match = false;
+				let search_targets = [];
+				search_targets.push(group_id);
+				for (let allocation_id in allocations)
+				{
+					let allocation = allocations[allocation_id];
+					search_targets.push(allocation.user_id);
+				}
+				search_blob = search_targets.filter(_ => typeof _ === 'string').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0).join('::');
+
+				for (let ssi in search_strs)
+				{
+					let search_str = search_strs[ssi];
+					if (search_blob.indexOf(search_str) > -1)
+					{
+						filter_match = true;
+						break;
+					}
+				}
+			}
+
+			if (filter_match !== true) continue;
+			this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id]));
+		}
 		for (let record_id in this.record_panels) this.record_panels[record_id].CreateElements();
 	}
 	OnRemoveElements() { this.e_root.remove(); }

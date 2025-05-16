@@ -246,7 +246,7 @@ export class OverlayManager
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
                 + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
                 + 'display:flex; flex-direction:column; flex-wrap:nowrap;';
-            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1);';
+            const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1); line-height:1.5rem;';
 
             let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
             e_body.addEventListener('mousedown', e => { e.stopPropagation(); e_body.focus(); });
