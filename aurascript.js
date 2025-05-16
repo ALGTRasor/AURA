@@ -190,11 +190,26 @@ function CheckWindowArgs()
 	}
 }
 
+function UpdateClock()
+{
+	const e_clock = document.getElementById('info-bar-clock');
+	let d = new Date();
+	let hr = d.getHours();
+	let min = d.getMinutes();
+	e_clock.innerText = (hr % 12).toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + (hr >= 12.0 ? 'PM' : 'AM');
+	e_clock.title = d.toTimeString();
+}
+
 function PrepareDocument()
 {
 	window.timeout_WindowSizeChange = new RunningTimeout(OnWindowSizeChanged, 0.5, true, 250);
+
 	window.loop_detectWindowSizeChange = new AnimJob(200, CheckWindowSizeChanged);
 	window.loop_detectWindowSizeChange.Start();
+
+	window.loop_updateClock = new AnimJob(33333, UpdateClock);
+	window.loop_updateClock.Start();
+	UpdateClock();
 
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
