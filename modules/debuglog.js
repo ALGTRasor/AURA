@@ -137,37 +137,6 @@ export class DebugLog
 		return '';
 	}
 
-	/*
-	static AppendMessageElement(message, color = '', allow_duplicates = false)
-	{
-		if (DebugLog.VerifyCreated() !== true) return;
-
-		if (!allow_duplicates && DebugLog.entry_elements.length > 0 && DebugLog.entry_elements[DebugLog.entry_elements.length - 1].title == message)
-		{
-			let last_e = DebugLog.entry_elements[DebugLog.entry_elements.length - 1];
-			if (last_e.copyCount) last_e.copyCount++;
-			else last_e.copyCount = 2;
-			last_e.innerHTML = message + "<div class='debug-log-item-count'> x" + last_e.copyCount + "</div>";
-		}
-		else
-		{
-			let e_log_entry = document.createElement('div');
-			e_log_entry.className = 'debug-log-item';
-			e_log_entry.innerHTML = message;
-			e_log_entry.title = message;
-			e_log_entry.style.marginLeft = (DebugLog.open_groups.length * 6) + "px";
-			if (DebugLog.open_groups.length > 0) e_log_entry.style.background = 'var(--theme-color-10)';
-
-			let ecol = DebugLog.GetEntryColor(message, color);
-			if (ecol && ecol.length > 0) e_log_entry.style.color = ecol;
-
-			DebugLog.entry_elements.push(e_log_entry);
-
-			DebugLog.e_root.appendChild(e_log_entry);
-		}
-	}
-	*/
-
 	static Clear()
 	{
 		DebugLog.e_root.innerHTML = '';

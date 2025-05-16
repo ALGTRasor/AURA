@@ -10,6 +10,10 @@ export class UserAllocation
 			{ key: 'user_id', label: 'user id', format: 'user' },
 			{ key: 'allocation_max', label: 'allocated hours' },
 			{ key: 'use_history', label: 'consumption history', format: 'list', expander: UserAllocation.ExpandHistory },
+			{ key: 'Created', label: 'created', format: 'datetime' },
+			{ key: 'Author', label: 'created by' },
+			{ key: 'Modified', label: 'last modified', format: 'datetime' },
+			{ key: 'Editor', label: 'last modified by' },
 		]
 	);
 

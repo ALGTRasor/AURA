@@ -87,7 +87,7 @@ class PanelUserAllocationGroup extends PanelContent
 					{
 						addElement(
 							_, 'i', 'material-symbols',
-							'text-align:center; align-content:center; font-size:1.75rem; line-height:1.75rem; height:1.75rem; flex-shrink:0.0;',
+							'text-align:center; align-content:center; font-size:1.75rem; line-height:1.75rem; height:1.75rem; flex-shrink:0.0; opacity:30%;',
 							_ =>
 							{
 								_.innerText = 'overview';
@@ -334,15 +334,19 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(_ =>
-		{
-			instance.panel_list.records = window.SharedData.userAllocations.instance.data;
-			instance.panel_list.RecreateElements();
-		});
+		instance.relate_UserAllocations = window.SharedData.userAllocations.AddNeeder();
+		instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(
+			_ =>
+			{
+				instance.panel_list.records = window.SharedData.userAllocations.instance.data;
+				instance.panel_list.RecreateElements();
+			}
+		);
 	}
 
 	OnClose(instance)
 	{
+		window.SharedData.userAllocations.RemoveNeeder(instance.relate_UserAllocations);
 		AppEvents.onDataReloaded.RemoveSubscription(instance.sub_dataReload);
 	}
 }

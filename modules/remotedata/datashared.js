@@ -4,7 +4,7 @@ import { AppInfo } from "../app_info.js";
 import { AppEvents } from "../appevents.js";
 import { Timers } from "../timers.js";
 import { EventSource } from "../eventsource.js";
-import { DataSource, DataSourceInstance } from "./datasource.js";
+import { DataSourceDescriptor, DataSourceInstance } from "./datasource.js";
 import { NotificationLog } from "../notificationlog.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { FieldValidation } from "../utils/field_validation.js";
@@ -12,9 +12,9 @@ import { FieldValidation } from "../utils/field_validation.js";
 
 export class SharedDataTable
 {
-	static Nothing = new SharedDataTable('nothing', DataSource.Nothing);
+	static Nothing = new SharedDataTable('nothing', DataSourceDescriptor.Nothing);
 
-	constructor(key = '', datasource = DataSource.Nothing)
+	constructor(key = '', datasource = DataSourceDescriptor.Nothing)
 	{
 		this.key = key;
 		this.instance = new DataSourceInstance(datasource);
@@ -23,9 +23,10 @@ export class SharedDataTable
 	async Download()
 	{
 		await this.instance.TryLoad(true);
-		if (this.instance.data && this.instance.data.length) DebugLog.Log('loaded ' + this.instance.data.length + ' ' + this.key, true, '#0f0');
-		else DebugLog.Log('download data invalid: ' + this.key, true, '#f00');
 	}
+
+	AddNeeder() { return this.instance.AddNeeder(); }
+	RemoveNeeder(needer) { return this.instance.RemoveNeeder(needer); }
 }
 
 export class SharedData
@@ -40,18 +41,18 @@ export class SharedData
 	static onSavedToCache = new EventSource();
 	static onDownloaded = new EventSource();
 
-	static roles = new SharedDataTable('roles', DataSource.Roles);
-	static teams = new SharedDataTable('teams', DataSource.Teams);
-	static users = new SharedDataTable('users', DataSource.Users);
-	static tasks = new SharedDataTable('tasks', DataSource.Tasks);
-	static contacts = new SharedDataTable('contacts', DataSource.Contacts);
-	static projects = new SharedDataTable('projects', DataSource.Projects);
-	static permissions = new SharedDataTable('permissions', DataSource.Permissions);
-	static hrRequests = new SharedDataTable('hr requests', DataSource.HrRequests);
-	static timekeepEvents = new SharedDataTable('timekeep events', DataSource.TimekeepEvents);
-	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSource.TimekeepStatuses);
-	static auraLinks = new SharedDataTable('aura links', DataSource.AURALinks);
-	static userAllocations = new SharedDataTable('user allocations', DataSource.UserAllocations);
+	static roles = new SharedDataTable('roles', DataSourceDescriptor.Roles);
+	static teams = new SharedDataTable('teams', DataSourceDescriptor.Teams);
+	static users = new SharedDataTable('users', DataSourceDescriptor.Users);
+	static tasks = new SharedDataTable('tasks', DataSourceDescriptor.Tasks);
+	static contacts = new SharedDataTable('contacts', DataSourceDescriptor.Contacts);
+	static projects = new SharedDataTable('projects', DataSourceDescriptor.Projects);
+	static permissions = new SharedDataTable('permissions', DataSourceDescriptor.Permissions);
+	static hrRequests = new SharedDataTable('hr requests', DataSourceDescriptor.HrRequests);
+	static timekeepEvents = new SharedDataTable('timekeep events', DataSourceDescriptor.TimekeepEvents);
+	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSourceDescriptor.TimekeepStatuses);
+	static auraLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
+	static userAllocations = new SharedDataTable('user allocations', DataSourceDescriptor.UserAllocations);
 
 	static all_tables = [
 		SharedData.roles,
@@ -71,10 +72,10 @@ export class SharedData
 	static UpdateDataSourceFilters()
 	{
 		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
-		//DataSource.UserAllocations.view_filter = user_id_filter('user_id');
-		DataSource.TimekeepEvents.view_filter = user_id_filter('user_id');
-		DataSource.TimekeepStatuses.view_filter = user_id_filter('Title');
-		if (!UserAccountInfo.HasPermission('hr.access')) DataSource.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
+		//DataSourceDescriptor.UserAllocations.view_filter = user_id_filter('user_id');
+		DataSourceDescriptor.TimekeepEvents.view_filter = user_id_filter('user_id');
+		DataSourceDescriptor.TimekeepStatuses.view_filter = user_id_filter('Title');
+		if (!UserAccountInfo.HasPermission('hr.access')) DataSourceDescriptor.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
 	}
 
 	static async LoadData(useCache = true)
@@ -101,7 +102,7 @@ export class SharedData
 
 			if (all_from_cache)
 			{
-				NotificationLog.Log('Using Cached Shared Data');
+				NotificationLog.Log('Using Cached Shared Data', '#888');
 				DebugLog.Log('...using cached shared data');
 				DebugLog.Log('shared data load delta: ' + Timers.Stop(timer_shareddataload) + 'ms');
 				DebugLog.SubmitGroup();
@@ -174,7 +175,7 @@ export class SharedData
 		return SharedData.LoadFromStorage(key);
 	}
 
-	static async LoadTable(datasource = DataSource.Nothing, key = '????')
+	static async LoadTable(datasource = DataSourceDescriptor.Nothing, key = '????')
 	{
 		let result = [];
 		result = await datasource.GetData();

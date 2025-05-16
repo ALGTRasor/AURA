@@ -243,11 +243,11 @@ async function OnAuraInit()
 	CheckSpoofing();
 
 	NotificationLog.Create();
-	NotificationLog.Log('Loading Settings');
+	NotificationLog.Log('Loading Settings', 'orange');
 	UserSettings.LoadFromStorage();
 	GlobalStyling.Load();
 
-	NotificationLog.Log('Checking Authorization');
+	NotificationLog.Log('Checking Authorization', 'orange');
 	await UserAccountManager.CheckWindowLocationForCodes();
 	await UserAccountManager.AttemptAutoLogin();
 	ActionBar.UpdateAccountButton();
@@ -282,14 +282,14 @@ async function OnAuraInit()
 		}
 		await Fax.RefreshFact();
 
-		NotificationLog.Log('Ready');
+		NotificationLog.Log('Ready', '#0ff');
 		Welcome.ShowWelcomeMessage();
 
 		SetContentObscured(false);
 	}
 	else
 	{
-		NotificationLog.Log('Login Required');
+		NotificationLog.Log('Login Required', '#ff0');
 		SetContentObscured(true, 'Login Required');
 		DebugLog.Log('! Login required');
 		await AppEvents.onAccountLoginFailed.InvokeAsync();

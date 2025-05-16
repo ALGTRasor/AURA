@@ -2,7 +2,7 @@ import { Modules } from "../modules.js";
 import { DebugLog } from "../debuglog.js";
 import { AppEvents } from "../appevents.js";
 import { UserAccountManager } from "../useraccount.js";
-import { DataSource } from "./datasource.js";
+import { DataSourceDescriptor } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 
 export class RequestBatchRequest
@@ -259,7 +259,7 @@ export class SharePoint
 	}
 
 
-	static GetURL_GetList(source = DataSource.Nothing)
+	static GetURL_GetList(source = DataSourceDescriptor.Nothing)
 	{
 		let url = SharePoint.GetListUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
@@ -269,7 +269,7 @@ export class SharePoint
 	}
 
 
-	static GetBatchURL_GetList(source = DataSource.Nothing)
+	static GetBatchURL_GetList(source = DataSourceDescriptor.Nothing)
 	{
 		let url = SharePoint.GetListBatchUrl(source.site_name, source.list_title) + '/items?select=id';
 		if (source.fields && source.fields.length > 0) url += '&expand=fields(select=' + source.fields.join(',') + ')';
@@ -278,7 +278,7 @@ export class SharePoint
 		return url;
 	}
 
-	static async GetListData(source = DataSource.Nothing)
+	static async GetListData(source = DataSourceDescriptor.Nothing)
 	{
 		let url = SharePoint.GetURL_GetList(source);
 		let result = await SharePoint.GetData(url);
@@ -310,7 +310,7 @@ export class SharePoint
 		return all_items.map(expand_fields);
 	}
 
-	static async PatchListItem(source = DataSource.Nothing, item_id = '', patchData = {})
+	static async PatchListItem(source = DataSourceDescriptor.Nothing, item_id = '', patchData = {})
 	{
 		let url = SharePoint.GetListUrl(source.site_name, source.list_title) + '/items/' + item_id + '/fields';
 		let result = await SharePoint.SetData(url, patchData);

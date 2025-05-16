@@ -201,6 +201,17 @@ export class PageDirectory extends PageDescriptor
 
 		window.setTimeout(() => instance.slide_directory.ApplySelection(), 250);
 	}
+
+	OnOpen(instance)
+	{
+		instance.relate_Users = window.SharedData.users.AddNeeder();
+		instance.relate_Contacts = window.SharedData.contacts.AddNeeder();
+	}
+	OnClose(instance)
+	{
+		window.SharedData.users.RemoveNeeder(instance.relate_Users);
+		window.SharedData.contacts.RemoveNeeder(instance.relate_Contacts);
+	}
 }
 
 PageManager.RegisterPage(new PageDirectory('directory'), 'd', 'Directory', 'users.view');

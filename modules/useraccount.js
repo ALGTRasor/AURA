@@ -111,7 +111,7 @@ export class UserAccountInfo
 
 	static async DownloadUserInfo()
 	{
-		NotificationLog.Log('Downloading User Info');
+		NotificationLog.Log('Downloading User Info...', '#0ff');
 
 		const sp_site = 'ALGInternal';
 		let user_record = await window.SharePoint.DownloadRecord(sp_site, 'ALGUsers', `fields/Title eq '${UserAccountInfo.account_info.user_id}'`, InternalUser.data_model.fields);

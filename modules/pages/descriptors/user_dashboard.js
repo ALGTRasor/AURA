@@ -1,21 +1,19 @@
-import { AccountUser } from "../../datamodels/account_user.js";
-import { HrRequest } from "../../datamodels/hr_request.js";
-import { InternalUser } from "../../datamodels/internal_user.js";
-import { SharedData } from "../../remotedata/datashared.js";
+import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { DebugLog } from "../../debuglog.js";
 import { PageManager } from "../../pagemanager.js";
-import { RecordFormUtils } from "../../ui/recordform.js";
-import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 
-import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
+import { RecordFormUtils } from "../../ui/recordform.js";
+
 import { FileExplorer } from "../../ui/file_explorer.js";
 
-
-
+import { AccountUser } from "../../datamodels/account_user.js";
+import { InternalUser } from "../../datamodels/internal_user.js";
+import { UserAccountInfo } from "../../useraccount.js";
+import { HrRequest } from "../../datamodels/hr_request.js";
 
 
 
@@ -311,12 +309,12 @@ export class PageMyData extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.sub_SharedDataRefresh = SharedData.onLoaded.RequestSubscription(() => { window.setTimeout(() => { this.UpdateBlocks(instance); }, 50) });
+		instance.sub_SharedDataRefresh = window.SharedData.onLoaded.RequestSubscription(() => { window.setTimeout(() => { this.UpdateBlocks(instance); }, 50) });
 	}
 
 	OnClose(instance)
 	{
-		SharedData.onLoaded.RemoveSubscription(instance.sub_SharedDataRefresh);
+		window.SharedData.onLoaded.RemoveSubscription(instance.sub_SharedDataRefresh);
 	}
 
 	UpdateSize(instance)
