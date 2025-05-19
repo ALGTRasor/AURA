@@ -36,8 +36,8 @@ export class DataSourceDescriptor
 	static HrRequests = new DataSourceDescriptor('ALGHRRequests', HrRequest.data_model, 'request_name', 'request_name');
 	static TimekeepEvents = new DataSourceDescriptor('ALGTimekeepEvents', TimekeepEvent.data_model);
 	static TimekeepStatuses = new DataSourceDescriptor('ALGTimekeepStatuses', TimekeepStatus.data_model);
-	static AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
 	static UserAllocations = new DataSourceDescriptor('ALGUserAllocations', UserAllocation.data_model);
+	static AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
 	static AURAProblems = new DataSourceDescriptor('AURAProblems', AURAProblem.data_model);
 
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
