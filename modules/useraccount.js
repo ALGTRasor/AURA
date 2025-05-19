@@ -81,11 +81,25 @@ export class UserAccountInfo
 	static is_alg_account = false;
 	static app_access = false;
 
+	static app_access_permission = 'aura.access';
+
 	static UpdateIdentity()
 	{
 		UserAccountInfo.has_ms_account = UserAccountInfo.account_info && 'email' in UserAccountInfo.account_info && typeof UserAccountInfo.account_info.email === 'string';
 		UserAccountInfo.is_alg_account = UserAccountInfo.has_ms_account && UserAccountInfo.account_info.email.endsWith('@arrowlandgroup.com');
-		UserAccountInfo.app_access = UserAccountInfo.HasAppAccess();
+
+		let had_app_access = UserAccountInfo.app_access;
+		UserAccountInfo.app_access = 'user_permissions' in UserAccountInfo.user_info && UserAccountInfo.user_info.user_permissions.split(';').indexOf(UserAccountInfo.app_access_permission) > -1;
+		if (had_app_access !== true && UserAccountInfo.app_access === true)
+		{
+			NotificationLog.Log('App Access Confirmed', '#0fa');
+			DebugLog.Log('App Access Confirmed');
+		}
+		else if (had_app_access === true && UserAccountInfo.app_access !== true)
+		{
+			NotificationLog.Log('App Access Revoked', '#fa0');
+			DebugLog.Log('App Access Revoked');
+		}
 	}
 
 	static IndexOfPermission(permission_id = '')
@@ -98,9 +112,7 @@ export class UserAccountInfo
 		return -1;
 	}
 
-	static app_access_permission = 'aura.access';
-
-	static HasAppAccess() { return UserAccountInfo.HasPermission(UserAccountInfo.app_access_permission); }
+	static HasAppAccess() { return UserAccountInfo.app_access === true; }
 
 	static HasPermission(permission_id = '')
 	{
@@ -124,19 +136,16 @@ export class UserAccountInfo
 				prop_count++;
 			}
 
-			UserAccountInfo.UpdateIdentity();
-
 			DebugLog.Log('...downloaded user info');
 			DebugLog.Log('display name: ' + UserAccountInfo.user_info.display_name_full);
 			DebugLog.Log('user properties: ' + prop_count);
-			DebugLog.Log('app access: ' + (UserAccountInfo.app_access === true));
 		}
 		else
 		{
-			UserAccountInfo.UpdateIdentity();
 			DebugLog.Log('...could not download user info', true, "#f00");
 		}
 
+		UserAccountInfo.UpdateIdentity();
 	}
 
 	static UpdateUserSharedData()
@@ -145,6 +154,7 @@ export class UserAccountInfo
 		UserAccountInfo.hr_info.requests = window.SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
 		DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
 		DebugLog.Log('hr request count: ' + UserAccountInfo.hr_info.requests.length);
+		UserAccountInfo.UpdateIdentity();
 	}
 }
 

@@ -51,8 +51,9 @@ export class SharedData
 	static hrRequests = new SharedDataTable('hr requests', DataSourceDescriptor.HrRequests);
 	static timekeepEvents = new SharedDataTable('timekeep events', DataSourceDescriptor.TimekeepEvents);
 	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSourceDescriptor.TimekeepStatuses);
-	static auraLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
 	static userAllocations = new SharedDataTable('user allocations', DataSourceDescriptor.UserAllocations);
+	static auraLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
+	static auraProblems = new SharedDataTable('aura problems', DataSourceDescriptor.AURAProblems);
 
 	static all_tables = [
 		SharedData.roles,
@@ -66,7 +67,8 @@ export class SharedData
 		SharedData.timekeepEvents,
 		SharedData.timekeepStatuses,
 		SharedData.auraLinks,
-		SharedData.userAllocations
+		SharedData.userAllocations,
+		SharedData.auraProblems
 	];
 
 	static UpdateDataSourceFilters()

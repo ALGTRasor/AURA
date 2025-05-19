@@ -9,7 +9,6 @@ import { Timers } from "./modules/timers.js";
 import { AnimJob } from "./modules/AnimJob.js";
 import { Autosave } from "./modules/autosave.js";
 import { RunningTimeout } from "./modules/utils/running_timeout.js";
-import { Ripples } from "./modules/ui/ripple.js";
 
 import { DevMode } from "./modules/devmode.js";
 import { DebugLog } from "./modules/debuglog.js";
@@ -289,8 +288,8 @@ async function OnAuraInit()
 		window.addEventListener('keyup', HandleKeyUp);
 		RegisterHotkeys();
 
-		let should_restore_layout = UserAccountInfo.HasAppAccess() && UserSettings.GetOptionValue('pagemanager-restore-layout', true);
-		if (!should_restore_layout || !PageManager.RestoreCachedLayout())
+		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
+		if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
 		{
 			if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
 			else PageManager.OpenPageByTitle('user dashboard');
@@ -419,6 +418,7 @@ function ToggleLightMode()
 
 async function CheckIdentity()
 {
+	NotificationLog.Log('Checking Identity', '#0af');
 	DebugLog.StartGroup('validating identity');
 	DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
 	if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');

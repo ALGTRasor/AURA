@@ -9,11 +9,12 @@ import { PageDescriptor } from "../pagebase.js";
 
 class PanelUserAllocationGroup extends PanelContent
 {
-	constructor(e_parent, group_id, records)
+	constructor(e_parent, group_id, records, get_row_label = _ => { _.user_id })
 	{
 		super(e_parent);
 		this.group_id = group_id;
 		this.records = records;
+		this.get_row_label = get_row_label;
 	}
 
 	static CreateFillBar(e_parent, label, fill)
@@ -39,12 +40,13 @@ class PanelUserAllocationGroup extends PanelContent
 		);
 	}
 
-	static CreateAllocationRow(e_parent, allocation = {}, cap_max = false)
+	static CreateAllocationRow(e_parent, allocation = {}, get_row_label = _ => { _.user_id }, cap_max = false)
 	{
 		let hoursUsed = 0.0;
 		let allocationUses = allocation.use_history;
 		allocationUses.forEach(x => hoursUsed += x.hours);
 		if (cap_max === true) hoursUsed = Math.min(hoursUsed, allocation.allocation_max);
+
 		let use_percent = hoursUsed / allocation.allocation_max;
 		let use_color = 'rgba(from hsl(33% 100% 50%) r g b / 0.1)';
 		if (use_percent > 1.0) use_color = '#f002';
@@ -68,14 +70,12 @@ class PanelUserAllocationGroup extends PanelContent
 					addElement(
 						_, 'div', null,
 						'text-align:right;align-content:center;flex-grow:0.0;flex-shrink:0.0;flex-basis:8rem;padding:var(--gap-05);',
-						_ => { _.innerText = allocation.user_id; }
+						_ => { _.innerText = get_row_label(allocation); }
 					);
 				}
 
+				PanelUserAllocationGroup.CreateFillBar(_, `${hoursUsed} of ${allocation.allocation_max} hrs used`, use_percent, use_color);
 
-				this.CreateFillBar(_, `${hoursUsed} of ${allocation.allocation_max} hrs used`, use_percent, use_color);
-
-				//addElement(_, 'div', null, 'flex-basis:5rem;align-content:center;font-size:80%;font-weight:bold;color:' + use_note_color + ';', use_note.toUpperCase());
 				addElement(
 					_, 'i', 'material-symbols',
 					'flex-basis:2rem;text-align:center;align-content:center;opacity:60%;font-size:1.25rem;color:' + use_note_color + ';',
@@ -129,7 +129,7 @@ class PanelUserAllocationGroup extends PanelContent
 							}
 						);
 
-						let e_fill_total = PanelUserAllocationGroup.CreateFillBar(_, `${summary_used} of ${summary_max} hrs used`, summary_used / summary_max, '#333');
+						let e_fill_total = PanelUserAllocationGroup.CreateFillBar(_, `${Math.round(summary_used / summary_max * 100)}% used`, summary_used / summary_max, '#333');
 						e_fill_total.style.flexGrow = '5.0';
 						e_fill_total.style.flexShrink = '0.0';
 
@@ -183,41 +183,42 @@ class PanelUserAllocationGroup extends PanelContent
 					}
 				);
 
-				const style_section_title = 'text-align:left;font-size:70%;text-align:center;opacity:50%;letter-spacing:1px;';
+				const style_section_title = 'text-align:left; font-size:70%; text-align:center; opacity:50%; letter-spacing:1px;';
 
 				addElement(_, 'div', null, style_section_title, _ => _.innerText = 'ALLOCATIONS');
 				CreatePagePanel(
-					_, true, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:0;',
+					_, true, false, 'display:flex; flex-direction:column; padding:var(--gap-05); gap:0;',
 					_ =>
 					{
-						let e_container = addElement(_, 'div', null, 'flex-basis:100%;border-radius:var(--gap-05);overflow:hidden;clip-path:fill;');
+						let e_container = addElement(_, 'div', null, 'flex-basis:100%; border-radius:var(--gap-05); overflow:hidden; clip-path:fill;');
 						for (let rid in this.records)
 						{
-							let p_record = PanelUserAllocationGroup.CreateAllocationRow(e_container, this.records[rid]);
+							let p_record = PanelUserAllocationGroup.CreateAllocationRow(e_container, this.records[rid], this.get_row_label);
 							p_record.style.borderRadius = 0;
 						}
 					}
 				);
-
-
-
-
-
-
 			}
 		);
 	}
-	OnRefreshElements() { }
+
+	OnRefreshElements()
+	{
+
+	}
+
 	OnRemoveElements() { this.e_root.remove(); }
 }
 
 class PanelUserAllocationList extends PanelContent
 {
-	constructor(e_parent, records)
+	constructor(e_parent, records, get_record_group = _ => _.Title, get_record_label = _ => _.user_id)
 	{
 		super(e_parent);
 		this.filter_dirty = new RunningTimeout(() => this.RefreshElements(), 0.5, false, 150);
 		this.records = records;
+		this.get_record_label = get_record_label;
+		this.get_record_group = get_record_group;
 	}
 
 	OnCreateElements()
@@ -264,11 +265,11 @@ class PanelUserAllocationList extends PanelContent
 		if (this.e_input_search && this.e_input_search.value.length > 0)
 			search_strs = this.e_input_search.value.split(',').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0);
 
-		let groups = Object.groupBy(this.records, _ => _.Title);
+		let groups = Object.groupBy(this.records, this.get_record_group);
 		for (let group_id in groups)
 		{
 			let search_blob = '';
-			let allocations = groups[group_id];
+			let allocations = groups[group_id].records;
 			let filter_match = true;
 
 			if (search_strs.length > 0)
@@ -295,7 +296,7 @@ class PanelUserAllocationList extends PanelContent
 			}
 
 			if (filter_match !== true) continue;
-			this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id]));
+			this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id], this.get_record_label));
 		}
 		for (let record_id in this.record_panels) this.record_panels[record_id].CreateElements();
 	}
@@ -320,7 +321,8 @@ export class PageUserAllocations extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		instance.e_content.style.overflow = 'hidden';
-		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data);
+		//instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title.toUpperCase());
+		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.Title.toUpperCase(), _ => _.user_id);
 		instance.panel_list.CreateElements();
 	}
 
@@ -335,7 +337,7 @@ export class PageUserAllocations extends PageDescriptor
 		if (instance.state_data.docked === true)
 		{
 			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '72rem';
-			else instance.e_frame.style.maxWidth = '36rem';
+			else instance.e_frame.style.maxWidth = '32rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';
 	}

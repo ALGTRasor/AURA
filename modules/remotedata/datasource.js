@@ -14,7 +14,7 @@ import { TimekeepEvent, TimekeepStatus } from "../datamodels/timekeep.js";
 import { DataTableDesc } from "../datamodels/datatable_desc.js";
 import { AURALink } from "../datamodels/aura_link.js";
 import { UserAllocation } from "../datamodels/user_allocation.js";
-import { DevMode } from "../devmode.js";
+import { AURAProblem } from "../datamodels/aura_problem.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -37,6 +37,7 @@ export class DataSourceDescriptor
 	static TimekeepStatuses = new DataSourceDescriptor('ALGTimekeepStatuses', TimekeepStatus.data_model);
 	static AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
 	static UserAllocations = new DataSourceDescriptor('ALGUserAllocations', UserAllocation.data_model);
+	static AURAProblems = new DataSourceDescriptor('AURAProblems', AURAProblem.data_model);
 
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{

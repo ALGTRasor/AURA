@@ -7,6 +7,7 @@ import { PageDescriptor } from "./pages/pagebase.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./devmode.js";
 import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";
+import { NotificationLog } from "./notificationlog.js";
 
 const lskey_page_layout = 'pagemanager_layout';
 
@@ -142,7 +143,9 @@ export class PageManager
 				let p = page_instances_sorted[id];
 				PageManager.OpenPageByTitle(p.title, p.state);
 			}
-			return page_instances_sorted.length > 0;
+			let any_restored = page_instances_sorted.length > 0;
+			if (any_restored) NotificationLog.Log('Page Layout Restored', '#0af');
+			return any_restored;
 		}
 		return false;
 	}
