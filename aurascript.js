@@ -223,7 +223,7 @@ function PopulateActionBarButtons()
 		_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
 	);
 
-	if (UserAccountInfo.HasAppAccess())
+	if (UserAccountInfo.HasAppAccess() === true)
 	{
 		ActionBar.AddMenuButton(
 			'refresh', 'refresh',
@@ -234,8 +234,7 @@ function PopulateActionBarButtons()
 					_ => { },
 					'Refresh all shared data?<br><br>'
 					+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
-					'[Y]ES',
-					'[N]o'
+					'[Y]ES', '[N]o'
 				)
 			},
 			_ =>
@@ -258,11 +257,11 @@ async function OnAuraInit()
 	CheckSpoofing();
 
 	NotificationLog.Create();
-	NotificationLog.Log('Loading Settings', 'orange');
+	NotificationLog.Log('Loading Settings...', 'orange');
 	UserSettings.LoadFromStorage();
 	GlobalStyling.Load();
 
-	NotificationLog.Log('Checking Authorization', 'orange');
+	NotificationLog.Log('Checking Authorization...', 'orange');
 	await UserAccountManager.CheckWindowLocationForCodes();
 	await UserAccountManager.AttemptAutoLogin();
 	ActionBar.UpdateAccountButton();
@@ -419,7 +418,7 @@ function ToggleLightMode()
 
 async function CheckIdentity()
 {
-	NotificationLog.Log('Checking Identity', '#0af');
+	NotificationLog.Log('Checking Identity...', 'orange');
 	DebugLog.StartGroup('validating identity');
 	DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
 	if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');

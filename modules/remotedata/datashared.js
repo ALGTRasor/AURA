@@ -126,9 +126,7 @@ export class SharedData
 		{
 			const table = SharedData.all_tables[table_id];
 			if (useCache === true && table.instance.loaded === true) continue;
-			if (useCache === true) DebugLog.Log('fetching ' + table.key);
 			table.instance.ClearData();
-
 			window.DBLayer.GetRecords(table);
 		}
 
@@ -138,7 +136,7 @@ export class SharedData
 		await SharedData.onSavedToCache.InvokeAsync();
 
 		let ms_str = Timers.Stop(timer_shareddataload) + 'ms';
-		NotificationLog.Log(`Shared Data Refreshed (${ms_str})`);
+		NotificationLog.Log(`Shared Data Refreshed (${ms_str})`, '#0af');
 		DebugLog.Log('shared data load delta: ' + ms_str);
 		DebugLog.SubmitGroup();
 
