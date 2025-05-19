@@ -363,7 +363,7 @@ export class SharePoint
 			}
 		}
 
-		table.instance.data = table.instance.data.concat(page_items);
+		table.instance.data = (table.instance.data ?? []).concat(page_items);
 		table.instance.loaded = true;
 
 		let next_page_url = result.body['@odata.nextLink'];

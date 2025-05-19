@@ -17,7 +17,7 @@ export class SharedDataTable
 	constructor(key = '', datasource = DataSourceDescriptor.Nothing)
 	{
 		this.key = key;
-		this.instance = new DataSourceInstance(datasource);
+		this.instance = new DataSourceInstance(datasource, this);
 	}
 
 	async Download()

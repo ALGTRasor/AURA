@@ -48,6 +48,7 @@ async function ImportPageModules()
 	await import('./modules/pages/descriptors/settings.js');
 	await import('./modules/pages/descriptors/user_dashboard.js');
 	await import('./modules/pages/descriptors/help.js');
+	await import('./modules/pages/descriptors/problems.js');
 	await import('./modules/pages/descriptors/files.js');
 	await import('./modules/pages/descriptors/pdf_view.js');
 	await import('./modules/pages/descriptors/directory.js');

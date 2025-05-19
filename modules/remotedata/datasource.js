@@ -15,6 +15,7 @@ import { DataTableDesc } from "../datamodels/datatable_desc.js";
 import { AURALink } from "../datamodels/aura_link.js";
 import { UserAllocation } from "../datamodels/user_allocation.js";
 import { AURAProblem } from "../datamodels/aura_problem.js";
+import { DBLayer } from "./dblayer.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -56,9 +57,10 @@ export class DataSourceDescriptor
 // class used to manage data obtained from a DataSourceDescriptor
 export class DataSourceInstance
 {
-	constructor(datasource = DataSourceDescriptor.Nothing)
+	constructor(datasource = DataSourceDescriptor.Nothing, table)
 	{
 		this.datasource = datasource;
+		this.table = table;
 		this.loading = false;
 		this.loaded = false;
 		this.valid = false;
@@ -108,13 +110,13 @@ export class DataSourceInstance
 		}
 
 		DebugLog.Log('loading data from source: ' + this.datasource.list_title);
-		this.data = await this.datasource.GetData();
+		this.data = await DBLayer.GetRecords(this.table);
 
 		this.loaded = this.data != null;
 		this.loading = false;
 
 		if (this.data && this.data.length) DebugLog.Log('loaded ' + this.data.length + ' ' + this.datasource.list_title, true, '#0f0');
-		else DebugLog.Log('download data invalid: ' + this.datasource.list_title, true, '#f00');
+		else DebugLog.Log('shared data empty: ' + this.datasource.list_title, true, '#ff0');
 	}
 
 	TryLoadFromCache()
