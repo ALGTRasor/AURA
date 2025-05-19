@@ -8,7 +8,7 @@ export class AURAProblem
 			{ key: 'Title', label: 'guid' },
 			{ key: 'problem_name', label: 'Name' },
 			{ key: 'problem_desc', label: 'Description' },
-			{ key: 'date_resolved', label: 'Date/Time Resolved', format: 'datetime' }
+			{ key: 'date_resolved', label: 'Date / Time Resolved', format: 'datetime' }
 		]
 	);
 }

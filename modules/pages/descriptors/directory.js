@@ -131,7 +131,6 @@ export class PageDirectory extends PageDescriptor
 
 		const _afterDirChange = () => { this.OnDirectoryChange(instance); };
 		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(_afterDirChange);
-
 		instance.slide_directory.SelectIndexAfterDelay(0, 333, true);
 	}
 

@@ -1,7 +1,9 @@
 
 import { AppEvents } from "../../appevents.js";
+import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
 import { PanelContent } from "../../ui/panel_content.js";
+import { SlideSelector } from "../../ui/slide_selector.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
@@ -269,7 +271,7 @@ class PanelUserAllocationList extends PanelContent
 		for (let group_id in groups)
 		{
 			let search_blob = '';
-			let allocations = groups[group_id].records;
+			let allocations = groups[group_id];
 			let filter_match = true;
 
 			if (search_strs.length > 0)
@@ -280,7 +282,7 @@ class PanelUserAllocationList extends PanelContent
 				for (let allocation_id in allocations)
 				{
 					let allocation = allocations[allocation_id];
-					search_targets.push(allocation.user_id);
+					search_targets.push(this.get_record_label(allocation));
 				}
 				search_blob = search_targets.filter(_ => typeof _ === 'string').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0).join('::');
 
@@ -321,9 +323,41 @@ export class PageUserAllocations extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		instance.e_content.style.overflow = 'hidden';
+
+		instance.slide_mode = new SlideSelector();
+		const modes = [
+			{ label: 'PER GROUP', on_click: _ => { } },
+			{ label: 'PER USER', on_click: _ => { } }
+		];
+		instance.slide_mode.CreateElements(instance.e_content, modes);
+
+		const _afterModeChange = () => { this.UpdateMode(instance); };
+		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
+		instance.slide_mode.SelectIndexAfterDelay(0, 333, true);
+
 		//instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title.toUpperCase());
-		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.Title.toUpperCase(), _ => _.user_id);
+		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title);
 		instance.panel_list.CreateElements();
+	}
+
+	OnRemoveElements(instance)
+	{
+		instance.slide_mode.afterSelectionChanged.RemoveSubscription(instance.sub_modeChange);
+	}
+
+	UpdateMode(instance)
+	{
+		if (instance.slide_mode.selected_index === 0)
+		{
+			instance.panel_list.get_record_group = _ => _.Title;
+			instance.panel_list.get_record_label = _ => _.user_id;
+		}
+		else if (instance.slide_mode.selected_index === 1)
+		{
+			instance.panel_list.get_record_group = _ => _.user_id;
+			instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+		}
+		instance.panel_list.RefreshElements();
 	}
 
 	UpdateSize(instance)

@@ -287,7 +287,7 @@ export class SharedData
 	}
 }
 
-SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(() => { SharedData.LoadData(true) });
+SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(async () => { await SharedData.LoadData(true) });
 FieldValidation.RegisterValidator('role', SharedData.Validator_Roles);
 
 Modules.Report('Shared Data', `This module acts as an entrypoint for any aspect of ${AppInfo.name} which need access to shared online data.`);
