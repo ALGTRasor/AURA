@@ -6,7 +6,8 @@ import { PageDescriptor } from "../pagebase.js";
 export class PageProblems extends PageDescriptor
 {
 	title = 'problems';
-	order_index = 9;
+	order_index = 98;
+	extra_page = true;
 
 	OnOpen(instance)
 	{

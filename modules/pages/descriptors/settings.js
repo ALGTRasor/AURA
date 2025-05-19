@@ -115,6 +115,7 @@ class SettingSlider extends SettingControl
 		this.HandleMouse(e); // first update on mouse down
 		window.addEventListener('mouseup', e => this.DragEnd(e));
 		window.addEventListener('mousemove', e => this.HandleMouse(e));// one update per mouse move
+		this.e_slider.style.cursor = 'grabbing';
 	}
 
 	DragEnd(e)
@@ -124,6 +125,7 @@ class SettingSlider extends SettingControl
 		window.removeEventListener('mousemove', e => this.HandleMouse(e));
 		this.HandleMouse(e, true); // last update on mouse up
 		this.dragging = false;
+		this.e_slider.style.cursor = 'grab';
 	}
 }
 
@@ -240,7 +242,7 @@ export class PageSettings extends PageDescriptor
 				);
 
 				instance.e_toggle_ripples = new SettingToggle(
-					x, 'ripples', 'water_drop', GlobalStyling.ripples.enabled === true, () => 'Whether or not ripples are created where you click.',
+					x, 'ripples', 'water_drop', GlobalStyling.ripples.enabled === true, () => 'Whether or not ripples are created from pages or certain other events.',
 					_ =>
 					{
 						GlobalStyling.ripples.enabled = _.toggled === true;

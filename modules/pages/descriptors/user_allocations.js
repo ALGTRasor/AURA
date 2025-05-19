@@ -11,11 +11,12 @@ import { PageDescriptor } from "../pagebase.js";
 
 class PanelUserAllocationGroup extends PanelContent
 {
-	constructor(e_parent, group_id, records, get_row_label = _ => { _.user_id })
+	constructor(e_parent, group_id, records, get_row_label = _ => { _.user_id }, group_icon = 'deployed_code')
 	{
 		super(e_parent);
 		this.group_id = group_id;
 		this.records = records;
+		this.group_icon = group_icon;
 		this.get_row_label = get_row_label;
 	}
 
@@ -67,12 +68,13 @@ class PanelUserAllocationGroup extends PanelContent
 			e_parent, false, false, 'display:flex;padding:var(--gap-025);box-shadow:none;',
 			_ =>
 			{
-				if (allocation.user_id && allocation.user_id.length > 0)
+				let label_str = get_row_label(allocation);
+				if (label_str && label_str.length > 0)
 				{
 					addElement(
 						_, 'div', null,
 						'text-align:right;align-content:center;flex-grow:0.0;flex-shrink:0.0;flex-basis:8rem;padding:var(--gap-05);',
-						_ => { _.innerText = get_row_label(allocation); }
+						_ => { _.innerText = label_str; }
 					);
 				}
 
@@ -80,7 +82,7 @@ class PanelUserAllocationGroup extends PanelContent
 
 				addElement(
 					_, 'i', 'material-symbols',
-					'flex-basis:2rem;text-align:center;align-content:center;opacity:60%;font-size:1.25rem;color:' + use_note_color + ';',
+					'flex-basis:2rem; text-align:center; align-content:center; opacity:60%; font-size:1.25rem; color:' + use_note_color + ';',
 					use_note.toUpperCase()
 				);
 			}
@@ -90,7 +92,7 @@ class PanelUserAllocationGroup extends PanelContent
 	OnCreateElements()
 	{
 		this.e_root = CreatePagePanel(
-			this.e_parent, false, false, 'display:flex;flex-direction:column;padding:var(--gap-05);gap:var(--gap-05);flex-grow:0.0;flex-shrink:0.0;',
+			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-05); gap:var(--gap-05); flex-grow:0.0; flex-shrink:0.0;',
 			_ =>
 			{
 				let summary_max = 0.0;
@@ -108,7 +110,7 @@ class PanelUserAllocationGroup extends PanelContent
 				}
 
 				addElement(
-					_, 'div', null, 'display:flex;flex-direction:row;flex-basis:0.0;padding:var(--gap-025);gap:var(--gap-025);',
+					_, 'div', null, 'display:flex; flex-direction:row; flex-basis:0.0; padding:var(--gap-025); gap:var(--gap-025);',
 					_ =>
 					{
 						addElement(
@@ -116,7 +118,7 @@ class PanelUserAllocationGroup extends PanelContent
 							'text-align:center; align-content:center; font-size:1.75rem; line-height:1.75rem; flex-shrink:0.0; opacity:30%;',
 							_ =>
 							{
-								_.innerText = 'deployed_code';
+								_.innerText = this.group_icon;
 							}
 						);
 
@@ -126,8 +128,8 @@ class PanelUserAllocationGroup extends PanelContent
 							'text-align:center; align-content:center; flex-shrink:0.0; flex-grow:1.0; background:#0003; border-radius:var(--gap-05);',
 							_ =>
 							{
-								_.innerText = this.group_id.toUpperCase();
-								_.setAttribute('showcopy', '');
+								_.innerText = this.group_id;
+								_.addEventListener('click', _ => { navigator.clipboard.writeText(this.group_id); NotificationLog.Log('Copied text to clipboard'); });
 							}
 						);
 
@@ -214,11 +216,12 @@ class PanelUserAllocationGroup extends PanelContent
 
 class PanelUserAllocationList extends PanelContent
 {
-	constructor(e_parent, records, get_record_group = _ => _.Title, get_record_label = _ => _.user_id)
+	constructor(e_parent, records, get_record_group = _ => _.Title, get_record_label = _ => _.user_id, group_icon = 'deployed_code')
 	{
 		super(e_parent);
 		this.filter_dirty = new RunningTimeout(() => this.RefreshElements(), 0.5, false, 150);
 		this.records = records;
+		this.group_icon = group_icon;
 		this.get_record_label = get_record_label;
 		this.get_record_group = get_record_group;
 	}
@@ -263,11 +266,18 @@ class PanelUserAllocationList extends PanelContent
 		this.record_panels = [];
 		this.e_root_records.innerHTML = '';
 
+		const reduce_str = _ =>
+		{
+			_ = _.replaceAll(/[^\w]/g, '');
+			return _.trim().toLowerCase();
+		};
+
 		let search_strs = [];
 		if (this.e_input_search && this.e_input_search.value.length > 0)
-			search_strs = this.e_input_search.value.split(',').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0);
+			search_strs = this.e_input_search.value.split(',').map(reduce_str).filter(_ => _.length > 0);
 
 		let groups = Object.groupBy(this.records, this.get_record_group);
+		let find_many = true;
 		for (let group_id in groups)
 		{
 			let search_blob = '';
@@ -276,7 +286,7 @@ class PanelUserAllocationList extends PanelContent
 
 			if (search_strs.length > 0)
 			{
-				filter_match = false;
+				filter_match = find_many !== true;
 				let search_targets = [];
 				search_targets.push(group_id);
 				for (let allocation_id in allocations)
@@ -284,21 +294,42 @@ class PanelUserAllocationList extends PanelContent
 					let allocation = allocations[allocation_id];
 					search_targets.push(this.get_record_label(allocation));
 				}
-				search_blob = search_targets.filter(_ => typeof _ === 'string').map(_ => _.trim().toLowerCase()).filter(_ => _.length > 0).join('::');
+				search_blob = search_targets.filter(_ => typeof _ === 'string').map(reduce_str).filter(_ => _.length > 0).join('::');
 
 				for (let ssi in search_strs)
 				{
 					let search_str = search_strs[ssi];
-					if (search_blob.indexOf(search_str) > -1)
+					let found = search_blob.indexOf(search_str) > -1;
+
+					if (find_many === true)
 					{
-						filter_match = true;
-						break;
+						if (found)
+						{
+							filter_match = true;
+							break;
+						}
+					}
+					else
+					{
+						if (!found)
+						{
+							filter_match = false;
+							break;
+						}
 					}
 				}
 			}
 
 			if (filter_match !== true) continue;
-			this.record_panels.push(new PanelUserAllocationGroup(this.e_root_records, group_id, groups[group_id], this.get_record_label));
+			this.record_panels.push(
+				new PanelUserAllocationGroup(
+					this.e_root_records,
+					group_id,
+					groups[group_id],
+					this.get_record_label,
+					this.group_icon
+				)
+			);
 		}
 		for (let record_id in this.record_panels) this.record_panels[record_id].CreateElements();
 	}
@@ -326,8 +357,8 @@ export class PageUserAllocations extends PageDescriptor
 
 		instance.slide_mode = new SlideSelector();
 		const modes = [
-			{ label: 'PER GROUP', on_click: _ => { } },
-			{ label: 'PER USER', on_click: _ => { } }
+			{ label: 'BY GROUP', on_click: _ => { } },
+			{ label: 'BY USER', on_click: _ => { } }
 		];
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
@@ -349,13 +380,15 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		if (instance.slide_mode.selected_index === 0)
 		{
-			instance.panel_list.get_record_group = _ => _.Title;
+			instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
 			instance.panel_list.get_record_label = _ => _.user_id;
+			instance.panel_list.group_icon = 'deployed_code';
 		}
 		else if (instance.slide_mode.selected_index === 1)
 		{
 			instance.panel_list.get_record_group = _ => _.user_id;
 			instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+			instance.panel_list.group_icon = 'person';
 		}
 		instance.panel_list.RefreshElements();
 	}
