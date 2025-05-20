@@ -1,11 +1,29 @@
 .content-page-frames-root
 {
-	display: block;
-	position: absolute;
-	overflow: hidden;
-	inset: 0;
-
 	display: flex;
+	position: relative;
+	overflow: hidden;
+
+	flex-wrap: wrap;
+	flex-direction: row;
+	justify-content: center;
+
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+
+	gap: var(--gap-05);
+	padding: var(--gap-05);
+}
+
+.content-page-frames-pinned
+{
+	display: flex;
+	position: relative;
+	overflow: hidden;
+
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
+
 	flex-wrap: wrap;
 	flex-direction: row;
 	justify-content: center;

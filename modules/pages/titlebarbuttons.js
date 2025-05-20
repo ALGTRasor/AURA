@@ -1,4 +1,5 @@
 import { DebugLog } from "../debuglog.js";
+import { PageManager } from "../pagemanager.js";
 import { Ripples } from "../ui/ripple.js";
 import { addElement } from "../utils/domutils.js";
 
@@ -32,6 +33,13 @@ export class TitleBarButtonDescriptor
 		_ => { _.sort_order = -1000; }
 	);
 
+	static PageGetHelp = new TitleBarButtonDescriptor(
+		'help',
+		(e, data) => { if ('page' in data) PageManager.OpenPageByTitle('help', { topic: 'pages.' + data.page.page_descriptor.title }, true); },
+		(data) => 'Get help for this page or submit a complaint',
+		_ => { _.sort_order = -1000; }
+	);
+
 
 	static PageToggleDocked = new TitleBarButtonDescriptor(
 		(data) =>
@@ -62,6 +70,13 @@ export class TitleBarButtonDescriptor
 			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
 			_.get_color = data => is_page_docked(data.page) ? '' : 'cyan';
 		}
+	);
+
+	static PageTogglePin = new TitleBarButtonDescriptor(
+		'pin',
+		(e, data) => { if ('page' in data) data.page.TogglePinned(); },
+		(data) => 'Pin this page to the side',
+		_ => { _.sort_order = -1000; }
 	);
 
 

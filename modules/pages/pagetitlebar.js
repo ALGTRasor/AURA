@@ -214,7 +214,12 @@ export class PageTitleBar
 		if (this.page.page_descriptor.UpdateSize || this.page.state_data.docked === false)
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
 
+		//this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageTogglePin);
+
 		if (hasSiblingR) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageMoveR);
+
+		if (this.page.page_descriptor.title !== 'help')
+			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageGetHelp);
 
 		this.SortButtons(this.e_buttons_left);
 		this.SortButtons(this.e_buttons_right);

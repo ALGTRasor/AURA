@@ -160,8 +160,8 @@ export class PageManager
 		return -1;
 	}
 
-	static OpenPageByIndex(index, state = undefined) { PageManager.OpenPageFromDescriptor(PageManager.page_descriptors[index], state); }
-	static OpenPageByTitle(title, state = undefined)
+	static OpenPageByIndex(index, state = undefined, force_new = false) { PageManager.OpenPageFromDescriptor(PageManager.page_descriptors[index], state, force_new); }
+	static OpenPageByTitle(title, state = undefined, force_new = false)
 	{
 		var target_title = title.toLowerCase().trim();
 		for (let pid in PageManager.page_descriptors)
@@ -169,7 +169,7 @@ export class PageManager
 			let p = PageManager.page_descriptors[pid];
 			if (p.title === target_title) 
 			{
-				PageManager.OpenPageFromDescriptor(p, state);
+				PageManager.OpenPageFromDescriptor(p, state, force_new);
 				return;
 			}
 		}
@@ -244,7 +244,7 @@ export class PageManager
 		return true;
 	}
 
-	static TogglePageByTitle(title, state = undefined)
+	static TogglePageByTitle(title, state = undefined, force_new = false)
 	{
 		title = title.toLowerCase().trim();
 		if (!PageManager.IsPageAvailable(title)) 
@@ -268,7 +268,7 @@ export class PageManager
 			return;
 		}
 
-		PageManager.OpenPageFromDescriptor(desc, state);
+		PageManager.OpenPageFromDescriptor(desc, state, force_new);
 	}
 
 

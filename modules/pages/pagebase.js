@@ -82,6 +82,12 @@ export class PageInstance
 		PageManager.onLayoutChange.Invoke();
 	}
 
+	TogglePinned()
+	{
+		this.state_data.pinned = this.state_data.pinned !== true;
+		PageManager.onLayoutChange.Invoke();
+	}
+
 	SetFrameParentElement(new_parent)
 	{
 		if (!new_parent) return;
@@ -100,6 +106,8 @@ export class PageInstance
 	{
 		const loose_root = 'content-page-frames-loose';
 		const docked_root = 'content-page-frames-root';
+		const pinned_root = 'content-page-frames-pinned';
+		if (this.state_data.pinned === true) return document.getElementById(pinned_root);
 		if (this.state_data.docked === true) return document.getElementById(docked_root);
 		return document.getElementById(loose_root);
 	}
@@ -295,7 +303,7 @@ export class PageInstance
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
-		if (this.state_data.docked === true)
+		if (this.state_data.docked === true || this.state_data.pinned === true)
 		{
 			this.e_frame.style.position = 'relative';
 			this.e_frame.style.left = 'unset';

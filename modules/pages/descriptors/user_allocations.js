@@ -403,7 +403,7 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		if (instance.state_data.docked === true)
 		{
-			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '72rem';
+			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
 			else instance.e_frame.style.maxWidth = '32rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';
