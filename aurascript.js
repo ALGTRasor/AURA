@@ -251,6 +251,7 @@ function PopulateActionBarButtons()
 
 async function OnAuraInit()
 {
+
 	CheckWindowArgs();
 	PrepareDocument();
 	PrepareActionBar();

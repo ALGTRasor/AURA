@@ -4,9 +4,10 @@ import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
+import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
+import { Help } from "./help.js";
 
 
 class PanelUserAllocationGroup extends PanelContent
@@ -28,7 +29,9 @@ class PanelUserAllocationGroup extends PanelContent
 		else if (fill == 1.0) color = '#0ff3';
 		else if (fill > 0.9) color = '#0f03';
 
-		let fill_style = `pointer-events:none;box-sizing:border-box;position:absolute;inset:0;width:${Math.min(1, fill) * 100.0}%; background:${color};`;
+		let fill_style = 'pointer-events:none; box-sizing:border-box; position:absolute; inset:0; width:0%;'
+			+ 'transition-property:width, background-color; transition-duration:var(--trans-dur-off-slow); transition-timing-function:ease-in-out;'
+			+ 'background:hsl(from var(--theme-color) h s 30%);';
 		if (fill > 1.0) fill_style += 'border:solid 2px orange;';
 		else fill_style += 'border-right:solid 4px #fff1;';
 
@@ -37,8 +40,16 @@ class PanelUserAllocationGroup extends PanelContent
 			'text-align:center;padding:var(--gap-025);align-content:center;border:solid 2px hsl(from var(--theme-color) h s 12%);',
 			_ =>
 			{
-				addElement(_, 'div', null, fill_style);
+				let e_fill = addElement(_, 'div', null, fill_style);
 				addElement(_, 'div', null, null, label);
+				window.setTimeout(
+					() =>
+					{
+						e_fill.style.background = color;
+						e_fill.style.width = `${Math.min(1, fill) * 100.0}%`;
+					},
+					50 + Math.random() * 200
+				);
 			}
 		);
 	}
@@ -219,7 +230,7 @@ class PanelUserAllocationList extends PanelContent
 	constructor(e_parent, records, get_record_group = _ => _.Title, get_record_label = _ => _.user_id, group_icon = 'deployed_code')
 	{
 		super(e_parent);
-		this.filter_dirty = new RunningTimeout(() => this.RefreshElements(), 0.5, false, 150);
+		this.filter_dirty = new RunningTimeout(() => this.RefreshElements(), 0.25, false, 150);
 		this.records = records;
 		this.group_icon = group_icon;
 		this.get_record_label = get_record_label;
@@ -228,12 +239,12 @@ class PanelUserAllocationList extends PanelContent
 
 	OnCreateElements()
 	{
-		this.e_root = addElement(this.e_parent, 'div', null, 'position:relative;display:flex;flex-direction:column;gap:var(--gap-025);flex-basis:100%;flex-grow:1.0;overflow:hidden;');
+		this.e_root = addElement(this.e_parent, 'div', null, 'position:relative; display:flex; flex-direction:column; gap:var(--gap-025); flex-basis:100%; flex-grow:1.0; overflow:hidden;');
 
 		this.e_filters_root = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;');
 		this.e_input_search = addElement(
 			this.e_filters_root, 'input', null,
-			'flex-basis:100%;padding:var(--gap-05); color:hsl(from var(--theme-color) h s 45%);',
+			'flex-basis:100%; padding:var(--gap-05); color:hsl(from var(--theme-color) h s 45%);',
 			_ =>
 			{
 				_.type = 'text';
@@ -242,12 +253,12 @@ class PanelUserAllocationList extends PanelContent
 			}
 		);
 
-		this.e_root_records = CreatePagePanel(this.e_root, true, false, 'display:flex;flex-direction:column;gap:var(--gap-1);padding:var(--gap-05);');
+		this.e_root_records = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:column; gap:var(--gap-1); padding:var(--gap-05);');
 		this.e_root_records.classList.add('scroll-y');
 
-		this.e_actions = CreatePagePanel(this.e_root, true, true, 'gap:var(--gap-025);flex-basis:2.5rem;flex-grow:0.0;flex-shrink:0.0;justify-content:space-around;');
+		this.e_actions = CreatePagePanel(this.e_root, true, true, 'gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
-			this.e_actions, false, false, 'align-content:center;text-align:center;max-width:12rem;',
+			this.e_actions, false, false, 'align-content:center; text-align:center; max-width:12rem;',
 			_ =>
 			{
 				_.classList.add('panel-button');
@@ -354,21 +365,23 @@ export class PageUserAllocations extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		instance.e_content.style.overflow = 'hidden';
+		instance.e_content.style.display = 'flex';
+		instance.e_content.style.gap = 'var(--gap-025)';
+		instance.e_content.style.flexDirection = 'column';
 
 		instance.slide_mode = new SlideSelector();
 		const modes = [
 			{ label: 'BY GROUP', on_click: _ => { } },
 			{ label: 'BY USER', on_click: _ => { } }
 		];
-		instance.slide_mode.CreateElements(instance.e_content, modes);
-
-		const _afterModeChange = () => { this.UpdateMode(instance); };
-		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
-		instance.slide_mode.SelectIndexAfterDelay(0, 333, true);
 
 		//instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title.toUpperCase());
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title);
-		instance.panel_list.CreateElements();
+
+		instance.slide_mode.CreateElements(instance.e_content, modes);
+		const _afterModeChange = () => { this.UpdateMode(instance); };
+		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
+		instance.slide_mode.SelectIndexAfterDelay(0, 500, true);
 	}
 
 	OnRemoveElements(instance)
@@ -378,19 +391,32 @@ export class PageUserAllocations extends PageDescriptor
 
 	UpdateMode(instance)
 	{
-		if (instance.slide_mode.selected_index === 0)
-		{
-			instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
-			instance.panel_list.get_record_label = _ => _.user_id;
-			instance.panel_list.group_icon = 'deployed_code';
-		}
-		else if (instance.slide_mode.selected_index === 1)
-		{
-			instance.panel_list.get_record_group = _ => _.user_id;
-			instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
-			instance.panel_list.group_icon = 'person';
-		}
-		instance.panel_list.RefreshElements();
+		const fade_out = () => FadeElement(instance.panel_list.e_root, 100, 0, 0.1);
+		const fade_in = () => FadeElement(instance.panel_list.e_root, 0, 100, 0.5);
+
+		instance.slide_mode.SetDisabled(true);
+
+		fade_out().then(
+			_ =>
+			{
+				if (instance.slide_mode.selected_index === 0)
+				{
+					instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
+					instance.panel_list.get_record_label = _ => _.user_id;
+					instance.panel_list.group_icon = 'deployed_code';
+				}
+				else if (instance.slide_mode.selected_index === 1)
+				{
+					instance.panel_list.get_record_group = _ => _.user_id;
+					instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+					instance.panel_list.group_icon = 'person';
+				}
+				instance.panel_list.RecreateElements();
+			}
+
+		).then(fade_in).then(() => { instance.slide_mode.SetDisabled(false); });
+
+
 	}
 
 	UpdateSize(instance)
@@ -429,3 +455,8 @@ export class PageUserAllocations extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageUserAllocations('user allocations', 'projects.create'));
+Help.Register(
+	'pages.user allocations', 'User Allocations',
+	'The User Allocations page allows you to view and manage hours allocated to Users.'
+	+ '\nYou can see the share of allocations that has been used, grouped either by Allocation ID or by User, create new allocations, and adjust existing ones.'
+);

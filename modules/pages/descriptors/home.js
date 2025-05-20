@@ -3,6 +3,7 @@ import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
+import { Help } from "./help.js";
 
 /*
 EXPECTED PAGE ORDER
@@ -180,3 +181,9 @@ export class PageHome extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission), 'n', 'Nav Menu');
+Help.Register(
+	'pages.nav menu', 'Navigation Menu',
+	'The Navigation Menu shows all pages which you have access to.'
+	+ '\nClick an item in the list to open that page, or to close it if there is already one open.'
+	+ '\nYou can also hold Shift to force a new instance of a page, even if there is already one open.'
+);

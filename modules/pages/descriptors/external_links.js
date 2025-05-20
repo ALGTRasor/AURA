@@ -2,6 +2,7 @@ import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
+import { Help } from "./help.js";
 
 export class PageExternalLinks extends PageDescriptor
 {
@@ -109,3 +110,8 @@ export class PageExternalLinks extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission), 'l', 'External Links');
+Help.Register(
+	'pages.external links', 'External Links',
+	'The External Links page provides a list of websites Users might find useful.'
+	+ '\nThe links were collected from individuals across the company who take advantage of the services or tools the site provides on a regular basis.'
+);

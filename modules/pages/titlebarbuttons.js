@@ -1,6 +1,6 @@
 import { DebugLog } from "../debuglog.js";
 import { PageManager } from "../pagemanager.js";
-import { Ripples } from "../ui/ripple.js";
+import { Distinct } from "../utils/arrayutils.js";
 import { addElement } from "../utils/domutils.js";
 
 export class TitleBarButtonDescriptor
@@ -34,22 +34,31 @@ export class TitleBarButtonDescriptor
 	);
 
 	static PageGetHelp = new TitleBarButtonDescriptor(
-		'help',
-		(e, data) => { if ('page' in data) PageManager.OpenPageByTitle('help', { topic: 'pages.' + data.page.page_descriptor.title }, true); },
+		'question_mark',
+		(e, data) =>
+		{
+			if ('page' in data)
+			{
+				let topic = 'pages.' + data.page.page_descriptor.title;
+				let pageInstance = PageManager.GetInstanceByTitle('help');
+				if (pageInstance) 
+				{
+					let topic_prev = pageInstance.state_data.topic;
+					let topics_prev = topic_prev.split(';');
+					topics_prev.push(topic);
+					topics_prev = Distinct(topics_prev);
+					pageInstance.UpdateStateData({ topic: topics_prev.join(';') });
+				}
+				else PageManager.OpenPageByTitle('help', { topic: topic }, true);
+			}
+		},
 		(data) => 'Get help for this page or submit a complaint',
-		_ => { _.sort_order = -1000; }
+		_ => { _.sort_order = 1000; }
 	);
 
 
 	static PageToggleDocked = new TitleBarButtonDescriptor(
-		(data) =>
-		{
-			return 'flip_to_front';
-			if (!('page' in data)) return 'flip_to_front';
-			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
-			if (is_page_docked(data.page)) return 'flip_to_front';
-			return 'team_dashboard';
-		},
+		(data) => { return 'flip_to_front'; },
 		(e, data) =>
 		{
 			if ('page' in data) data.page.TryToggleDocked();
@@ -73,7 +82,7 @@ export class TitleBarButtonDescriptor
 	);
 
 	static PageTogglePin = new TitleBarButtonDescriptor(
-		'pin',
+		(data) => 'keep',
 		(e, data) => { if ('page' in data) data.page.TogglePinned(); },
 		(data) => 'Pin this page to the side',
 		_ => { _.sort_order = -1000; }

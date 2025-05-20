@@ -10,6 +10,9 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { UserSettings } from "../../usersettings.js";
 import { Hotkeys } from "../../utils/hotkeys.js";
 import { PageDescriptor } from "../pagebase.js";
+import { Help } from "./help.js";
+import { AppInfo } from "../../app_info.js";
+import { Ripples } from "../../ui/ripple.js";
 
 
 class SettingControl
@@ -111,21 +114,29 @@ class SettingSlider extends SettingControl
 
 	DragStart(e)
 	{
-		this.dragging = true;
-		this.HandleMouse(e); // first update on mouse down
-		window.addEventListener('mouseup', e => this.DragEnd(e));
-		window.addEventListener('mousemove', e => this.HandleMouse(e));// one update per mouse move
-		this.e_slider.style.cursor = 'grabbing';
+		if (this.dragging !== true)
+		{
+			this.dragging = true;
+			this.HandleMouse(e); // first update on mouse down
+			window.addEventListener('mouseup', e => this.DragEnd(e));
+			window.addEventListener('mousemove', e => this.HandleMouse(e));// one update per mouse move
+			this.e_slider.style.cursor = 'grabbing';
+			Ripples.SpawnFromElement(this.e_slider, 0);
+		}
 	}
 
 	DragEnd(e)
 	{
-		this.e_slider.blur();
-		window.removeEventListener('mouseup', e => this.DragEnd(e));
-		window.removeEventListener('mousemove', e => this.HandleMouse(e));
-		this.HandleMouse(e, true); // last update on mouse up
-		this.dragging = false;
-		this.e_slider.style.cursor = 'grab';
+		if (this.dragging === true)
+		{
+			this.e_slider.blur();
+			window.removeEventListener('mouseup', e => this.DragEnd(e));
+			window.removeEventListener('mousemove', e => this.HandleMouse(e));
+			this.HandleMouse(e, true); // last update on mouse up
+			this.dragging = false;
+			this.e_slider.style.cursor = 'grab';
+			Ripples.SpawnFromElement(this.e_slider, 0);
+		}
 	}
 }
 
@@ -155,6 +166,7 @@ class SettingToggle extends SettingControl
 				this.toggled = !this.toggled;
 				if (this.onValueChange) this.onValueChange(this);
 				this.UpdateStyle();
+				Ripples.SpawnFromElement(this.e_root, 0);
 			}
 		);
 
@@ -652,11 +664,13 @@ export class PageSettings extends PageDescriptor
 			{
 				dragging = true;
 				handleMouse(e);
+				Ripples.SpawnFromElement(e_slider, 0);
 
 				const fn_MouseMove = e => { handleMouse(e); };
 				const fn_MouseUp = e =>
 				{
 					handleMouse(e, true);
+					Ripples.SpawnFromElement(e_slider, 0);
 					dragging = false;
 					window.removeEventListener('mouseup', fn_MouseUp);
 					window.removeEventListener('mousemove', fn_MouseMove);
@@ -671,5 +685,9 @@ export class PageSettings extends PageDescriptor
 	}
 }
 
-
 PageManager.RegisterPage(new PageSettings('settings'), 's', 'Settings');
+Help.Register(
+	'pages.settings', 'The Settings Page',
+	'The Settings page allows Users to configure various aspects of ' + AppInfo.name + '.'
+	+ '\nUsers can also find extra information in Settings, such as the hotkeys they can use or which permissions they have been granted.'
+);

@@ -4,6 +4,7 @@ import { SlideSelector } from "../../ui/slide_selector.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
 import { PageDescriptor } from "../pagebase.js";
+import { Help } from "./help.js";
 
 export class PageFiles extends PageDescriptor
 {
@@ -89,3 +90,9 @@ export class PageFiles extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageFiles('files', UserAccountInfo.app_access_permission), 'f', 'File Explorer');
+Help.Register(
+	'pages.files', 'The Files Page',
+	'The Files page allows Users to browse the internal file library.'
+	+ '\nThe internal file library contains files relevant to projects, users, tasks, HR, contacts, and more.'
+	+ '\nEach User is also allocated a reserved directory for their own (work related) usage.'
+);

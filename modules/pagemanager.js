@@ -174,6 +174,20 @@ export class PageManager
 			}
 		}
 	}
+	static GetInstanceByTitle(title)
+	{
+		var target_title = title.toLowerCase().trim();
+		for (let pid in PageManager.page_descriptors)
+		{
+			let p = PageManager.page_descriptors[pid];
+			if (p.title === target_title) 
+			{
+				return p.GetInstance();
+			}
+		}
+		return undefined;
+	}
+
 
 	static CloseAll()
 	{

@@ -14,6 +14,7 @@ import { AccountUser } from "../../datamodels/account_user.js";
 import { InternalUser } from "../../datamodels/internal_user.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { HrRequest } from "../../datamodels/hr_request.js";
+import { Help } from "./help.js";
 
 
 
@@ -340,3 +341,8 @@ export class PageMyData extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission), 'm', 'My Data');
+Help.Register(
+	'pages.my data', 'My Data',
+	'The My Data page allows Users to view and manage their own employee information.'
+	+ '\nUsers can find a list of pending requests from HR and their document upload history in My Data.'
+);

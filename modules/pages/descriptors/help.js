@@ -1,6 +1,6 @@
+import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { AppInfo } from "../../app_info.js";
 import { PageManager } from "../../pagemanager.js";
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class Help
@@ -9,7 +9,7 @@ export class Help
 
 	static Register(topic = '', label = '', body = '')
 	{
-		Help.all_help[topic] = { label: label, body: body };
+		Help.all_help[topic] = { topic: topic, label: label, body: body };
 	}
 }
 
@@ -44,22 +44,52 @@ export class PageHelp extends PageDescriptor
 	UpdateHelpContent(instance)
 	{
 		instance.e_help_root.innerHTML = '';
+		let all_topics = [];
 
-		if (instance.state_data.topic && instance.state_data.topic.length > 0)
+		if (instance.state_data.topic && instance.state_data.topic.length > 0) all_topics = instance.state_data.topic.split(';');
+		if (all_topics.length < 1) instance.state_data.topic = '';
+
+		if (all_topics.length > 0) // topic(s) provided
 		{
 			let any_found = false;
 			for (let hid in Help.all_help) 
 			{
-				let help_info = Help.all_help[hid];
-				if (!hid.startsWith(instance.state_data.topic)) continue;
+				let relevant = false;
+				for (let tid in all_topics) if (hid.startsWith(all_topics[tid])) relevant = true;
+				if (relevant !== true) continue;
+
+				const help_info = Help.all_help[hid];
 				any_found = true;
 				CreatePagePanel(
 					instance.e_help_root, false, false,
-					'flex-grow:0.0; font-size:115%;',
+					'flex-grow:0.0; font-size:1rem;',
 					_ =>
 					{
 						addElement(_, 'div', null, 'padding-bottom:var(--gap-025);', help_info.label);
-						CreatePagePanel(_, true, false, 'padding:var(--gap-05);', _ => { _.innerText = help_info.body; });
+						let body_parts = help_info.body.split('\n');
+						for (let bpid in body_parts) CreatePagePanel(_, true, false, 'padding:calc(0.25rem + var(--gap-025)); font-size:0.85rem;', _ => { _.innerText = body_parts[bpid]; });
+
+						let e_btn_root = CreatePagePanel(_, true, false);
+						addElement(
+							e_btn_root, 'div', 'page-panel panel-button', 'align-content:center;',
+							e_btn =>
+							{
+								e_btn.addEventListener(
+									'click',
+									e =>
+									{
+										let topics = instance.state_data.topic.split(';');
+										topics.splice(topics.indexOf(help_info.topic), 1);
+										instance.UpdateStateData({ topic: (topics.length > 0 ? topics.join(';') : []) });
+									}
+								);
+								e_btn.title = 'Dismiss';
+								addElement(
+									e_btn, 'i', 'material-symbols', 'display:block;',
+									e_icon => { e_icon.innerText = 'task_alt'; }
+								);
+							}
+						);
 					}
 				);
 			}
@@ -76,7 +106,7 @@ export class PageHelp extends PageDescriptor
 				);
 			}
 		}
-		else
+		else // no topic provided
 		{
 			let top_level_groups = [];
 			for (let hid in Help.all_help) top_level_groups.push(hid.substring(hid.indexOf('.'), -1));
@@ -113,10 +143,10 @@ export class PageHelp extends PageDescriptor
 }
 
 
-Help.Register('pages.help', 'The Help Page', 'The help page shows you information about specific pages or other aspects of ' + AppInfo.name);
-Help.Register('pages.nav menu', 'Navigation Menu', 'The Navigation Menu shows all pages which you have access to. Click an item in the list to open that page, or to close it if there is one already open. You can also hold Shift to force a new instance of the page you want to open.');
-Help.Register('pages.settings', 'The Settings Page', 'The Settings page allows you to configure various aspects of ' + AppInfo.name + '. You can also find extra information here, like which hotkeys you can use.');
-Help.Register('pages.directory', 'The Directory', 'The Directory contains information for internal users and external contacts. You can use the Directory as a sort of phone book.');
-Help.Register('pages.external links', 'External Links', 'The External Links page provides a list of websites you might find useful.');
-
+window.RegisterHelp = (topic, label, body) => Help.Register(topic, label, body);
+Help.Register(
+	'pages.help', 'The Help Page',
+	'The help page provides information about specific aspects of ' + AppInfo.name + '.'
+	+ '\nUsers can get help for each available page by clicking the help button from a page\'s title bar.'
+);
 PageManager.RegisterPage(new PageHelp('help'), '/', 'Help');

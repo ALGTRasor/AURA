@@ -6,6 +6,7 @@ import { PanelContent } from "../../ui/panel_content.js";
 import { SharedData } from "../../remotedata/datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
+import { Help } from "./help.js";
 
 const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); overflow: hidden auto;';
 
@@ -214,3 +215,8 @@ export class PageDirectory extends PageDescriptor
 }
 
 PageManager.RegisterPage(new PageDirectory('directory'), 'd', 'Directory', 'users.view');
+Help.Register(
+	'pages.directory', 'The Directory',
+	'The Directory contains information for internal users and external contacts.'
+	+ '\nUsers can use the Directory as a sort of phone book.'
+);

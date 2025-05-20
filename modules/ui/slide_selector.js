@@ -24,6 +24,7 @@ export class SlideSelector
         this.disabled = disabled;
         if (disabled === true)
         {
+            this.e_selector.style.cursor = 'wait';
             this.e_root.style.cursor = 'wait';
             this.e_root.style.pointerEvents = 'none';
         }
@@ -31,6 +32,7 @@ export class SlideSelector
         {
             this.e_root.style.pointerEvents = 'all';
             this.e_root.style.cursor = 'pointer';
+            this.e_selector.style.cursor = 'pointer';
         }
     }
 
@@ -39,7 +41,7 @@ export class SlideSelector
         if (this.created === true) return;
 
         this.e_root = CreatePagePanel(
-            parent, true, false, 'letter-spacing:0.15rem; gap:0; border:none; margin:2px;',
+            parent, true, false, 'letter-spacing:0.15rem; gap:0; border:none; ',
             x =>
             {
                 x.tabIndex = '0';
@@ -56,7 +58,7 @@ export class SlideSelector
 
         this.e_selector = CreatePagePanel(
             this.e_root, false, false,
-            'position:absolute; z-index:2;'
+            'position:absolute; z-index:2; pointer-events:none;'
             + 'transition-property:top,left,width,height;'
             + 'transition-duration:var(--trans-dur-off-slow);'
         );

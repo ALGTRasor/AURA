@@ -71,6 +71,7 @@ export class PageTitleBar
 		window.addEventListener('mousemove', this.handle_drag);
 		window.addEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.add("dragging");
+		this.e_buttons.style.display = 'none';
 		this.page.DisableBodyTransitions();
 		PageManager.pages_being_dragged += 1;
 		Ripples.SpawnFromElement(this.page.e_body, 0);
@@ -105,9 +106,10 @@ export class PageTitleBar
 		window.removeEventListener('mouseup', this.handle_drag_end);
 		this.e_title.classList.remove("dragging");
 		this.page.EnableBodyTransitions();
+		this.e_buttons.style.display = 'flex';
 
 		PageManager.pages_being_dragged -= 1;
-		Ripples.SpawnFromElement(this.page.e_body);
+		Ripples.SpawnFromElement(this.page.e_body, 0);
 	};
 
 	AddButton(parent, icon = '', action = e => { }, color = '', tooltip = '', sortOrder = 0)

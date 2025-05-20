@@ -35,7 +35,6 @@ export class GlobalStylingAspect
 
 export class GlobalStyling
 {
-
     static SetRootStyleProperty(property, value) { document.documentElement.style.setProperty(property, value); }
 
     static aspects = [];
@@ -55,7 +54,6 @@ export class GlobalStyling
         if (doLayoutChange) PageManager.onLayoutChange.Invoke();
         if (doAutosave) Autosave.InvokeSoon();
     }
-
 
     static RegisterAspect(load = _ => { }, save = _ => { }, apply = _ => { })
     {
