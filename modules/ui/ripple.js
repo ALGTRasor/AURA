@@ -81,7 +81,7 @@ class RippleTypeBase
 		const opacity_wave = x => 1.0 - Math.pow(2.0 * Math.sqrt(x) - 1.0, 2);
 		let opacity = opacity_wave(this.ripple_phase);
 		opacity = Math.pow(opacity, 3);
-		this.e_ripple.style.opacity = (opacity * 100) + '%';
+		this.e_ripple.style.opacity = (opacity * 50) + '%';
 	}
 
 	RefreshSize()

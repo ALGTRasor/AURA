@@ -141,7 +141,6 @@ export class PageTitleBar
 		if (!this.page) return;
 
 		this.e_root = addElement(this.page.e_body, 'div', 'page-title-bar');
-		this.e_root.tabIndex = '0';
 
 		this.e_title = addElement(this.e_root, 'div', 'page-title');
 

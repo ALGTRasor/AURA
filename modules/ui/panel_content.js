@@ -31,6 +31,7 @@ export class PanelContent
 
 	RefreshElements()
 	{
+		this.CreateElements();
 		if (this.created === false) return;
 		try { this.OnRefreshElements(); } catch (e) { this.OnError(e); }
 	}

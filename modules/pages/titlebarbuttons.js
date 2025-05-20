@@ -43,11 +43,11 @@ export class TitleBarButtonDescriptor
 				let pageInstance = PageManager.GetInstanceByTitle('help');
 				if (pageInstance) 
 				{
-					let topic_prev = pageInstance.state_data.topic;
-					let topics_prev = topic_prev.split(';');
-					topics_prev.push(topic);
-					topics_prev = Distinct(topics_prev);
-					pageInstance.UpdateStateData({ topic: topics_prev.join(';') });
+					//let topic_prev = pageInstance.state_data.topic;
+					//let topics_prev = topic_prev ? topic_prev.split(';') : [];
+					//topics_prev.push(topic);
+					//topics_prev = Distinct(topics_prev);
+					pageInstance.UpdateStateData({ topic: topic });
 				}
 				else PageManager.OpenPageByTitle('help', { topic: topic }, true);
 			}

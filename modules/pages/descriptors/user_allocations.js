@@ -256,6 +256,8 @@ class PanelUserAllocationList extends PanelContent
 		this.e_root_records = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:column; gap:var(--gap-1); padding:var(--gap-05);');
 		this.e_root_records.classList.add('scroll-y');
 
+		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:column; gap:var(--gap-1);');
+
 		this.e_actions = CreatePagePanel(this.e_root, true, true, 'gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
 			this.e_actions, false, false, 'align-content:center; text-align:center; max-width:12rem;',
@@ -268,6 +270,7 @@ class PanelUserAllocationList extends PanelContent
 		);
 
 		this.filter_dirty.ExtendTimer();
+		//this.RefreshElements();
 	}
 
 	OnRefreshElements()
@@ -275,7 +278,7 @@ class PanelUserAllocationList extends PanelContent
 		for (let record_id in this.record_panels) this.record_panels[record_id].RemoveElements();
 
 		this.record_panels = [];
-		this.e_root_records.innerHTML = '';
+		this.e_root_records_actual.innerHTML = '';
 
 		const reduce_str = _ =>
 		{
@@ -287,19 +290,25 @@ class PanelUserAllocationList extends PanelContent
 		if (this.e_input_search && this.e_input_search.value.length > 0)
 			search_strs = this.e_input_search.value.split(',').map(reduce_str).filter(_ => _.length > 0);
 
-		let groups = Object.groupBy(this.records, this.get_record_group);
+		let groups = [];
+		let grouped = Object.groupBy(this.records, this.get_record_group);
+		for (let gid in grouped) groups.push({ label: gid, records: grouped[gid] });
+		//if (this.sorter) groups = groups.sort(this.sorter);
+
 		let find_many = true;
 		for (let group_id in groups)
 		{
+			let group = groups[group_id];
+
 			let search_blob = '';
-			let allocations = groups[group_id];
+			let allocations = group.records;
 			let filter_match = true;
 
 			if (search_strs.length > 0)
 			{
 				filter_match = find_many !== true;
 				let search_targets = [];
-				search_targets.push(group_id);
+				search_targets.push(group.label);
 				for (let allocation_id in allocations)
 				{
 					let allocation = allocations[allocation_id];
@@ -334,9 +343,9 @@ class PanelUserAllocationList extends PanelContent
 			if (filter_match !== true) continue;
 			this.record_panels.push(
 				new PanelUserAllocationGroup(
-					this.e_root_records,
-					group_id,
-					groups[group_id],
+					this.e_root_records_actual,
+					group.label,
+					group.records,
 					this.get_record_label,
 					this.group_icon
 				)
@@ -375,13 +384,13 @@ export class PageUserAllocations extends PageDescriptor
 			{ label: 'BY USER', on_click: _ => { } }
 		];
 
-		//instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title.toUpperCase());
-		instance.panel_list = new PanelUserAllocationList(instance.e_content, window.SharedData.userAllocations.instance.data, _ => _.user_id, _ => _.Title);
-
 		instance.slide_mode.CreateElements(instance.e_content, modes);
+
+		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.Title.toUpperCase(), _ => _.user_id);
 		const _afterModeChange = () => { this.UpdateMode(instance); };
 		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
-		instance.slide_mode.SelectIndexAfterDelay(0, 500, true);
+
+		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
 	}
 
 	OnRemoveElements(instance)
@@ -391,32 +400,35 @@ export class PageUserAllocations extends PageDescriptor
 
 	UpdateMode(instance)
 	{
-		const fade_out = () => FadeElement(instance.panel_list.e_root, 100, 0, 0.1);
-		const fade_in = () => FadeElement(instance.panel_list.e_root, 0, 100, 0.5);
+		const fade_out = () => FadeElement(instance.panel_list.e_root_records_actual, 100, 0, 0.1);
+		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, 0.5);
 
 		instance.slide_mode.SetDisabled(true);
 
 		fade_out().then(
 			_ =>
 			{
-				if (instance.slide_mode.selected_index === 0)
+				instance.panel_list.records = window.SharedData.userAllocations.instance.data;
+				switch (instance.slide_mode.selected_index)
 				{
-					instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
-					instance.panel_list.get_record_label = _ => _.user_id;
-					instance.panel_list.group_icon = 'deployed_code';
+					case 0:
+						instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
+						instance.panel_list.get_record_label = _ => _.user_id;
+						instance.panel_list.group_icon = 'deployed_code';
+						break;
+					case 1:
+						instance.panel_list.get_record_group = _ => _.user_id;
+						instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+						instance.panel_list.group_icon = 'person';
+						break;
 				}
-				else if (instance.slide_mode.selected_index === 1)
-				{
-					instance.panel_list.get_record_group = _ => _.user_id;
-					instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
-					instance.panel_list.group_icon = 'person';
-				}
-				instance.panel_list.RecreateElements();
+				instance.panel_list.RefreshElements();
 			}
-
-		).then(fade_in).then(() => { instance.slide_mode.SetDisabled(false); });
-
-
+		).then(
+			fade_in
+		).then(
+			() => { instance.slide_mode.SetDisabled(false); }
+		);
 	}
 
 	UpdateSize(instance)

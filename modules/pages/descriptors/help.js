@@ -2,6 +2,7 @@ import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { AppInfo } from "../../app_info.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
+import { TopicExplorer } from "../../ui/topic_explorer.js";
 
 export class Help
 {
@@ -31,8 +32,14 @@ export class PageHelp extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_help_root = CreatePagePanel(instance.e_content, true, false, 'display:flex; flex-direction:column; gap:var(--gap-025); text-align:center;');
-		this.UpdateHelpContent(instance);
+		//instance.e_help_root = CreatePagePanel(instance.e_content, true, false, 'display:flex; flex-direction:column; gap:var(--gap-025); text-align:center;');
+		//this.UpdateHelpContent(instance);
+
+		let all_topics = [];
+		for (let topic_id in Help.all_help) all_topics.push(Help.all_help[topic_id]);
+
+		instance.explorer = new TopicExplorer(instance.e_content, all_topics);
+		instance.explorer.CreateElements();
 	}
 
 	OnStateChange(instance)
@@ -44,18 +51,18 @@ export class PageHelp extends PageDescriptor
 	UpdateHelpContent(instance)
 	{
 		instance.e_help_root.innerHTML = '';
-		let all_topics = [];
 
+		let all_topics = [];
 		if (instance.state_data.topic && instance.state_data.topic.length > 0) all_topics = instance.state_data.topic.split(';');
 		if (all_topics.length < 1) instance.state_data.topic = '';
 
-		if (all_topics.length > 0) // topic(s) provided
+		if (instance.state_data.topic && instance.state_data.topic.length > 0) // topic(s) provided
 		{
 			let any_found = false;
 			for (let hid in Help.all_help) 
 			{
 				let relevant = false;
-				for (let tid in all_topics) if (hid.startsWith(all_topics[tid])) relevant = true;
+				if (hid.startsWith(instance.state_data.topic)) relevant = true;
 				if (relevant !== true) continue;
 
 				const help_info = Help.all_help[hid];
