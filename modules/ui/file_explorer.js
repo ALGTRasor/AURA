@@ -726,12 +726,12 @@ export class FileExplorer extends PanelContent
                             NotificationLog.Log('Uploaded File: ' + file.name, '#0ff');
                         };
                         const file = files.item(fid);
+                        fid++;
                         if (file)
                         {
                             if (file.size < (250 * bytes_mb)) uploads.push(prepare_upload(file));
                             else NotificationLog.Log('Skipped File Upload: ' + file.name + ' ( file too big! )', '#ff0');
                         }
-                        fid++;
                     }
 
                     if (uploads.length > 0)
