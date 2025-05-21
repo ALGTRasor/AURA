@@ -31,7 +31,7 @@ export class PageFiles extends PageDescriptor
 
 		instance.e_explorer_root = CreatePagePanel(
 			instance.e_content, true, false,
-			'display:flex;flex-direction:column;flex-wrap:nowrap;'
+			'display:flex; flex-direction:column; flex-wrap:nowrap;'
 		);
 
 		instance.explorer = new FileExplorer(instance.e_explorer_root, 'ALGInternal', 'ALGFileLibrary');

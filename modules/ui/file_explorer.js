@@ -4,6 +4,33 @@ import { Modules } from "../modules.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
+import { bytes_mb } from "../utils/filesizes.js";
+
+
+
+const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
+{
+    return CreatePagePanel(
+        e_parent, false, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;',
+        _ =>
+        {
+            if (click_action) _.addEventListener('click', click_action);
+            _.title = tooltip;
+            if (color && color.length > 0) _.style.setProperty('--theme-color', color);
+            _.style.minWidth = '1rem';
+            _.style.minHeight = '1rem';
+            _.style.paddingRight = 'var(--gap-1)';
+            _.style.textAlign = 'center';
+            _.style.alignContent = 'center';
+            _.classList.add('panel-button');
+            if (typeof icon === 'string' && icon.length > 0) addElement(_, 'i', 'material-icons', 'font-size:1rem; line-height:1rem; opacity:40%; align-content:center; text-align:center;', _ => { _.innerText = icon; });
+            if (typeof label === 'string' && label.length > 0) addElement(_, 'div', undefined, 'height:100%; align-content:center; text-align:center;', _ => { _.innerText = label; });
+        }
+    );
+};
+
+
+
 
 class FileExplorerItem
 {
@@ -126,8 +153,68 @@ class FileExplorerItem
             },
             () => { NotificationLog.Log(`Cancelled ${this.item_type} Rename`, '#fa0'); }
         );
+    }
 
+    RequestCopy()
+    {
+        const rgx_filename_no_index = /(.+)(\..+)/;
+        const rgx_filename_index = /(.+)(?:\((\d+)\))(\..+)/;
+        const increment_filename = name =>
+        {
+            let match = name.match(rgx_filename_index);
+            if (match)
+            {
+                let part_name = match[1].trim();
+                let part_index = (Number.parseInt(match[2]) ?? 0) + 1;
+                let part_ext = match[3].trim();
+                name = `${part_name} (${part_index})${part_ext}`;
+            }
+            else
+            {
+                match = name.match(rgx_filename_no_index);
+                if (match)
+                {
+                    let part_name = match[1].trim();
+                    let part_ext = match[2].trim();
+                    name = `${part_name} (1)${part_ext}`;
+                }
+            }
+            return name;
+        };
 
+        if (this.explorer.drive_id_valid !== true) return undefined;
+        OverlayManager.ShowConfirmDialog(
+            _ =>
+            {
+                let body =
+                {
+                    parentReference:
+                    {
+                        driveId: this.item_info.parentReference.driveId,
+                        id: this.item_info.parentReference.id
+                    },
+                    name: increment_filename(this.item_info.name)
+                };
+                let url = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}/copy?@microsoft.graph.conflictBehavior=rename`;
+                window.SharePoint.SetData(url, body).then(
+                    _ =>
+                    {
+                        if ('status' in _ && _.status != 202)
+                        {
+                            NotificationLog.Log(`Error While Duplicating '${this.item_info.name}': ${_.status}`, '#f50');
+                        }
+                        else
+                        {
+                            NotificationLog.Log(`Duplicated '${this.item_info.name}'`, '#0f0');
+                            this.explorer.Navigate(this.explorer.relative_path_current);
+                        }
+                    }
+                );
+            },
+            _ => { NotificationLog.Log(`Cancelled ${this.item_type} Duplicate`, '#fa0'); },
+
+            'Duplicate ' + this.item_type + '?'
+        );
     }
 
     CreateItemButtons(buttons = [])
@@ -232,7 +319,11 @@ class FileExplorerItem
                             {
                                 label: 'Duplicate File',
                                 color: '#0ff',
-                                on_click: overlay => { overlay.Remove(); }
+                                on_click: overlay =>
+                                {
+                                    this.RequestCopy();
+                                    overlay.Remove();
+                                }
                             },
                             {
                                 label: 'Copy File Name',
@@ -453,7 +544,6 @@ export class FileExplorer extends PanelContent
                 this.navigating = false;
             }, delay
         );
-
     }
 
     RefreshNavigationBar()
@@ -478,6 +568,16 @@ export class FileExplorer extends PanelContent
 
             this.e_path_label = addElement(this.e_path_root, 'div', 'file-explorer-nav-path');
 
+            addElement(this.e_path_root, 'div', undefined, 'min-width:0; flex-grow:1.0; flex-shrink:1.0;');
+            this.e_btn_path_copy = add_button(
+                this.e_path_root, 'COPY', 'Copy this relative path to your system clipboard', 'content_copy', undefined,
+                e =>
+                {
+                    navigator.clipboard.writeText(this.e_path_label.innerText);
+                    NotificationLog.Log('Copied text to clipboard.');
+                }
+            );
+
             this.SetDisplayPath(this.relative_path_current);
         }
         else
@@ -501,35 +601,17 @@ export class FileExplorer extends PanelContent
                 this.e_root, true, false, null,
                 _ =>
                 {
-                    const add_button = (_, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
-                    {
-                        return CreatePagePanel(
-                            _, false, false, 'flex-grow:0.0;',
-                            _ =>
-                            {
-                                if (click_action) _.addEventListener('click', click_action);
-                                _.innerText = label;
-                                _.title = tooltip;
-                                if (color && color.length > 0) _.style.setProperty('--theme-color', color);
-                                _.style.minWidth = '8rem';
-                                _.style.minHeight = '1.5rem';
-                                _.style.paddingLeft = '1.5rem';
-                                _.style.textAlign = 'center';
-                                _.style.alignContent = 'center';
-                                _.classList.add('panel-button');
-
-                                if (icon && icon.length > 0) addElement(_, 'i', 'material-icons', 'position:absolute;left:0.5rem;top:50%;transform:translate(0%,-50%);opacity:40%', _ => { _.innerText = icon; });
-                            }
-                        );
-                    };
                     _.classList.add('file-explorer-nav-bar');
-
 
                     add_button(
                         _, 'CREATE FOLDER', 'Create a new folder within the current folder.', 'create_new_folder', '#c09f6d',
                         _ => { this.RequestCreateFolder(); }
                     );
-                    add_button(_, 'UPLOAD FILE', 'Upload a file to the current folder.', 'upload', '#4ef');
+
+                    add_button(
+                        _, 'UPLOAD FILE', 'Upload a file to the current folder.', 'upload', '#4ef',
+                        _ => { this.RequestUploadFile(); }
+                    );
                 }
             );
             setSiblingIndex(this.e_folder_actions_root, 1);
@@ -548,10 +630,17 @@ export class FileExplorer extends PanelContent
     async CreateFolderInRelativePath(name)
     {
         if (this.drive_id_valid !== true) return undefined;
-        let url_post = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
-        let data_post = { name: name, folder: {} };
-        data_post['@microsoft.graph.conflictBehavior'] = 'rename';
-        return await window.SharePoint.SetData(url_post, data_post, 'post');
+        let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
+        let data = { name: name, folder: {} };
+        data['@microsoft.graph.conflictBehavior'] = 'rename';
+        return await window.SharePoint.SetData(url, data, 'post');
+    }
+
+    async CreateFileInRelativePath(name, file_content)
+    {
+        if (this.drive_id_valid !== true) return undefined;
+        let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}/${name}:/content`;
+        return await window.SharePoint.SetData(url, file_content, 'put', 'text/plain');
     }
 
     RequestCreateFolder()
@@ -588,6 +677,71 @@ export class FileExplorer extends PanelContent
             () =>
             {
                 NotificationLog.Log('Cancelled Create New Folder', '#f86');
+            }
+        );
+    }
+
+    RequestUploadFile()
+    {
+        const get_last_path_part = path =>
+        {
+            let parts = path.split('/');
+            if (parts && parts.length > 0) return parts[parts.length - 1];
+            return path;
+        };
+
+        OverlayManager.ShowFileUploadDialog(
+            'Upload Files to ((/' + get_last_path_part(this.relative_path_current) + '))',
+            files =>
+            {
+                if (files)
+                {
+                    this.OnStartLoading();
+
+                    let uploads = [];
+
+                    let fid = 0;
+                    while (fid < files.length)
+                    {
+                        const prepare_upload = async file =>
+                        {
+                            let upload_data = await file.arrayBuffer();
+                            await this.CreateFileInRelativePath(file.name.trim(), upload_data);
+                            NotificationLog.Log('Uploaded File: ' + file.name, '#0ff');
+                        };
+                        const file = files.item(fid);
+                        if (file)
+                        {
+                            if (file.size < (250 * bytes_mb)) uploads.push(prepare_upload(file));
+                            else NotificationLog.Log('Skipped File Upload: ' + file.name + ' ( file too big! )', '#ff0');
+                        }
+                        fid++;
+                    }
+
+                    if (uploads.length > 0)
+                    {
+                        NotificationLog.Log('Uploading ' + uploads.length + ' File(s)...', '#ff0');
+                        const process = async (promises) => { await Promise.allSettled(promises); };
+                        process(
+                            uploads
+                        ).then(
+                            _ =>
+                            {
+                                NotificationLog.Log('Uploaded File(s)', '#0f0');
+                                this.Navigate(this.relative_path_current);
+                            }
+                        ).catch(_ => { NotificationLog.Log('Error While Uploading File(s)', '#f00'); });
+                    }
+                    else
+                    {
+                        NotificationLog.Log('Cancelled Uploading File(s): No Valid Files Selected', '#ff0');
+                        this.OnStopLoading();
+                    }
+                }
+            },
+            () =>
+            {
+                NotificationLog.Log('Cancelled Uploading File(s)', '#f86');
             }
         );
     }
@@ -802,7 +956,7 @@ export class FileExplorer extends PanelContent
         {
             let relative_path_encoded = encodeURIComponent(this.relative_path_current);
             await this.ValidateDriveId();
-            const fields = 'id,name,file,folder,size,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,@microsoft.graph.downloadUrl';
+            const fields = 'id,name,file,folder,size,createdBy,createdDateTime,lastModifiedBy,lastModifiedDateTime,webUrl,parentReference,@microsoft.graph.downloadUrl';
             let resp = await window.SharePoint.GetData(window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${relative_path_encoded}:/children?select=${fields}`);
             if (resp && resp.value) return resp.value;
             return resp;

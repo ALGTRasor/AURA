@@ -5,6 +5,10 @@ import { UserAccountManager } from "../useraccount.js";
 import { DataSourceDescriptor } from "./datasource.js";
 import { DBConfig } from "./dbconfig.js";
 
+
+const content_type_json = 'application/json';
+
+
 export class RequestBatchRequest
 {
 	static Nothing = new RequestBatchRequest('get', '', _ => { }, _ => { }, {});
@@ -233,17 +237,19 @@ export class SharePoint
 
 
 
-	static async SetData(url, data = {}, method = 'post')
+	static async SetData(url, data = {}, method = 'post', content_type = content_type_json, accept = content_type_json)
 	{
 		if (data)
 		{
 			let headers =
 			{
 				'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token,
-				'Content-Type': 'application/json'
+				'Content-Type': content_type,
+				'Accept': accept
 			};
-			let resp = await fetch(url, { method: method, headers: headers, body: JSON.stringify(data) });
-			if (resp.status >= 200 && resp.status <= 230) return await resp.json();
+			if (content_type === content_type_json) data = JSON.stringify(data);
+			let resp = await fetch(url, { method: method, headers: headers, body: data });
+			if (resp.status == 200 && accept === content_type_json) return await resp.json();
 			return resp;
 		}
 		else
@@ -253,7 +259,7 @@ export class SharePoint
 				'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token
 			};
 			let resp = await fetch(url, { method: method, headers: headers });
-			if (resp.status >= 200 && resp.status <= 203) return await resp.json();
+			if (resp.status == 200 && accept === content_type_json) return await resp.json();
 			return resp;
 		}
 	}

@@ -182,6 +182,22 @@ class PanelUserAllocationGroup extends PanelContent
 											{
 												_.classList.add('hover-lift');
 												_.classList.add('panel-button');
+												_.style.setProperty('--theme-color', '#2bf');
+												_.title = 'View Reports for this allocation group';
+
+												addElement(
+													_, 'i', 'material-symbols', style_action_icon,
+													_ => _.innerText = 'monitoring'
+												);
+											}
+										);
+
+										CreatePagePanel(
+											_, false, false, style_action_button,
+											_ =>
+											{
+												_.classList.add('hover-lift');
+												_.classList.add('panel-button');
 												_.style.setProperty('--theme-color', '#fb2');
 												_.title = 'Send this allocation group to the archive';
 

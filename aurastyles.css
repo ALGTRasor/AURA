@@ -158,6 +158,11 @@ body
 	clip-path: stroke-box;
 }
 
+body *
+{
+	scrollbar-color: hsl(from var(--theme-color) h s 16%) hsl(from var(--theme-color) h s 8%);
+}
+
 
 
 
@@ -521,6 +526,7 @@ input[type="textarea"]:active
 	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease;
 }
+
 .overlay-root > .page-panel:focus,
 .overlay-root > .page-panel:focus-within
 {

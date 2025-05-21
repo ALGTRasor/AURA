@@ -1,6 +1,8 @@
 import { Modules } from "../modules.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
+import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
+
 
 export class Overlay
 {
@@ -33,7 +35,9 @@ export class Overlay
         document.activeElement.blur();
 
         this.e_root = addElement(OverlayManager.e_overlays_root, 'div', 'overlay-root', '', _ => { });
-        this.e_root.addEventListener('click', _ => { _.stopPropagation(); _.preventDefault(); });
+        this.e_root.title = '';
+
+        //this.e_root.addEventListener('click', _ => { _.stopPropagation(); _.preventDefault(); });
         if (this.createOverlay) this.createOverlay(this);
         this.created = true;
 
@@ -241,6 +245,10 @@ export class OverlayManager
         o.original_value = default_value;
         o.submitted = false;
         o.dismissable = true;
+
+        prompt = prompt.replace('((', '<span style="color:white;">');
+        prompt = prompt.replace('))', '</span>');
+
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
@@ -302,6 +310,184 @@ export class OverlayManager
         OverlayManager.overlays.push(o);
         o.Create();
         o.e_input_txt.focus();
+        return o;
+    }
+
+
+
+    static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; })
+    {
+        prompt = prompt.replace('((', '<span style="color:white;">');
+        prompt = prompt.replace('))', '</span>');
+
+        let o = new Overlay(
+            'attach-file',
+            _ =>
+            {
+                const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
+                    + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
+                    + 'display:flex; flex-direction:column; flex-wrap:nowrap;';
+                const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1); line-height:1.5rem;';
+
+                let e_body = CreatePagePanel(_.e_root, false, false, style_overlay_root, _ => { });
+                e_body.addEventListener('mousedown', e => { e.stopPropagation(); e_body.focus(); });
+                e_body.tabIndex = 0;
+                e_body.focus();
+
+                o.e_prompt = CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
+                CreatePagePanel(
+                    e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
+                    _ =>
+                    {
+                        addElement(
+                            _, 'form', null, 'display:none; flex-direction:row; flex-wrap:nowrap;',
+                            _ =>
+                            {
+                                _.action = '';
+                                o.input_file = addElement(
+                                    _, 'input', null, 'pointer-events:all; flex-grow:1.0; flex-shrink:1.0;',
+                                    _ =>
+                                    {
+                                        _.id = 'input-file-upload';
+                                        _.type = 'file';
+                                        _.multiple = true;
+                                    }
+                                );
+                                o.input_file.addEventListener(
+                                    'change',
+                                    e =>
+                                    {
+                                        o.e_btn_submit.classList.remove('panel-button-disabled');
+                                        if (o.input_file.files.length < 1)
+                                        {
+                                            o.e_btn_submit.classList.add('panel-button-disabled');
+                                            o.e_selected.innerHTML = 'NO FILE SELECTED';
+                                            o.e_btn_submit.innerText = 'SUBMIT';
+                                        }
+                                        else
+                                        {
+                                            o.e_selected.innerHTML = '';
+                                            o.valid_count = 0;
+                                            let fid = 0;
+                                            while (fid < o.input_file.files.length)
+                                            {
+                                                let file = o.input_file.files.item(fid);
+                                                fid++;
+                                                if (!file) continue;
+
+                                                if ('name' in file)
+                                                {
+                                                    let too_big = file.size > (250 * bytes_mb);
+                                                    let size_group = get_file_size_group(file.size);
+                                                    CreatePagePanel(
+                                                        o.e_selected, false, false, 'display:flex; flex-direction:row; text-align:left; flex-shrink:0.0; align-content:center;',
+                                                        _ =>
+                                                        {
+                                                            if (too_big === true) 
+                                                            {
+                                                                _.style.backgroundColor = 'hsl(from var(--theme-color) 0deg 100% 12%)';
+                                                                addElement(
+                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#f00;',
+                                                                    _ => { _.innerText = 'priority_high'; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null, 'font-weight:bold; font-size:0.6rem; align-content:center; text-align:center; background-color:#f003; padding:var(--gap-025);border-radius:var(--gap-025); border:solid 2px red;',
+                                                                    _ => { _.innerText = 'TOO BIG'; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null, 'color:orange; font-size:0.75rem; align-content:center; ',
+                                                                    _ => { _.innerText = `(${size_group.bytes_label})`; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null, 'align-content:center; ',
+                                                                    _ => { _.innerText = file.name; }
+                                                                );
+                                                            }
+                                                            else
+                                                            {
+                                                                o.valid_count++;
+                                                                addElement(
+                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#0ff;',
+                                                                    _ => { _.innerText = 'task_alt'; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null, 'align-content:center; ',
+                                                                    _ => { _.innerText = file.name; }
+                                                                );
+                                                            }
+
+                                                            _.title = file.name;
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                            o.e_btn_submit.innerText = upload_prompt(o.valid_count);
+
+                                            if (o.valid_count < 1)
+                                            {
+                                                o.e_btn_submit.classList.add('panel-button-disabled');
+                                                o.e_btn_submit.innerText = 'SUBMIT';
+                                            }
+                                        }
+                                    }
+                                );
+                            }
+                        );
+
+                        o.e_selected = addElement(_, 'div', 'scroll-y', 'display:flex; flex-direction:column; text-align:center; align-content:center; padding:var(--gap-05); max-height:50vh; gap:var(--gap-025);', 'NO FILE SELECTED');
+
+                        o.e_btn_attach = CreatePagePanel(
+                            _, false, false, style_parts + '--theme-color:#0ff; padding:var(--gap-05);',
+                            _ =>
+                            {
+                                _.title = 'SELECT FILES';
+                                _.innerText = 'SELECT FILES';
+                                _.style.flexBasis = '1.5rem';
+                                _.classList.add('panel-button');
+                                _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
+                                _.addEventListener(
+                                    'click',
+                                    e =>
+                                    {
+                                        o.input_file.click();
+                                    }
+                                );
+                            }
+                        );
+
+                        o.e_btn_submit = CreatePagePanel(
+                            _, false, false, style_parts + '--theme-color:#4f4; padding:var(--gap-05);',
+                            _ =>
+                            {
+                                _.classList.add('panel-button-disabled');
+                                _.title = 'SUBMIT';
+                                _.innerText = 'SUBMIT';
+                                _.style.flexBasis = '1.5rem';
+                                _.classList.add('panel-button');
+                                _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
+                                _.addEventListener(
+                                    'click',
+                                    e =>
+                                    {
+                                        o.submitted = true;
+                                        OverlayManager.DismissOne();
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            },
+            _ =>
+            {
+                if (o.submitted !== true) on_cancel();
+                else on_submit(o.input_file.files);
+            }
+        );
+        o.submitted = false;
+        o.dismissable = true;
+        OverlayManager.overlays.push(o);
+        o.Create();
         return o;
     }
 }

@@ -43,8 +43,6 @@
 	flex-direction: row;
 	justify-content: center;
 
-	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
-
 	gap: var(--gap-05);
 	padding: var(--gap-05);
 
@@ -64,7 +62,6 @@
 
 	border-radius: 0;
 	padding: var(--gap-05);
-	scrollbar-color: hsl(from var(--theme-color) h s 15%) hsl(from var(--theme-color) h s 8%);
 
 	transition-property: opacity;
 	transition-duration: var(--trans-dur-off-slow);
@@ -1244,11 +1241,13 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
 }
+
 .file-explorer-item:hover .file-explorer-item-info
 {
 	opacity: 95%;
 	padding-right: calc(2 * var(--gap-1));
 }
+
 .file-explorer-item-info span
 {
 	border: solid 2px gray;
