@@ -37,9 +37,9 @@ export class PageFiles extends PageDescriptor
 		instance.explorer = new FileExplorer(instance.e_explorer_root, 'ALGInternal', 'ALGFileLibrary');
 		instance.explorer.base_relative_path = 'Clients';
 		instance.explorer.autonavigate = false;
-		instance.explorer.CreateElements();
 		instance.explorer.on_load_start = () => { instance.root_selector.SetDisabled(true); };
 		instance.explorer.on_load_stop = () => { instance.root_selector.SetDisabled(false); };
+		instance.explorer.CreateElements();
 
 		const OnRootChange = () =>
 		{
