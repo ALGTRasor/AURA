@@ -4,7 +4,7 @@ import { Modules } from "../modules.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
-import { bytes_mb } from "../utils/filesizes.js";
+import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
 
 
 
@@ -356,6 +356,7 @@ class FileExplorerItem
                                             const min_byte_size_warning = 10240;
                                             if (this.item_info.size < min_byte_size_warning)
                                             {
+                                                this.explorer.OnStartLoading();
                                                 this.RequestDelete();
                                             }
                                             else 
@@ -363,7 +364,7 @@ class FileExplorerItem
                                                 OverlayManager.ShowConfirmDialog(
                                                     _ => this.RequestDelete(),
                                                     _ => { NotificationLog.Log('Cancelled file deletion', '#fa0'); },
-                                                    'This file contains ((' + this.item_info.size + ')) bytes of data.',
+                                                    'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
                                                     'CONFIRM - DELETE FILE',
                                                     'CANCEL'
                                                 );
@@ -459,19 +460,31 @@ class FileExplorerItem
                                     OverlayManager.ShowConfirmDialog(
                                         _ =>
                                         {
-                                            const min_byte_size_warning = 10240;
+                                            const min_byte_size_warning = 1024;
                                             if (this.item_info.size < min_byte_size_warning)
                                             {
                                                 this.RequestDelete();
                                             }
                                             else 
                                             {
-                                                OverlayManager.ShowConfirmDialog(
-                                                    _ => this.RequestDelete(),
-                                                    _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0'); },
-                                                    'This folder contains ((' + this.item_info.size + ')) bytes of data.',
-                                                    'CONFIRM - DELETE ALL',
-                                                    'CANCEL'
+                                                OverlayManager.ShowChoiceDialog(
+                                                    'Folders must be empty before they can be deleted.',
+                                                    [
+                                                        {
+                                                            label: 'GOT IT',
+                                                            on_click: _ =>
+                                                            {
+                                                                NotificationLog.Log('Could not delete folder: Must be empty', '#fa0');
+                                                                OverlayManager.DismissOne();
+                                                            },
+                                                            color: '#0f0'
+                                                        }
+                                                    ],
+                                                    _ =>
+                                                    {
+                                                        NotificationLog.Log('Cancelled folder deletion', '#fa0');
+                                                        //OverlayManager.DismissOne();
+                                                    }
                                                 );
                                             }
                                         },
@@ -507,6 +520,9 @@ export class FileExplorer extends PanelContent
     show_folder_actions = true;
 
     current_items = [];
+
+    on_load_start = () => { };
+    on_load_stop = () => { };
 
     constructor(e_parent, site_name = '', drive_name = '')
     {
@@ -691,7 +707,7 @@ export class FileExplorer extends PanelContent
         };
 
         OverlayManager.ShowFileUploadDialog(
-            'Upload Files to ((/' + get_last_path_part(this.relative_path_current) + '))',
+            'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))',
             files =>
             {
                 if (files)
@@ -752,6 +768,7 @@ export class FileExplorer extends PanelContent
         this.loading_items = true;
         this.load_blocker.style.opacity = '100%';
         this.load_blocker.style.pointerEvents = 'all';
+        if (this.on_load_start) this.on_load_start();
     }
 
     OnStopLoading()
@@ -759,6 +776,7 @@ export class FileExplorer extends PanelContent
         this.loading_items = false;
         this.load_blocker.style.opacity = '0%';
         this.load_blocker.style.pointerEvents = 'none';
+        if (this.on_load_stop) this.on_load_stop();
     }
 
     DownloadFile(file_url = '') { window.open(file_url, '_blank'); }

@@ -38,6 +38,8 @@ export class PageFiles extends PageDescriptor
 		instance.explorer.base_relative_path = 'Clients';
 		instance.explorer.autonavigate = false;
 		instance.explorer.CreateElements();
+		instance.explorer.on_load_start = () => { instance.root_selector.SetDisabled(true); };
+		instance.explorer.on_load_stop = () => { instance.root_selector.SetDisabled(false); };
 
 		const OnRootChange = () =>
 		{
