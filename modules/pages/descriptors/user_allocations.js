@@ -2,6 +2,7 @@
 import { AppEvents } from "../../appevents.js";
 import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
+import { FillBar } from "../../ui/fillbar.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
@@ -21,39 +22,6 @@ class PanelUserAllocationGroup extends PanelContent
 		this.get_row_label = get_row_label;
 	}
 
-	static CreateFillBar(e_parent, label, fill)
-	{
-		let fill_angle = 35.0 + 65.0 * fill;
-		let color = 'rgba(from hsl(' + fill_angle + 'deg 100% 50%) r g b / 0.2)';
-		if (fill > 1.0) color = '#f003';
-		else if (fill == 1.0) color = '#0ff3';
-		else if (fill > 0.9) color = '#0f03';
-
-		let fill_style = 'pointer-events:none; box-sizing:border-box; position:absolute; inset:0; width:0%;'
-			+ 'transition-property:width, background-color; transition-duration:var(--trans-dur-off-slow); transition-timing-function:ease-in-out;'
-			+ 'background:hsl(from var(--theme-color) h s 30%);';
-		if (fill > 1.0) fill_style += 'border:solid 2px orange;';
-		else fill_style += 'border-right:solid 4px #fff1;';
-
-		return CreatePagePanel(
-			e_parent, true, false,
-			'text-align:center;padding:var(--gap-025);align-content:center;border:solid 2px hsl(from var(--theme-color) h s 12%);',
-			_ =>
-			{
-				let e_fill = addElement(_, 'div', null, fill_style);
-				addElement(_, 'div', null, null, label);
-				window.setTimeout(
-					() =>
-					{
-						e_fill.style.background = color;
-						e_fill.style.width = `${Math.min(1, fill) * 100.0}%`;
-					},
-					50 + Math.random() * 200
-				);
-			}
-		);
-	}
-
 	static CreateAllocationRow(e_parent, allocation = {}, get_row_label = _ => { _.user_id }, cap_max = false)
 	{
 		let hoursUsed = 0.0;
@@ -66,9 +34,10 @@ class PanelUserAllocationGroup extends PanelContent
 		if (use_percent > 1.0) use_color = '#f002';
 		else if (use_percent == 1.0) use_color = '#0ff2';
 		else if (use_percent > 0.9) use_color = '#0f02';
-		let use_fill_style = `pointer-events:none;box-sizing:border-box;position:absolute;inset:0;width:${Math.min(1, use_percent) * 100.0}%; background:${use_color};`;
-		if (use_percent > 1.0) use_fill_style += 'border:solid 2px orange;';
-		else use_fill_style += 'border-right:solid 4px #fff1;';
+
+		//let use_fill_style = `pointer-events:none;box-sizing:border-box;position:absolute;inset:0;width:${Math.min(1, use_percent) * 100.0}%; background:${use_color};`;
+		//if (use_percent > 1.0) use_fill_style += 'border:solid 2px orange;';
+		//else use_fill_style += 'border-right:solid 4px #fff1;';
 
 		let use_note = 'pending';
 		let use_note_color = '#8f0';
@@ -89,7 +58,23 @@ class PanelUserAllocationGroup extends PanelContent
 					);
 				}
 
-				PanelUserAllocationGroup.CreateFillBar(_, `${hoursUsed} of ${allocation.allocation_max} hrs used`, use_percent, use_color);
+				FillBar.Create(
+					_, `${hoursUsed} of ${allocation.allocation_max} hrs used`,
+					use_percent,
+					{
+						from_hue_deg: 35.0,
+						to_hue_deg: 65.0,
+						style_full: _ => { _.style.border = 'solid 1px cyan'; },
+						style_overfull: _ => { _.style.border = 'solid 2px orange'; },
+						check_color: (c, fill) =>
+						{
+							if (fill > 1.0) c = '#f003';
+							else if (fill == 1.0) c = '#0ff3'
+							else if (fill > 0.9) c = '#0f03';
+							return c;
+						}
+					}
+				);
 
 				addElement(
 					_, 'i', 'material-symbols',
@@ -136,7 +121,8 @@ class PanelUserAllocationGroup extends PanelContent
 
 						addElement(
 							_, 'div', null,
-							'text-align:center; align-content:center; flex-shrink:0.0; flex-grow:1.0; background:#0003; border-radius:var(--gap-05);',
+							'text-align:left; padding-left:calc(var(--gap-05) + 0.5rem); padding-right:calc(var(--gap-05) + 0.5rem);'
+							+ 'align-content:center; flex-shrink:0.0; flex-grow:0.0; background:#0003; border-radius:var(--gap-05);',
 							_ =>
 							{
 								_.innerText = this.group_id;
@@ -144,7 +130,24 @@ class PanelUserAllocationGroup extends PanelContent
 							}
 						);
 
-						let e_fill_total = PanelUserAllocationGroup.CreateFillBar(_, `${Math.round(summary_used / summary_max * 100)}% used`, summary_used / summary_max, '#333');
+						let e_fill_total = FillBar.Create(
+							_,
+							`${Math.round(summary_used / summary_max * 100)}% used`,
+							summary_used / summary_max,
+							{
+								from_hue_deg: 35.0,
+								to_hue_deg: 65.0,
+								style_full: _ => { _.style.border = 'solid 1px cyan'; },
+								style_overfull: _ => { _.style.border = 'solid 2px orange'; },
+								check_color: (c, fill) =>
+								{
+									if (fill > 1.0) c = '#f003';
+									else if (fill == 1.0) c = '#0ff3'
+									else if (fill > 0.9) c = '#0f03';
+									return c;
+								}
+							}
+						);
 						e_fill_total.style.flexGrow = '5.0';
 						e_fill_total.style.flexShrink = '0.0';
 
@@ -414,7 +417,7 @@ export class PageUserAllocations extends PageDescriptor
 	UpdateMode(instance)
 	{
 		const fade_out = () => FadeElement(instance.panel_list.e_root_records_actual, 100, 0, 0.1);
-		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, 0.5);
+		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, 0.25);
 
 		instance.slide_mode.SetDisabled(true);
 
