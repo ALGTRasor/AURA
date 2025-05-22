@@ -87,6 +87,22 @@
 	bottom: 0;
 }
 
+.action-bar-icons-container > div
+{
+	max-width: 2rem;
+	opacity: 0%;
+
+	transition-property: max-width, opacity;
+	transition-duration: var(--trans-dur-off-fast);
+	transition-timing-function: ease-in-out;
+}
+
+.action-bar-icons-container:hover > div
+{
+	max-width: 4rem;
+	opacity: 100%;
+}
+
 .action-bar-button-container
 {
 	position: absolute;

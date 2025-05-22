@@ -1,4 +1,5 @@
 import { ActionBar } from "../actionbar.js";
+import { FlashElement } from "../utils/domutils.js";
 
 export class LongOpInstance
 {
@@ -36,16 +37,16 @@ export class LongOps
 
 	static CreateActionBarElements()
 	{
-		LongOps.toggle_info = ActionBar.AddIcon('chronic', 'Show / Hide Long Operations', e => { LongOps.UpdateToggle(); });
-		LongOps.UpdateToggle();
+		LongOps.toggle_info = ActionBar.AddIcon('chronic', 'Show / Hide Long Operations', e => { LongOps.ToggleVisibility(); LongOps.FlashIcon(); });
+		LongOps.toggle_info.e_icon.style.opacity = '50%';
 	}
 
-	static UpdateToggle()
+	static ToggleVisibility()
 	{
-		LongOps.toggle_info.e_icon.style.opacity = '50%';
 	}
 
 	static FlashIcon()
 	{
+		FlashElement(LongOps.toggle_info.e_btn, 1.0, 3.0, 'gold');
 	}
 }

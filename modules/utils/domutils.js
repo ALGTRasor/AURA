@@ -340,3 +340,26 @@ export function fadeTransformElement(target = {}, transformation = () => { }, af
     window.setTimeout(mid_fade, fade_duration_ms + 10);
     window.setTimeout(end_fade, fade_duration_ms * 2 + 10);
 }
+
+
+export async function FlashElement(element, duration = 1.0, frequency = 3.0, flash_color = 'hsl(from var(--theme-color) h 100% 90%)')
+{
+    let animtime = 0.0;
+    let e_flash = addElement(element, 'div', '', 'position:absolute; inset:0; opacity:0%; z-index:1000; background-color:' + flash_color + ';');
+    const animstep = dt =>
+    {
+        animtime += dt;
+        const half_pi = Math.PI * 0.5;
+        const two_pi = Math.PI * 2.0;
+        let wave_pos = 0.5 + 0.5 * Math.sin(animtime * two_pi * frequency - half_pi);
+        //wave_pos += (Math.round(wave_pos) - wave_pos) * 0.5;
+        e_flash.style.opacity = 0.2 * wave_pos;
+        if (animtime > duration)
+        {
+            e_flash.remove();
+            anim.Stop();
+        }
+    };
+    let anim = new AnimJob(30, animstep);
+    anim.Start();
+}

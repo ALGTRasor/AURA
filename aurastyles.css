@@ -310,27 +310,27 @@ iframe
 
 
 
+.material-symbols
+{
+	pointer-events: none;
+}
 
 
 .spotlight
 {
 	z-index: 10000000;
 	position: absolute;
-	inset: 0;
 	padding: 0;
 	margin: 0;
 
 	pointer-events: none;
 
 	opacity: 0%;
+	box-sizing: border-box;
+	outline: solid 2px white;
+	overflow: visible;
 
-	background-image:
-		linear-gradient(0deg, #000 30%, #fff 30%),
-		linear-gradient(90deg, #000 30%, #fff 30%),
-		linear-gradient(0deg, #fff 70%, #000 70%),
-		linear-gradient(90deg, #fff 70%, #000 70%);
-
-	transition-property: opacity;
+	transition-property: opacity, left, top, right, bottom, width, height;
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-delay: 1s;
@@ -338,6 +338,12 @@ iframe
 	mix-blend-mode: multiply;
 }
 
+.spotlight-wall
+{
+	display: block;
+	position: absolute;
+	background-color: #000f;
+}
 
 
 

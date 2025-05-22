@@ -24,6 +24,7 @@ import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { Fax } from "./modules/fax.js";
 import { LongOps } from "./modules/systems/longops.js";
+import { addElement } from "./modules/utils/domutils.js";
 
 async function ImportDataModules()
 {
@@ -205,6 +206,8 @@ function PrepareDocument()
 	window.loop_updateClock.Start();
 	UpdateClock();
 
+	CreateSpotlightWalls();
+
 	window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 	window.e_content_root = document.getElementById('content-body');
 }
@@ -337,39 +340,67 @@ const get_grad = (deg, ca, pa, cb, pb) =>
 const e_spotlight = document.getElementById('spotlight');
 const info_label = document.getElementById('info-bar-marquee');
 
+function CreateSpotlightWalls()
+{
+	addElement(
+		e_spotlight, 'div', 'spotlight-wall', '',
+		_ =>
+		{
+			_.style.top = '50%';
+			_.style.right = '100%';
+			_.style.width = '100vw';
+			_.style.height = '200vh';
+			_.style.transform = 'translate(0%, -50%)';
+		}
+	);
+	addElement(
+		e_spotlight, 'div', 'spotlight-wall', '',
+		_ =>
+		{
+			_.style.top = '50%';
+			_.style.left = '100%';
+			_.style.width = '100vw';
+			_.style.height = '200vh';
+			_.style.transform = 'translate(0%, -50%)';
+		}
+	);
+
+	addElement(
+		e_spotlight, 'div', 'spotlight-wall', '',
+		_ =>
+		{
+			_.style.top = '100%';
+			_.style.left = '50%';
+			_.style.width = '200vw';
+			_.style.height = '100vh';
+			_.style.transform = 'translate(-50%, 0%)';
+		}
+	);
+
+	addElement(
+		e_spotlight, 'div', 'spotlight-wall', '',
+		_ =>
+		{
+			_.style.bottom = '100%';
+			_.style.left = '50%';
+			_.style.width = '200vw';
+			_.style.height = '100vh';
+			_.style.transform = 'translate(-50%, 0%)';
+		}
+	);
+}
+
 function SpotlightElement(e_target)
 {
 	if (!e_target) return;
 
 	let e_body_rect = document.body.getBoundingClientRect();
-	let body_aspect = e_body_rect.width / e_body_rect.height;
 	let e_target_rect = e_target.getBoundingClientRect();
 
-	let tx = e_target_rect.x - e_body_rect.x;
-	let ty = e_target_rect.y - e_body_rect.y;
-
-	tx -= document.documentElement.scrollLeft;
-	ty -= document.documentElement.scrollTop;
-
-	let xA = tx / e_body_rect.width;
-	let xB = ((e_body_rect.width - (tx + e_target_rect.width))) / e_body_rect.width;
-
-	let yA = (e_body_rect.height - ty) / e_body_rect.height;
-	let yB = (ty + e_target_rect.height) / e_body_rect.height;
-
-	xA -= 0.01;
-	xB -= 0.01;
-	yA += 0.01 * body_aspect;
-	yB += 0.01 * body_aspect;
-
-
-	let newbackimage = [
-		get_grad(0, 'fff0', yA, '000', yA),
-		get_grad(90, '000', xA, 'fff0', xA),
-		get_grad(180, 'fff0', yB, '000', yB),
-		get_grad(270, '000', xB, 'fff0', xB)
-	].join(', ');
-	e_spotlight.style.backgroundImage = newbackimage;
+	e_spotlight.style.left = ((e_target_rect.x - e_body_rect.x) - 12) + 'px';
+	e_spotlight.style.top = ((e_target_rect.y - e_body_rect.y) - 12) + 'px';
+	e_spotlight.style.width = (e_target_rect.width + 24) + 'px';
+	e_spotlight.style.height = (e_target_rect.height + 24) + 'px';
 }
 
 function RefreshGlobalTooltip(e)
@@ -381,16 +412,14 @@ function RefreshGlobalTooltip(e)
 
 		window.active_tooltip = mouse_element.title;
 		info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
-		e_spotlight.style.transitionDelay = '1s';
-		e_spotlight.style.transitionDuration = '0.15s';
-		e_spotlight.style.opacity = '50%';
+		e_spotlight.style.transitionDelay = '0s';
+		e_spotlight.style.opacity = '40%';
 	}
 	else
 	{
 		window.active_tooltip = '';
 		info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
-		e_spotlight.style.transitionDelay = '0.3s';
-		e_spotlight.style.transitionDuration = '0.1s';
+		e_spotlight.style.transitionDelay = '0.5s';
 		e_spotlight.style.opacity = '0%';
 	}
 }

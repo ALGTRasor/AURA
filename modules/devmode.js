@@ -1,6 +1,6 @@
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
-import { CreatePagePanel } from "./utils/domutils.js";
+import { CreatePagePanel, FlashElement } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
 import { AppEvents } from "./appevents.js";
@@ -36,11 +36,14 @@ export class DevMode
 			{
 				toggle_info.e_icon.style.opacity = '50%';
 				toggle_info.e_btn.style.removeProperty('--theme-color');
+				FlashElement(toggle_info.e_btn, 1.0, 1.0, 'black');
 			}
 			else
 			{
 				toggle_info.e_icon.style.opacity = '100%';
 				toggle_info.e_btn.style.setProperty('--theme-color', '#0fa');
+
+				FlashElement(toggle_info.e_btn, 0.5, 2.0, 'lime');
 			}
 		};
 		DevMode.update_toggle();
