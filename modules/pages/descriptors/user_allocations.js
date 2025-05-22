@@ -284,9 +284,6 @@ class PanelUserAllocationList extends PanelContent
 				_.innerText = 'Create Allocation';
 			}
 		);
-
-		this.filter_dirty.ExtendTimer();
-		//this.RefreshElements();
 	}
 
 	OnRefreshElements()
