@@ -77,5 +77,7 @@ export class Autosave
 	}
 }
 
-Autosave.loop.Start();
 Modules.Report('Autosave', 'This module adds autosave functionality. Autosave applies to your local app settings, but not to database/remote data.');
+
+
+//Autosave.loop.Start();
