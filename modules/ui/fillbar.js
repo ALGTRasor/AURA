@@ -23,7 +23,7 @@ export class FillBar
 	{
 		let fill_style = 'pointer-events:none; box-sizing:border-box; position:absolute; inset:0; width:0%;'
 			+ 'transition-property:width, background-color, border; transition-duration:var(--trans-dur-off-slow); transition-timing-function:ease-in-out;'
-			+ 'background:hsl(from var(--theme-color) h s 10%);';
+			+ 'background:hsl(from var(--theme-color) h s 10%); border-radius:inherit;';
 
 		return CreatePagePanel(
 			e_parent, true, false,
