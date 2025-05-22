@@ -394,6 +394,8 @@
 }
 
 
+
+
 .page-panel.inset-box
 {
 	border: none;
@@ -401,34 +403,21 @@
 	background-color: hsl(from var(--theme-color) h s 12%);
 }
 
+.page-panel.inset-box:not(.scroll-y)
+{
+	box-shadow: inset 0px 0px 0.5rem #0008;
+}
+
+.page-panel.inset-box:where(.scroll-y)
+{
+	position: relative;
+}
+
 .page-panel.inset-box:hover
 {
 	background-color: hsl(from var(--theme-color) h s 10%);
 }
 
-
-.inset-shadow-overlay
-{
-	z-index: 10;
-	pointer-events: none;
-	user-select: none;
-	position: absolute;
-	inset: 0;
-}
-
-.inset-shadow-overlay::after
-{
-	content: '';
-
-	z-index: 1000;
-	pointer-events: none;
-	position: absolute;
-	inset: 0;
-
-	clip-path: border-box;
-
-	box-shadow: inset 0px 0px 0.5rem rgba(from var(--shadow-color) r g b / 0.5);
-}
 
 
 

@@ -258,7 +258,11 @@ class PanelUserAllocationList extends PanelContent
 
 	OnCreateElements()
 	{
-		this.e_root = addElement(this.e_parent, 'div', null, 'position:relative; display:flex; flex-direction:column; gap:var(--gap-025); flex-basis:100%; flex-grow:1.0; overflow:hidden;');
+		this.e_root = addElement(
+			this.e_parent, 'div', null,
+			'position:relative; display:flex; flex-direction:column; gap:var(--gap-025); flex-basis:100%; flex-grow:1.0; overflow:hidden;',
+			_ => { }
+		);
 
 		this.e_filters_root = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;');
 		this.e_input_search = addElement(
@@ -277,7 +281,7 @@ class PanelUserAllocationList extends PanelContent
 
 		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:column; gap:var(--gap-1);');
 
-		this.e_actions = CreatePagePanel(this.e_root, true, true, 'gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
+		this.e_actions = CreatePagePanel(this.e_root, true, false, 'display:flex; gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
 			this.e_actions, false, false, 'align-content:center; text-align:center; max-width:12rem;',
 			_ =>

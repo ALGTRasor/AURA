@@ -73,21 +73,21 @@ export function setSiblingIndex(element = {}, new_index = 0)
 
 
 
-export function AddInsetShadowOverlay(_)
-{
-    addElement(_, 'div', 'inset-shadow-overlay');
-}
-
 export function CreatePagePanel(parent = {}, inset = false, tiles = false, styling = '', prep = _ => { })
 {
-    let classes = 'page-panel';
-    if (inset) classes += ' inset-box';
-    if (tiles) classes += ' page-panel-tiles scroll-y';
     return addElement(
-        parent, 'div', classes, styling,
+        parent, 'div', 'page-panel', styling,
         _ =>
         {
-            if (inset) AddInsetShadowOverlay(_);
+            if (inset)
+            {
+                _.classList.add('inset-box');
+            }
+            if (tiles)
+            {
+                _.classList.add('page-panel-tiles');
+                _.classList.add('scroll-y');
+            }
             if (prep) prep(_);
         });
 }
