@@ -1,25 +1,64 @@
-import { AppInfo } from "./app_info.js";
-import { addElement } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
+import { AppInfo } from "./app_info.js";
+import { addElement, CreatePagePanel } from "./utils/domutils.js";
 import { OverlayManager } from "./ui/overlays.js";
+import { PageManager } from "./pagemanager.js";
 import { UserAccountManager } from "./useraccount.js";
 
 export class ActionBar
 {
 	initialized = false;
-	e_button_root = {};
-	e_button_login = {};
 
 	static Initialize()
 	{
+		ActionBar.e_root = document.getElementById('action-bar');
+		ActionBar.e_icons_root = document.getElementById('action-bar-icons-container');
 		ActionBar.e_button_root = document.getElementById('action-bar-button-container');
+
+		ActionBar.e_profile_img = addElement(
+			ActionBar.e_icons_root, 'img', 'action-bar-profile-picture', '',
+			_ =>
+			{
+				_.id = 'action-bar-profile-picture';
+				_.src = 'resources/images/logo_alg.png';
+				_.alt = 'Account profile image';
+			}
+		);
+
+		ActionBar.e_root.addEventListener('mouseenter', _ => { if (PageManager.pages_being_dragged < 1) window.SetContentFaded(true); });
+		ActionBar.e_root.addEventListener('mouseleave', _ => { window.SetContentFaded(false); });
+
 		ActionBar.initialized = true;
+	}
+
+	static AddIcon(icon = '', tooltip = '', on_click = e => { })
+	{
+		let icon_info = {};
+		icon_info.e_root = addElement(
+			ActionBar.e_icons_root, 'div', '', 'position:relative; aspect-ratio:1.0; width:auto;',
+			_ =>
+			{
+				icon_info.e_btn = CreatePagePanel(
+					_, true, false, 'position:absolute; inset:var(--gap-05);',
+					_ =>
+					{
+						_.addEventListener('click', on_click);
+						_.title = tooltip;
+						_.classList.add('panel-button');
+						icon_info.e_icon = addElement(
+							_, 'i', 'material-symbols',
+							'position:absolute; inset:0; align-content:center; text-align:center; font-size:1.3rem; line-height:0;',
+							_ => { _.innerText = icon; }
+						);
+					}
+				);
+			}
+		);
+		return icon_info;
 	}
 
 	static AddMenuButton(label = '', icon = '', on_click = _ => { }, post_prep = _ => { })
 	{
-		if (ActionBar.initialized !== true) ActionBar.Initialize();
-
 		let e = addElement(
 			ActionBar.e_button_root, 'div', 'action-bar-button', null,
 			_ =>
@@ -78,7 +117,8 @@ export class ActionBar
 			);
 		}
 	}
+
+	static SetProfileImageSource(url = 'resources/images/logo_alg.png') { ActionBar.e_profile_img.src = url; }
 }
 
 Modules.Report('Action Bar', 'This module provides the action bar interface at the top of the screen and its general functionality.')
-ActionBar.Initialize();

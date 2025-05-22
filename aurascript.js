@@ -23,6 +23,7 @@ import { PageManager } from "./modules/pagemanager.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { Fax } from "./modules/fax.js";
+import { LongOps } from "./modules/systems/longops.js";
 
 async function ImportDataModules()
 {
@@ -115,7 +116,7 @@ function SetContentObscured(enabled = true, label = '...')
 	if (label) e_content_obscurer.innerText = label;
 }
 
-function SetContentFaded(enabled = true)
+window.SetContentFaded = (enabled = true) =>
 {
 	window.content_faded = enabled === true;
 
@@ -123,7 +124,7 @@ function SetContentFaded(enabled = true)
 	if (!e_content_root) return;
 
 	e_content_root.classList.remove('obscured-light');
-	if (window.content_faded === true) e_content_root.classList.add('obscured-light');
+	if (enabled === true) e_content_root.classList.add('obscured-light');
 }
 
 
@@ -164,16 +165,9 @@ function CheckSpoofing()
 
 function PrepareActionBar()
 {
-	let e_action_bar = document.getElementById('action-bar');
-	e_action_bar.addEventListener('mouseenter', _ =>
-	{
-		if (PageManager.pages_being_dragged > 0) return;
-		SetContentFaded(true);
-	});
-	e_action_bar.addEventListener('mouseleave', _ => { SetContentFaded(false); });
-
-	window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
-	window.e_account_profile_picture.style.display = 'none';
+	ActionBar.Initialize();
+	//window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
+	//window.e_account_profile_picture.style.display = 'none';
 }
 
 function CheckWindowArgs()
@@ -269,6 +263,8 @@ async function OnAuraInit()
 
 	if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
 	{
+		LongOps.CreateActionBarElements();
+
 		await ImportPageModules();
 		await ImportDataModules();
 
@@ -279,7 +275,7 @@ async function OnAuraInit()
 
 		await UserAccountInfo.DownloadUserInfo();
 
-		window.e_account_profile_picture.style.display = 'block';
+		//window.e_account_profile_picture.style.display = 'block';
 
 		await CheckIdentity();
 		await AppEvents.onAccountLogin.InvokeAsync();

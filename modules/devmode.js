@@ -4,6 +4,7 @@ import { CreatePagePanel } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
 import { AppEvents } from "./appevents.js";
+import { ActionBar } from "./actionbar.js";
 
 const developer_ids = ['t.rasor'];
 
@@ -18,50 +19,9 @@ export class DevMode
 		if (DevMode.toggle_created === true) return;
 		DevMode.toggle_created = true;
 
-		let e_toggle_root = CreatePagePanel(document.getElementById('action-bar'), true, false);
-		e_toggle_root.style.position = 'absolute';
-		e_toggle_root.style.border = '0.125rem';
-		e_toggle_root.style.top = '0.125rem';
-		e_toggle_root.style.bottom = '0.125rem';
-		e_toggle_root.style.right = '4.2rem';
-		e_toggle_root.style.padding = '0';
-		e_toggle_root.style.width = '6rem';
-		e_toggle_root.style.cursor = 'pointer';
-
-		let e_toggle = CreatePagePanel(e_toggle_root, false, false);
-		e_toggle.classList.add('hover-lift');
-		e_toggle.innerText = 'Debug Mode';
-		e_toggle.style.position = 'absolute';
-		e_toggle.style.top = '5px';
-		e_toggle.style.left = '5px';
-		e_toggle.style.width = 'calc(100% - 10px)';
-		e_toggle.style.height = 'calc(100% - 10px)';
-		e_toggle.style.border = 'none';
-		e_toggle.style.padding = '0';
-		e_toggle.style.alignSelf = 'center';
-		e_toggle.style.alignContent = 'center';
-		e_toggle.style.cursor = 'pointer';
-		e_toggle.style.fontSize = '0.7rem';
-		e_toggle.style.fontWeight = 'normal';
-
-		DevMode.update_toggle = () =>
-		{
-			if (DevMode.active !== true)
-			{
-				e_toggle.style.opacity = '30%';
-				e_toggle.style.setProperty('--theme-color', '#aaa');
-			}
-			else
-			{
-				e_toggle.style.opacity = '100%';
-				e_toggle.style.setProperty('--theme-color', '#0fa');
-			}
-		};
-		DevMode.update_toggle();
-
-		e_toggle.addEventListener(
-			'click',
-			() =>
+		let toggle_info = ActionBar.AddIcon(
+			'developer_mode_tv', 'Toggle Debug Mode',
+			e => 
 			{
 				if (DevMode.active === true) DevMode.Deactivate();
 				else DevMode.Activate();
@@ -70,6 +30,20 @@ export class DevMode
 			}
 		);
 
+		DevMode.update_toggle = () =>
+		{
+			if (DevMode.active !== true)
+			{
+				toggle_info.e_icon.style.opacity = '50%';
+				toggle_info.e_btn.style.removeProperty('--theme-color');
+			}
+			else
+			{
+				toggle_info.e_icon.style.opacity = '100%';
+				toggle_info.e_btn.style.setProperty('--theme-color', '#0fa');
+			}
+		};
+		DevMode.update_toggle();
 	}
 
 	static ValidateDeveloperId(user_id)

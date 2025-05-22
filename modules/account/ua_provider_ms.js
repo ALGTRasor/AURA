@@ -1,3 +1,4 @@
+import { ActionBar } from "../actionbar.js";
 import { DebugLog } from "../debuglog.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "../remotedata/sharepoint.js";
 import { UserAccountInfo, UserAccountManager } from "../useraccount.js";
@@ -209,29 +210,6 @@ export class MSAccountProvider extends UserAccountProvider
 		return dirty_location;
 	}
 
-	/*
-	async DownloadAccountData()
-	{
-		var resp = await fetch(
-			"https://graph.microsoft.com/v1.0/me",
-			{
-				method: 'get',
-				headers:
-				{
-					'Authorization': 'Bearer ' + this.access_token,
-					'Accept': 'application/json'
-				}
-			}
-		);
-
-		if (resp.status == 200)
-		{
-			this.UpdateAccountInfo(JSON.parse(await resp.text()));
-			await UserAccountInfo.DownloadUserInfo();
-		}
-	}
-	*/
-
 	UpdateAccountInfo(info_obj = {})
 	{
 		let id_at = info_obj.mail.indexOf("@");
@@ -265,7 +243,7 @@ export class MSAccountProvider extends UserAccountProvider
 			);
 
 			this.account_profile_picture_url = window.URL.createObjectURL(await resp.blob());
-			document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
+			ActionBar.SetProfileImageSource(this.account_profile_picture_url);
 		}
 		catch (e)
 		{
@@ -275,11 +253,6 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async UpdateAccountProfilePicture(resp)
 	{
-		document.getElementById('action-bar-profile-picture').src = 'data:image/jpeg;base64,' + resp.body;
-		return;
-
-		let blob = new Blob([resp.body], { type: 'image/png' });
-		this.account_profile_picture_url = window.URL.createObjectURL(blob);
-		document.getElementById('action-bar-profile-picture').src = this.account_profile_picture_url;
+		ActionBar.SetProfileImageSource('data:image/jpeg;base64,' + resp.body);
 	}
 }

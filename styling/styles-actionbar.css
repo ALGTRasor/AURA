@@ -77,6 +77,16 @@
 	transition-duration: var(--trans-dur-on-slow);
 }
 
+.action-bar-icons-container
+{
+	position: absolute;
+	display: flex;
+	flex-direction: row-reverse;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
 .action-bar-button-container
 {
 	position: absolute;
