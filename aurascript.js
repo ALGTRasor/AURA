@@ -167,8 +167,6 @@ function CheckSpoofing()
 function PrepareActionBar()
 {
 	ActionBar.Initialize();
-	//window.e_account_profile_picture = document.getElementById('action-bar-profile-picture');
-	//window.e_account_profile_picture.style.display = 'none';
 }
 
 function CheckWindowArgs()
@@ -458,15 +456,7 @@ async function RequestSharedDataRefresh()
 	await CheckIdentity();
 	await SharedData.LoadData(false);
 	DebugLog.SubmitGroup("#f808");
-
-	const timer_shareddataload = 'shared data load';
-	let load_delta_str = Timers.GetElapsed(timer_shareddataload) + 'ms';
-
-	let o = OverlayManager.ShowChoiceDialog('Shared Data Refreshed in ' + load_delta_str, [OverlayManager.OkayChoice()]);
-	o.dismissable = true;
 }
-
-
 
 
 //(() => { (() => { (() => { (() => { OnAuraInit(); })(); })(); })(); })();

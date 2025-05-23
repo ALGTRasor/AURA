@@ -1,6 +1,5 @@
 import { ActionBar } from "../actionbar.js";
-import { NotificationLog } from "../notificationlog.js";
-import { addElement, CreatePagePanel, FlashElement, getTransitionStyle } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, FlashElement, getTransitionStyle, secondsDelta } from "../utils/domutils.js";
 
 const lskey_history = 'longops-history';
 
@@ -13,6 +12,37 @@ export class LongOpInstance extends EventTarget
 		super();
 		this.id = id;
 		for (let pid in data) this[pid] = data[pid];
+
+		if ('ts_start' in this)
+		{
+			if (typeof this.ts_start === 'string') this.ts_start = Number.parseInt(this.ts_start);
+			if (typeof this.ts_start === 'number')
+			{
+				this.ts_start = new Date();
+				this.ts_start.setTime(this.ts_start);
+			}
+		}
+		if ('ts_stop' in this)
+		{
+			if (typeof this.ts_stop === 'string') this.ts_stop = Number.parseInt(this.ts_stop);
+			if (typeof this.ts_stop === 'number')
+			{
+				this.ts_stop = new Date();
+				this.ts_stop.setTime(this.ts_stop);
+			}
+		}
+	}
+
+	GetData()
+	{
+		return {
+			id: this.id,
+			label: this.label,
+			ts_start: ('ts_start' in this && 'valueOf' in this.ts_start) ? this.ts_start.getTime() : undefined,
+			ts_stop: ('ts_stop' in this && 'valueOf' in this.ts_stop) ? this.ts_stop.getTime() : undefined,
+			duration: this.duration,
+			error: this.error
+		};
 	}
 
 	SetData(data = { label: 'A Long Operation' })
@@ -29,8 +59,8 @@ export class LongOpInstance extends EventTarget
 
 	Stop()
 	{
-		this.ts_end = new Date();
-		if (this.ts_start) this.duration = this.ts_end - this.ts_start;
+		this.ts_stop = new Date();
+		if (this.ts_start) this.duration = this.ts_stop - this.ts_start;
 		this.dispatchEvent(new CustomEvent('stop', {}));
 	}
 }
@@ -39,15 +69,20 @@ export class LongOpsHistory
 {
 	static ops = [];
 	static loaded = false;
+
 	static Load()
 	{
 		LongOpsHistory.ops = [];
 		let lsitem = localStorage.getItem(lskey_history);
-		if (lsitem) LongOpsHistory.ops = JSON.parse(lsitem).ops;
-		if (!LongOpsHistory.ops) LongOpsHistory.ops = [];
+		if (lsitem)
+		{
+			let lsobj = JSON.parse(lsitem);
+			if ('op_data' in lsobj) LongOpsHistory.ops = lsobj.op_data.map(_ => new LongOpInstance(_.id, _));
+		}
 		LongOpsHistory.loaded = true;
 	}
-	static Save() { localStorage.setItem(lskey_history, JSON.stringify({ ops: LongOpsHistory.ops })); }
+	static Save() { localStorage.setItem(lskey_history, JSON.stringify({ op_data: LongOpsHistory.ops.map(_ => _.GetData()) })); }
+
 	static CheckLoaded() { if (LongOpsHistory.loaded !== true) LongOpsHistory.Load(); }
 	static Add(op = LongOpInstance.Nothing)
 	{
@@ -111,7 +146,7 @@ export class LongOpsEntryUI
 		let op_done = 'duration' in this.op;
 		this.e_op.style.opacity = op_done ? '70%' : '100%';
 		this.e_icon.innerText = op_done ? 'task_alt' : 'circle';
-		this.e_op.title = op_done ? 'COMPLETE' : 'PENDING';
+		this.e_op.title = op_done ? `COMPLETE: ${Math.round(secondsDelta(this.op.ts_start, this.op.ts_end) * 1000)}ms` : 'PENDING';
 		this.e_icon.style.color = op_done ? '#0f0a' : '#fa0f';
 		this.e_btn_dismiss.style.display = op_done ? 'block' : 'none';
 	}
@@ -263,8 +298,6 @@ export class LongOps extends EventTarget
 		LongOps.toggle_info.e_icon.style.opacity = '80%';
 		LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');
 		FlashElement(LongOps.toggle_info.e_btn, 1.0, 1.0, 'black');
-
-		//LongOpsUI.instance.RefreshListElements();
 		return op;
 	}
 
@@ -272,10 +305,8 @@ export class LongOps extends EventTarget
 	{
 		let existing_id = LongOpsHistory.ops.indexOf(op);
 		if (existing_id < 0) return undefined;
-		NotificationLog.Log('Dismissed Operation');
 		LongOpsHistory.ops.splice(existing_id, 1);
 		if (LongOpsHistory.ops.length < 1) LongOps.ToggleVisibility();
-		//LongOpsUI.instance.RefreshListElements();
 	}
 
 	static Stop(op = LongOpInstance.Nothing)
@@ -290,8 +321,6 @@ export class LongOps extends EventTarget
 		LongOps.instance.dispatchEvent(new CustomEvent("stopop", event_data));
 		LongOps.instance.dispatchEvent(new CustomEvent("opchange", event_data));
 		LongOpsHistory.Add(op);
-
-		//LongOpsUI.instance.RefreshListElements();
 		return op;
 	}
 

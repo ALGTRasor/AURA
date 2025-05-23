@@ -8,6 +8,7 @@ import { DataSourceDescriptor, DataSourceInstance } from "./datasource.js";
 import { NotificationLog } from "../notificationlog.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { FieldValidation } from "../utils/field_validation.js";
+import { LongOps } from "../systems/longops.js";
 
 
 export class SharedDataTable
@@ -84,7 +85,7 @@ export class SharedData
 	{
 		const timer_shareddataload = 'shared data load';
 
-		if (SharedData.loading) return;
+		if (SharedData.loading === true) return;
 
 		SharedData.UpdateDataSourceFilters();
 		SharedData.loading = true;
@@ -121,6 +122,7 @@ export class SharedData
 
 		if (useCache === true) DebugLog.Log('fetching missing shared data...');
 
+		let longop = LongOps.Start('shared-data-download', { label: 'Download Shared Data' });
 
 		for (let table_id in SharedData.all_tables)
 		{
@@ -131,6 +133,7 @@ export class SharedData
 		}
 
 		await window.DBLayer.WaitAllRequests();
+		LongOps.Stop(longop);
 
 		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
 		await SharedData.onSavedToCache.InvokeAsync();

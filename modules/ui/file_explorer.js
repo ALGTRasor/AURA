@@ -660,7 +660,7 @@ export class FileExplorer extends PanelContent
     async CreateFolderInRelativePath(name)
     {
         if (this.drive_id_valid !== true) return undefined;
-        const longop = LongOps.Start('driveitem-create-folder' + name, { label: 'Create Folder' });
+        const longop = LongOps.Start('driveitem-create-folder' + name, { label: 'Create Folder:' + name });
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
         let data = { name: name, folder: {} };
         data['@microsoft.graph.conflictBehavior'] = 'rename';
