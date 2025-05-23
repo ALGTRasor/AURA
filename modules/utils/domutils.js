@@ -33,6 +33,23 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 };
 
 
+
+
+
+
+
+export function getTransitionStyle(properties = '', duration_var = '--trans-dur-off-slow', timing_function = 'ease-in-out')
+{
+    return `transition-property:${properties}; transition-duration:var(${duration_var}); transition-timing-function:${timing_function}`;
+}
+
+
+
+
+
+
+
+
 export function MoveArrayItem(items = [], from = 0, to = 0)
 {
     if (!items || !items.length || from < 0 || from === to) return;

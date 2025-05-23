@@ -104,6 +104,8 @@ export class PageDirectory extends PageDescriptor
 	{
 		if (!instance) return;
 
+		instance.e_content.style.gap = 'var(--gap-025)';
+
 		instance.slide_directory = new SlideSelector();
 		const directories = [
 			{ label: 'INTERNAL', on_click: _ => { } },

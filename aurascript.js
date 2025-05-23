@@ -22,7 +22,7 @@ import { OverlayManager } from "./modules/ui/overlays.js";
 import { PageManager } from "./modules/pagemanager.js";
 import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
-import { Fax } from "./modules/fax.js";
+import { Fax } from "./modules/systems/fax.js";
 import { LongOps } from "./modules/systems/longops.js";
 import { addElement } from "./modules/utils/domutils.js";
 

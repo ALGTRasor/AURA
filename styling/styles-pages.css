@@ -29,7 +29,7 @@
 	justify-content: center;
 
 	gap: var(--gap-05);
-	padding: var(--gap-05);
+	padding: 0;
 }
 
 
@@ -762,6 +762,10 @@
 	background-color: hsl(from var(--theme-color) h s 20%);
 
 	transition-duration: var(--trans-dur-off-fast);
+}
+.menu-button:active
+{
+	font-size: 85%;
 }
 
 

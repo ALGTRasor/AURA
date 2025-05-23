@@ -382,10 +382,11 @@ iframe
 	content: '';
 	position: absolute;
 	inset: 0;
+
 	outline: dashed 1px #fff;
 	outline-offset: -1px;
 
-	border-radius: 0.5rem;
+	border-radius: inherit;
 }
 
 
@@ -448,6 +449,8 @@ div[valuechanged]
 	color: white;
 	outline: solid white 1px !important;
 	outline-offset: -1px;
+
+	border-radius: inherit;
 }
 
 
@@ -502,6 +505,8 @@ input[type="textarea"]:active
 	color: white;
 	outline: solid white 1px !important;
 	outline-offset: -1px;
+
+	border-radius: inherit;
 }
 
 

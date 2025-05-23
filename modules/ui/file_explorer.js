@@ -5,6 +5,7 @@ import { FileTypes } from "../utils/filetypes.js";
 import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
+import { LongOps } from "../systems/longops.js";
 
 
 
@@ -109,8 +110,12 @@ class FileExplorerItem
 
     RequestDelete()
     {
+        this.explorer.OnStartLoading();
+        const longop = LongOps.Start('driveitem-delete-' + this.item_info.id, { label: 'Delete ' + this.item_info.name });
         let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
-        window.SharePoint.SetData(url_post, null, 'delete').then(
+        window.SharePoint.SetData(
+            url_post, null, 'delete'
+        ).then(
             _ =>
             {
                 if (_.status == 204) NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
@@ -119,6 +124,7 @@ class FileExplorerItem
                     if (_.status == 403 && this.item_type === 'folder') NotificationLog.Log('Could Not Delete folder: It must be empty first', '#fc0');
                     else NotificationLog.Log(`Error While Deleting ${this.item_type}: ${this.item_info.name} ||| ${_.status}`, '#f50');
                 }
+                LongOps.Stop(longop);
                 this.explorer.Navigate(this.explorer.relative_path_current);
             }
         );
@@ -127,6 +133,7 @@ class FileExplorerItem
     RequestRename()
     {
         if (this.explorer.drive_id_valid !== true) return undefined;
+        const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: 'Rename ' + this.item_info.name });
         OverlayManager.ShowStringDialog(
             'Rename ' + this.item_type,
             this.item_info.name,
@@ -136,7 +143,9 @@ class FileExplorerItem
                     name: new_name
                 };
                 let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
-                window.SharePoint.SetData(url_post, body, 'put').then(
+                window.SharePoint.SetData(
+                    url_post, body, 'put'
+                ).then(
                     _ =>
                     {
                         if ('status' in _)
@@ -148,6 +157,7 @@ class FileExplorerItem
                             NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
                             this.explorer.Navigate(this.explorer.relative_path_current);
                         }
+                        LongOps.Stop(longop);
                     }
                 );
             },
@@ -186,6 +196,7 @@ class FileExplorerItem
         OverlayManager.ShowConfirmDialog(
             _ =>
             {
+                const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: 'Copy ' + this.item_info.name });
                 let body =
                 {
                     parentReference:
@@ -196,7 +207,9 @@ class FileExplorerItem
                     name: increment_filename(this.item_info.name)
                 };
                 let url = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}/copy?@microsoft.graph.conflictBehavior=rename`;
-                window.SharePoint.SetData(url, body).then(
+                window.SharePoint.SetData(
+                    url, body
+                ).then(
                     _ =>
                     {
                         if ('status' in _ && _.status != 202)
@@ -208,6 +221,7 @@ class FileExplorerItem
                             NotificationLog.Log(`Duplicated '${this.item_info.name}'`, '#0f0');
                             this.explorer.Navigate(this.explorer.relative_path_current);
                         }
+                        LongOps.Stop(longop);
                     }
                 );
             },
@@ -646,17 +660,23 @@ export class FileExplorer extends PanelContent
     async CreateFolderInRelativePath(name)
     {
         if (this.drive_id_valid !== true) return undefined;
+        const longop = LongOps.Start('driveitem-create-folder' + name, { label: 'Create Folder' });
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
         let data = { name: name, folder: {} };
         data['@microsoft.graph.conflictBehavior'] = 'rename';
-        return await window.SharePoint.SetData(url, data, 'post');
+        let result = await window.SharePoint.SetData(url, data, 'post');
+        LongOps.Stop(longop);
+        return result;
     }
 
     async CreateFileInRelativePath(name, file_content)
     {
         if (this.drive_id_valid !== true) return undefined;
+        const longop = LongOps.Start('driveitem-upload-file' + name, { label: 'Upload: ' + name });
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}/${name}:/content`;
-        return await window.SharePoint.SetData(url, file_content, 'put', 'text/plain');
+        let result = await window.SharePoint.SetData(url, file_content, 'put', 'text/plain');
+        LongOps.Stop(longop);
+        return result;
     }
 
     RequestCreateFolder()
