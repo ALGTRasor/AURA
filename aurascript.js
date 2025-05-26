@@ -4,6 +4,7 @@ import { UserAccountInfo, UserAccountManager } from "./modules/useraccount.js";
 import "./modules/usersettings.js";
 import "./modules/globaltooltip.js";
 import "./modules/notificationlog.js";
+import { addElement } from "./modules/utils/domutils.js";
 
 import { Timers } from "./modules/timers.js";
 import { AnimJob } from "./modules/AnimJob.js";
@@ -24,7 +25,6 @@ import { ActionBar } from "./modules/actionbar.js";
 import { AppEvents } from "./modules/appevents.js";
 import { Fax } from "./modules/systems/fax.js";
 import { LongOps } from "./modules/systems/longops.js";
-import { addElement } from "./modules/utils/domutils.js";
 
 async function ImportDataModules()
 {
