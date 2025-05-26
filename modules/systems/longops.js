@@ -15,20 +15,18 @@ export class LongOpInstance extends EventTarget
 
 		if ('ts_start' in this)
 		{
-			if (typeof this.ts_start === 'string') this.ts_start = Number.parseInt(this.ts_start);
-			if (typeof this.ts_start === 'number')
+			if (typeof this.ts_start === 'string')
 			{
-				this.ts_start = new Date();
-				this.ts_start.setTime(this.ts_start);
+				this.ts_start = Number.parseInt(this.ts_start);
+				this.ts_start = new Date(this.ts_start).getTime();
 			}
 		}
 		if ('ts_stop' in this)
 		{
-			if (typeof this.ts_stop === 'string') this.ts_stop = Number.parseInt(this.ts_stop);
-			if (typeof this.ts_stop === 'number')
+			if (typeof this.ts_stop === 'string')
 			{
-				this.ts_stop = new Date();
-				this.ts_stop.setTime(this.ts_stop);
+				this.ts_stop = Number.parseInt(this.ts_stop);
+				this.ts_stop = new Date(this.ts_stop).getTime();
 			}
 		}
 	}
@@ -38,8 +36,8 @@ export class LongOpInstance extends EventTarget
 		return {
 			id: this.id,
 			label: this.label,
-			ts_start: ('ts_start' in this && 'valueOf' in this.ts_start) ? this.ts_start.getTime() : undefined,
-			ts_stop: ('ts_stop' in this && 'valueOf' in this.ts_stop) ? this.ts_stop.getTime() : undefined,
+			ts_start: this.ts_start,
+			ts_stop: this.ts_stop,
 			duration: this.duration,
 			error: this.error
 		};
@@ -53,13 +51,13 @@ export class LongOpInstance extends EventTarget
 
 	Start()
 	{
-		this.ts_start = new Date();
+		this.ts_start = new Date().getTime();
 		this.dispatchEvent(new CustomEvent('start', {}));
 	}
 
 	Stop()
 	{
-		this.ts_stop = new Date();
+		this.ts_stop = new Date().getTime();
 		if (this.ts_start) this.duration = this.ts_stop - this.ts_start;
 		this.dispatchEvent(new CustomEvent('stop', {}));
 	}
@@ -119,13 +117,14 @@ export class LongOpsEntryUI
 			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow);',
 			_ =>
 			{
+				_.classList.add('progress-filling');
 				_.style.opacity = '0%';
 
 				this.e_label = addElement(_, 'div', undefined, 'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;', _ => { _.innerText = op.label ?? op.id; });
 				this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 				this.e_btn_dismiss = CreatePagePanel(
 					_, false, false,
-					'display:none; font-size:0.7rem; align-content:center; line-height:0; align-content:center; flex-grow:0.0; flex-shrink:0.0;'
+					'font-size:0.7rem; align-content:center; line-height:0; align-content:center; flex-grow:0.0; flex-shrink:0.0;'
 					+ 'top:50%; transform:translate(0%, -50%); padding:0;',
 					_ =>
 					{
@@ -143,12 +142,33 @@ export class LongOpsEntryUI
 
 	UpdateElements()
 	{
-		let op_done = 'duration' in this.op;
-		this.e_op.style.opacity = op_done ? '70%' : '100%';
-		this.e_icon.innerText = op_done ? 'task_alt' : 'circle';
-		this.e_op.title = op_done ? `COMPLETE: ${Math.round(secondsDelta(this.op.ts_start, this.op.ts_end) * 1000)}ms` : 'PENDING';
-		this.e_icon.style.color = op_done ? '#0f0a' : '#fa0f';
-		this.e_btn_dismiss.style.display = op_done ? 'block' : 'none';
+		if ('duration' in this.op)
+		{
+			this.e_op.classList.remove('progress-filling');
+
+			this.e_op.style.opacity = '70%';
+			this.e_op.title = `COMPLETE: ${Math.round(secondsDelta(this.op.ts_start, this.op.ts_end) * 1000)}ms`;
+
+			this.e_icon.innerText = 'task_alt';
+			this.e_icon.style.color = '#0f0a';
+
+			this.e_btn_dismiss.style.opacity = '100%';
+			this.e_btn_dismiss.style.pointerEvents = 'all';
+		}
+		else
+		{
+			this.e_op.classList.remove('progress-filling');
+			this.e_op.classList.add('progress-filling');
+
+			this.e_op.style.opacity = '100%';
+			this.e_op.title = 'PENDING';
+
+			this.e_icon.innerText = 'pending';
+			this.e_icon.style.color = '#fa0f';
+
+			this.e_btn_dismiss.style.opacity = '25%';
+			this.e_btn_dismiss.style.pointerEvents = 'none';
+		}
 	}
 
 	RemoveElements()
@@ -212,10 +232,7 @@ export class LongOpsUI
 		if (this.created !== true) return;
 		this.e_ops_list.innerHTML = '';
 
-		for (let eid in this.op_entries)
-		{
-			this.op_entries[eid].RemoveElements();
-		}
+		for (let eid in this.op_entries) this.op_entries[eid].RemoveElements();
 
 		LongOpsHistory.CheckLoaded();
 

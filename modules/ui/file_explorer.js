@@ -6,6 +6,7 @@ import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
 import { LongOps } from "../systems/longops.js";
+import { until } from "../utils/until.js";
 
 
 
@@ -717,6 +718,25 @@ export class FileExplorer extends PanelContent
         );
     }
 
+    static async ReadFileContents(file_ref)
+    {
+        let done = false;
+        let reader = new FileReader();
+        reader.onload = _ =>
+        {
+            done = true;
+            console.info('done reading file: ' + file_ref.name);
+        };
+        reader.onerror = _ =>
+        {
+            done = true;
+            console.error(_);
+        };
+        reader.readAsArrayBuffer(file_ref);
+        await until(() => done === true);
+        return reader.result;
+    }
+
     RequestUploadFile()
     {
         const get_last_path_part = path =>
@@ -741,11 +761,11 @@ export class FileExplorer extends PanelContent
                     {
                         const prepare_upload = async file =>
                         {
-                            let upload_data = await file.arrayBuffer();
-                            await this.CreateFileInRelativePath(file.name.trim(), upload_data);
-                            NotificationLog.Log('Uploaded File: ' + file.name, '#0ff');
+                            let upload_data = await FileExplorer.ReadFileContents(file);
+                            NotificationLog.Log('Read File Contents: ' + file.name, '#0ff');
+                            return this.CreateFileInRelativePath(file.name.trim(), upload_data);
                         };
-                        const file = files.item(fid);
+                        let file = files.item(fid);
                         fid++;
                         if (file)
                         {
@@ -757,7 +777,7 @@ export class FileExplorer extends PanelContent
                     if (uploads.length > 0)
                     {
                         NotificationLog.Log('Uploading ' + uploads.length + ' File(s)...', '#ff0');
-                        const process = async (promises) => { await Promise.allSettled(promises); };
+                        let process = async (promises) => { await Promise.allSettled(promises); };
                         process(
                             uploads
                         ).then(

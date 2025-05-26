@@ -1,0 +1,25 @@
+@keyframes progress-filling
+{
+	0%
+	{
+		background-position: 100% 0%;
+	}
+
+	50%
+	{
+		background-position: 0% 0%;
+	}
+
+	100%
+	{
+		background-position: -100% 0%;
+	}
+}
+
+
+.progress-filling
+{
+	animation: progress-filling 0.69s linear 0s infinite;
+	background-size: 200% 100%;
+	background-image: linear-gradient(30deg, transparent, hsl(from var(--theme-color) h s 40%));
+}
