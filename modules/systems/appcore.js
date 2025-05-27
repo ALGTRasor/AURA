@@ -370,6 +370,7 @@ export class AppCore
 		let e_body_rect = document.body.getBoundingClientRect();
 		let e_target_rect = e_target.getBoundingClientRect();
 
+		const e_spotlight = document.getElementById('spotlight');
 		e_spotlight.style.left = ((e_target_rect.x - e_body_rect.x) - 12) + 'px';
 		e_spotlight.style.top = ((e_target_rect.y - e_body_rect.y) - 12) + 'px';
 		e_spotlight.style.width = (e_target_rect.width + 24) + 'px';
