@@ -32,7 +32,8 @@ export class UserDashboardInfo extends PanelContent
 
 	OnRefreshElements()
 	{
-		RecordFormUtils.CreateRecordInfoList(this.e_root, UserAccountInfo.user_info, InternalUser.data_model.field_descs);
+		if (this.e_info_record_list) this.e_info_record_list.remove();
+		this.e_info_record_list = RecordFormUtils.CreateRecordInfoList(this.e_root, UserAccountInfo.user_info, InternalUser.data_model.field_descs);
 		//RecordFormUtils.CreateRecordInfoList(this.e_root, UserAccountInfo.account_info, AccountUser.data_model.field_descs);
 	}
 
@@ -333,6 +334,7 @@ export class PageMyData extends PageDescriptor
 			() =>
 			{
 				instance.mode_slider.ApplySelection();
+				if (instance.content_current) instance.content_current.RefreshElements();
 				if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
 			},
 			250

@@ -44,10 +44,7 @@ class FileExplorerItem
         this.tooltips = [];
 
         this.DetermineFileType();
-        this.tooltips.push(this.item_type.toUpperCase());
-        this.tooltips.push(this.item_info.name);
-        this.AddTimestampTooltip('createdBy', 'createdDateTime', 'Created');
-        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'Modified');
+        this.tooltips.push(this.item_type.toUpperCase() + '  ' + this.item_info.name);
     }
 
     DetermineFileType()
@@ -87,7 +84,6 @@ class FileExplorerItem
             _ =>
             {
                 _.classList.add('file-explorer-item');
-                _.title = this.tooltips.join('\n');
                 _.tabIndex = '0';
 
                 addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
@@ -100,6 +96,9 @@ class FileExplorerItem
             case 'folder': this.CreateFolderElements(); break;
             case 'bundle': this.CreateFolderElements(); break;
         }
+
+        this.AddTimestampTooltip('createdBy', 'createdDateTime', 'Created');
+        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'Modified');
 
         this.e_root.title = this.tooltips.join('\n');
 
@@ -267,16 +266,18 @@ class FileExplorerItem
         let show_infos = root_rect.width > 550;
 
         const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.opacity = '0%'; } };
-        const show_col = _ => { if (_) { _.style.width = '4rem'; _.style.opacity = '60%'; } };
+        const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.opacity = '60%'; } };
 
         if (show_infos)
         {
+            show_col(this.e_info_editor);
             show_col(this.e_info_timestamp);
             show_col(this.e_info_size);
             if (this.e_info_type) this.e_info_type.style.width = '4rem';
         }
         else
         {
+            hide_col(this.e_info_editor);
             hide_col(this.e_info_timestamp);
             hide_col(this.e_info_size);
             if (this.e_info_type) this.e_info_type.style.width = 'unset';
@@ -291,10 +292,13 @@ class FileExplorerItem
         this.e_root.classList.add('file-explorer-file');
         this.e_root.title = this.item_info.name;
 
+        this.e_info_editor = addElement(this.e_root, 'div', '', style_info_label, this.item_info.lastModifiedBy.user.displayName);
         this.e_info_timestamp = addElement(this.e_root, 'div', '', style_info_label, new Date(this.item_info.lastModifiedDateTime).toLocaleDateString());
 
         let size_info = get_file_size_group(this.item_info.size);
         this.e_info_size = addElement(this.e_root, 'div', '', style_info_label + 'width:4rem;', size_info.bytes_label);
+        this.tooltips.push('SIZE  ' + size_info.bytes_label);
+
         window.setTimeout(
             () =>
             {

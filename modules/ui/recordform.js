@@ -1,23 +1,18 @@
 import { Modules } from "../modules.js";
-import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { FieldValidation } from "../utils/field_validation.js";
 import { DataFieldDesc } from "../datamodels/datafield_desc.js";
-import { SharedData } from "../remotedata/datashared.js";
-
-const rgx_datetime = /(\d{4})\-(\d{2})\-(\d{2})(?:T(\d\d\:\d\d\:\d\d)Z?)?/;
-const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
 
 export class RecordFormUtils
 {
     static CreateRecordInfoList(parent = {}, record = {}, descs = [], info_title = 'info', show_extras = false)
     {
-        addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = info_title);
+        let e_root = CreatePagePanel(parent, true, true, 'flex-wrap:nowrap;flex-direction:column;');
 
         for (let desc_id in descs) 
         {
             if (desc_id.startsWith('@')) continue;
-            RecordFormUtils.CreateRecordInfoListItem(parent, descs, desc_id, record[desc_id]);
+            RecordFormUtils.CreateRecordInfoListItem(e_root, descs, desc_id, record[desc_id]);
         }
 
         if (show_extras)
@@ -25,16 +20,14 @@ export class RecordFormUtils
             let leftovers = [];
             for (let field_id in record)
             {
-                if (!(field_id in descs)) leftovers.push(field_id);
+                if (field_id in descs) continue;
+                leftovers.push(field_id);
             }
 
-            addElement(parent, 'div', 'info-row-separator', '', e => e.innerText = 'extra');
-
-            for (let leftover_id in leftovers) 
-            {
-                RecordFormUtils.CreateRecordInfoListItem(parent, descs, leftover_id, record[leftover_id], false);
-            }
+            for (let id in leftovers) RecordFormUtils.CreateRecordInfoListItem(e_root, descs, id, record[id], false);
         }
+
+        return e_root;
     }
 
     static CreateRecordInfoListItem(parent = {}, field_descs = [], desc_id = '', value = '', format = true)
@@ -115,71 +108,6 @@ export class RecordFormUtils
             return valstr;
         }
         return valstr;
-
-        if (!row_opts) return valstr;
-        if (!row_opts.format) return valstr;
-        if (row_opts.format.length < 1) return valstr;
-
-        switch (row_opts.format)
-        {
-            case 'upper':
-                valstr = valstr.toUpperCase();
-                break;
-            case 'team':
-                let got_team = SharedData.GetTeamData(valstr);
-                if (got_team) valstr = got_team.team_name;
-                break;
-            case 'role':
-                let got_role = SharedData.GetRoleData(valstr);
-                if (got_role) valstr = got_role.role_name;
-                break;
-            case 'user':
-                let got_user = SharedData.GetUserData(valstr);
-                if (got_user) valstr = got_user.display_name_full;
-                break;
-            case 'list':
-                if (row_opts.list_separator) DebugLog.Log('splitting by ' + row_opts.list_separator);
-                let parts = valstr.split(row_opts.list_separator ? row_opts.list_separator : ';');
-                if (parts.length > 1) valstr = parts.length + ' ' + row_opts.label;
-                break;
-            case 'url':
-                if (valstr && valstr.length > 0) valstr = `<a href='${valstr}' target='_blank'>${valstr}</a>`
-                break;
-            case 'address':
-                if (valstr && valstr.length > 0) valstr = `<a href='${url_maps}${encodeURI(valstr)}' target='_blank'>${valstr}</a>`
-                break;
-            case 'email':
-                if (valstr && valstr.length > 0) valstr = `<a href='mailto:${valstr}' target='_blank'>${valstr}</a>`
-                break;
-            case 'phone':
-                let nums = [0, 1, 2, 3, 4];
-                nums = valstr.replaceAll(/[^\d]/g, '');
-                if (nums.length >= 7)
-                {
-                    nums = nums.insertFromEnd(4, '-');
-                    nums = nums.insertFromEnd(8, ') ');
-                    nums = nums.insertFromEnd(13, '(');
-                    valstr = nums.length > 14 ? '+' + nums.insertFromEnd(14, ' ') : nums;
-                }
-                break;
-            case 'date':
-                let dmatch = valstr.match(rgx_datetime);
-                if (dmatch) valstr = `${dmatch[1]}-${dmatch[2]}-${dmatch[3]}`;
-                break;
-            case 'datetime':
-                let dtmatch = valstr.match(rgx_datetime);
-                if (dtmatch)
-                {
-                    let year = dtmatch[1];
-                    let month = dtmatch[2];
-                    let day = dtmatch[3];
-                    let time = dtmatch[4];
-
-                    valstr = `${year}-${month}-${day} @${time}`;
-                }
-                break;
-        }
-        return valstr;
     }
 }
 
@@ -228,7 +156,7 @@ export class RecordForm
     {
         this.e_root.innerHTML = '';
 
-        if (this.editable)
+        if (this.editable === true)
         {
         }
         else
