@@ -118,19 +118,21 @@ export class LongOpsEntryUI
 			{
 				_.classList.add('progress-filling');
 				_.style.opacity = '0%';
+				_.style.setProperty('--theme-color', op_done ? '#6f7' : 'unset');
 
 				this.e_label = addElement(_, 'div', undefined, 'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;', _ => { _.innerText = this.op.label ?? this.op.id; });
 				this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 				this.e_btn_dismiss = CreatePagePanel(
-					_, false, false,
-					'font-size:0.7rem; align-content:center; line-height:0; align-content:center; flex-grow:0.0; flex-shrink:0.0;'
-					+ 'top:50%; transform:translate(0%, -50%); padding:0;',
+					_, true, false,
+					'cursor:pointer; font-size:0.7rem; align-content:center; line-height:0; align-content:center; flex-grow:0.0; flex-shrink:0.0;'
+					+ 'top:50%; transform:translate(0%, -50%); padding:0; border:solid 1px hsl(from var(--theme-color) h s 40%);',
 					_ =>
 					{
 						_.title = 'Dismiss this operation';
-						//_.style.setProperty('--theme-color', '#fa0');
-						addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-size:1rem;', _ => { _.innerText = 'close_small'; });
+						_.style.setProperty('--theme-color', '#fff');
+						addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-size:1rem;', _ => { _.innerText = 'remove'; });
 						_.classList.add('panel-button');
+						_.classList.add('hover-lift');
 					}
 				);
 			}
@@ -158,6 +160,7 @@ export class LongOpsEntryUI
 		if ('duration' in this.op)
 		{
 			this.e_op.classList.remove('progress-filling');
+			this.e_op.style.setProperty('--theme-color', '#6f7');
 
 			this.e_op.style.opacity = '70%';
 			this.e_op.title = `COMPLETE: ${Math.round(this.op.duration)}ms`;
@@ -170,6 +173,7 @@ export class LongOpsEntryUI
 		}
 		else
 		{
+			this.e_op.style.setProperty('--theme-color', 'unset');
 			this.e_op.classList.remove('progress-filling');
 			this.e_op.classList.add('progress-filling');
 
@@ -212,7 +216,8 @@ export class LongOpsUI
 
 				let trench = new Trench(_);
 				trench.AddLabel('OPERATIONS');
-				trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide this panel');
+				let e_btn_close = trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide the Operations panel');
+				e_btn_close.style.setProperty('--theme-color', '#f00');
 
 				const style_opslist = 'display:flex; flex-direction:column-reverse; justify-content:flex-end; flex-wrap:nowrap;'
 					+ 'flex-basis:100%;';
@@ -220,7 +225,7 @@ export class LongOpsUI
 
 				CreatePagePanel(
 					_, true, false,
-					'font-size:0.7rem; font-weight:bold; text-align:center; opacity:60%; padding:var(--gap-025);',
+					'font-size:0.7rem; font-weight:bold; text-align:center; align-content:center; opacity:60%; padding:var(--gap-025);',
 					_ =>
 					{
 						_.classList.add('panel-button');
