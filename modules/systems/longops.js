@@ -1,5 +1,6 @@
 import { ActionBar } from "../actionbar.js";
 import { DebugLog } from "../debuglog.js";
+import { Trench } from "../ui/trench.js";
 import { addElement, CreatePagePanel, FlashElement, getTransitionStyle, secondsDelta } from "../utils/domutils.js";
 
 const lskey_history = 'longops-history';
@@ -185,7 +186,10 @@ export class LongOpsUI
 			{
 				_.id = 'long_ops-output';
 
-				addElement(_, 'div', '', 'font-size:0.7rem; font-weight:bold; text-align:center; opacity:60%; padding:var(--gap-025);', 'OPERATIONS');
+				let trench = new Trench(_);
+				trench.AddLabel('OPERATIONS');
+				trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide this panel');
+
 				const style_opslist = 'display:flex; flex-direction:column-reverse; justify-content:flex-end; flex-wrap:nowrap;'
 					+ 'flex-basis:100%;';
 				this.e_ops_list = CreatePagePanel(_, true, true, style_opslist);
@@ -208,7 +212,7 @@ export class LongOpsUI
 		this.created = true;
 
 		this.SetVisible(this.visible);
-		this.RefreshListElements();
+		//this.RefreshListElements();
 	}
 
 	RemoveListEntry(entry)
@@ -259,6 +263,7 @@ export class LongOpsUI
 
 		if (this.visible === true)
 		{
+			this.RefreshListElements();
 			this.e_root.style.opacity = '100%';
 			this.e_root.style.pointerEvents = 'unset';
 		}
@@ -302,7 +307,7 @@ export class LongOps extends EventTarget
 		LongOps.instance.dispatchEvent(new CustomEvent("opchange", event_data));
 
 		LongOpsUI.instance.SetVisible(true);
-		LongOpsUI.instance.AppendListElement(op);
+		//LongOpsUI.instance.AppendListElement(op);
 
 		LongOps.toggle_info.e_icon.style.opacity = '80%';
 		LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');

@@ -43,6 +43,14 @@ export function getTransitionStyle(properties = '', duration_var = '--trans-dur-
     return `transition-property:${properties}; transition-duration:var(${duration_var}); transition-timing-function:${timing_function}; transition-delay:${delay};`;
 }
 
+export function setTransitionStyle(e = {}, properties = '', duration_var = '--trans-dur-off-slow', timing_function = 'ease-in-out', delay = '0s')
+{
+    e.style.transitionProperty = properties;
+    e.style.transitionDuration = `var(${duration_var})`;
+    e.style.transitionTimingFunction = timing_function;
+    e.style.transitionDelay = delay;
+}
+
 
 
 

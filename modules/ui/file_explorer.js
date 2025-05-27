@@ -1,4 +1,4 @@
-import { addElement, CreatePagePanel, setSiblingIndex } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
 import { FileTypes } from "../utils/filetypes.js";
@@ -102,6 +102,8 @@ class FileExplorerItem
         }
 
         this.e_root.title = this.tooltips.join('\n');
+
+        this.RefreshElements();
     }
 
     RemoveElements()
@@ -259,17 +261,53 @@ class FileExplorerItem
         }
     }
 
+    RefreshElements()
+    {
+        let root_rect = this.e_root.getBoundingClientRect();
+        let show_infos = root_rect.width > 550;
+
+        const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.opacity = '0%'; } };
+        const show_col = _ => { if (_) { _.style.width = '4rem'; _.style.opacity = '60%'; } };
+
+        if (show_infos)
+        {
+            show_col(this.e_info_timestamp);
+            show_col(this.e_info_size);
+            if (this.e_info_type) this.e_info_type.style.width = '4rem';
+        }
+        else
+        {
+            hide_col(this.e_info_timestamp);
+            hide_col(this.e_info_size);
+            if (this.e_info_type) this.e_info_type.style.width = 'unset';
+        }
+    }
+
     CreateFileElements()
     {
-        this.e_root.classList.add('file-explorer-file');
+        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; padding-left:var(--gap-1); padding-right:var(--gap-1); text-wrap-mode:nowrap;';
 
         let item_type_info = FileTypes.GetInfo(this.item_info.name);
+        this.e_root.classList.add('file-explorer-file');
         this.e_root.title = this.item_info.name;
 
-        addElement(
-            this.e_root, 'div', 'file-explorer-item-info', null,
+        this.e_info_timestamp = addElement(this.e_root, 'div', '', style_info_label, new Date(this.item_info.lastModifiedDateTime).toLocaleDateString());
+
+        let size_info = get_file_size_group(this.item_info.size);
+        this.e_info_size = addElement(this.e_root, 'div', '', style_info_label + 'width:4rem;', size_info.bytes_label);
+        window.setTimeout(
+            () =>
+            {
+                setTransitionStyle(this.e_info_timestamp, 'width, opacity', '--trans-dur-off-fast');
+                setTransitionStyle(this.e_info_size, 'width, opacity', '--trans-dur-off-fast');
+            }, 30
+        );
+
+        this.e_info_type = addElement(
+            this.e_root, 'div', 'file-explorer-item-info', 'width:4rem;',
             _ =>
             {
+
                 addElement(
                     _, 'span', null, 'padding:var(--gap-05); border-radius:var(--gap-05);',
                     _ =>
@@ -655,7 +693,17 @@ export class FileExplorer extends PanelContent
         }
     }
 
-    OnRefreshElements() { }
+    OnRefreshElements()
+    {
+        this.RefreshColumnVisibility();
+    }
+
+    RefreshColumnVisibility()
+    {
+        if (!this.current_items || this.current_items.length < 1) return;
+        for (let id in this.current_items) this.current_items[id].RefreshElements();
+    }
+
     OnRemoveElements() { this.e_root.remove(); }
 
     async CreateFolderInRelativePath(name)
@@ -801,7 +849,6 @@ export class FileExplorer extends PanelContent
             }
         );
     }
-
 
     OnStartLoading()
     {
@@ -972,10 +1019,17 @@ export class FileExplorer extends PanelContent
         items.sort(FileExplorer.sort_name);
         items.sort(FileExplorer.sort_type);
 
+        if (this.current_items && this.current_items.length > 0)
+        {
+            for (let ii in this.current_items) this.current_items[ii].RemoveElements();
+        }
+        this.current_items = [];
+
         for (let id in items)
         {
             let item_instance = new FileExplorerItem(this, items[id]);
             item_instance.CreateElements(this.e_items_container);
+            this.current_items.push(item_instance);
         }
     }
 

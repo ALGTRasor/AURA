@@ -358,7 +358,7 @@
 	padding: var(--gap-025);
 
 	color: var(--theme-color-text-50);
-	letter-spacing: 0px;
+	letter-spacing: 1px;
 	font-size: 95%;
 	user-select: none;
 
@@ -762,6 +762,7 @@
 
 	transition-duration: var(--trans-dur-off-fast);
 }
+
 .menu-button:active
 {
 	font-size: 85%;

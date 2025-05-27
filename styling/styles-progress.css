@@ -19,7 +19,7 @@
 
 .progress-filling
 {
-	animation: progress-filling 0.69s linear 0s infinite;
-	background-size: 200% 100%;
-	background-image: linear-gradient(30deg, transparent, hsl(from var(--theme-color) h s 40%));
+	animation: progress-filling 1.5s linear 0s infinite;
+	background-size: 300% 100%;
+	background-image: linear-gradient(90deg, transparent 0%, hsl(from var(--theme-color) h s 40%) 98%, transparent 100%);
 }

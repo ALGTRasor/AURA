@@ -93,6 +93,15 @@ export class AppCore
 
 
 
+	static BeforeUnload(e)
+	{
+		if (LongOps.active.length > 0)
+		{
+			e.preventDefault();
+			NotificationLog.Log('Operation Ongoing!');
+		}
+	}
+
 	static NotifyReauthorizeRequest()
 	{
 		DebugLog.Log('authentication required! auth error status from batch request');
@@ -108,6 +117,7 @@ export class AppCore
 
 	static PrepareDocument()
 	{
+		window.onbeforeunload = e => AppCore.BeforeUnload(e);
 		window.timeout_WindowSizeChange = new RunningTimeout(AppCore.OnWindowSizeChanged, 0.5, true, 250);
 
 		window.loop_detectWindowSizeChange = new AnimJob(200, AppCore.CheckWindowSizeChanged);
