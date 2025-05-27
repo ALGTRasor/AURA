@@ -80,8 +80,8 @@ class RippleTypeBase
 	{
 		const opacity_wave = x => 1.0 - Math.pow(2.0 * Math.sqrt(x) - 1.0, 2);
 		let opacity = opacity_wave(this.ripple_phase);
-		opacity = Math.pow(opacity, 3);
-		this.e_ripple.style.opacity = (opacity * 50) + '%';
+		opacity = Math.pow(opacity, 2);
+		this.e_ripple.style.opacity = (opacity * 100) + '%';
 	}
 
 	RefreshSize()
@@ -91,20 +91,27 @@ class RippleTypeBase
 	}
 }
 
-class PointRipple extends RippleTypeBase { }
-class RectRipple extends RippleTypeBase
+class PointRipple extends RippleTypeBase
 {
-	constructor(x, y, w, h, br)
+	constructor(x, y, w, h)
 	{
 		super(x, y, w, h);
-		this.e_ripple.style.borderRadius = br;
+	}
+}
+class RectRipple extends RippleTypeBase
+{
+	constructor(element)
+	{
+		let rect = element.getBoundingClientRect();
+		super(rect.x, rect.y, rect.width, rect.height);
+		this.e_ripple.style.borderRadius = window.getComputedStyle(element).borderRadius;
 		this.e_ripple.style.transformOrigin = '50% 50%';
 		this.origin_offset_x = 0;
 		this.origin_offset_y = 0;
 		this.scale_offset_x = 100;
 		this.scale_offset_y = 100;
-		this.scale_x = 0.2;
-		this.scale_y = 0.2;
+		this.scale_x = 0.333;
+		this.scale_y = 0.333;
 	}
 }
 
@@ -116,12 +123,11 @@ export class Ripples
 
 		if (delay > 0)
 		{
-			window.setTimeout(() => Ripples.SpawnFromElement(element, 0), delay);
+			window.setTimeout(() => { Ripples.SpawnFromElement(element, -1); }, delay);
 			return;
 		}
 
-		let rect = element.getBoundingClientRect();
-		new RectRipple(rect.x, rect.y, rect.width, rect.height, window.getComputedStyle(element).borderRadius);
+		new RectRipple(element);
 	}
 
 	static SpawnFromEvent(event, width, height, echoes, variation = 7)

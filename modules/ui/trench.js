@@ -7,7 +7,7 @@ export class Trench
 		this.inset = inset;
 		this.e_root = CreatePagePanel(
 			e_parent, this.inset, false,
-			'display:flex; flex-direction:row; justify-content:flex-end; flex-wrap:nowrap;'
+			'display:flex; flex-direction:row; justify-content:flex-end; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:0.0;'
 		);
 	}
 

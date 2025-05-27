@@ -1,7 +1,7 @@
 import { ActionBar } from "../actionbar.js";
-import { DebugLog } from "../debuglog.js";
+import { NotificationLog } from "../notificationlog.js";
 import { Trench } from "../ui/trench.js";
-import { addElement, CreatePagePanel, FlashElement, getTransitionStyle, secondsDelta } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, FlashElement, getTransitionStyle } from "../utils/domutils.js";
 
 const lskey_history = 'longops-history';
 
@@ -13,6 +13,8 @@ export class LongOpInstance extends EventTarget
 	{
 		super();
 		this.id = id;
+		this.stopped = false;
+
 		for (let pid in data) this[pid] = data[pid];
 
 		if ('ts_start' in this && typeof this.ts_start === 'string') this.ts_start = Number.parseInt(this.ts_start);
@@ -27,6 +29,7 @@ export class LongOpInstance extends EventTarget
 			label: this.label,
 			ts_start: this.ts_start,
 			ts_stop: this.ts_stop,
+			stopped: this.stopped,
 			duration: this.duration,
 			error: this.error
 		};
@@ -40,15 +43,29 @@ export class LongOpInstance extends EventTarget
 
 	Start()
 	{
+		if ('ts_start' in this) return;
 		this.ts_start = Date.now();
 		this.dispatchEvent(new CustomEvent('start', {}));
+		this.stopped = false;
+
+		//let rand = Math.round(Math.random() * 89999) + 100000;
+		//NotificationLog.Log('OP START: ' + this.id + `   ${rand}`);
 	}
 
 	Stop()
 	{
+		if (this.stopped === true) 
+		{
+			NotificationLog.Log('Operation Already Stopped!');
+			return;
+		}
+		this.stopped = true;
 		this.ts_stop = Date.now();
 		if (this.ts_start) this.duration = this.ts_stop - this.ts_start;
 		this.dispatchEvent(new CustomEvent('stop', {}));
+
+		//let rand = Math.round(Math.random() * 89999) + 100000;
+		//NotificationLog.Log('OP STOP: ' + this.id + `   ${rand}`);
 	}
 }
 
@@ -92,14 +109,7 @@ export class LongOpsEntryUI
 	{
 		this.op = op;
 
-		if (this.op.addEventListener)
-		{
-			this.op.addEventListener('start', () => this.UpdateElements());
-			this.op.addEventListener('stop', () => this.UpdateElements());
-			this.op.addEventListener('datachange', () => this.UpdateElements());
-		} else DebugLog.Log('Cannot addEventListener to operation');
-
-		let op_done = 'duration' in op;
+		let op_done = 'duration' in this.op;
 		let col = op_done ? '#0f0a' : '#fa0f';
 		this.e_op = CreatePagePanel(
 			e_ops_list, false, false,
@@ -109,7 +119,7 @@ export class LongOpsEntryUI
 				_.classList.add('progress-filling');
 				_.style.opacity = '0%';
 
-				this.e_label = addElement(_, 'div', undefined, 'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;', _ => { _.innerText = op.label ?? op.id; });
+				this.e_label = addElement(_, 'div', undefined, 'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;', _ => { _.innerText = this.op.label ?? this.op.id; });
 				this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 				this.e_btn_dismiss = CreatePagePanel(
 					_, false, false,
@@ -121,12 +131,26 @@ export class LongOpsEntryUI
 						//_.style.setProperty('--theme-color', '#fa0');
 						addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-size:1rem;', _ => { _.innerText = 'close_small'; });
 						_.classList.add('panel-button');
-						_.addEventListener('click', e => { LongOps.Dismiss(this.op); LongOpsUI.instance.RemoveListEntry(this); });
 					}
 				);
 			}
 		);
 		window.setTimeout(() => { this.UpdateElements(); }, fade_delay);
+		this.e_btn_dismiss.addEventListener(
+			'click',
+			e =>
+			{
+				LongOpsUI.instance.RemoveListEntry(this);
+				LongOps.Dismiss(this.op);
+			}
+		);
+
+		if ('addEventListener' in this.op)
+		{
+			this.op.addEventListener('start', e => this.UpdateElements());
+			this.op.addEventListener('stop', e => this.UpdateElements());
+			this.op.addEventListener('datachange', () => this.UpdateElements());
+		}
 	}
 
 	UpdateElements()
@@ -203,7 +227,11 @@ export class LongOpsUI
 						_.innerText = 'DISMISS ALL';
 						_.addEventListener(
 							'click',
-							e => { LongOpsHistory.Clear(); this.RefreshListElements(); LongOps.ToggleVisibility(); }
+							e =>
+							{
+								LongOps.ToggleVisibility();
+								LongOpsHistory.Clear();
+							}
 						);
 					}
 				);
@@ -225,16 +253,16 @@ export class LongOpsUI
 
 	RefreshListElements()
 	{
-		if (this.created !== true) return;
 		this.e_ops_list.innerHTML = '';
+		if (this.created !== true) return;
 
 		for (let eid in this.op_entries) this.op_entries[eid].RemoveElements();
 
 		LongOpsHistory.CheckLoaded();
 
 		this.op_entries = [];
-		for (let opid in LongOpsHistory.ops) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOpsHistory.ops[opid], 25 + 25 * this.op_entries.length));
-		for (let opid in LongOps.active) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOps.active[opid], 25 + 25 * this.op_entries.length));
+		for (let opid in LongOpsHistory.ops) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOpsHistory.ops[opid], 25 + 5 * this.op_entries.length));
+		for (let opid in LongOps.active) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOps.active[opid], 25 + 5 * this.op_entries.length));
 	}
 
 	AppendListElement(op = LongOpInstance.Nothing)
@@ -260,10 +288,10 @@ export class LongOpsUI
 		this.CreateElements();
 
 		if (this.created !== true) return;
+		this.RefreshListElements();
 
 		if (this.visible === true)
 		{
-			this.RefreshListElements();
 			this.e_root.style.opacity = '100%';
 			this.e_root.style.pointerEvents = 'unset';
 		}
@@ -301,10 +329,8 @@ export class LongOps extends EventTarget
 		LongOps.active.push(op);
 		op.Start();
 
-
-		let event_data = { op: op };
-		LongOps.instance.dispatchEvent(new CustomEvent("startop", event_data));
-		LongOps.instance.dispatchEvent(new CustomEvent("opchange", event_data));
+		LongOps.instance.dispatchEvent(new CustomEvent("startop", { detail: { op: op } }));
+		LongOps.instance.dispatchEvent(new CustomEvent("opchange", { detail: { op: op } }));
 
 		LongOpsUI.instance.SetVisible(true);
 		//LongOpsUI.instance.AppendListElement(op);
@@ -326,15 +352,15 @@ export class LongOps extends EventTarget
 	static Stop(op = LongOpInstance.Nothing)
 	{
 		let active_id = LongOps.active.indexOf(op);
-		if (active_id < 0) return undefined;
+		if (active_id > -1) 
+		{
+			LongOps.active.splice(active_id, 1)[0];
+			op.Stop();
 
-		LongOps.active.splice(active_id, 1)[0];
-		op.Stop();
-
-		let event_data = { op: op };
-		LongOps.instance.dispatchEvent(new CustomEvent("stopop", event_data));
-		LongOps.instance.dispatchEvent(new CustomEvent("opchange", event_data));
-		LongOpsHistory.Add(op);
+			LongOps.instance.dispatchEvent(new CustomEvent("stopop", { detail: { op: op } }));
+			LongOps.instance.dispatchEvent(new CustomEvent("opchange", { detail: { op: op } }));
+			LongOpsHistory.Add(op);
+		}
 		return op;
 	}
 

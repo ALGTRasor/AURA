@@ -376,7 +376,7 @@ iframe
 
 .ripple
 {
-	z-index: 10000;
+	z-index: 9999999;
 	pointer-events: none;
 
 	position: absolute;

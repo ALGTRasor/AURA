@@ -1,12 +1,11 @@
-import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
-import { PanelContent } from "./panel_content.js";
 import { Modules } from "../modules.js";
-import { FileTypes } from "../utils/filetypes.js";
-import { OverlayManager } from "./overlays.js";
-import { NotificationLog } from "../notificationlog.js";
+import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
+import { NotificationLog } from "../notificationlog.js";
+import { PanelContent } from "./panel_content.js";
+import { FileTypes } from "../utils/filetypes.js";
 import { LongOps } from "../systems/longops.js";
-import { until } from "../utils/until.js";
+import { OverlayManager } from "./overlays.js";
 
 
 
@@ -30,6 +29,68 @@ const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff
         }
     );
 };
+
+
+
+
+
+export class FileUploadInstance extends EventTarget
+{
+    constructor(file, drive_id = '', relative_path = '')
+    {
+        super();
+
+        this.file = file;
+        this.drive_id = drive_id;
+        this.relative_path = relative_path;
+
+        this.file_name = this.file.name.trim();
+        this.operation_id = 'upload-file' + this.file_name;
+        this.url_content = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path}/${this.file_name}:/content`;
+
+        this.contents_read = false;
+        this.submitted = false;
+
+        this.file_contents = undefined;
+        this.op_upload = undefined;
+        this.result = undefined;
+    }
+
+    async Process()
+    {
+        this.op_upload = LongOps.Start(this.operation_id, { label: 'Upload: ' + this.file_name });
+        await this.ReadFileContents();
+        await this.SubmitFileContents();
+        LongOps.Stop(this.op_upload);
+    }
+
+    async ReadFileContents()
+    {
+        if (this.contents_read === true) return;
+        this.file_contents = await this.file.arrayBuffer();
+        this.contents_read = true;
+
+        this.dispatchEvent(new CustomEvent('afterread', {}));
+    }
+
+    async SubmitFileContents()
+    {
+        if (typeof this.drive_id !== 'string' || this.drive_id.length < 1) 
+        {
+            console.warn('Invalid Drive ID');
+            return undefined;
+        }
+
+        if (this.submitted === true) return;
+        this.result = await window.SharePoint.SetData(this.url_content, this.file_contents, 'put', 'text/plain');
+        this.submitted = true;
+
+        this.dispatchEvent(new CustomEvent('afterupload', {}));
+    }
+}
+
+
+
 
 
 
@@ -682,7 +743,7 @@ export class FileExplorer extends PanelContent
                     );
 
                     add_button(
-                        _, 'UPLOAD FILE', 'Upload a file to the current folder.', 'upload', '#4ef',
+                        _, 'UPLOAD FILE', 'Upload one or more files to the current folder.', 'upload', '#4ef',
                         _ => { this.RequestUploadFile(); }
                     );
                 }
@@ -772,21 +833,7 @@ export class FileExplorer extends PanelContent
 
     static async ReadFileContents(file_ref)
     {
-        let done = false;
-        let reader = new FileReader();
-        reader.onload = _ =>
-        {
-            done = true;
-            console.info('done reading file: ' + file_ref.name);
-        };
-        reader.onerror = _ =>
-        {
-            done = true;
-            console.error(_);
-        };
-        reader.readAsArrayBuffer(file_ref);
-        await until(() => done === true);
-        return reader.result;
+        return await new Response(file_ref).arrayBuffer();
     }
 
     RequestUploadFile()
@@ -811,40 +858,26 @@ export class FileExplorer extends PanelContent
                     let fid = 0;
                     while (fid < files.length)
                     {
-                        const prepare_upload = async file =>
-                        {
-                            let upload_data = await FileExplorer.ReadFileContents(file);
-                            NotificationLog.Log('Read File Contents: ' + file.name, '#0ff');
-                            return this.CreateFileInRelativePath(file.name.trim(), upload_data);
-                        };
-                        let file = files.item(fid);
+                        const file = files.item(fid);
+                        if (file.size < (250 * bytes_mb)) uploads.push(new FileUploadInstance(file, this.drive_id, this.relative_path_current));
                         fid++;
-                        if (file)
-                        {
-                            if (file.size < (250 * bytes_mb)) uploads.push(prepare_upload(file));
-                            else NotificationLog.Log('Skipped File Upload: ' + file.name + ' ( file too big! )', '#ff0');
-                        }
                     }
 
-                    if (uploads.length > 0)
+                    if (uploads.length < 1)
                     {
-                        NotificationLog.Log('Uploading ' + uploads.length + ' File(s)...', '#ff0');
-                        let process = async (promises) => { await Promise.allSettled(promises); };
-                        process(
-                            uploads
-                        ).then(
-                            _ =>
-                            {
-                                NotificationLog.Log('Uploaded File(s)', '#0f0');
-                                this.Navigate(this.relative_path_current);
-                            }
-                        ).catch(_ => { NotificationLog.Log('Error While Uploading File(s)', '#f00'); });
-                    }
-                    else
-                    {
-                        NotificationLog.Log('Cancelled Uploading File(s): No Valid Files Selected', '#ff0');
                         this.OnStopLoading();
+                        return;
                     }
+
+                    Promise.allSettled(
+                        uploads.map(u => u['Process']())
+                    ).then(
+                        _ =>
+                        {
+                            NotificationLog.Log('Done Uploading File(s)', '#0f0');
+                            this.Navigate(this.relative_path_current);
+                        }
+                    ).catch(_ => { NotificationLog.Log('Error While Uploading File(s)', '#f00'); });
                 }
             },
             () =>
