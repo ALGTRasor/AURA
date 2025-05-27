@@ -1,7 +1,7 @@
-import { ActionBar } from "../actionbar.js";
-import { NotificationLog } from "../notificationlog.js";
-import { Trench } from "../ui/trench.js";
 import { addElement, CreatePagePanel, FlashElement, getTransitionStyle } from "../utils/domutils.js";
+import { NotificationLog } from "../notificationlog.js";
+import { ActionBar } from "../actionbar.js";
+import { Trench } from "../ui/trench.js";
 
 const lskey_history = 'longops-history';
 
