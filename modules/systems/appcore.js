@@ -379,6 +379,7 @@ export class AppCore
 
 	static RefreshGlobalTooltip(e)
 	{
+		const e_spotlight = document.getElementById('spotlight');
 		let info_label = document.getElementById('info-bar-marquee');
 		let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
 		if (mouse_element && mouse_element.title && mouse_element.title.length > 0)
