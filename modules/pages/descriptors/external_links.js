@@ -3,6 +3,7 @@ import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
+import { AppEvents } from "../../appevents.js";
 
 export class PageExternalLinks extends PageDescriptor
 {
@@ -17,7 +18,7 @@ export class PageExternalLinks extends PageDescriptor
 		instance.e_frame.style.maxWidth = '30rem';
 		instance.e_frame.style.minWidth = '24rem';
 
-		let e_body_root = CreatePagePanel(
+		instance.e_body_root = CreatePagePanel(
 			instance.e_content, true, true, null,
 			_ =>
 			{
@@ -26,6 +27,24 @@ export class PageExternalLinks extends PageDescriptor
 			}
 		);
 
+		instance.e_cookie_warning = CreatePagePanel(
+			instance.e_content, true, false, 'pointer-events:none;position:relative;font-size:0.75rem;text-align:center;opacity:50%;line-height:0.75rem;flex-grow:0.0;flex-shrink:0.0;',
+			_ =>
+			{
+				_.style.padding = 'var(--gap-1)';
+				_.innerText = 'Warning: Following a link allows the owner of that site to read & write "cookies" on your device.'
+				_.innerText += ' "Cookies" can provide information that might allow the site owners to de-anonymize you.'
+				_.innerText += ' Make sure you always know where a link will take you and that the owner of that site is trustworthy!'
+				_.innerText += ' You can also avoid this by using a private or "incognito" browser mode, which typically disables "cookies".'
+			}
+		);
+
+		instance.PopulateList = () => this.PopulateList(instance);
+		instance.PopulateList();
+	}
+
+	PopulateList(instance)
+	{
 		const sort_alpha = (x, y) =>
 		{
 			if (x > y) return 1;
@@ -58,12 +77,12 @@ export class PageExternalLinks extends PageDescriptor
 
 			link_group.sort(sort_alpha);
 
-			let e_group = CreatePagePanel(e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025); max-height:1rem;');
+			let e_group = CreatePagePanel(instance.e_body_root, false, false, 'display:flex; flex-direction:column; position:relative; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025); max-height:1rem;');
 			e_group.classList.add('smooth-max-height');
 			e_group.classList.add('no-max-height-hover');
 			e_group.style.setProperty('--theme-color', 'hsl(' + ((group_index * 0.1 - 0.1) * 360) + 'deg 30% 50%)');
 			addElement(e_group, 'div', null, 'text-align:center; height:1.25rem; align-content:center;', _ => _.innerText = link_group_id);
-			let e_group_buttons = CreatePagePanel(e_group, true, false, 'pointer-events:none; position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025);');
+			let e_group_buttons = CreatePagePanel(e_group, true, false, 'position:relative; display:flex; flex-direction:column; flex-grow:0.0; flex-shrink:0.0; gap:var(--gap-025);');
 
 			for (let link_id in link_group)
 			{
@@ -74,18 +93,6 @@ export class PageExternalLinks extends PageDescriptor
 				AddButton(e_group_buttons, link_record.link_label, link_record.link_url, link_record.link_image_path);
 			}
 		}
-
-		instance.e_cookie_warning = CreatePagePanel(
-			instance.e_content, true, false, 'pointer-events:none;position:relative;font-size:0.75rem;text-align:center;opacity:50%;line-height:0.75rem;flex-grow:0.0;flex-shrink:0.0;',
-			_ =>
-			{
-				_.style.padding = 'var(--gap-1)';
-				_.innerText = 'Warning: Following a link allows the owner of that site to read & write "cookies" on your device.'
-				_.innerText += ' "Cookies" can provide information that might allow the site owners to de-anonymize you.'
-				_.innerText += ' Make sure you always know where a link will take you and that the owner of that site is trustworthy!'
-				_.innerText += ' You can also avoid this by using a private or "incognito" browser mode, which typically disables "cookies".'
-			}
-		);
 	}
 
 	OnLayoutChange(instance)
@@ -101,10 +108,12 @@ export class PageExternalLinks extends PageDescriptor
 	OnOpen(instance)
 	{
 		instance.relate_ExternalLinks = window.SharedData.auraLinks.AddNeeder();
+		AppEvents.AddListener('data-loaded', instance.PopulateList);
 	}
 
 	OnClose(instance)
 	{
+		AppEvents.RemoveListener('data-loaded', instance.PopulateList);
 		window.SharedData.auraLinks.RemoveNeeder(instance.relate_ExternalLinks);
 	}
 }

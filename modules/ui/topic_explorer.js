@@ -1,148 +1,94 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { NotificationLog } from "../notificationlog.js";
-import { PanelContent } from "./panel_content.js";
 
-export class TopicEntry
+export class TopicExplorer
 {
-    constructor(info = {})
+    constructor(e_parent, data)
     {
-        this.topic = info.topic;
-        this.label = info.label;
-        this.body = info.body;
-
-        this.topic_segments = this.topic.split('.');
-        this.parent_topic = this.topic.split('.').slice(0, this.topic_segments.length - 1).join('.');
+        this.root = this.buildTree(data);
+        this.e_parent = e_parent;
+        this.e_container = CreatePagePanel(this.e_parent, true, true, 'flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025);');
+        this.path = [];
+        this.render(this.root);
     }
 
-    IsSubEntry(other = {})
+    buildTree(data)
     {
-        if (other.topic.length <= this.topic.length) return false;
-        if (this.parent_topic === other.topic) return true;
-        return this.topic.startsWith(other.topic + '.');
-    }
-}
-
-export class TopicExplorerItem extends PanelContent
-{
-    constructor(e_parent, path = '', label = '', onClick = e => { })
-    {
-        super(e_parent);
-        this.path = path;
-        this.label = label;
-        this.e_root = null;
-        this.onClick = onClick;
-    }
-
-    OnCreateElements()
-    {
-        this.e_root = CreatePagePanel(
-            this.e_parent, false, false, 'flex-grow:0.0;',
-            _ =>
-            {
-                _.classList.add('panel-button');
-                _.innerText = `${this.label} (${this.path.split('.')})`;
-                _.title = _.innerText;
-                _.addEventListener('click', this.onClick);
-            }
-        );
-    }
-
-    OnRefreshElements() { this.e_root.innerText = this.label; }
-
-    OnRemoveElements()
-    {
-        this.e_root?.remove()
-        this.e_root = null;
-    }
-}
-
-export class TopicExplorer extends PanelContent
-{
-    constructor(e_parent, topics = [{ topic: '', label: '', body: '' }])
-    {
-        super(e_parent);
-
-        this.currentLevel = 'root';
-        this.currentPath = [];
-        this.activeEntry = null;
-        this.topics = topics;
-
-        this.entries = [];
-        for (let tid in this.topics) this.entries.push(new TopicEntry(this.topics[tid]));
-
-        this.e_root = CreatePagePanel(this.e_parent, true, false, 'display:flex; flex-direction:column; gap:var(--gap-025);');
-        this.RefreshElements();
-    }
-
-    OnCreateElements() { }
-
-    OnRefreshElements()
-    {
-        if (!this.e_root) return;
-        this.e_root.innerHTML = '';
-
-        let level = this.currentLevel;
-        let path = this.currentPath.join('.');
-        let subtopics = [];
-
-        for (let entry_id in this.entries)
+        const root = {};
+        for (const item of data)
         {
-            let entry = this.entries[entry_id];
-            let topic = entry.topic;
-            if (level === 'root')
+            const parts = item.topic.split('.');
+            let node = root;
+            for (let i = 0; i < parts.length; i++)
             {
-                let top_level = topic.indexOf('.') > -1 ? topic.split('.')[0] : topic;
-                if (subtopics.indexOf(top_level) < 0) subtopics.push(entry);
-            }
-            else
-            {
-                if (!topic.startsWith(path + '.')) continue;
-                let parts = topic.split('.');
-                let nextPart = parts[this.currentPath.length];
-                if (nextPart && subtopics.indexOf(nextPart) < 0) subtopics.push(nextPart);
+                const part = parts[i];
+                if (!node[part]) node[part] = {};
+                if (i === parts.length - 1) node[part].__item = item;
+                node = node[part];
             }
         }
+        return root;
+    }
 
-        this.e_path = addElement(this.e_root, 'div', null, 'text-align:center;', this.currentPath.length < 1 ? 'ROOT' : path);
+    getNode(path)
+    {
+        return path.reduce((n, p) => n && n[p], this.root);
+    }
 
-        const backButton = new TopicExplorerItem(
-            this.e_root, '', '< Back',
-            () =>
-            {
-                this.currentPath.pop();
-                this.currentLevel = this.currentPath.length < 1 ? 'root' : 'sub';
-                this.RefreshElements();
-            }
-        );
-        backButton.CreateElements();
-        backButton.e_root.style.display = this.currentPath.length > 0 ? 'block' : 'none';
-
-        for (let topic_id in subtopics)
+    render(node)
+    {
+        this.e_container.innerHTML = '';
+        if (this.path.length)
         {
-            let entry = subtopics[topic_id];
-            new TopicExplorerItem(
-                this.e_root, entry.topic, entry.label,
-                e =>
+            let e_back = document.createElement('button');
+            e_back.textContent = '← Back';
+            e_back.onclick = () =>
+            {
+                this.path.pop();
+                this.render(this.getNode(this.path));
+            };
+            this.e_container.appendChild(e_back);
+        }
+        for (let key in node)
+        {
+            if (key === '__item') continue;
+            let child = node[key];
+            let isLeaf = !Object.keys(child).some(k => k !== '__item');
+            let item = child.__item;
+
+            let label = (item?.label || key).trim().toUpperCase();
+
+            CreatePagePanel(
+                this.e_container, false, false, 'display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); flex-shrink:0.0; flex-grow:0.0;',
+                _ =>
                 {
-                    this.activeEntry = entry;
-                    this.currentPath.push(entry.topic.split('.')[-1]);
-                    this.currentLevel = 'sub';
-                    this.RefreshElements();
+                    addElement(_, 'div', undefined, 'flex-shrink:0.0; flex-grow:0.0; font-size:1rem; letter-spacing:2px;', _ => _.innerText = label);
+                    _.title = label;
+                    if (isLeaf)
+                    {
+                        if (item?.body)
+                        {
+                            addElement(
+                                _, 'div', undefined,
+                                'flex-shrink:0.0; flex-grow:0.0; padding:calc(var(--gap-025) + 0.25rem); background:hsl(from var(--theme-color) h s 15%);'
+                                + 'border-radius:var(--gap-025); font-size:0.86rem; line-height:0.86rem; font-weight:normal; letter-spacing:1px;',
+                                _ => _.innerText = item.body
+                            );
+                        }
+                    }
+                    else
+                    {
+                        _.classList.add('panel-button');
+                        _.addEventListener(
+                            'click',
+                            _ =>
+                            {
+                                this.path.push(key);
+                                this.render(this.getNode(this.path));
+                            }
+                        );
+                    }
                 }
-            ).CreateElements();
+            );
         }
-
-        let target_topic_id = this.topics.findIndex(_ => _.topic === path);
-        if (target_topic_id > -1)
-        {
-            NotificationLog.Log('target topic id: ' + target_topic_id);
-            CreatePagePanel(this.e_root, true, false, '', _ => _.innerText = this.topics[target_topic_id].body);
-        }
-    }
-
-    OnRemoveElements()
-    {
-        this.e_root?.remove()
-        this.e_root = null;
     }
 }

@@ -1,6 +1,5 @@
 import { addElement, FadeElement } from "./utils/domutils.js";
 
-
 export class Notification
 {
 	static Nothing = new Notification('nothing', 'nothing');
@@ -153,6 +152,3 @@ export class NotificationLog
 		NotificationLog.entries = [];
 	}
 }
-
-if (!window.fxn) window.fxn = {};
-window.fxn.LogNotification = NotificationLog.Log;

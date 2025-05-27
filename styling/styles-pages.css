@@ -349,8 +349,6 @@
 	position: relative;
 	overflow: hidden;
 
-	pointer-events: stroke;
-
 	flex-grow: 1.0;
 	flex-shrink: 1.0;
 
@@ -752,7 +750,8 @@
 	transition-timing-function: ease-in-out;
 }
 
-.menu-button:hover
+.menu-button:hover,
+.menu-button:active
 {
 	padding-left: calc(var(--gap-05) + 4px);
 	padding-right: calc(var(--gap-05) - 4px);

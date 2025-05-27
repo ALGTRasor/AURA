@@ -170,6 +170,30 @@ body *
 
 
 
+.hover-fade-in
+{
+	opacity: 0%;
+	transform: translate(0%, 0.5rem);
+}
+*:hover > .hover-fade-in
+{
+	transform: unset;
+	opacity: unset;
+}
+
+.hover-fade-out
+{
+	transform: unset;
+	opacity: unset;
+}
+*:hover > .hover-fade-out
+{
+	transform: translate(0%, -0.5rem);
+	opacity: 0%;
+}
+
+
+
 
 
 

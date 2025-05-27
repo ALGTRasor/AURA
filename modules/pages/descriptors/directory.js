@@ -7,6 +7,7 @@ import { SharedData } from "../../remotedata/datashared.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
 import { Help } from "./help.js";
+import { AppEvents } from "../../appevents.js";
 
 const style_directory_root = 'position:absolute; inset:0; padding:var(--gap-05); margin:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025); overflow: hidden auto;';
 
@@ -132,12 +133,32 @@ export class PageDirectory extends PageDescriptor
 		instance.directory_internal = new DirectoryContentInternal(instance.directory_content_root, instance);
 		instance.directory_external = new DirectoryContentExternal(instance.directory_content_root, instance);
 
-		const _afterDirChange = () => { this.OnDirectoryChange(instance); };
-		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(_afterDirChange);
+		instance.UpdateDirectoryContent = () => this.UpdateDirectoryContent(instance);
+		instance.afterDirChange = () => { this.OnDirectoryChange(instance); };
+		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(instance.afterDirChange);
 		instance.slide_directory.SelectIndexAfterDelay(0, 333, true);
+
+		instance.directory_content_timeout = new RunningTimeout(() => this.UpdateDirectoryContent(instance), 0.25, false, 150);
 	}
 
 	OnDirectoryChange(instance)
+	{
+		switch (instance.slide_directory.selected_index) 
+		{
+			case 0:
+				if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
+				instance.relate_users = window.SharedData.users.AddNeeder();
+				break;
+			case 1:
+				if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
+				instance.relate_contacts = window.SharedData.contacts.AddNeeder();
+				break;
+		}
+		instance.SetDirectoryContentDirty = () => instance.directory_content_timeout.ExtendTimer();
+		instance.SetDirectoryContentDirty();
+	}
+
+	UpdateDirectoryContent(instance)
 	{
 		switch (instance.slide_directory.selected_index) 
 		{
@@ -206,13 +227,14 @@ export class PageDirectory extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.relate_Users = window.SharedData.users.AddNeeder();
-		instance.relate_Contacts = window.SharedData.contacts.AddNeeder();
+		AppEvents.AddListener('data-loaded', instance.SetDirectoryContentDirty);
 	}
+
 	OnClose(instance)
 	{
-		window.SharedData.users.RemoveNeeder(instance.relate_Users);
-		window.SharedData.contacts.RemoveNeeder(instance.relate_Contacts);
+		if (instance.SetDirectoryContentDirty) AppEvents.RemoveListener('data-loaded', instance.SetDirectoryContentDirty);
+		if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
+		if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
 	}
 }
 

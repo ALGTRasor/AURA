@@ -1,4 +1,5 @@
 import { ActionBar } from "../actionbar.js";
+import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel, FlashElement, getTransitionStyle, secondsDelta } from "../utils/domutils.js";
 
 const lskey_history = 'longops-history';
@@ -13,22 +14,9 @@ export class LongOpInstance extends EventTarget
 		this.id = id;
 		for (let pid in data) this[pid] = data[pid];
 
-		if ('ts_start' in this)
-		{
-			if (typeof this.ts_start === 'string')
-			{
-				this.ts_start = Number.parseInt(this.ts_start);
-				this.ts_start = new Date(this.ts_start).getTime();
-			}
-		}
-		if ('ts_stop' in this)
-		{
-			if (typeof this.ts_stop === 'string')
-			{
-				this.ts_stop = Number.parseInt(this.ts_stop);
-				this.ts_stop = new Date(this.ts_stop).getTime();
-			}
-		}
+		if ('ts_start' in this && typeof this.ts_start === 'string') this.ts_start = Number.parseInt(this.ts_start);
+		if ('ts_stop' in this && typeof this.ts_stop === 'string') this.ts_stop = Number.parseInt(this.ts_stop);
+		if ('duration' in this && typeof this.duration === 'string') this.duration = Number.parseInt(this.duration);
 	}
 
 	GetData()
@@ -51,13 +39,13 @@ export class LongOpInstance extends EventTarget
 
 	Start()
 	{
-		this.ts_start = new Date().getTime();
+		this.ts_start = Date.now();
 		this.dispatchEvent(new CustomEvent('start', {}));
 	}
 
 	Stop()
 	{
-		this.ts_stop = new Date().getTime();
+		this.ts_stop = Date.now();
 		if (this.ts_start) this.duration = this.ts_stop - this.ts_start;
 		this.dispatchEvent(new CustomEvent('stop', {}));
 	}
@@ -108,7 +96,7 @@ export class LongOpsEntryUI
 			this.op.addEventListener('start', () => this.UpdateElements());
 			this.op.addEventListener('stop', () => this.UpdateElements());
 			this.op.addEventListener('datachange', () => this.UpdateElements());
-		}
+		} else DebugLog.Log('Cannot addEventListener to operation');
 
 		let op_done = 'duration' in op;
 		let col = op_done ? '#0f0a' : '#fa0f';
@@ -147,13 +135,13 @@ export class LongOpsEntryUI
 			this.e_op.classList.remove('progress-filling');
 
 			this.e_op.style.opacity = '70%';
-			this.e_op.title = `COMPLETE: ${Math.round(secondsDelta(this.op.ts_start, this.op.ts_end) * 1000)}ms`;
+			this.e_op.title = `COMPLETE: ${Math.round(this.op.duration)}ms`;
 
 			this.e_icon.innerText = 'task_alt';
 			this.e_icon.style.color = '#0f0a';
 
 			this.e_btn_dismiss.style.opacity = '100%';
-			this.e_btn_dismiss.style.pointerEvents = 'all';
+			this.e_btn_dismiss.style.pointerEvents = 'unset';
 		}
 		else
 		{
@@ -195,6 +183,8 @@ export class LongOpsUI
 			+ 'min-width:2rem; max-height:50vh;' + getTransitionStyle('opacity'),
 			_ =>
 			{
+				_.id = 'long_ops-output';
+
 				addElement(_, 'div', '', 'font-size:0.7rem; font-weight:bold; text-align:center; opacity:60%; padding:var(--gap-025);', 'OPERATIONS');
 				const style_opslist = 'display:flex; flex-direction:column-reverse; justify-content:flex-end; flex-wrap:nowrap;'
 					+ 'flex-basis:100%;';
@@ -216,6 +206,8 @@ export class LongOpsUI
 			}
 		);
 		this.created = true;
+
+		this.SetVisible(this.visible);
 		this.RefreshListElements();
 	}
 
@@ -268,7 +260,7 @@ export class LongOpsUI
 		if (this.visible === true)
 		{
 			this.e_root.style.opacity = '100%';
-			this.e_root.style.pointerEvents = 'all';
+			this.e_root.style.pointerEvents = 'unset';
 		}
 		else 
 		{

@@ -1,4 +1,3 @@
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { AppInfo } from "../../app_info.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
@@ -7,20 +6,7 @@ import { TopicExplorer } from "../../ui/topic_explorer.js";
 export class Help
 {
 	static all_help = {};
-
-	static Register(topic = '', label = '', body = '')
-	{
-		Help.all_help[topic] = { topic: topic, label: label, body: body };
-	}
-}
-
-// either a category of help items or a single help item
-class HelpListItem
-{
-	constructor(groups = [])
-	{
-		this.groups = groups;
-	}
+	static Register(topic = '', label = '', body = '') { Help.all_help[topic] = { topic: topic, label: label, body: body }; }
 }
 
 export class PageHelp extends PageDescriptor
@@ -39,7 +25,10 @@ export class PageHelp extends PageDescriptor
 		for (let topic_id in Help.all_help) all_topics.push(Help.all_help[topic_id]);
 
 		instance.explorer = new TopicExplorer(instance.e_content, all_topics);
-		instance.explorer.CreateElements();
+
+		//this.UpdateHelpContent(instance);
+		//instance.explorer = new TopicExplorer(instance.e_content, all_topics);
+		//instance.explorer.CreateElements();
 	}
 
 	OnStateChange(instance)
@@ -52,84 +41,19 @@ export class PageHelp extends PageDescriptor
 	{
 		instance.e_help_root.innerHTML = '';
 
+		if (instance.topicList) instance.topicList.remove();
+
 		let all_topics = [];
 		if (instance.state_data.topic && instance.state_data.topic.length > 0) all_topics = instance.state_data.topic.split(';');
 		if (all_topics.length < 1) instance.state_data.topic = '';
 
-		if (instance.state_data.topic && instance.state_data.topic.length > 0) // topic(s) provided
+		let topics = [];
+		for (let hid in Help.all_help)
 		{
-			let any_found = false;
-			for (let hid in Help.all_help) 
-			{
-				let relevant = false;
-				if (hid.startsWith(instance.state_data.topic)) relevant = true;
-				if (relevant !== true) continue;
-
-				const help_info = Help.all_help[hid];
-				any_found = true;
-				CreatePagePanel(
-					instance.e_help_root, false, false,
-					'flex-grow:0.0; font-size:1rem;',
-					_ =>
-					{
-						addElement(_, 'div', null, 'padding-bottom:var(--gap-025);', help_info.label);
-						let body_parts = help_info.body.split('\n');
-						for (let bpid in body_parts) CreatePagePanel(_, true, false, 'padding:calc(0.25rem + var(--gap-025)); font-size:0.85rem;', _ => { _.innerText = body_parts[bpid]; });
-
-						let e_btn_root = CreatePagePanel(_, true, false);
-						addElement(
-							e_btn_root, 'div', 'page-panel panel-button', 'align-content:center;',
-							e_btn =>
-							{
-								e_btn.addEventListener(
-									'click',
-									e =>
-									{
-										let topics = instance.state_data.topic.split(';');
-										topics.splice(topics.indexOf(help_info.topic), 1);
-										instance.UpdateStateData({ topic: (topics.length > 0 ? topics.join(';') : []) });
-									}
-								);
-								e_btn.title = 'Dismiss';
-								addElement(
-									e_btn, 'i', 'material-symbols', 'display:block;',
-									e_icon => { e_icon.innerText = 'task_alt'; }
-								);
-							}
-						);
-					}
-				);
-			}
-			if (!any_found)
-			{
-				CreatePagePanel(
-					instance.e_help_root, false, false,
-					'flex-grow:0.0; font-size:115%;',
-					_ =>
-					{
-						addElement(_, 'div', null, 'padding-bottom:var(--gap-025);', instance.state_data.topic);
-						CreatePagePanel(_, true, false, 'padding:var(--gap-05);', _ => { _.innerText = 'Uh oh! No help information has been added for this topic!'; });
-					}
-				);
-			}
+			let help_info = Help.all_help[hid];
+			topics.push(help_info.topic);
 		}
-		else // no topic provided
-		{
-			let top_level_groups = [];
-			for (let hid in Help.all_help) top_level_groups.push(hid.substring(hid.indexOf('.'), -1));
-			top_level_groups = top_level_groups.filter((x, i, a) => a.indexOf(x) === i);
-			for (let gid in top_level_groups)
-			{
-				CreatePagePanel(
-					instance.e_help_root, false, false, 'flex-grow:0.0; cursor:pointer;',
-					_ =>
-					{
-						_.innerText = top_level_groups[gid];
-						_.addEventListener('click', _ => { instance.UpdateStateData({ topic: top_level_groups[gid] }); });
-					}
-				);
-			}
-		}
+		instance.topicList = new TopicList(instance.e_help_root, topics);
 	}
 
 	UpdateSize(instance)
@@ -156,4 +80,15 @@ Help.Register(
 	'The help page provides information about specific aspects of ' + AppInfo.name + '.'
 	+ '\nUsers can get help for each available page by clicking the help button from a page\'s title bar.'
 );
+Help.Register(
+	'general.autosave', 'Autosave',
+	'Your settings are saved automatically a moment after you have made some changes.'
+);
+
+Help.Register('settings.theme', 'Theme', 'The overall look you want the app to have. You can customize various aspects to your liking.');
+Help.Register('settings.theme.hue', 'Theme Hue', 'The overall hue of the color you want the app to be.');
+Help.Register('settings.theme.saturation', 'Theme Saturation', 'The overall saturation of the color you want the app to be. 0.0 means grayscale, and your chosen Hue will be ignored.');
+Help.Register('settings.theme.contrast', 'Theme Contrast', 'The overall contrast of the app. This can help or hurt readability.');
+Help.Register('settings.theme.brightness', 'Theme Brightness', 'The overall brightness of the app. This can help or hurt readability.');
+
 PageManager.RegisterPage(new PageHelp('help'), '/', 'Help');

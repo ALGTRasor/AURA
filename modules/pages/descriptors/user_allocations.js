@@ -62,6 +62,7 @@ class PanelUserAllocationGroup extends PanelContent
 					_, `${hoursUsed} of ${allocation.allocation_max} hrs used`,
 					use_percent,
 					{
+						label_alt: `${Math.round(hoursUsed / allocation.allocation_max * 100)}% used`,
 						from_hue_deg: 35.0,
 						to_hue_deg: 65.0,
 						style_full: _ => { _.style.border = 'solid 1px cyan'; },
@@ -132,9 +133,10 @@ class PanelUserAllocationGroup extends PanelContent
 
 						let e_fill_total = FillBar.Create(
 							_,
-							`${Math.round(summary_used / summary_max * 100)}% used`,
+							`${summary_used} / ${summary_max} hrs used`,
 							summary_used / summary_max,
 							{
+								label_alt: `${Math.round(summary_used / summary_max * 100)}% used`,
 								from_hue_deg: 35.0,
 								to_hue_deg: 65.0,
 								style_full: _ => { _.style.border = 'solid 1px cyan'; },
@@ -300,6 +302,12 @@ class PanelUserAllocationList extends PanelContent
 		this.record_panels = [];
 		this.e_root_records_actual.innerHTML = '';
 
+		if (!this.records || this.records.length < 1)
+		{
+			this.e_root_records_actual.innerHTML = 'Nothing to see here!';
+			return;
+		}
+
 		const reduce_str = _ =>
 		{
 			_ = _.replaceAll(/[^\w]/g, '');
@@ -309,6 +317,7 @@ class PanelUserAllocationList extends PanelContent
 		let search_strs = [];
 		if (this.e_input_search && this.e_input_search.value.length > 0)
 			search_strs = this.e_input_search.value.split(',').map(reduce_str).filter(_ => _.length > 0);
+
 
 		let groups = [];
 		let grouped = Object.groupBy(this.records, this.get_record_group);
@@ -413,6 +422,8 @@ export class PageUserAllocations extends PageDescriptor
 		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
 
 		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
+
+		instance.RefreshData = () => this.RefreshData(instance);
 	}
 
 	OnRemoveElements(instance)
@@ -469,20 +480,25 @@ export class PageUserAllocations extends PageDescriptor
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
 
+	RefreshData(instance)
+	{
+		window.setTimeout(() =>
+		{
+			instance.panel_list.records = window.SharedData.userAllocations.instance.data;
+			instance.panel_list.RefreshElements();
+		}, 50);
+	}
+
 	OnOpen(instance)
 	{
+		AppEvents.AddListener('data-loaded', instance.RefreshData);
 		instance.relate_UserAllocations = window.SharedData.userAllocations.AddNeeder();
-		instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(
-			_ =>
-			{
-				instance.panel_list.records = window.SharedData.userAllocations.instance.data;
-				instance.panel_list.RecreateElements();
-			}
-		);
+		instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefreshData(instance); });
 	}
 
 	OnClose(instance)
 	{
+		AppEvents.RemoveListener('data-loaded', instance.RefreshData);
 		window.SharedData.userAllocations.RemoveNeeder(instance.relate_UserAllocations);
 		AppEvents.onDataReloaded.RemoveSubscription(instance.sub_dataReload);
 	}

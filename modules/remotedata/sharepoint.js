@@ -90,23 +90,28 @@ export class SharePoint
 
 	static async DoProcessQueue()
 	{
-		if (SharePoint.processingBatch === true) return;
-		SharePoint.processingBatch = true;
-
-		while (SharePoint.batchQueue.length > 0)
+		if (SharePoint.processingBatch !== true)
 		{
-			let new_batch_count = SharePoint.batchQueue.length;
-			let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
-			DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
-			await SharePoint.ProcessBatchRequests(new_batch);
-			// processing may enqueue additional requests, typically due to pagination
-			DebugLog.SubmitGroup('#0ff4');
-		}
+			SharePoint.processingBatch = true;
 
-		SharePoint.processingBatch = false;
+			while (SharePoint.batchQueue.length > 0)
+			{
+				let new_batch_count = SharePoint.batchQueue.length;
+				let new_batch = new RequestBatch(SharePoint.batchQueue.splice(0, new_batch_count));
+				DebugLog.StartGroup(`SharePoint Batch (${new_batch_count} requests)`);
+				await SharePoint.ProcessBatchRequests(new_batch);
+				// processing may enqueue additional requests, typically due to pagination
+				DebugLog.SubmitGroup('#0ff4');
+			}
+
+			SharePoint.processingBatch = false;
+		}
 	}
 
-	static async WaitAllRequests() { await SharePoint.DoProcessQueue(); }
+	static async WaitAllRequests()
+	{
+		await SharePoint.DoProcessQueue();
+	}
 
 	static GetDefaultHeaders()
 	{
@@ -167,7 +172,7 @@ export class SharePoint
 			// unauthorized to perform batch
 			else if (resp.status >= 401 && resp.status <= 403)
 			{
-				AppEvents.onAuthorizationFailure.Invoke();
+				AppEvents.Dispatch('authorization-failure');
 			}
 		}
 	}
@@ -230,7 +235,7 @@ export class SharePoint
 		// unauthorized to perform batch
 		if (resp.status >= 401 && resp.status <= 403)
 		{
-			AppEvents.onAuthorizationFailure.Invoke();
+			AppEvents.Dispatch('authorization-failure');
 		}
 		return resp;
 	}
@@ -259,7 +264,7 @@ export class SharePoint
 				'Authorization': 'Bearer ' + UserAccountManager.account_provider.access_token
 			};
 			let resp = await fetch(url, { method: method, headers: headers });
-			if (resp.status == 200 && accept === content_type_json) return await resp.json();
+			if (resp.status == 200) return await resp.json();
 			return resp;
 		}
 	}
@@ -329,7 +334,7 @@ export class SharePoint
 
 
 
-	static GetListItems(table)
+	static async GetListItems(table)
 	{
 		SharePoint.Enqueue(
 			new RequestBatchRequest(
@@ -338,12 +343,13 @@ export class SharePoint
 				_ => { SharePoint.HandleListItemsResult(table, _); }
 			)
 		);
+		await SharePoint.WaitAllRequests();
 	}
 
 
 	static HandleListItemsResult(table, result) 
 	{
-		const expand_fields = x => { return x.fields ? x.fields : x; };
+		const expand_fields = x => { return x.fields ?? x; };
 		let page_items = result.body.value.map(expand_fields);
 
 		// executes the expander on data in all DataFieldDescs that contain an expander

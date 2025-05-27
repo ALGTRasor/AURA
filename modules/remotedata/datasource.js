@@ -16,6 +16,8 @@ import { AURALink } from "../datamodels/aura_link.js";
 import { UserAllocation } from "../datamodels/user_allocation.js";
 import { AURAProblem } from "../datamodels/aura_problem.js";
 import { DBLayer } from "./dblayer.js";
+import { AppEvents } from "../appevents.js";
+import { LongOps } from "../systems/longops.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -68,20 +70,24 @@ export class DataSourceInstance
 
 		this.needed = new Needed();
 		this.needed.name = 'DATA::' + datasource.list_title;
-		this.needed.log_changes = true;
 		this.needed.after_became_needed = () => { this.OnNeeded(); };
 		this.needed.after_became_not_needed = () => { this.OnNotNeeded(); };
+		//this.needed.log_changes = true;
 
 		if (this.datasource.list_title == null) return;
 
 		this.valid = true;
-		this.lskey_cache = 'dsc_' + this.datasource.list_title.toLowerCase();
+		this.lskey_cache = 'dsc_' + this.datasource.list_title.toLowerCase().trim();
 	}
 
 	AddNeeder() { return this.needed.AddNeeder(); }
 	RemoveNeeder(needer) { return this.needed.RemoveNeeder(needer); }
 
-	OnNeeded() { this.TryLoad(false); }
+	OnNeeded()
+	{
+		if (this.loaded !== true)
+			this.TryLoad(false);
+	}
 	OnNotNeeded() { }
 
 	ClearData()
@@ -96,6 +102,8 @@ export class DataSourceInstance
 		if (this.valid !== true) return;
 		if (this.loading === true) return;
 
+		let was_loaded = this.loading;
+
 		this.loading = true;
 		this.loaded = false;
 		if (force_download !== true)
@@ -103,34 +111,54 @@ export class DataSourceInstance
 			this.TryLoadFromCache();
 			if (this.loaded === true)
 			{
-				DebugLog.Log('using cached data from source: ' + this.datasource.list_title);
 				this.loading = false;
+				if (was_loaded !== true)
+				{
+					DebugLog.Log('first load from cache: ' + this.datasource.list_title + `(${this.data.length})`);
+					AppEvents.Request('data-loaded');
+				}
 				return;
 			}
 		}
 
-		DebugLog.Log('loading data from source: ' + this.datasource.list_title);
-		this.data = await DBLayer.GetRecords(this.table);
+		DebugLog.Log('downloading: ' + this.datasource.list_title);
 
-		this.loaded = this.data != null;
+		let longop = LongOps.Start('download-' + this.datasource.list_title, { label: 'Download ' + this.datasource.list_title });
+		await DBLayer.GetRecords(this.table);
+		LongOps.Stop(longop);
+
+		this.loaded = this.data;
 		this.loading = false;
 
-		if (this.data && this.data.length) DebugLog.Log('loaded ' + this.data.length + ' ' + this.datasource.list_title, true, '#0f0');
-		else DebugLog.Log('shared data empty: ' + this.datasource.list_title, true, '#ff0');
+		if ('data' in this && 'length' in this.data) 
+		{
+			if (this.data.length > 0)
+			{
+				this.TryStoreInCache();
+				if (was_loaded !== true) DebugLog.Log('first download: ' + this.datasource.list_title + ` (${this.data ? this.data.length : -1} items)`);
+				else DebugLog.Log('reloaded ' + this.data.length + ' ' + this.datasource.list_title, true, '#0f0');
+				AppEvents.Request('data-loaded');
+			}
+			else
+			{
+				DebugLog.Log(' ! data empty: ' + this.datasource.list_title, true, '#ff0');
+			}
+		}
+		else DebugLog.Log(' ! data invalid: ' + this.datasource.list_title, true, '#fa0');
 	}
 
 	TryLoadFromCache()
 	{
-		if (!this.lskey_cache) return;
-		if (this.valid !== true) return;
+		if (!this.lskey_cache) { DebugLog.Log('No Cache Key'); return; }
+		if (this.valid !== true) { DebugLog.Log('Invalid DataSource'); return; }
 
 		let cache_value = localStorage.getItem(this.lskey_cache);
-		let cache_valid = cache_value && typeof cache_value === 'string' && cache_value.length > 0;
-		if (cache_valid !== true) return;
+		let cache_valid = typeof cache_value === 'string' && cache_value.length > 0;
+		if (cache_valid !== true) { DebugLog.Log('Invalid Cache Value'); return; }
 
 		let cache_obj = JSON.parse(cache_value);
-		let cache_obj_valid = cache_obj && cache_obj.data && cache_obj.data.length && cache_obj.data.length > 0;
-		if (cache_obj_valid !== true) return;
+		let cache_obj_valid = 'data' in cache_obj && 'length' in cache_obj.data && cache_obj.data.length > 0;
+		if (cache_obj_valid !== true) { DebugLog.Log('Invalid Cache Object'); return; }
 
 		this.data = cache_obj.data;
 		this.loaded = true;

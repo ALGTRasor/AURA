@@ -26,14 +26,6 @@ export class UserAccountManager
 	{
 		if (window.location.origin.startsWith('http://localhost')) return window.location.origin;
 		return 'https://algtrasor.github.io/AURA/';
-
-		let n = window.location.origin;//toString();
-		//n = n.replace(window.location.search, "");
-		//n = n.replace('?', '');
-		//n = n.replace(window.location.hash, "");
-		//n = n.replace('#', '');
-		if (force_secure_protocol) n = n.replace("http://", "https://");
-		return n;
 	}
 
 	static async AttemptAutoLogin()
@@ -92,7 +84,6 @@ export class UserAccountInfo
 		UserAccountInfo.app_access = 'user_permissions' in UserAccountInfo.user_info && UserAccountInfo.user_info.user_permissions.split(';').indexOf(UserAccountInfo.app_access_permission) > -1;
 		if (had_app_access !== true && UserAccountInfo.app_access === true)
 		{
-			NotificationLog.Log('App Access Confirmed', '#0fa');
 			DebugLog.Log('App Access Confirmed');
 		}
 		else if (had_app_access === true && UserAccountInfo.app_access !== true)
@@ -123,8 +114,6 @@ export class UserAccountInfo
 
 	static async DownloadUserInfo()
 	{
-		NotificationLog.Log('Downloading User Info...', '#0ff');
-
 		const sp_site = 'ALGInternal';
 		let user_record = await window.SharePoint.DownloadRecord(sp_site, 'ALGUsers', `fields/Title eq '${UserAccountInfo.account_info.user_id}'`, InternalUser.data_model.fields);
 		if (user_record)
@@ -150,17 +139,20 @@ export class UserAccountInfo
 
 	static UpdateUserSharedData()
 	{
-		UserAccountInfo.user_permissions = window.SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+		let perms_prev_count = UserAccountInfo.user_permissions.length;
+		if (typeof UserAccountInfo.user_info.user_permissions === 'string')
+			UserAccountInfo.user_permissions = window.SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+		let perms_changed = UserAccountInfo.user_permissions.length != perms_prev_count;
+
 		UserAccountInfo.hr_info.requests = window.SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
-		DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
-		DebugLog.Log('hr request count: ' + UserAccountInfo.hr_info.requests.length);
 		UserAccountInfo.UpdateIdentity();
+
+		if (perms_changed)
+		{
+			DebugLog.Log('permission count: ' + UserAccountInfo.user_permissions.length);
+			AppEvents.Dispatch('permissions-changed');
+		}
 	}
 }
 
-AppEvents.onDataReloaded.RequestSubscription(() => { UserAccountInfo.UpdateUserSharedData(); });
-
 Modules.Report('User Account', 'This module downloads and caches data for your tenant / company account.');
-if (!window.fxn) window.fxn = {};
-window.fxn.AttemptLogin = UserAccountManager.RequestLogin;
-window.fxn.ForceLogOut = UserAccountManager.ForceLogOut;

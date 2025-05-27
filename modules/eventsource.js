@@ -1,4 +1,5 @@
 import { Modules } from "./modules.js";
+import { RunningTimeout } from "./utils/running_timeout.js";
 
 export class EventSourceSubscription
 {
@@ -26,9 +27,13 @@ export class EventSourceSubscription
 
 export class EventSource
 {
-	constructor()
+	constructor(delayed_invoke_delay = 0.333)
 	{
 		this.subscribers = [];
+		this.allow_multiple = false;
+		this.dirty = false; // a true value indicates that a delayed invoke has been requested via SetDirty()
+		this.invoking = false;
+		this.delayedInvoke = new RunningTimeout(() => { this.Invoke(); }, delayed_invoke_delay, false, 50);
 	}
 
 	RequestSubscription(action)
@@ -48,20 +53,27 @@ export class EventSource
 		return true;
 	}
 
+	SetDirty()
+	{
+		this.delayedInvoke.ExtendTimer();
+	}
+
 	Invoke(data = {}, debugMessage = "")
 	{
-		for (var subIndex in this.subscribers)
-		{
-			this.subscribers[subIndex].Invoke(data, debugMessage);
-		}
+		if (this.invoking === true && this.allow_multiple !== true) return;
+		this.invoking = true;
+		this.dirty = false;
+		for (var subIndex in this.subscribers) this.subscribers[subIndex].Invoke(data, debugMessage);
+		this.invoking = false;
 	}
 
 	async InvokeAsync(data = {}, debugMessage = "")
 	{
-		for (var subIndex in this.subscribers)
-		{
-			await this.subscribers[subIndex].InvokeAsync(data, debugMessage);
-		}
+		if (this.invoking === true && this.allow_multiple !== true) return;
+		this.invoking = true;
+		this.dirty = false;
+		for (var subIndex in this.subscribers) await this.subscribers[subIndex].InvokeAsync(data, debugMessage);
+		this.invoking = false;
 	}
 }
 

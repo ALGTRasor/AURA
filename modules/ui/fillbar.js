@@ -1,4 +1,4 @@
-import { addElement, CreatePagePanel } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, getTransitionStyle } from "../utils/domutils.js";
 
 export class FillBar
 {
@@ -31,7 +31,25 @@ export class FillBar
 			_ =>
 			{
 				let e_fill = addElement(_, 'div', null, fill_style);
-				let e_label = addElement(_, 'div', null, 'opacity:0%;transition-property:opacity;transition-duration:var(--trans-dur-off-slow); transition-timing-function:ease-in-out;', label);
+
+				let e_label = addElement(
+					_, 'div', null,
+					'position:absolute; inset:0; align-content:center; text-align:center;' + getTransitionStyle('opacity, transform', '--trans-dur-on-slow'),
+					label
+				);
+
+				if ('label_alt' in params)
+				{
+					e_label.classList.add('hover-fade-out');
+
+					let e_label_alt = addElement(
+						_, 'div', null,
+						'position:absolute; inset:0; align-content:center; text-align:center;' + getTransitionStyle('opacity, transform', '--trans-dur-on-slow'),
+						params.label_alt
+					);
+					e_label_alt.classList.add('hover-fade-in');
+				}
+
 				window.setTimeout(
 					() =>
 					{
@@ -39,8 +57,6 @@ export class FillBar
 						if (fill > 1.0 && params.style_overfull) params.style_overfull(e_fill);
 						else if (fill == 1.0 && params.style_full) params.style_full(e_fill);
 						e_fill.style.width = `${Math.min(1, fill) * 100.0}%`;
-
-						e_label.style.opacity = '80%';
 					},
 					30 + Math.random() * 200
 				);

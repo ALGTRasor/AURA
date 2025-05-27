@@ -143,9 +143,7 @@ export class PageManager
 				let p = page_instances_sorted[id];
 				PageManager.OpenPageByTitle(p.title, p.state);
 			}
-			let any_restored = page_instances_sorted.length > 0;
-			if (any_restored) NotificationLog.Log('Page Layout Restored', '#0af');
-			return any_restored;
+			return page_instances_sorted.length > 0;
 		}
 		return false;
 	}

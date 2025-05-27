@@ -86,7 +86,7 @@ export class ActionBar
 			ActionBar.e_button_login = ActionBar.AddMenuButton(
 				'Log Out', 'logout',
 				_ => OverlayManager.ShowConfirmDialog(
-					() => { fxn.ForceLogOut(); },
+					() => { UserAccountManager.ForceLogOut(); },
 					() => { },
 					'Are you sure you want to log out?<br><br>'
 					+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function. You will be prompted to select another account.</span>`,
@@ -107,7 +107,7 @@ export class ActionBar
 				_ => 
 				{
 					const prompt_login = 'You will be prompted to select an account on the following screen.';
-					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => fxn.AttemptLogin())])
+					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => UserAccountManager.ForceLogOut())]);
 				},
 				_ =>
 				{

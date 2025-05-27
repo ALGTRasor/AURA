@@ -1,3 +1,4 @@
+import { AppEvents } from "../../appevents.js";
 import { DevMode } from "../../devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
@@ -43,7 +44,7 @@ export class PageHome extends PageDescriptor
 
 		this.Populate(instance);
 
-		const repopulate = _ =>
+		instance.repopulate = _ =>
 		{
 			(
 				async () =>
@@ -61,14 +62,16 @@ export class PageHome extends PageDescriptor
 				}
 			);
 		};
-		instance.sub_debug_on = DevMode.AddActivateAction(repopulate);
-		instance.sub_debug_off = DevMode.AddDeactivateAction(repopulate);
+		AppEvents.AddListener('permissions-changed', instance.repopulate);
+		instance.sub_debug_on = DevMode.AddActivateAction(instance.repopulate);
+		instance.sub_debug_off = DevMode.AddDeactivateAction(instance.repopulate);
 	}
 
 	OnRemoveElements(instance)
 	{
 		DevMode.RemoveActivateAction(instance.sub_debug_on);
 		DevMode.RemoveDeactivateAction(instance.sub_debug_off);
+		AppEvents.RemoveListener('permissions-changed', instance.repopulate);
 	}
 
 	Populate(instance)
@@ -182,7 +185,7 @@ export class PageHome extends PageDescriptor
 
 PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission), 'n', 'Nav Menu');
 Help.Register(
-	'pages.nav menu', 'Navigation Menu',
+	'pages.nav menu', 'The Navigation Menu',
 	'The Navigation Menu shows all pages which you have access to.'
 	+ '\nClick an item in the list to open that page, or to close it if there is already one open.'
 	+ '\nYou can also hold Shift to force a new instance of a page, even if there is already one open.'

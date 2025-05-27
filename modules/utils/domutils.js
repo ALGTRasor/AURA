@@ -38,9 +38,9 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 
 
 
-export function getTransitionStyle(properties = '', duration_var = '--trans-dur-off-slow', timing_function = 'ease-in-out')
+export function getTransitionStyle(properties = '', duration_var = '--trans-dur-off-slow', timing_function = 'ease-in-out', delay = '0s')
 {
-    return `transition-property:${properties}; transition-duration:var(${duration_var}); transition-timing-function:${timing_function}`;
+    return `transition-property:${properties}; transition-duration:var(${duration_var}); transition-timing-function:${timing_function}; transition-delay:${delay};`;
 }
 
 

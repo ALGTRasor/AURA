@@ -85,7 +85,11 @@ export class SharedData
 	{
 		const timer_shareddataload = 'shared data load';
 
-		if (SharedData.loading === true) return;
+		if (SharedData.loading === true)
+		{
+			NotificationLog.Log('Already Loading Shared Data!', '#fa0');
+			return;
+		}
 
 		SharedData.UpdateDataSourceFilters();
 		SharedData.loading = true;
@@ -113,16 +117,16 @@ export class SharedData
 				SharedData.loaded = true;
 				SharedData.loading = false;
 
-				await AppEvents.onDataReloaded.InvokeAsync();
 				await SharedData.onLoaded.InvokeAsync();
 				await SharedData.onLoadedFromCache.InvokeAsync();
+				AppEvents.Request('data-loaded');
 				return;
 			}
+
+			DebugLog.Log('fetching missing shared data...');
 		}
 
-		if (useCache === true) DebugLog.Log('fetching missing shared data...');
-
-		let longop = LongOps.Start('shared-data-download', { label: 'Download Shared Data' });
+		let longop = LongOps.Start('shared-data-download-' + Math.random() * 89999 + 10000, { label: 'Reload Shared Data' });
 
 		for (let table_id in SharedData.all_tables)
 		{
@@ -136,7 +140,7 @@ export class SharedData
 		LongOps.Stop(longop);
 
 		for (let table_id in SharedData.all_tables) { SharedData.all_tables[table_id].instance.TryStoreInCache(); }
-		await SharedData.onSavedToCache.InvokeAsync();
+		AppEvents.Dispatch('data-cached');
 
 		let ms_str = Timers.Stop(timer_shareddataload) + 'ms';
 		NotificationLog.Log(`Shared Data Refreshed (${ms_str})`, '#0af');
@@ -146,9 +150,9 @@ export class SharedData
 		SharedData.loading = false;
 		SharedData.loaded = true;
 
-		await AppEvents.onDataReloaded.InvokeAsync();
 		await SharedData.onLoaded.InvokeAsync();
 		await SharedData.onDownloaded.InvokeAsync();
+		AppEvents.Request('data-loaded');
 	}
 
 	static AttemptLoadCache()
@@ -208,7 +212,9 @@ export class SharedData
 
 	static GetSharedDatum(table = SharedDataTable.Nothing, keys = [], key_field = 'Title')
 	{
+		if (!Array.isArray(table.instance.data) || table.instance.data.length < 1) return [];
 		if (!Array.isArray(keys)) keys = [keys];
+
 		let results = [];
 		for (let key_id in keys) // for each provided key value
 		{
@@ -288,7 +294,7 @@ export class SharedData
 	}
 }
 
-SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(async () => { await SharedData.LoadData(true) });
+//SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(async () => { await SharedData.LoadData(true) });
 FieldValidation.RegisterValidator('role', SharedData.Validator_Roles);
 
 Modules.Report('Shared Data', `This module acts as an entrypoint for any aspect of ${AppInfo.name} which need access to shared online data.`);
