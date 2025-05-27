@@ -1,6 +1,6 @@
 import { addElement } from "../utils/domutils.js";
-import { AnimJob } from "../AnimJob.js";
 import { GlobalStyling } from "./global_styling.js";
+import { AnimJob } from "../AnimJob.js";
 
 
 class RippleTypeBase
