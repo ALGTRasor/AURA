@@ -105,6 +105,7 @@ class FileExplorerItem
         this.tooltips = [];
 
         this.DetermineFileType();
+
         this.tooltips.push(this.item_type.toUpperCase() + '  ' + this.item_info.name);
     }
 
@@ -136,18 +137,34 @@ class FileExplorerItem
         }
     }
 
+    ToggleSelected(e)
+    {
+        this.explorer.ToggleSelected(this);
+        this.RefreshSelected();
+        e.stopPropagation();
+    }
+
     CreateElements(e_parent)
     {
         this.e_parent = e_parent;
 
         this.e_root = CreatePagePanel(
-            this.e_parent, false, false, null,
+            this.e_parent, false, false, 'display:flex;flex-direction:row;flex-wrap:nowrap;',
             _ =>
             {
                 _.classList.add('file-explorer-item');
                 _.tabIndex = '0';
 
+                this.e_checkbox = addElement(
+                    _, 'i', 'material-symbols',
+                    'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all; align-content:center; text-align:center;',
+                    _ =>
+                    {
+                        _.innerText = 'check_box_outline_blank';
+                    }
+                );
                 addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
+
             }
         );
 
@@ -164,6 +181,27 @@ class FileExplorerItem
         this.e_root.title = this.tooltips.join('\n');
 
         this.RefreshElements();
+        this.RefreshSelected();
+    }
+
+    RefreshSelected(selection_id = undefined)
+    {
+        if (typeof selection_id !== 'number') selection_id = this.explorer.selected_items.findIndex(_ => _.id === this.item_info.id);
+        this.is_selected = selection_id > -1;
+        if (this.is_selected === true)
+        {
+            this.e_root.style.backgroundImage = 'linear-gradient(90deg, transparent, #fff2)';
+            this.e_checkbox.style.opacity = '100%';
+            this.e_checkbox.style.color = 'white';
+            this.e_checkbox.innerText = 'select_check_box';
+        }
+        else
+        {
+            this.e_root.style.backgroundImage = 'none';
+            this.e_checkbox.style.opacity = '30%';
+            this.e_checkbox.style.color = 'unset';
+            this.e_checkbox.innerText = 'check_box_outline_blank';
+        }
     }
 
     RemoveElements()
@@ -326,8 +364,8 @@ class FileExplorerItem
         let root_rect = this.e_root.getBoundingClientRect();
         let show_infos = root_rect.width > 550;
 
-        const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.opacity = '0%'; } };
-        const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.opacity = '60%'; } };
+        const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.padding = '0px'; _.style.opacity = '0%'; } };
+        const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.padding = '0px var(--gap-1) 0px var(--gap-1)'; _.style.opacity = '60%'; } };
 
         if (show_infos)
         {
@@ -347,7 +385,7 @@ class FileExplorerItem
 
     CreateFileElements()
     {
-        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; padding-left:var(--gap-1); padding-right:var(--gap-1); text-wrap-mode:nowrap;';
+        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap;';
 
         let item_type_info = FileTypes.GetInfo(this.item_info.name);
         this.e_root.classList.add('file-explorer-file');
@@ -357,7 +395,7 @@ class FileExplorerItem
         this.e_info_timestamp = addElement(this.e_root, 'div', '', style_info_label, new Date(this.item_info.lastModifiedDateTime).toLocaleDateString());
 
         let size_info = get_file_size_group(this.item_info.size);
-        this.e_info_size = addElement(this.e_root, 'div', '', style_info_label + 'width:4rem;', size_info.bytes_label);
+        this.e_info_size = addElement(this.e_root, 'div', '', style_info_label, size_info.bytes_label);
         this.tooltips.push('SIZE  ' + size_info.bytes_label);
 
         window.setTimeout(
@@ -503,6 +541,9 @@ class FileExplorerItem
         );
 
         this.CreateItemButtons(buttons);
+
+        this.e_root.addEventListener('click', e => this.ToggleSelected(e));
+        this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
     }
 
     CreateFolderElements()
@@ -620,6 +661,9 @@ class FileExplorerItem
             }
         );
         this.CreateItemButtons(buttons);
+
+        //this.e_root.addEventListener('click', e => this.ToggleSelected(e));
+        this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
     }
 }
 
@@ -638,6 +682,7 @@ export class FileExplorer extends PanelContent
     show_folder_actions = true;
 
     current_items = [];
+    selected_items = [];
 
     on_load_start = () => { };
     on_load_stop = () => { };
@@ -647,6 +692,7 @@ export class FileExplorer extends PanelContent
         super(e_parent);
         if (typeof site_name === 'string' && site_name.length > 0) this.site_name = site_name;
         if (typeof drive_name === 'string' && drive_name.length > 0) this.drive_name = drive_name;
+        this.selected_items = [];
     }
 
     OnCreateElements()
@@ -667,6 +713,10 @@ export class FileExplorer extends PanelContent
 
         if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 330);
     }
+
+    OnRefreshElements() { this.RefreshColumnVisibility(); }
+
+    OnRemoveElements() { this.e_root.remove(); }
 
     NavigateAfter(relative_path = '', delay = 250)
     {
@@ -758,18 +808,23 @@ export class FileExplorer extends PanelContent
         }
     }
 
-    OnRefreshElements()
-    {
-        this.RefreshColumnVisibility();
-    }
+    RefreshColumnVisibility() { if (this.current_items && this.current_items.length > 0) for (let id in this.current_items) this.current_items[id].RefreshElements(); }
 
-    RefreshColumnVisibility()
+    ToggleSelected(item)
     {
-        if (!this.current_items || this.current_items.length < 1) return;
-        for (let id in this.current_items) this.current_items[id].RefreshElements();
+        if (!item) return;
+        let selection_id = this.selected_items.findIndex(_ => _.id === item.item_info.id) ?? -1;
+        if (selection_id < 0)
+        {
+            this.selected_items.push(item.item_info);
+            item.RefreshSelected(-1);
+        }
+        else
+        {
+            this.selected_items.splice(selection_id, 1);
+            item.RefreshSelected(selection_id);
+        }
     }
-
-    OnRemoveElements() { this.e_root.remove(); }
 
     async CreateFolderInRelativePath(name)
     {
@@ -1040,7 +1095,12 @@ export class FileExplorer extends PanelContent
         this.RefreshNavigationBar();
         this.CreateFolderActionElements();
 
-        if (!items) return;
+        if (!items) 
+        {
+            this.ShowFolderMessage('Invalid items provided! You should never see this!');
+            return;
+        }
+
         if (items.status == 404)
         {
             this.ShowFolderMessage('Folder not found!');
