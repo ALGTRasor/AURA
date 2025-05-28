@@ -20,7 +20,7 @@ export class ActionBar
 			_ =>
 			{
 				_.id = 'action-bar-profile-picture';
-				_.src = 'resources/images/logo_alg.png';
+				_.src = 'resources/images/logo_alg.svg';
 				_.alt = 'Account profile image';
 			}
 		);

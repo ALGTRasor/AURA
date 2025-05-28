@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="200"
+   height="200"
+   viewBox="0 0 200 200"
+   sodipodi:docname="ArrowLandGroup-Logo-A.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="g5"
+     inkscape:groupmode="layer"
+     inkscape:label="Logo-A-Grayscale-Dark"
+     inkscape:highlight-color="#b8ff2a"
+     style="display:none">
+    <path
+       id="path5"
+       d="m 156.20462,149.1772 h 14.93522 l -5.1528,-15.80615 h -15.15018 l -4.29454,-12.6449 h 15.32406 l -4.50792,-13.82406 h -15.5153 l -4.29452,-12.644914 h 15.68916 l -4.63752,-14.225523 h -15.882 l -4.29453,-12.64491 h 16.05587 l -3.9942,-12.249757 H 124.262 l -4.2977,-12.64491 h 16.39888 L 124.51806,6.1442822 H 76.416818 L 14.440952,193.44703 H 86.064884 V 161.81895 H 59.592765 L 100.23193,42.370369 140.80312,161.81895 h -26.0501 v 31.62808 h 70.81625 L 175.26208,161.8221 h -14.76293 z"
+       style="fill:#231f20;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.58061"
+       inkscape:label="path-Logo-A-Grayscale-Dark"
+       inkscape:highlight-color="#f6ff2a" />
+  </g>
+  <g
+     id="g6"
+     inkscape:groupmode="layer"
+     inkscape:label="Logo-A-Grayscale-Light"
+     inkscape:highlight-color="#b8ff2a"
+     style="display:none">
+    <path
+       id="path6"
+       d="m 156.20462,149.1772 h 14.93522 l -5.1528,-15.80615 h -15.15018 l -4.29454,-12.6449 h 15.32406 l -4.50792,-13.82406 h -15.5153 l -4.29452,-12.644914 h 15.68916 l -4.63752,-14.225523 h -15.882 l -4.29453,-12.64491 h 16.05587 l -3.9942,-12.249757 H 124.262 l -4.2977,-12.64491 h 16.39888 L 124.51806,6.1442822 H 76.416818 L 14.440952,193.44703 H 86.064884 V 161.81895 H 59.592765 L 100.23193,42.370369 140.80312,161.81895 h -26.0501 v 31.62808 h 70.81625 L 175.26208,161.8221 h -14.76293 z"
+       style="fill:#dce0df;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.58061"
+       inkscape:label="path-Logo-A-Grayscale-Light"
+       inkscape:highlight-color="#f6ff2a" />
+  </g>
+  <g
+     id="layer-MC0"
+     inkscape:groupmode="layer"
+     inkscape:label="Logo-A"
+     inkscape:highlight-color="#b8ff2a"
+     style="display:inline">
+    <path
+       id="path1"
+       d="m 156.20462,149.1772 h 14.93522 l -5.1528,-15.80615 h -15.15018 l -4.29454,-12.6449 h 15.32406 l -4.50792,-13.82406 h -15.5153 l -4.29452,-12.644914 h 15.68916 l -4.63752,-14.225523 h -15.882 l -4.29453,-12.64491 h 16.05587 l -3.9942,-12.249757 H 124.262 l -4.2977,-12.64491 h 16.39888 L 124.51806,6.1442822 H 76.416818 L 14.440952,193.44703 H 86.064884 V 161.81895 H 59.592765 L 100.23193,42.370369 140.80312,161.81895 h -26.0501 v 31.62808 h 70.81625 L 175.26208,161.8221 h -14.76293 z"
+       style="fill:#b12029;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.58061"
+       inkscape:label="path-Logo-A"
+       inkscape:highlight-color="#f6ff2a" />
+  </g>
+</svg>

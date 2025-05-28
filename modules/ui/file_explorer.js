@@ -158,12 +158,10 @@ class FileExplorerItem
                 this.e_checkbox = addElement(
                     _, 'i', 'material-symbols',
                     'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all; align-content:center; text-align:center;',
-                    _ =>
-                    {
-                        _.innerText = 'check_box_outline_blank';
-                    }
+                    _ => _.innerText = 'check_box_outline_blank'
                 );
-                addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
+
+                this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
 
             }
         );
@@ -190,24 +188,23 @@ class FileExplorerItem
         this.is_selected = selection_id > -1;
         if (this.is_selected === true)
         {
-            this.e_root.style.backgroundImage = 'linear-gradient(90deg, transparent, #fff2)';
+            this.e_root.style.backgroundImage = 'linear-gradient(45deg, rgb(from hsl(from var(--theme-color) h s 50%) r g b / 0.5), transparent)';
             this.e_checkbox.style.opacity = '100%';
             this.e_checkbox.style.color = 'white';
             this.e_checkbox.innerText = 'select_check_box';
+            this.e_name.style.color = 'white';
         }
         else
         {
             this.e_root.style.backgroundImage = 'none';
             this.e_checkbox.style.opacity = '30%';
-            this.e_checkbox.style.color = 'unset';
+            this.e_checkbox.style.color = 'hsl(from var(--theme-color) h s 50%)';
             this.e_checkbox.innerText = 'check_box_outline_blank';
+            this.e_name.style.color = 'unset';
         }
     }
 
-    RemoveElements()
-    {
-        this.e_root.remove();
-    }
+    RemoveElements() { this.e_root.remove(); }
 
     RequestDelete()
     {
@@ -362,7 +359,7 @@ class FileExplorerItem
     RefreshElements()
     {
         let root_rect = this.e_root.getBoundingClientRect();
-        let show_infos = root_rect.width > 550;
+        let show_infos = root_rect.width > this.explorer.info_width_minimum;
 
         const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.padding = '0px'; _.style.opacity = '0%'; } };
         const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.padding = '0px var(--gap-1) 0px var(--gap-1)'; _.style.opacity = '60%'; } };
@@ -681,6 +678,8 @@ export class FileExplorer extends PanelContent
     show_navigation_bar = true;
     show_folder_actions = true;
 
+    info_width_minimum = 500;
+
     current_items = [];
     selected_items = [];
 
@@ -824,6 +823,12 @@ export class FileExplorer extends PanelContent
             this.selected_items.splice(selection_id, 1);
             item.RefreshSelected(selection_id);
         }
+    }
+
+    ClearSelected()
+    {
+        this.selected_items = [];
+        for (let id in this.current_items) this.current_items[id].RefreshSelected(-1);
     }
 
     async CreateFolderInRelativePath(name)
