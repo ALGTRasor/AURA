@@ -1,13 +1,13 @@
 import { Modules } from "../modules.js";
 import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
-import { NotificationLog } from "../notificationlog.js";
-import { PanelContent } from "./panel_content.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { LongOps } from "../systems/longops.js";
 import { OverlayManager } from "./overlays.js";
-import { Trench } from "./trench.js";
 
+import { NotificationLog } from "../notificationlog.js";
+import { PanelContent } from "./panel_content.js";
+import { Trench } from "./trench.js";
 
 
 const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
@@ -30,9 +30,6 @@ const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff
         }
     );
 };
-
-
-
 
 
 export class FileUploadInstance extends EventTarget
@@ -91,11 +88,6 @@ export class FileUploadInstance extends EventTarget
 }
 
 
-
-
-
-
-
 class FileExplorerItem
 {
     constructor(explorer = {}, item_info = {})
@@ -106,6 +98,7 @@ class FileExplorerItem
         this.tooltips = [];
 
         this.DetermineFileType();
+        this.item_type_info = FileTypes.GetInfo(this.item_info.name);
 
         this.tooltips.push(this.item_type.toUpperCase() + '  ' + this.item_info.name);
     }
@@ -140,7 +133,7 @@ class FileExplorerItem
 
     ToggleSelected(e)
     {
-        this.explorer.ToggleSelected(this);
+        this.explorer.ToggleSelectedItem(this);
         this.RefreshSelected();
         e.stopPropagation();
     }
@@ -156,11 +149,14 @@ class FileExplorerItem
                 _.classList.add('file-explorer-item');
                 _.tabIndex = '0';
 
-                this.e_checkbox = addElement(
-                    _, 'i', 'material-symbols',
-                    'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all; align-content:center; text-align:center;',
-                    _ => _.innerText = 'check_box_outline_blank'
-                );
+                if (this.explorer.allow_multiselect === true)
+                {
+                    this.e_checkbox = addElement(
+                        _, 'i', 'material-symbols',
+                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all; align-content:center; text-align:center;',
+                        _ => _.innerText = 'check_box_outline_blank'
+                    );
+                }
 
                 this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
 
@@ -185,6 +181,11 @@ class FileExplorerItem
 
     RefreshSelected(selection_id = undefined)
     {
+        if (this.explorer.allow_multiselect !== true) 
+        {
+            this.is_selected = false;
+            return;
+        }
         if (typeof selection_id !== 'number') selection_id = this.explorer.selected_items.findIndex(_ => _.id === this.item_info.id);
         this.is_selected = selection_id > -1;
         if (this.is_selected === true)
@@ -217,13 +218,19 @@ class FileExplorerItem
         ).then(
             _ =>
             {
-                if (_.status == 204) NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
+                if (_.status == 204) 
+                {
+                    NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
+                    LongOps.Stop(longop);
+                }
                 else 
                 {
                     if (_.status == 403 && this.item_type === 'folder') NotificationLog.Log('Could Not Delete folder: It must be empty first', '#fc0');
                     else NotificationLog.Log(`Error While Deleting ${this.item_type}: ${this.item_info.name} ||| ${_.status}`, '#f50');
+                    LongOps.Stop(longop, 'Error ' + _.status);
+                    if (_.status == 404) this.WarnNotFound('Deleting');
                 }
-                LongOps.Stop(longop);
+                this.explorer.DeselectItem(this);
                 this.explorer.Navigate(this.explorer.relative_path_current);
             }
         );
@@ -232,12 +239,12 @@ class FileExplorerItem
     RequestRename()
     {
         if (this.explorer.drive_id_valid !== true) return undefined;
-        const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: 'Rename ' + this.item_info.name });
         OverlayManager.ShowStringDialog(
             'Rename ' + this.item_type,
             this.item_info.name,
             new_name =>
             {
+                const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: 'Rename ' + this.item_info.name });
                 let body = {
                     name: new_name
                 };
@@ -250,18 +257,29 @@ class FileExplorerItem
                         if ('status' in _)
                         {
                             NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
+                            LongOps.Stop(longop, 'Error ' + _.status);
+                            if (_.status == 404) this.WarnNotFound('Renaming');
                         }
                         else
                         {
                             NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
                             this.explorer.Navigate(this.explorer.relative_path_current);
+                            LongOps.Stop(longop);
                         }
-                        LongOps.Stop(longop);
                     }
                 );
             },
-            () => { NotificationLog.Log(`Cancelled ${this.item_type} Rename`, '#fa0'); }
+            () =>
+            {
+                NotificationLog.Log(`Cancelled ${this.item_type} Rename`, '#fa0');
+            }
         );
+    }
+
+    WarnNotFound(verb = 'making changes')
+    {
+        this.explorer.DeselectItem(this);
+        OverlayManager.ShowChoiceDialog(`Error while ${verb}: ` + 'The file no longer exists!', [{ label: 'OKAY', on_click: o => { OverlayManager.DismissOne(); this.explorer.Navigate(this.explorer.relative_path_current); }, color: '#0f0' }]);
     }
 
     RequestCopy()
@@ -314,13 +332,15 @@ class FileExplorerItem
                         if ('status' in _ && _.status != 202)
                         {
                             NotificationLog.Log(`Error While Duplicating '${this.item_info.name}': ${_.status}`, '#f50');
+                            LongOps.Stop(longop, 'Error ' + _.status);
+                            if (_.status == 404) this.WarnNotFound('Duplicating');
                         }
                         else
                         {
                             NotificationLog.Log(`Duplicated '${this.item_info.name}'`, '#0f0');
                             this.explorer.Navigate(this.explorer.relative_path_current);
+                            LongOps.Stop(longop);
                         }
-                        LongOps.Stop(longop);
                     }
                 );
             },
@@ -385,7 +405,6 @@ class FileExplorerItem
     {
         const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap;';
 
-        let item_type_info = FileTypes.GetInfo(this.item_info.name);
         this.e_root.classList.add('file-explorer-file');
         this.e_root.title = this.item_info.name;
 
@@ -413,12 +432,12 @@ class FileExplorerItem
                     _, 'span', null, 'padding:var(--gap-05); border-radius:var(--gap-05);',
                     _ =>
                     {
-                        if (item_type_info)
+                        if (this.item_type_info)
                         {
-                            _.innerText = item_type_info.label;
-                            _.title = item_type_info.description;
-                            _.style.backgroundColor = 'hsl(from ' + item_type_info.color + ' h 50% 25%)';
-                            _.style.borderColor = 'hsl(from ' + item_type_info.color + ' h 50% 35%)';
+                            _.innerText = this.item_type_info.label;
+                            _.title = this.item_type_info.description;
+                            _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 25%)';
+                            _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 35%)';
                         }
                         else
                             _.innerText = 'file';
@@ -429,19 +448,21 @@ class FileExplorerItem
 
         let buttons = [];
 
+        /*
         buttons.push(
             {
                 label: 'Download File',
                 icon: 'download',
                 click_action: e =>
                 {
-                    if (this.loading_items === true) return;
+                    if (this.explorer.loading_items === true) return;
                     this.explorer.DownloadFile(this.item_info['@microsoft.graph.downloadUrl']);
                 }
             }
         );
+        */
 
-        if (item_type_info && item_type_info.viewable === true)
+        if (this.item_type_info && this.item_type_info.viewable === true)
         {
             buttons.push(
                 {
@@ -458,90 +479,139 @@ class FileExplorerItem
                 icon: 'more_horiz',
                 click_action: e =>
                 {
-                    OverlayManager.ShowChoiceDialog(
-                        'File Options: ((' + this.item_info.name + '))',
-                        [
-                            {
-                                label: 'Rename File',
-                                color: '#0af',
-                                on_click: overlay =>
-                                {
-                                    this.RequestRename();
-                                    overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Duplicate File',
-                                color: '#0ff',
-                                on_click: overlay =>
-                                {
-                                    this.RequestCopy();
-                                    overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Copy File Name',
-                                color: '#0df',
-                                on_click: overlay =>
-                                {
-                                    NotificationLog.Log('Copied File Name', '#8ff');
-                                    navigator.clipboard.writeText(this.item_info.name);
-                                    overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Copy File Path',
-                                color: '#0df',
-                                on_click: overlay =>
-                                {
-                                    NotificationLog.Log('Copied File Path', '#8ff');
-                                    navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
-                                    overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Delete File',
-                                color: '#f40',
-                                on_click: overlay =>
-                                {
-                                    OverlayManager.ShowConfirmDialog(
-                                        _ =>
-                                        {
-                                            const min_byte_size_warning = 10240;
-                                            if (this.item_info.size < min_byte_size_warning)
-                                            {
-                                                this.explorer.OnStartLoading();
-                                                this.RequestDelete();
-                                            }
-                                            else 
-                                            {
-                                                OverlayManager.ShowConfirmDialog(
-                                                    _ => this.RequestDelete(),
-                                                    _ => { NotificationLog.Log('Cancelled file deletion', '#fa0'); },
-                                                    'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
-                                                    'CONFIRM - DELETE FILE',
-                                                    'CANCEL'
-                                                );
-                                            }
-                                        },
-                                        _ => { NotificationLog.Log('Cancelled file deletion', '#fa0') },
-                                        'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
-                                        'YES',
-                                        'NO'
-                                    );
-                                    overlay.Remove();
-                                }
-                            }
-                        ]
-                    )
+                    this.ShowFileOptions();
                 }
             }
         );
 
         this.CreateItemButtons(buttons);
 
-        this.e_root.addEventListener('click', e => this.ToggleSelected(e));
-        this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
+        if (this.e_checkbox)
+        {
+            this.e_root.addEventListener('click', e => this.ToggleSelected(e));
+            this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
+        }
+    }
+
+    ShowFileOptions()
+    {
+        let option_infos = [];
+
+        if (this.item_type_info && this.item_type_info.viewable === true)
+        {
+            option_infos.push(
+                {
+                    label: 'View File Online',
+                    color: '#0af',
+                    on_click: overlay =>
+                    {
+                        window.open(this.item_info.webUrl, '_blank');
+                        overlay.Remove();
+                    }
+                }
+            );
+        }
+
+        option_infos.push(
+            {
+                label: 'Download File',
+                color: '#0af',
+                on_click: overlay =>
+                {
+                    if (this.explorer.loading_items === true) return;
+                    this.explorer.DownloadFile(this.item_info['@microsoft.graph.downloadUrl']);
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: 'Rename File',
+                color: '#0af',
+                on_click: overlay =>
+                {
+                    this.RequestRename();
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: 'Duplicate File',
+                color: '#0ff',
+                on_click: overlay =>
+                {
+                    this.RequestCopy();
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: 'Copy File Name',
+                color: '#0df',
+                on_click: overlay =>
+                {
+                    NotificationLog.Log('Copied File Name', '#8ff');
+                    navigator.clipboard.writeText(this.item_info.name);
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: 'Copy File Path',
+                color: '#0df',
+                on_click: overlay =>
+                {
+                    NotificationLog.Log('Copied File Path', '#8ff');
+                    navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: 'Delete File',
+                color: '#f40',
+                on_click: overlay =>
+                {
+                    OverlayManager.ShowConfirmDialog(
+                        _ =>
+                        {
+                            const min_byte_size_warning = 10240;
+                            if (this.item_info.size < min_byte_size_warning)
+                            {
+                                this.explorer.OnStartLoading();
+                                this.RequestDelete();
+                            }
+                            else 
+                            {
+                                OverlayManager.ShowConfirmDialog(
+                                    _ => this.RequestDelete(),
+                                    _ => { NotificationLog.Log('Cancelled file deletion', '#fa0'); },
+                                    'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
+                                    'CONFIRM - DELETE FILE',
+                                    'CANCEL'
+                                );
+                            }
+                        },
+                        _ => { NotificationLog.Log('Cancelled file deletion', '#fa0') },
+                        'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
+                        'YES',
+                        'NO'
+                    );
+                    overlay.Remove();
+                }
+            }
+        );
+
+        OverlayManager.ShowChoiceDialog('File Options: ((' + this.item_info.name + '))', option_infos);
     }
 
     CreateFolderElements()
@@ -551,10 +621,15 @@ class FileExplorerItem
 
         if ('childCount' in this.item_info.folder) 
         {
-            if (this.item_info.folder.childCount > 0)
-                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerText = this.item_info.folder.childCount + ' items' });
-            else
-                addElement(this.e_root, 'span', 'file-explorer-item-info', null, _ => { _.innerText = 'empty'; _.style.color = '#fa0'; });
+            let any_children = this.item_info.folder.childCount > 0;
+            addElement(
+                this.e_root, 'span', 'file-explorer-item-info', null,
+                _ =>
+                {
+                    if (any_children === true) { _.innerText = this.item_info.folder.childCount + ' items'; }
+                    else { _.innerText = 'empty'; _.style.color = '#fa0'; }
+                }
+            );
         }
         else _.style.setProperty('--theme-color', '#fa47');
 
@@ -660,10 +735,10 @@ class FileExplorerItem
         );
         this.CreateItemButtons(buttons);
 
-        //this.e_root.addEventListener('click', e => this.ToggleSelected(e));
-        this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
+        if (this.e_checkbox) this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
     }
 }
+
 
 export class FileExplorer extends PanelContent
 {
@@ -678,6 +753,7 @@ export class FileExplorer extends PanelContent
     autonavigate = true;
     show_navigation_bar = true;
     show_folder_actions = true;
+    allow_multiselect = true;
 
     info_width_minimum = 500;
 
@@ -706,15 +782,15 @@ export class FileExplorer extends PanelContent
         this.e_root.tabIndex = '0';
 
         this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
-        //this.path_dirty = new RunningTimeout(() => { this.Navigate(''); }, 0.5, false, 150);
 
         this.trench_actions = new Trench(this.e_root, true);
         setTransitionStyle(this.trench_actions.e_root, 'height, min-height', '--trans-dur-off-fast');
         this.e_btn_createfolder = this.trench_actions.AddIconButton('create_new_folder', _ => { this.RequestCreateFolder(); }, 'Create a folder here.', '#c09f6d');
-        this.e_btn_uploadfile = this.trench_actions.AddIconButton('upload', _ => { this.RequestUploadFile(); }, 'Upload one or more files here.', '#0fc');
+        this.e_btn_uploadfile = this.trench_actions.AddIconButton('upload', _ => { this.RequestUploadFile(); }, 'Upload one or more files here.', '#0cf');
 
         this.trench_actions.AddFlexibleSpace();
-        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { }, 'Download the selected file(s).', '#0cf');
+        this.e_btn_selection_move = this.trench_actions.AddIconButton('drive_file_move', _ => { }, 'Move the selected file(s) to another location.', '#fd0');
+        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { }, 'Download the selected file(s).', '#0fc');
         this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { }, 'Delete the selected file(s).', '#f44');
 
         this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
@@ -802,11 +878,13 @@ export class FileExplorer extends PanelContent
 
         if (this.selected_items.length < 1)
         {
+            this.e_btn_selection_move.setAttribute('disabled', '');
             this.e_btn_selection_download.setAttribute('disabled', '');
             this.e_btn_selection_delete.setAttribute('disabled', '');
         }
         else
         {
+            this.e_btn_selection_move.removeAttribute('disabled');
             this.e_btn_selection_download.removeAttribute('disabled');
             this.e_btn_selection_delete.removeAttribute('disabled');
         }
@@ -845,11 +923,22 @@ export class FileExplorer extends PanelContent
 
     RefreshColumnVisibility() { if (this.current_items && this.current_items.length > 0) for (let id in this.current_items) this.current_items[id].RefreshElements(); }
 
-    ToggleSelected(item)
+    DeselectItem(item)
+    {
+        if (!item) return;
+        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
+        if (selection_id > -1)
+        {
+            item.RefreshSelected(-1);
+            this.selected_items.splice(selection_id, 1);
+        }
+    }
+
+    ToggleSelectedItem(item)
     {
         if (!item) return;
 
-        let selection_id = this.selected_items.findIndex(_ => _.id === item.item_info.id) ?? -1;
+        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
         if (selection_id < 0)
         {
             this.selected_items.push(item.item_info);
@@ -1231,4 +1320,5 @@ export class FileExplorer extends PanelContent
     }
 }
 
-Modules.Report('File Explorer', 'This module adds a reusable remote library file explorer.');
+
+Modules.Report('File Explorers', 'This module adds a reusable remote file explorer.');

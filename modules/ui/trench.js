@@ -2,9 +2,10 @@ import { addElement, CreatePagePanel } from "../utils/domutils.js";
 
 export class Trench
 {
-	constructor(e_parent, inset = true, fontSize = '0.8rem')
+	constructor(e_parent, inset = true, fontSize = '1rem')
 	{
 		this.inset = inset;
+		this.fontSize = fontSize;
 		this.e_root = CreatePagePanel(
 			e_parent, this.inset, false,
 			'display:flex; flex-direction:row; justify-content:flex-end; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:0.0; font-size:' + this.fontSize + ';'
@@ -21,14 +22,14 @@ export class Trench
 				if (tooltip) _.title = tooltip;
 				if (on_click) _.addEventListener('click', on_click);
 				if (color && color.length > 0) _.style.setProperty('--theme-color', color);
-				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%;', icon);
+				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', icon);
 			}
 		);
 	}
 
 	AddLabel(text = '')
 	{
-		return addElement(this.e_root, 'div', '', 'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%;', text);
+		return addElement(this.e_root, 'div', '', 'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', text);
 	}
 
 	AddFlexibleSpace(minWidth = '0px')

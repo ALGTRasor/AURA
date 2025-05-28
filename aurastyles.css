@@ -468,9 +468,11 @@ div[disabled]
 {
 	pointer-events: none !important;
 	user-select: none !important;
-	background-color: #333 !important;
-	border-color: #222 !important;
-	color: #666 !important;
+	background-color: #444 !important;
+	border-color: #444 !important;
+	color: #888 !important;
+	opacity: 50% !important;
+	scale: 90% !important;
 }
 
 

@@ -110,7 +110,9 @@ export class LongOpsEntryUI
 		this.op = op;
 
 		let op_done = 'duration' in this.op;
-		let col = op_done ? '#0f0a' : '#fa0f';
+		let op_error = 'error' in this.op && typeof this.op.error === 'string' && this.op.error.length > 0;
+
+		let col = op_error ? '#fa0' : (op_done ? '#0f0a' : '#fa0f');
 		this.e_op = CreatePagePanel(
 			e_ops_list, false, false,
 			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow);',
@@ -120,7 +122,14 @@ export class LongOpsEntryUI
 				_.style.opacity = '0%';
 				_.style.setProperty('--theme-color', op_done ? '#6f7' : 'unset');
 
-				this.e_label = addElement(_, 'div', undefined, 'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;', _ => { _.innerText = this.op.label ?? this.op.id; });
+				this.e_label = addElement(
+					_, 'div', undefined,
+					'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;',
+					_ =>
+					{
+						_.innerText = this.op.label ?? this.op.id;
+					}
+				);
 				this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 				this.e_btn_dismiss = CreatePagePanel(
 					_, true, false,
@@ -157,16 +166,22 @@ export class LongOpsEntryUI
 
 	UpdateElements()
 	{
-		if ('duration' in this.op)
+		let op_done = 'duration' in this.op;
+		let op_error = 'error' in this.op && typeof this.op.error === 'string' && this.op.error.length > 0;
+
+		if (this.op.error) this.e_label.style.textDecoration = '#fa0 dashed line-through';
+		else this.e_label.style.textDecoration = 'none';
+
+		if (op_done)
 		{
 			this.e_op.classList.remove('progress-filling');
-			this.e_op.style.setProperty('--theme-color', '#6f7');
+			this.e_op.style.setProperty('--theme-color', op_error ? '#f82' : '#6f7');
 
 			this.e_op.style.opacity = '70%';
-			this.e_op.title = `COMPLETE: ${Math.round(this.op.duration)}ms`;
+			this.e_op.title = op_error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `Completed after ${Math.round(this.op.duration)}ms`;
 
-			this.e_icon.innerText = 'task_alt';
-			this.e_icon.style.color = '#0f0a';
+			this.e_icon.innerText = op_error ? 'error' : 'task_alt';
+			this.e_icon.style.color = op_error ? '#fa0a' : '#0f0a';
 
 			this.e_btn_dismiss.style.opacity = '100%';
 			this.e_btn_dismiss.style.pointerEvents = 'unset';
@@ -354,8 +369,10 @@ export class LongOps extends EventTarget
 		if (LongOpsHistory.ops.length < 1) LongOps.ToggleVisibility();
 	}
 
-	static Stop(op = LongOpInstance.Nothing)
+	static Stop(op = LongOpInstance.Nothing, error = undefined)
 	{
+		op.error = error;
+
 		let active_id = LongOps.active.indexOf(op);
 		if (active_id > -1) 
 		{
