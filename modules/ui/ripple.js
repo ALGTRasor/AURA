@@ -110,8 +110,8 @@ class RectRipple extends RippleTypeBase
 		this.origin_offset_y = 0;
 		this.scale_offset_x = 100;
 		this.scale_offset_y = 100;
-		this.scale_x = 0.333;
-		this.scale_y = 0.333;
+		this.scale_x = 0.15;
+		this.scale_y = 0.15;
 	}
 }
 

@@ -146,6 +146,8 @@ export class AppCore
 			e_content_root.classList.remove('obscured-light');
 			if (enabled === true) e_content_root.classList.add('obscured-light');
 		}
+
+		document.body.style.opacity = '100%';
 	}
 
 	static CheckWindowSizeChanged()

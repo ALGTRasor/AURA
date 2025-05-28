@@ -6,6 +6,7 @@ import { PanelContent } from "./panel_content.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { LongOps } from "../systems/longops.js";
 import { OverlayManager } from "./overlays.js";
+import { Trench } from "./trench.js";
 
 
 
@@ -707,6 +708,15 @@ export class FileExplorer extends PanelContent
         this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
         //this.path_dirty = new RunningTimeout(() => { this.Navigate(''); }, 0.5, false, 150);
 
+        this.trench_actions = new Trench(this.e_root, true);
+        setTransitionStyle(this.trench_actions.e_root, 'height, min-height', '--trans-dur-off-fast');
+        this.e_btn_createfolder = this.trench_actions.AddIconButton('create_new_folder', _ => { this.RequestCreateFolder(); }, 'Create a folder here.', '#c09f6d');
+        this.e_btn_uploadfile = this.trench_actions.AddIconButton('upload', _ => { this.RequestUploadFile(); }, 'Upload one or more files here.', '#0fc');
+
+        this.trench_actions.AddFlexibleSpace();
+        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { }, 'Download the selected file(s).', '#0cf');
+        this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { }, 'Delete the selected file(s).', '#f44');
+
         this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
         this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
 
@@ -775,6 +785,33 @@ export class FileExplorer extends PanelContent
         }
     }
 
+    RefreshActionElements()
+    {
+        if (this.show_folder_actions)
+        {
+            this.trench_actions.e_root.style.minHeight = '2rem';
+            this.trench_actions.e_root.style.height = '2rem';
+            this.trench_actions.e_root.style.padding = 'var(--gap-025)';
+        }
+        else
+        {
+            this.trench_actions.e_root.style.minHeight = '0px';
+            this.trench_actions.e_root.style.height = '0px';
+            this.trench_actions.e_root.style.padding = '0px';
+        }
+
+        if (this.selected_items.length < 1)
+        {
+            this.e_btn_selection_download.setAttribute('disabled', '');
+            this.e_btn_selection_delete.setAttribute('disabled', '');
+        }
+        else
+        {
+            this.e_btn_selection_download.removeAttribute('disabled');
+            this.e_btn_selection_delete.removeAttribute('disabled');
+        }
+    }
+
     CreateFolderActionElements()
     {
         if (this.show_folder_actions === true)
@@ -801,8 +838,7 @@ export class FileExplorer extends PanelContent
         }
         else
         {
-            if (!this.e_folder_actions_root) return;
-            this.e_folder_actions_root.remove();
+            if (this.e_folder_actions_root) this.e_folder_actions_root.remove();
             this.e_folder_actions_root = undefined;
         }
     }
@@ -812,6 +848,7 @@ export class FileExplorer extends PanelContent
     ToggleSelected(item)
     {
         if (!item) return;
+
         let selection_id = this.selected_items.findIndex(_ => _.id === item.item_info.id) ?? -1;
         if (selection_id < 0)
         {
@@ -823,12 +860,20 @@ export class FileExplorer extends PanelContent
             this.selected_items.splice(selection_id, 1);
             item.RefreshSelected(selection_id);
         }
+
+        this.AfterSelectionChange();
     }
 
     ClearSelected()
     {
         this.selected_items = [];
         for (let id in this.current_items) this.current_items[id].RefreshSelected(-1);
+        this.AfterSelectionChange();
+    }
+
+    AfterSelectionChange()
+    {
+        this.RefreshActionElements();
     }
 
     async CreateFolderInRelativePath(name)
@@ -1098,7 +1143,8 @@ export class FileExplorer extends PanelContent
     PopulateList(items = [])
     {
         this.RefreshNavigationBar();
-        this.CreateFolderActionElements();
+        //this.CreateFolderActionElements();
+        this.RefreshActionElements();
 
         if (!items) 
         {

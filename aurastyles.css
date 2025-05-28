@@ -71,8 +71,6 @@ html
 
 body
 {
-	opacity: 100%;
-
 	overflow: hidden;
 	clip-path: padding-box;
 	position: absolute;
@@ -84,6 +82,10 @@ body
 	font-family: AtkinsonHyperlegible;
 	font-size: var(--font-size);
 	letter-spacing: calc(0.15 * var(--font-size));
+
+	transition-property: opacity;
+	transition-duration: 0.5s;
+	transition-timing-function: ease-in-out;
 }
 
 .notransitions
@@ -459,6 +461,16 @@ div[valuechanged]
 	font-style: italic;
 	font-size: 85%;
 	padding-left: 1rem;
+}
+
+
+div[disabled]
+{
+	pointer-events: none !important;
+	user-select: none !important;
+	background-color: #333 !important;
+	border-color: #222 !important;
+	color: #666 !important;
 }
 
 
