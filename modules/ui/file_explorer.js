@@ -1,5 +1,6 @@
 import { Modules } from "../modules.js";
 import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
+import { DOMHighlight } from "../ui/domhighlight.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
 import { FileTypes } from "../utils/filetypes.js";
 import { LongOps } from "../systems/longops.js";
@@ -153,7 +154,8 @@ class FileExplorerItem
                 {
                     this.e_checkbox = addElement(
                         _, 'i', 'material-symbols',
-                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all; align-content:center; text-align:center;',
+                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
+                        + 'align-content:center; text-align:center; font-size:1.25rem;',
                         _ => _.innerText = 'check_box_outline_blank'
                     );
                 }
@@ -354,7 +356,7 @@ class FileExplorerItem
     {
         if (!buttons || buttons.length < 1) return;
 
-        this.e_btn_root = CreatePagePanel(this.e_root, true, false, null, _ => _.classList.add('file-explorer-item-buttons-root'));
+        this.e_btn_root = addElement(this.e_root, 'div', '', '', _ => _.classList.add('file-explorer-item-buttons-root'));
         this.e_btn_root.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); });
         for (let bid in buttons)
         {
@@ -460,7 +462,6 @@ class FileExplorerItem
                 }
             }
         );
-        */
 
         if (this.item_type_info && this.item_type_info.viewable === true)
         {
@@ -472,15 +473,13 @@ class FileExplorerItem
                 }
             );
         }
+        */
 
         buttons.push(
             {
                 label: 'More Options',
                 icon: 'more_horiz',
-                click_action: e =>
-                {
-                    this.ShowFileOptions();
-                }
+                click_action: e => this.ShowFileOptions()
             }
         );
 
@@ -557,7 +556,7 @@ class FileExplorerItem
                 {
                     NotificationLog.Log('Copied File Name', '#8ff');
                     navigator.clipboard.writeText(this.item_info.name);
-                    overlay.Remove();
+                    //overlay.Remove();
                 }
             }
         );
@@ -570,7 +569,7 @@ class FileExplorerItem
                 {
                     NotificationLog.Log('Copied File Path', '#8ff');
                     navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
-                    overlay.Remove();
+                    //overlay.Remove();
                 }
             }
         );
@@ -671,7 +670,7 @@ class FileExplorerItem
                                 {
                                     NotificationLog.Log('Copied File Name', '#8ff');
                                     navigator.clipboard.writeText(this.item_info.name);
-                                    overlay.Remove();
+                                    //overlay.Remove();
                                 }
                             },
                             {
@@ -681,7 +680,7 @@ class FileExplorerItem
                                 {
                                     NotificationLog.Log('Copied File Path', '#8ff');
                                     navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
-                                    overlay.Remove();
+                                    //overlay.Remove();
                                 }
                             },
                             {
@@ -887,6 +886,7 @@ export class FileExplorer extends PanelContent
             this.e_btn_selection_move.removeAttribute('disabled');
             this.e_btn_selection_download.removeAttribute('disabled');
             this.e_btn_selection_delete.removeAttribute('disabled');
+            DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
         }
     }
 

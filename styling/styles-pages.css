@@ -1193,8 +1193,8 @@
 
 	flex-grow: 1.0;
 	align-content: center;
-	padding-left: 0;
-	padding-right: calc(0.5rem + var(--gap-05));
+	padding-left: 0.25rem;
+	padding-right: 0.5rem;
 
 	transform-origin: 0% 50%;
 
@@ -1205,7 +1205,7 @@
 
 .file-explorer-item:hover .file-explorer-item-title
 {
-	padding-left: calc(0.5rem + var(--gap-05));
+	padding-left: calc(0.25rem + var(--gap-05));
 	padding-right: 0.5rem;
 }
 
@@ -1221,7 +1221,7 @@
 
 	margin: 0;
 	padding: 0;
-	padding-right: var(--gap-1);
+	padding-right: var(--gap-05);
 
 	align-content: center;
 	text-align: center;
@@ -1238,7 +1238,7 @@
 .file-explorer-item:hover .file-explorer-item-info
 {
 	opacity: 95%;
-	padding-right: calc(2 * var(--gap-1));
+	padding-right: calc(var(--gap-1));
 }
 
 .file-explorer-item-info span
@@ -1273,11 +1273,11 @@
 	min-height: 1.25rem;
 
 	border-radius: var(--gap-025);
-	background: hsl(from var(--theme-color) h s 30%);
+	background: hsl(from var(--theme-color) h s 10%);
 	border: solid 2px transparent;
 
 	color: hsl(from var(--theme-color) h s 60%);
-	scale: 90%;
+	scale: 100%;
 	opacity: 40%;
 
 	transition-property: scale, opacity;
@@ -1288,7 +1288,7 @@
 .file-explorer-item-button:hover
 {
 	opacity: 100%;
-	scale: 110%;
+	scale: 105%;
 	color: white;
 	border-color: hsl(from var(--theme-color) h s 50%);
 }

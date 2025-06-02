@@ -1,5 +1,6 @@
 
 import { PageManager } from "../../pagemanager.js";
+import { NodeGraph } from "../../ui/nodegraph.js";
 import { PageDescriptor } from "../pagebase.js";
 
 export class PageScratchPad extends PageDescriptor
@@ -12,12 +13,28 @@ export class PageScratchPad extends PageDescriptor
 	{
 		if (!instance) return;
 		instance.e_frame.style.minWidth = '20rem';
+
+		instance.graph = new NodeGraph(instance.e_content);
+		instance.graph.root.style.flexBasis = '100%';
+		instance.graph.registerNodeKind({ kind: 'comment', label: 'Comment', prep: _ => { } });
+		instance.graph.registerNodeKind({ kind: 'todo', label: 'To Do List', prep: _ => { } });
+
+		instance.StoreGraphData = () => { instance.UpdateStateData({ graph_data: instance.graph.getData() }); };
+		instance.LoadGraphData = () => { instance.graph.setData(instance.state_data.graph_data); };
+		instance.LoadGraphData();
+
+		instance.graph.addEventListener('change', _ => { instance.StoreGraphData(); });
 	}
 
 	UpdateSize(instance)
 	{
 		instance.UpdateBodyTransform();
 		this.OnLayoutChange(instance);
+	}
+
+	OnStateChange(instance)
+	{
+		if ('StoreGraphData' in instance) instance.StoreGraphData();
 	}
 
 	OnLayoutChange(instance)

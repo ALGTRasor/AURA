@@ -1,0 +1,28 @@
+.node-graph-root
+{
+	padding: var(--gap-05);
+	border-radius: var(--gap-05);
+
+	background-size: 1rem 1rem;
+	background-position: 0 1px;
+	background-image: linear-gradient(90deg, hsl(from var(--theme-color) h s 20%) 1px, transparent 1px), linear-gradient(0deg, hsl(from var(--theme-color) h s 20%) 1px, transparent 1px);
+}
+
+.node-dropdown
+{}
+
+.graph-node
+{
+	cursor: grab;
+	border: solid 2px #fff2;
+	box-sizing: border-box;
+	background: hsl(from var(--theme-color) h s 15%);
+	margin: 1px;
+	padding: 0;
+	font-size: 0.8rem;
+	min-height: calc(2rem - 1px);
+	min-width: calc(10rem - 1px);
+	border-radius: var(--gap-025);
+	text-align: center;
+	align-content: center;
+}

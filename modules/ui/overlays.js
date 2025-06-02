@@ -2,6 +2,7 @@ import { Modules } from "../modules.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
+import { NotificationLog } from "../notificationlog.js";
 
 
 export class Overlay
@@ -77,8 +78,14 @@ export class OverlayManager
             'mousedown',
             _ =>
             {
-                if (document.activeElement == null || document.activeElement == document.body || document.activeElement == document.documentElement)
-                    OverlayManager.DismissOne();
+                let root_focus = document.activeElement == null || document.activeElement == document.body || document.activeElement == document.documentElement;
+                let important_current = OverlayManager.current_overlay && OverlayManager.current_overlay.important === true;
+                if (important_current === true && root_focus !== true)
+                {
+                    NotificationLog.Log('Click again to cancel.');
+                    return;
+                }
+                OverlayManager.DismissOne();
             }
         );
         OverlayManager.created_root = true;
@@ -100,7 +107,6 @@ export class OverlayManager
             OverlayManager.e_overlays_root.style.opacity = '0%';
             OverlayManager.e_overlays_root.style.pointerEvents = 'none';
         }
-
     }
 
     static GetOverlayIndex(overlay = Overlay.Nothing)
@@ -111,8 +117,9 @@ export class OverlayManager
 
     static Show(overlay = Overlay.Nothing)
     {
-        if (OverlayManager.GetOverlayIndex(overlay) < 0) OverlayManager.overlays.push(overlay);
         overlay.Create();
+        if (OverlayManager.GetOverlayIndex(overlay) < 0) OverlayManager.overlays.push(overlay);
+        OverlayManager.#SetCurrentOverlay();
     }
 
     static Hide(overlay = Overlay.Nothing)
@@ -121,6 +128,7 @@ export class OverlayManager
         if (existing_id < 0) return;
         OverlayManager.overlays[existing_id].Remove();
         OverlayManager.overlays.splice(existing_id, 1);
+        OverlayManager.#SetCurrentOverlay();
     }
 
     static DismissOne()
@@ -131,6 +139,7 @@ export class OverlayManager
             let next_dismissable = OverlayManager.overlays.splice(next_id, 1)[0];
             next_dismissable.Remove();
         }
+        OverlayManager.#SetCurrentOverlay();
     }
 
     static HideAll(dismissable_only = false)
@@ -139,15 +148,22 @@ export class OverlayManager
         {
             let dismissables = OverlayManager.overlays.filter(_ => _.dismissable === true);
             OverlayManager.overlays = OverlayManager.overlays.filter(_ => _.dismissable !== true);
-            dismissables.forEach((x, i, a) => x.Remove());
+            dismissables.forEach(x => x.Remove());
+            OverlayManager.#SetCurrentOverlay();
         }
         else
         {
-            OverlayManager.overlays.forEach((x, i, a) => x.Remove());
+            OverlayManager.overlays.forEach(x => x.Remove());
             OverlayManager.overlays = [];
+            OverlayManager.#SetCurrentOverlay();
         }
 
         OverlayManager.RefreshVisibility();
+    }
+
+    static #SetCurrentOverlay()
+    {
+        OverlayManager.current_overlay = OverlayManager.overlays.length > 0 ? OverlayManager.overlays[OverlayManager.overlays.length - 1] : undefined;
     }
 
     // adds y / n hotkeys
@@ -198,50 +214,73 @@ export class OverlayManager
 
             CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = prompt; });
             CreatePagePanel(
-                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
+                e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:2px;',
                 _ =>
                 {
-                    for (let cid in choices)
-                    {
-                        let choice = choices[cid];
-                        if (!choice) continue;
+                    choices.forEach(
+                        (choice, i, a) =>
+                        {
+                            if (!choice) return;
 
-                        if (choice.color.length < 1) choice.color = '#fff';
-                        CreatePagePanel(
-                            _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:var(--gap-1);',
-                            _ =>
-                            {
-                                _.innerHTML = choice.label;
-                                _.title = choice.label;
-                                _.classList.add('panel-button');
-                                _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
-                                if (choice.on_click)
-                                    _.addEventListener(
-                                        'click',
-                                        e =>
-                                        {
-                                            o.submitted = true;
-                                            choice.on_click(o);
-                                        }
-                                    );
-                            }
-                        );
-                    }
+                            if (choice.color.length < 1) choice.color = '#fff';
+                            CreatePagePanel(
+                                _, false, false, style_parts + '--theme-color:' + choice.color + '; padding:var(--gap-05);',
+                                _ =>
+                                {
+                                    if (i < 1)
+                                    {
+                                        _.style.borderBottomLeftRadius = '0';
+                                        _.style.borderBottomRightRadius = '0';
+                                    }
+                                    else if (i >= (a.length - 1))
+                                    {
+                                        _.style.borderTopLeftRadius = '0';
+                                        _.style.borderTopRightRadius = '0';
+                                    }
+                                    else
+                                    {
+                                        _.style.borderRadius = '0';
+                                    }
+                                    _.title = choice.label;
+                                    _.innerHTML = choice.label;
+                                    _.classList.add('panel-button');
+                                    _.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); _.focus(); });
+                                    if (choice.on_click)
+                                    {
+                                        _.addEventListener(
+                                            'click',
+                                            e =>
+                                            {
+                                                o.submitted = true;
+                                                choice.on_click(o);
+                                            }
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    );
                 }
             );
         };
         OverlayManager.overlays.push(o);
+        OverlayManager.#SetCurrentOverlay();
         o.Create();
         return o;
     }
 
     static ShowStringDialog(prompt = 'Enter Text', default_value = 'New Text', on_submit = text => { }, on_cancel = () => { })
     {
-        let o = new Overlay('input-string', _ => { }, _ =>
-        {
-            if (o.submitted !== true) on_cancel();
-            else on_submit(o.e_input_txt.value);
-        });
+        let o = new Overlay(
+            'input-string',
+            _ => { _.important = true; },
+            _ =>
+            {
+                if (o.submitted !== true) on_cancel();
+                else on_submit(o.e_input_txt.value);
+            }
+        );
+        o.important = true;
         o.original_value = default_value;
         o.submitted = false;
         o.dismissable = true;
@@ -308,12 +347,11 @@ export class OverlayManager
             );
         };
         OverlayManager.overlays.push(o);
+        OverlayManager.#SetCurrentOverlay();
         o.Create();
         o.e_input_txt.focus();
         return o;
     }
-
-
 
     static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; })
     {
@@ -484,9 +522,11 @@ export class OverlayManager
                 else on_submit(o.input_file.files);
             }
         );
+        o.important = true;
         o.submitted = false;
         o.dismissable = true;
         OverlayManager.overlays.push(o);
+        OverlayManager.#SetCurrentOverlay();
         o.Create();
         return o;
     }
