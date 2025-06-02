@@ -98,7 +98,9 @@ export class AppCore
 		if (LongOps.active.length > 0)
 		{
 			e.preventDefault();
-			NotificationLog.Log('Operation Ongoing!');
+			let emsg = LongOps.active.length > 1 ? 'Operation Pending!' : 'Multiple Operations Pending!';
+			e.returnValue = emsg;
+			NotificationLog.Log(emsg, 'orange');
 		}
 	}
 

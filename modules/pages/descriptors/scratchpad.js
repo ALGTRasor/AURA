@@ -1,4 +1,5 @@
 
+import { Autosave } from "../../autosave.js";
 import { PageManager } from "../../pagemanager.js";
 import { NodeGraph } from "../../ui/nodegraph.js";
 import { PageDescriptor } from "../pagebase.js";
@@ -19,11 +20,11 @@ export class PageScratchPad extends PageDescriptor
 		instance.graph.registerNodeKind({ kind: 'comment', label: 'Comment', prep: _ => { } });
 		instance.graph.registerNodeKind({ kind: 'todo', label: 'To Do List', prep: _ => { } });
 
-		instance.StoreGraphData = () => { instance.UpdateStateData({ graph_data: instance.graph.getData() }); };
-		instance.LoadGraphData = () => { instance.graph.setData(instance.state_data.graph_data); };
-		instance.LoadGraphData();
+		instance.StoreGraphData = () => { instance.SetStateValue('graph_data', NodeGraph.GetData(instance.graph)); Autosave.InvokeSoon(); };
+		instance.LoadGraphData = () => { NodeGraph.SetData(instance.graph, instance.GetStateValue('graph_data')); };
 
-		instance.graph.addEventListener('change', _ => { instance.StoreGraphData(); });
+		instance.LoadGraphData();
+		instance.graph.addEventListener('changed', _ => { instance.StoreGraphData(); });
 	}
 
 	UpdateSize(instance)
@@ -34,13 +35,13 @@ export class PageScratchPad extends PageDescriptor
 
 	OnStateChange(instance)
 	{
-		if ('StoreGraphData' in instance) instance.StoreGraphData();
+
 	}
 
 	OnLayoutChange(instance)
 	{
 		let fixed_width = instance.state_data.docked === true && instance.state_data.expanding === false;
-		if (fixed_width === true) instance.e_frame.style.maxWidth = '20rem';
+		if (fixed_width === true) instance.e_frame.style.maxWidth = '24rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
 }

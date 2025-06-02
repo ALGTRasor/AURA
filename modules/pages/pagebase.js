@@ -348,6 +348,20 @@ export class PageInstance
 		this.RequireStateProperty('expanding', false);
 	}
 
+	SetStateValue(key = '', value)
+	{
+		if (typeof key !== 'string' || key.length < 1) return;
+		let data = {};
+		data[key] = value;
+		this.UpdateStateData(data);
+	}
+
+	GetStateValue(key = '', value_default = undefined)
+	{
+		if (typeof key === 'string' && key.length < 1) return value_default;
+		return this.state_data[key] ?? value_default;
+	}
+
 	UpdateStateData(state_data = undefined)
 	{
 		if (state_data)

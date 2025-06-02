@@ -475,6 +475,41 @@ div[disabled]
 	scale: 90% !important;
 }
 
+*[coming-soon]
+{
+	pointer-events: none !important;
+	user-select: none !important;
+	filter: saturate(20%) contrast(90%);
+	opacity: 60%;
+}
+
+
+
+*[coming-soon]::after
+{
+	content: 'SOON' / 'Coming Soon';
+	position: absolute;
+	pointer-events: none !important;
+	user-select: none !important;
+	z-index: 100;
+	bottom: 0;
+	left: 50%;
+	font-size: 0.5rem;
+	padding: 0 1rem 0 1rem;
+	color: hsl(from var(--theme-color) h s 50%);
+	background-color: #0006;
+	border: solid hsl(from var(--theme-color) h s 50%) 1px;
+	text-align: center;
+	align-content: center;
+	transform-origin: 50% 50%;
+	transform: translate(-50%, 2px);
+}
+
+*[coming-soon] > i
+{
+	transform: translate(0, -0.333rem);
+}
+
 
 .page-root textarea[disabled]
 {

@@ -198,8 +198,8 @@ export class OverlayManager
         o.dismissable = true;
         o.submitted = false;
 
-        prompt = prompt.replace('((', '<span style="color:white;">');
-        prompt = prompt.replace('))', '</span>');
+        prompt = prompt.replaceAll('((', '<span style="color:white;">');
+        prompt = prompt.replaceAll('))', '</span>');
         o.createOverlay = _ =>
         {
             const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
@@ -285,8 +285,8 @@ export class OverlayManager
         o.submitted = false;
         o.dismissable = true;
 
-        prompt = prompt.replace('((', '<span style="color:white;">');
-        prompt = prompt.replace('))', '</span>');
+        prompt = prompt.replaceAll('((', '<span style="color:white;">');
+        prompt = prompt.replaceAll('))', '</span>');
 
         o.createOverlay = _ =>
         {
@@ -355,8 +355,8 @@ export class OverlayManager
 
     static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; })
     {
-        prompt = prompt.replace('((', '<span style="color:white;">');
-        prompt = prompt.replace('))', '</span>');
+        prompt = prompt.replaceAll('((', '<span style="color:white;">');
+        prompt = prompt.replaceAll('))', '</span>');
 
         let o = new Overlay(
             'attach-file',
@@ -415,7 +415,7 @@ export class OverlayManager
 
                                                 if ('name' in file)
                                                 {
-                                                    let too_big = file.size > (250 * bytes_mb);
+                                                    let too_big = file.size > (150 * bytes_mb);
                                                     let size_group = get_file_size_group(file.size);
                                                     CreatePagePanel(
                                                         o.e_selected, false, false, 'display:flex; flex-direction:row; text-align:left; flex-shrink:0.0; align-content:center;',
@@ -425,32 +425,38 @@ export class OverlayManager
                                                             {
                                                                 _.style.backgroundColor = 'hsl(from var(--theme-color) 0deg 100% 12%)';
                                                                 addElement(
-                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#f00;',
+                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#f00; flex-shrink:0.0;',
                                                                     _ => { _.innerText = 'priority_high'; }
                                                                 );
                                                                 addElement(
-                                                                    _, 'div', null, 'font-weight:bold; font-size:0.6rem; align-content:center; text-align:center; background-color:#f003; padding:var(--gap-025);border-radius:var(--gap-025); border:solid 2px red;',
+                                                                    _, 'div', null, 'align-content:center; flex-basis:100%;',
+                                                                    _ => { _.innerText = file.name; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null,
+                                                                    'font-weight:bold; font-size:0.6rem; align-content:center; text-align:center; background-color:#f003; padding:var(--gap-025);'
+                                                                    + 'border-radius:var(--gap-025); border:solid 2px red; flex-shrink:0.0;',
                                                                     _ => { _.innerText = 'TOO BIG'; }
                                                                 );
                                                                 addElement(
-                                                                    _, 'div', null, 'color:orange; font-size:0.75rem; align-content:center; ',
+                                                                    _, 'div', null, 'color:orange; font-size:0.75rem; align-content:center; flex-shrink:0.0;',
                                                                     _ => { _.innerText = `(${size_group.bytes_label})`; }
-                                                                );
-                                                                addElement(
-                                                                    _, 'div', null, 'align-content:center; ',
-                                                                    _ => { _.innerText = file.name; }
                                                                 );
                                                             }
                                                             else
                                                             {
                                                                 o.valid_count++;
                                                                 addElement(
-                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#0ff;',
+                                                                    _, 'div', 'material-symbols', 'font-size:1rem; align-content:center; text-align:center; color:#0ff; flex-shrink:0.0;',
                                                                     _ => { _.innerText = 'task_alt'; }
                                                                 );
                                                                 addElement(
-                                                                    _, 'div', null, 'align-content:center; ',
+                                                                    _, 'div', null, 'align-content:center; flex-basis:100%;',
                                                                     _ => { _.innerText = file.name; }
+                                                                );
+                                                                addElement(
+                                                                    _, 'div', null, 'color:white; font-size:0.75rem; align-content:center; opacity:50%; flex-shrink:0.0;',
+                                                                    _ => { _.innerText = `(${size_group.bytes_label})`; }
                                                                 );
                                                             }
 

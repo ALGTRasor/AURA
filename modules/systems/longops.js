@@ -27,6 +27,8 @@ export class LongOpInstance extends EventTarget
 		return {
 			id: this.id,
 			label: this.label,
+			icon: this.icon,
+			verb: this.verb,
 			ts_start: this.ts_start,
 			ts_stop: this.ts_stop,
 			stopped: this.stopped,
@@ -47,9 +49,6 @@ export class LongOpInstance extends EventTarget
 		this.ts_start = Date.now();
 		this.dispatchEvent(new CustomEvent('start', {}));
 		this.stopped = false;
-
-		//let rand = Math.round(Math.random() * 89999) + 100000;
-		//NotificationLog.Log('OP START: ' + this.id + `   ${rand}`);
 	}
 
 	Stop()
@@ -63,9 +62,6 @@ export class LongOpInstance extends EventTarget
 		this.ts_stop = Date.now();
 		if (this.ts_start) this.duration = this.ts_stop - this.ts_start;
 		this.dispatchEvent(new CustomEvent('stop', {}));
-
-		//let rand = Math.round(Math.random() * 89999) + 100000;
-		//NotificationLog.Log('OP STOP: ' + this.id + `   ${rand}`);
 	}
 }
 
@@ -115,46 +111,30 @@ export class LongOpsEntryUI
 		let col = op_error ? '#fa0' : (op_done ? '#0f0a' : '#fa0f');
 		this.e_op = CreatePagePanel(
 			e_ops_list, false, false,
-			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow);',
+			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow); cursor:pointer;',
 			_ =>
 			{
 				_.classList.add('progress-filling');
 				_.style.opacity = '0%';
 				_.style.setProperty('--theme-color', op_done ? '#6f7' : 'unset');
 
+				if (this.op.icon) this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = this.op.icon; });
+
 				this.e_label = addElement(
 					_, 'div', undefined,
-					'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0;',
+					'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0; min-width:10rem;',
 					_ =>
 					{
 						_.innerText = this.op.label ?? this.op.id;
 					}
 				);
-				this.e_icon = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
-				this.e_btn_dismiss = CreatePagePanel(
-					_, true, false,
-					'cursor:pointer; font-size:0.7rem; align-content:center; line-height:0; align-content:center; flex-grow:0.0; flex-shrink:0.0;'
-					+ 'top:50%; transform:translate(0%, -50%); padding:0; border:solid 1px hsl(from var(--theme-color) h s 40%);',
-					_ =>
-					{
-						_.title = 'Dismiss this operation';
-						_.style.setProperty('--theme-color', '#fff');
-						addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-size:1rem;', _ => { _.innerText = 'remove'; });
-						_.classList.add('panel-button');
-						_.classList.add('hover-lift');
-					}
-				);
+				this.e_icon_status = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 			}
 		);
 		window.setTimeout(() => { this.UpdateElements(); }, fade_delay);
-		this.e_btn_dismiss.addEventListener(
-			'click',
-			e =>
-			{
-				LongOpsUI.instance.RemoveListEntry(this);
-				LongOps.Dismiss(this.op);
-			}
-		);
+
+		const dismiss_action = () => { LongOpsUI.instance.RemoveListEntry(this); LongOps.Dismiss(this.op); };
+		this.e_op.addEventListener('click', e => { if ('duration' in this.op) dismiss_action(); });
 
 		if ('addEventListener' in this.op)
 		{
@@ -177,17 +157,18 @@ export class LongOpsEntryUI
 			this.e_op.classList.remove('progress-filling');
 			this.e_op.style.setProperty('--theme-color', op_error ? '#f82' : '#6f7');
 
+			this.e_op.style.cursor = 'pointer';
 			this.e_op.style.opacity = '70%';
-			this.e_op.title = op_error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `Completed after ${Math.round(this.op.duration)}ms`;
+			this.e_op.title = op_error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `${(this.op.verb ?? 'Completed')} after ${Math.round(this.op.duration)}ms`;
+			this.e_op.title += '\n\nClick to dismiss this operation';
 
-			this.e_icon.innerText = op_error ? 'error' : 'task_alt';
+			this.e_icon_status.innerText = op_error ? 'error' : 'task_alt';
+			this.e_icon_status.style.color = op_error ? '#fa0a' : '#0f0a';
 			this.e_icon.style.color = op_error ? '#fa0a' : '#0f0a';
-
-			this.e_btn_dismiss.style.opacity = '100%';
-			this.e_btn_dismiss.style.pointerEvents = 'unset';
 		}
 		else
 		{
+			this.e_op.style.cursor = 'default';
 			this.e_op.style.setProperty('--theme-color', 'unset');
 			this.e_op.classList.remove('progress-filling');
 			this.e_op.classList.add('progress-filling');
@@ -195,11 +176,9 @@ export class LongOpsEntryUI
 			this.e_op.style.opacity = '100%';
 			this.e_op.title = 'PENDING';
 
-			this.e_icon.innerText = 'pending';
+			this.e_icon_status.innerText = 'pending';
+			this.e_icon_status.style.color = '#fa0f';
 			this.e_icon.style.color = '#fa0f';
-
-			this.e_btn_dismiss.style.opacity = '25%';
-			this.e_btn_dismiss.style.pointerEvents = 'none';
 		}
 	}
 
@@ -221,10 +200,10 @@ export class LongOpsUI
 		if (this.created === true) return;
 		this.e_root = CreatePagePanel(
 			document.body, false, false,
-			'z-index:50000; position:absolute; top:calc(1rem + var(--action-bar-height)); right:1rem;'
+			'z-index:50000; position:absolute; top:50%; right:1rem; transform:translate(0%, -50%);'
 			+ 'outline:solid 2px orange; box-shadow:0px 0px 1rem black;'
 			+ 'display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025);'
-			+ 'min-width:2rem; max-height:50vh;' + getTransitionStyle('opacity'),
+			+ 'min-width:2rem; max-height:80vh;' + getTransitionStyle('opacity'),
 			_ =>
 			{
 				_.id = 'long_ops-output';
@@ -234,13 +213,12 @@ export class LongOpsUI
 				let e_btn_close = trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide the Operations panel');
 				e_btn_close.style.setProperty('--theme-color', '#f00');
 
-				const style_opslist = 'display:flex; flex-direction:column-reverse; justify-content:flex-end; flex-wrap:nowrap;'
-					+ 'flex-basis:100%;';
+				const style_opslist = 'display:flex; flex-direction:column-reverse; flex-wrap:nowrap; flex-basis:100%;';
 				this.e_ops_list = CreatePagePanel(_, true, true, style_opslist);
 
 				CreatePagePanel(
 					_, true, false,
-					'font-size:0.7rem; font-weight:bold; text-align:center; align-content:center; opacity:60%; padding:var(--gap-025);',
+					'font-size:0.7rem; font-weight:bold; text-align:center; align-content:center; opacity:60%; padding:var(--gap-025); flex-shrink:0.0;',
 					_ =>
 					{
 						_.classList.add('panel-button');
@@ -283,11 +261,14 @@ export class LongOpsUI
 		this.op_entries = [];
 		for (let opid in LongOpsHistory.ops) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOpsHistory.ops[opid], 25 + 5 * this.op_entries.length));
 		for (let opid in LongOps.active) this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, LongOps.active[opid], 25 + 5 * this.op_entries.length));
+
+		this.e_ops_list.scrollTop = -this.e_ops_list.scrollHeight;
 	}
 
 	AppendListElement(op = LongOpInstance.Nothing)
 	{
 		this.op_entries.push(new LongOpsEntryUI(this.e_ops_list, op, 25));
+		this.e_ops_list.scrollTop = -this.e_ops_list.scrollHeight;
 	}
 
 	RemoveElements()
@@ -366,7 +347,7 @@ export class LongOps extends EventTarget
 		let existing_id = LongOpsHistory.ops.indexOf(op);
 		if (existing_id < 0) return undefined;
 		LongOpsHistory.ops.splice(existing_id, 1);
-		if (LongOpsHistory.ops.length < 1) LongOps.ToggleVisibility();
+		if (LongOpsHistory.ops.length < 1 && LongOps.active.length < 1) LongOps.ToggleVisibility();
 	}
 
 	static Stop(op = LongOpInstance.Nothing, error = undefined)

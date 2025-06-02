@@ -53,14 +53,38 @@ export class FileUploadInstance extends EventTarget
         this.file_contents = undefined;
         this.op_upload = undefined;
         this.result = undefined;
+
+        /*
+        this.worker = new Worker('modules/workers/file_upload_worker.js');
+        this.worker.addEventListener('message', this.OnWorkerMessage);
+        this.InitWorker();
+        */
     }
+
+    /*
+    InitWorker()
+    {
+        if (this.submitted === true) return;
+        this.submitted = true;
+        this.worker.postMessage({ file: this.file, url: this.url_content });
+    }
+
+    OnWorkerMessage(event)
+    {
+        this.dispatchEvent(new CustomEvent('afterupload', {}));
+        console.log(`Received From File Upload Worker: ${event.data}`);
+    }
+    */
 
     async Process()
     {
-        this.op_upload = LongOps.Start(this.operation_id, { label: 'Upload: ' + this.file_name });
+        this.op_upload = LongOps.Start(this.operation_id, { label: this.file_name, icon: 'upload', verb: 'Uploaded file' });
         await this.ReadFileContents();
         await this.SubmitFileContents();
         LongOps.Stop(this.op_upload);
+
+        this.file = undefined;
+        this.file_contents = undefined;
     }
 
     async ReadFileContents()
@@ -85,6 +109,61 @@ export class FileUploadInstance extends EventTarget
         this.submitted = true;
 
         this.dispatchEvent(new CustomEvent('afterupload', {}));
+    }
+}
+
+
+export class ItemDeleteInstance extends EventTarget
+{
+    constructor(item_info, drive_id = '', relative_path = '')
+    {
+        super();
+
+        this.item_info = item_info;
+        this.drive_id = drive_id;
+        this.relative_path = relative_path;
+
+        this.operation_id = 'delete-item' + this.item_info.id;
+        this.url_content = `${window.SharePoint.url_api}/drives/${this.drive_id}/items/${this.item_info.id}`;
+
+        this.submitted = false;
+
+        this.op = undefined;
+        this.result = undefined;
+    }
+
+    async Process()
+    {
+        if (this.submitted === true) return;
+        this.op = LongOps.Start(this.operation_id, { label: this.item_info.name, icon: 'delete_forever', verb: 'Deleted item(s)' });
+        await this.Submit();
+    }
+
+    async Submit()
+    {
+        if (this.submitted === true) return;
+        if (typeof this.drive_id !== 'string' || this.drive_id.length < 1) 
+        {
+            LongOps.Stop(this.op, 'Invalid Drive ID');
+            return undefined;
+        }
+
+        this.submitted = true;
+        this.result = await window.SharePoint.SetData(this.url_content, null, 'delete');
+
+        switch (this.result.status)
+        {
+            case undefined:
+            case 204:
+                NotificationLog.Log(`Deleted '${this.item_info.name}'`, '#0f0');
+                LongOps.Stop(this.op);
+                break;
+            case 403: if ('folder' in this.item_info) LongOps.Stop(this.op, '403 Forbidden: Folder must be empty'); else LongOps.Stop(this.op, '403 Forbidden'); break;
+            case 404: LongOps.Stop(this.op, '404 Item Not Found'); break;
+            default: LongOps.Stop(this.op, `STATUS( ${this.result.status} )`); break;
+        }
+
+        this.dispatchEvent(new CustomEvent('completed', { detail: this.result }));
     }
 }
 
@@ -213,7 +292,7 @@ class FileExplorerItem
     RequestDelete()
     {
         this.explorer.OnStartLoading();
-        const longop = LongOps.Start('driveitem-delete-' + this.item_info.id, { label: 'Delete ' + this.item_info.name });
+        const longop = LongOps.Start('driveitem-delete-' + this.item_info.id, { label: this.item_info.name, icon: 'delete_forever', verb: 'Deleted file' });
         let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
         window.SharePoint.SetData(
             url_post, null, 'delete'
@@ -242,34 +321,52 @@ class FileExplorerItem
     {
         if (this.explorer.drive_id_valid !== true) return undefined;
         OverlayManager.ShowStringDialog(
-            'Rename ' + this.item_type,
+            `Renaming ${this.item_type}: '${this.item_info.name}'`,
             this.item_info.name,
             new_name =>
             {
-                const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: 'Rename ' + this.item_info.name });
-                let body = {
-                    name: new_name
+                let any_changed = new_name !== this.item_info.name;
+                let type_prev = FileTypes.GetInfo(this.item_info.name);
+                let type_next = FileTypes.GetInfo(new_name);
+                let extension_changed = type_next?.label !== type_prev?.label;
+
+                const execute = () =>
+                {
+                    const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: this.item_info.name, icon: 'edit_square', verb: 'Renamed item' });
+                    let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
+                    window.SharePoint.SetData(
+                        url_post, { name: new_name }, 'put'
+                    ).then(
+                        _ =>
+                        {
+                            if ('status' in _)
+                            {
+                                NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
+                                LongOps.Stop(longop, 'Error ' + _.status);
+                                if (_.status == 404) this.WarnNotFound('Renaming');
+                            }
+                            else
+                            {
+                                NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
+                                this.explorer.Navigate(this.explorer.relative_path_current);
+                                LongOps.Stop(longop);
+                            }
+                        }
+                    );
                 };
-                let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
-                window.SharePoint.SetData(
-                    url_post, body, 'put'
-                ).then(
-                    _ =>
-                    {
-                        if ('status' in _)
-                        {
-                            NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
-                            LongOps.Stop(longop, 'Error ' + _.status);
-                            if (_.status == 404) this.WarnNotFound('Renaming');
-                        }
-                        else
-                        {
-                            NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
-                            this.explorer.Navigate(this.explorer.relative_path_current);
-                            LongOps.Stop(longop);
-                        }
-                    }
-                );
+
+                if (extension_changed === true)
+                {
+                    OverlayManager.ShowConfirmDialog(
+                        _ => { execute(); OverlayManager.DismissOne(); },
+                        _ => { OverlayManager.DismissOne(); },
+                        `Change File Extension: ${type_prev.label} -> ${type_next.label}`
+                    )
+                }
+                else
+                {
+                    execute();
+                }
             },
             () =>
             {
@@ -315,7 +412,7 @@ class FileExplorerItem
         OverlayManager.ShowConfirmDialog(
             _ =>
             {
-                const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: 'Copy ' + this.item_info.name });
+                const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: this.item_info.name, icon: 'content_copy', verb: 'Duplicated item' });
                 let body =
                 {
                     parentReference:
@@ -448,47 +545,40 @@ class FileExplorerItem
             }
         );
 
-        let buttons = [];
-
-        /*
-        buttons.push(
-            {
-                label: 'Download File',
-                icon: 'download',
-                click_action: e =>
+        this.CreateItemButtons(
+            [
                 {
-                    if (this.explorer.loading_items === true) return;
-                    this.explorer.DownloadFile(this.item_info['@microsoft.graph.downloadUrl']);
+                    label: 'More Options',
+                    icon: 'more_horiz',
+                    click_action: e => this.ShowFileOptions()
                 }
-            }
+            ]
         );
-
-        if (this.item_type_info && this.item_type_info.viewable === true)
-        {
-            buttons.push(
-                {
-                    label: 'View File Online',
-                    icon: 'open_in_new',
-                    click_action: e => window.open(this.item_info.webUrl, '_blank')
-                }
-            );
-        }
-        */
-
-        buttons.push(
-            {
-                label: 'More Options',
-                icon: 'more_horiz',
-                click_action: e => this.ShowFileOptions()
-            }
-        );
-
-        this.CreateItemButtons(buttons);
 
         if (this.e_checkbox)
         {
-            this.e_root.addEventListener('click', e => this.ToggleSelected(e));
+            this.e_root.addEventListener(
+                'click',
+                e => 
+                {
+                    if (e.button === 0)
+                    {
+                        if (e.detail === 2) window.open(this.item_info.webUrl, '_blank');
+                        this.ToggleSelected(e);
+                    }
+                }
+            );
             this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
+        }
+        else
+        {
+            this.e_root.addEventListener(
+                'click',
+                e =>
+                {
+                    if (e.button === 0 && e.detail > 1) window.open(this.item_info.webUrl, '_blank');
+                }
+            );
         }
     }
 
@@ -758,6 +848,7 @@ export class FileExplorer extends PanelContent
 
     current_items = [];
     selected_items = [];
+    any_selected = false;
 
     on_load_start = () => { };
     on_load_stop = () => { };
@@ -788,17 +879,25 @@ export class FileExplorer extends PanelContent
         this.e_btn_uploadfile = this.trench_actions.AddIconButton('upload', _ => { this.RequestUploadFile(); }, 'Upload one or more files here.', '#0cf');
 
         this.trench_actions.AddFlexibleSpace();
-        this.e_btn_selection_move = this.trench_actions.AddIconButton('drive_file_move', _ => { }, 'Move the selected file(s) to another location.', '#fd0');
-        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { }, 'Download the selected file(s).', '#0fc');
-        this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { }, 'Delete the selected file(s).', '#f44');
+        this.e_btn_selection_move = this.trench_actions.AddIconButton('drive_file_move', _ => { this.RequestMoveSelected(); }, 'Move the selected file(s) to another location.', '#fd0');
+        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { this.RequestDownloadSelected(); }, 'Download the selected file(s).', '#0fc');
+        this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { this.RequestDeleteSelected(); }, 'Delete the selected file(s).', '#f44');
+
+        this.e_btn_selection_move.setAttribute('coming-soon', '');
+        this.e_btn_selection_download.setAttribute('coming-soon', '');
+        this.DisableMultiselectActions();
 
         this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
         this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
 
-        if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 330);
+        if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 130);
     }
 
-    OnRefreshElements() { this.RefreshColumnVisibility(); }
+    OnRefreshElements()
+    {
+        this.RefreshColumnVisibility();
+        this.RefreshActionElements();
+    }
 
     OnRemoveElements() { this.e_root.remove(); }
 
@@ -860,42 +959,52 @@ export class FileExplorer extends PanelContent
         }
     }
 
+    ShowActionBar()
+    {
+        this.trench_actions.e_root.style.minHeight = '2rem';
+        this.trench_actions.e_root.style.height = '2rem';
+        this.trench_actions.e_root.style.padding = 'var(--gap-025)';
+    }
+
+    HideActionBar()
+    {
+        this.trench_actions.e_root.style.minHeight = '0px';
+        this.trench_actions.e_root.style.height = '0px';
+        this.trench_actions.e_root.style.padding = '0px';
+    }
+
+    EnableMultiselectActions()
+    {
+        this.e_btn_selection_move.removeAttribute('disabled');
+        this.e_btn_selection_download.removeAttribute('disabled');
+        this.e_btn_selection_delete.removeAttribute('disabled');
+    }
+    DisableMultiselectActions()
+    {
+        this.e_btn_selection_move.setAttribute('disabled', '');
+        this.e_btn_selection_download.setAttribute('disabled', '');
+        this.e_btn_selection_delete.setAttribute('disabled', '');
+    }
+
     RefreshActionElements()
     {
-        if (this.show_folder_actions)
+        if (this.show_folder_actions === true)
         {
-            this.trench_actions.e_root.style.minHeight = '2rem';
-            this.trench_actions.e_root.style.height = '2rem';
-            this.trench_actions.e_root.style.padding = 'var(--gap-025)';
+            if (this.selected_items.length < 1 && this.any_selected === true)
+            {
+                this.DisableMultiselectActions();
+                this.any_selected = false;
+            }
 
-            if (this.selected_items.length < 1)
+            if (this.selected_items.length > 0 && this.any_selected !== true)
             {
-                if (this.items_selected === true)
-                {
-                    this.items_selected = false;
-                    this.e_btn_selection_move.setAttribute('disabled', '');
-                    this.e_btn_selection_download.setAttribute('disabled', '');
-                    this.e_btn_selection_delete.setAttribute('disabled', '');
-                }
+                this.EnableMultiselectActions();
+                this.any_selected = true;
+                DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
             }
-            else
-            {
-                if (this.items_selected !== true)
-                {
-                    this.items_selected = true;
-                    this.e_btn_selection_move.removeAttribute('disabled');
-                    this.e_btn_selection_download.removeAttribute('disabled');
-                    this.e_btn_selection_delete.removeAttribute('disabled');
-                    DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
-                }
-            }
+            this.ShowActionBar();
         }
-        else
-        {
-            this.trench_actions.e_root.style.minHeight = '0px';
-            this.trench_actions.e_root.style.height = '0px';
-            this.trench_actions.e_root.style.padding = '0px';
-        }
+        else this.HideActionBar();
     }
 
     CreateFolderActionElements()
@@ -968,15 +1077,45 @@ export class FileExplorer extends PanelContent
         this.AfterSelectionChange();
     }
 
-    AfterSelectionChange()
+    AfterSelectionChange() { this.RefreshActionElements(); }
+
+    RequestMoveSelected() { }
+    RequestDownloadSelected() { }
+
+    RequestDeleteSelected()
     {
-        this.RefreshActionElements();
+        if (this.selected_items.length < 1) return;
+
+        OverlayManager.ShowConfirmDialog(
+            _ =>
+            {
+                let op_instances = this.selected_items.map(_ => new ItemDeleteInstance(_, this.drive_id, this.relative_path_current));
+                this.OnStartLoading();
+                Promise.allSettled(
+                    op_instances.map(_ => _['Process']())
+                ).then(
+                    _ =>
+                    {
+                        this.Navigate(this.relative_path_current);
+                        this.ClearSelected();
+                    }
+                );
+            },
+            _ =>
+            {
+
+            },
+            'Delete the selected files?',
+            'DELETE ALL', 'CANCEL'
+        )
+
+
     }
 
     async CreateFolderInRelativePath(name)
     {
         if (this.drive_id_valid !== true) return undefined;
-        const longop = LongOps.Start('driveitem-create-folder' + name, { label: 'Create Folder:' + name });
+        const longop = LongOps.Start('driveitem-create-folder' + name, { label: name, icon: 'create_new_folder', verb: 'Created folder' });
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
         let data = { name: name, folder: {} };
         data['@microsoft.graph.conflictBehavior'] = 'rename';
@@ -988,7 +1127,7 @@ export class FileExplorer extends PanelContent
     async CreateFileInRelativePath(name, file_content)
     {
         if (this.drive_id_valid !== true) return undefined;
-        const longop = LongOps.Start('driveitem-upload-file' + name, { label: 'Upload: ' + name });
+        const longop = LongOps.Start('driveitem-upload-file' + name, { label: name, icon: 'upload', verb: 'Uploaded file' });
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}/${name}:/content`;
         let result = await window.SharePoint.SetData(url, file_content, 'put', 'text/plain');
         LongOps.Stop(longop);
@@ -1048,7 +1187,8 @@ export class FileExplorer extends PanelContent
         };
 
         OverlayManager.ShowFileUploadDialog(
-            'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))',
+            'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
+            + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
             files =>
             {
                 if (files)
@@ -1061,7 +1201,7 @@ export class FileExplorer extends PanelContent
                     while (fid < files.length)
                     {
                         const file = files.item(fid);
-                        if (file.size < (250 * bytes_mb)) uploads.push(new FileUploadInstance(file, this.drive_id, this.relative_path_current));
+                        if (file.size < (150 * bytes_mb)) uploads.push(new FileUploadInstance(file, this.drive_id, this.relative_path_current));
                         fid++;
                     }
 

@@ -8,7 +8,7 @@ class DOMElementHighlight
 		this.rect = rect;
 		this.e_root = addElement(
 			document.body, 'div', '',
-			'point-events:none;'
+			'pointer-events:none;'
 			+ 'position:absolute; box-sizing:border-box; z-index:150000; margin:0px; padding:0px; opacity:0%;'
 			+ 'outline:solid 3px orange; outline-offset:5px; border-radius:' + border_radius + ';'
 			+ getTransitionStyle('opacity', '--trans-dur-off-fast', 'ease-in-out', 0)

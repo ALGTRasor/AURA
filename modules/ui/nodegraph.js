@@ -5,7 +5,6 @@ import { DropMenu, DropMenuItem, DropMenuManager } from "./dropmenu.js";
 const node_kind_default = { kind: 'comment', label: 'Comment', prep: _ => { } };
 
 
-
 export class GraphNode extends EventTarget
 {
 	constructor(id, kind_info = node_kind_default)
@@ -20,6 +19,16 @@ export class GraphNode extends EventTarget
 		this.e_root = this.createElement();
 		this.x = 0;
 		this.y = 0;
+	}
+
+	static GetData(_)
+	{
+		return {
+			id: _.id,
+			kind: _.kind_info?.kind ?? 'unknown',
+			x: _.x,
+			y: _.y
+		};
 	}
 
 	createElement()
@@ -96,29 +105,30 @@ export class NodeGraph extends EventTarget
 		nodeRegistry.set(this, this);
 	}
 
-	getData()
+	get_node_kind_info(kind)
 	{
-		let data = {};
-		data.node_data = [];
-		for (let kvp of this.nodes)
-		{
-			data.node_data.push({ id: kvp.key, kind: kvp.value.kind_info.kind })
-		}
+		let kind_id = this.node_kinds.findIndex(_ => _.kind === kind);
+		if (kind_id < 0) return node_kind_default;
+		return this.node_kinds[kind_id];
+	};
 
-		return {
-			nodes: this.nodes,
-			connections: this.connections
-		};
+	static GetData(graph)
+	{
+		let data = { node_data: [] };
+		graph.nodes.forEach(_ => { return data.node_data.push(GraphNode.GetData(_)); });
+		return data;
 	}
 
-	setData(data = {})
+	static SetData(graph, data = {})
 	{
-		if ('nodes' in data)
+		if ('node_data' in data)
 		{
 			for (let node_info_id in data.node_data)
 			{
 				let node_info = data.node_data[node_info_id];
-				this.addNode(new GraphNode(node_info.id, node_info.kind));
+				let node = new GraphNode(node_info.id, graph.get_node_kind_info(node_info.kind));
+				graph.addNode(node, true);
+				node.setPosition(node_info.x, node_info.y);
 			}
 		}
 	}
@@ -130,6 +140,26 @@ export class NodeGraph extends EventTarget
 		this.root.addEventListener("dragover", e => e.preventDefault());
 		this.root.addEventListener("drop", e => this.onDrop(e));
 
+		this.root.addEventListener(
+			'mousedown',
+			e =>
+			{
+				let dismissing = e.button != 1;
+				dismissing = dismissing && !(e.button == 0 && e.ctrlKey === true);
+				if (dismissing)
+				{
+					DropMenuManager.hideAll();
+					return;
+				}
+				this.ShowContextMenu(new DOMPoint(e.clientX, e.clientY));
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		);
+	}
+
+	ShowContextMenu(pos)
+	{
 		let create_node_of_kind = (_, posx, posy) =>
 		{
 			return new DropMenuItem(
@@ -143,34 +173,21 @@ export class NodeGraph extends EventTarget
 			);
 		};
 
-		this.root.addEventListener(
-			'mousedown',
-			e =>
-			{
-				let dismissing = e.button != 1;
-				dismissing = dismissing && !(e.button == 0 && e.ctrlKey === true);
-				if (dismissing)
-				{
-					DropMenuManager.hideAll();
-					return;
-				}
-				let pos = new DOMPoint(e.clientX, e.clientY);
-				DropMenuManager.showMenu(new DropMenu(this.node_kinds.map(_ => { return create_node_of_kind(_, pos.x, pos.y) })), pos, null);
-				e.preventDefault();
-				e.stopPropagation();
-			}
-		);
+		DropMenuManager.showMenu(new DropMenu(this.node_kinds.map(_ => { return create_node_of_kind(_, pos.x, pos.y) })), pos, null);
 	}
 
-	addNode(node)
+	addNode(node, skip_events = false)
 	{
 		this.nodes.set(node.id, node);
 		node.graph = this;
 		this.root.appendChild(node.e_root);
 		node.addEventListener("nodestartdrag", e => this.onNodeStartDrag(e));
 		node.addEventListener("nodeenddrag", e => this.onNodeEndDrag(e));
-		this.dispatchEvent(new CustomEvent("nodeadded", { detail: node }));
-		this.dispatchEvent(new CustomEvent("changed", { detail: node }));
+		if (skip_events !== true)
+		{
+			this.dispatchEvent(new CustomEvent("nodeadded", { detail: node }));
+			this.dispatchEvent(new CustomEvent("changed", { detail: node }));
+		}
 		return node;
 	}
 
@@ -199,10 +216,8 @@ export class NodeGraph extends EventTarget
 
 	addNodeOfKind(kind = '')
 	{
-		let kind_id = this.node_kinds.findIndex(_ => _.kind === kind);
-		if (kind_id < 0) return undefined;
-
-		let kind_info = this.node_kinds[kind_id];
+		let kind_info = this.get_node_kind_info(kind);
+		if (kind_info == undefined) return undefined;
 
 		const id = `node-${Date.now()}`;
 		const node = new GraphNode(id, kind_info);
@@ -218,7 +233,7 @@ export class NodeGraph extends EventTarget
 	onNodeEndDrag(e)
 	{
 		this.dispatchEvent(new CustomEvent("nodemoved", { detail: e.detail }));
-		this.dispatchEvent(new CustomEvent("changed", {}));
+		this.dispatchEvent(new CustomEvent("changed", { detail: e.detail }));
 	}
 
 	onDrop(event)
