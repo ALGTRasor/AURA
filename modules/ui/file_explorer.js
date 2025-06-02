@@ -867,26 +867,34 @@ export class FileExplorer extends PanelContent
             this.trench_actions.e_root.style.minHeight = '2rem';
             this.trench_actions.e_root.style.height = '2rem';
             this.trench_actions.e_root.style.padding = 'var(--gap-025)';
+
+            if (this.selected_items.length < 1)
+            {
+                if (this.items_selected === true)
+                {
+                    this.items_selected = false;
+                    this.e_btn_selection_move.setAttribute('disabled', '');
+                    this.e_btn_selection_download.setAttribute('disabled', '');
+                    this.e_btn_selection_delete.setAttribute('disabled', '');
+                }
+            }
+            else
+            {
+                if (this.items_selected !== true)
+                {
+                    this.items_selected = true;
+                    this.e_btn_selection_move.removeAttribute('disabled');
+                    this.e_btn_selection_download.removeAttribute('disabled');
+                    this.e_btn_selection_delete.removeAttribute('disabled');
+                    DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
+                }
+            }
         }
         else
         {
             this.trench_actions.e_root.style.minHeight = '0px';
             this.trench_actions.e_root.style.height = '0px';
             this.trench_actions.e_root.style.padding = '0px';
-        }
-
-        if (this.selected_items.length < 1)
-        {
-            this.e_btn_selection_move.setAttribute('disabled', '');
-            this.e_btn_selection_download.setAttribute('disabled', '');
-            this.e_btn_selection_delete.setAttribute('disabled', '');
-        }
-        else
-        {
-            this.e_btn_selection_move.removeAttribute('disabled');
-            this.e_btn_selection_download.removeAttribute('disabled');
-            this.e_btn_selection_delete.removeAttribute('disabled');
-            DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
         }
     }
 
