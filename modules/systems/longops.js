@@ -229,7 +229,7 @@ export class LongOpsUI
 			{
 				_.id = 'long_ops-output';
 
-				let trench = new Trench(_);
+				let trench = new Trench(_, true, '0.8rem');
 				trench.AddLabel('OPERATIONS');
 				let e_btn_close = trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide the Operations panel');
 				e_btn_close.style.setProperty('--theme-color', '#f00');
