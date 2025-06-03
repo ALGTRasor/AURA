@@ -4,6 +4,7 @@ import { addElement, CreatePagePanel } from "./utils/domutils.js";
 import { OverlayManager } from "./ui/overlays.js";
 import { PageManager } from "./pagemanager.js";
 import { UserAccountManager } from "./useraccount.js";
+import { MegaTips } from "./systems/megatips.js";
 
 export class ActionBar
 {
@@ -43,7 +44,7 @@ export class ActionBar
 					_ =>
 					{
 						_.addEventListener('click', on_click);
-						_.title = tooltip;
+						//_.title = tooltip;
 						_.classList.add('panel-button');
 						icon_info.e_icon = addElement(
 							_, 'i', 'material-symbols',
@@ -54,6 +55,8 @@ export class ActionBar
 				);
 			}
 		);
+
+		MegaTips.RegisterSimple(icon_info.e_root, tooltip);
 		return icon_info;
 	}
 
@@ -65,12 +68,14 @@ export class ActionBar
 			{
 				_.innerHTML = label.toUpperCase();
 				if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
-				_.title = label.toUpperCase();
+				//_.title = label.toUpperCase();
 
 				if (on_click) _.addEventListener('click', on_click);
 				if (post_prep) post_prep(_);
 			}
 		);
+
+		MegaTips.RegisterSimple(e, label.toUpperCase());
 
 		ActionBar.e_button_root.insertBefore(e, ActionBar.e_button_root.firstChild);
 
@@ -96,9 +101,11 @@ export class ActionBar
 				_ =>
 				{
 					_.id = 'action-bar-btn-logout';
-					_.title = `Disconnect your tenant account from ${AppInfo.name}.\nThis will not log you out of your tenant sites or tools, only ${AppInfo.name}.\nLogging out will bring you back to tenant account selection.\nA valid login is required to use ${AppInfo.name}.`;
 				}
 			);
+
+			const login_tip = `Disconnect your tenant account from ${AppInfo.name}.(((Logging out will bring you back to tenant account selection.)))(((A valid login is required to use ${AppInfo.name}.)))`;
+			MegaTips.RegisterSimple(ActionBar.e_button_login, login_tip);
 		}
 		else
 		{
@@ -112,9 +119,10 @@ export class ActionBar
 				_ =>
 				{
 					_.id = 'action-bar-btn-login';
-					_.title = 'Log in with your tenant account';
 				}
 			);
+
+			MegaTips.RegisterSimple(ActionBar.e_button_login, 'Log in with your tenant account');
 		}
 	}
 

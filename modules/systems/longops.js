@@ -2,6 +2,7 @@ import { addElement, CreatePagePanel, FlashElement, getTransitionStyle } from ".
 import { NotificationLog } from "../notificationlog.js";
 import { ActionBar } from "../actionbar.js";
 import { Trench } from "../ui/trench.js";
+import { MegaTips } from "./megatips.js";
 
 const lskey_history = 'longops-history';
 
@@ -131,6 +132,9 @@ export class LongOpsEntryUI
 				this.e_icon_status = addElement(_, 'i', 'material-symbols', 'font-size:1rem; color:' + col + ';', _ => { _.innerText = op_done ? 'task_alt' : 'circle'; });
 			}
 		);
+
+		this.megatip = MegaTips.RegisterSimple(this.e_op, null);
+
 		window.setTimeout(() => { this.UpdateElements(); }, fade_delay);
 
 		const dismiss_action = () => { LongOpsUI.instance.RemoveListEntry(this); LongOps.Dismiss(this.op); };
@@ -159,12 +163,16 @@ export class LongOpsEntryUI
 
 			this.e_op.style.cursor = 'pointer';
 			this.e_op.style.opacity = '70%';
-			this.e_op.title = op_error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `${(this.op.verb ?? 'Completed')} after ${Math.round(this.op.duration)}ms`;
-			this.e_op.title += '\n\nClick to dismiss this operation';
+
+			this.megatip.prep = _ =>
+			{
+				_.innerHTML = this.op.error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `${(this.op.verb ?? 'Completed')} after ${Math.round(this.op.duration)}ms`;
+				_.innerHTML += MegaTips.FormatHTML('<br>(((Click to Dismiss)))');
+			};
 
 			this.e_icon_status.innerText = op_error ? 'error' : 'task_alt';
 			this.e_icon_status.style.color = op_error ? '#fa0a' : '#0f0a';
-			this.e_icon.style.color = op_error ? '#fa0a' : '#0f0a';
+			if (this.e_icon) this.e_icon.style.color = op_error ? '#fa0a' : '#0f0a';
 		}
 		else
 		{
@@ -174,11 +182,11 @@ export class LongOpsEntryUI
 			this.e_op.classList.add('progress-filling');
 
 			this.e_op.style.opacity = '100%';
-			this.e_op.title = 'PENDING';
+			this.megatip.prep = _ => { _.innerHTML = 'Pending'; };
 
 			this.e_icon_status.innerText = 'pending';
 			this.e_icon_status.style.color = '#fa0f';
-			this.e_icon.style.color = '#fa0f';
+			if (this.e_icon) this.e_icon.style.color = '#fa0f';
 		}
 	}
 

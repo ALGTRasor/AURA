@@ -511,6 +511,121 @@ div[disabled]
 }
 
 
+
+
+@keyframes megatip-flash
+{
+	0%
+	{
+		background: hsl(from var(--theme-color) h s 15%);
+		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
+	}
+
+	25%
+	{
+		background: hsl(from var(--theme-color) h s 60%);
+		transform: translate(-50%, -50%) rotate(45deg) scale(50%);
+	}
+
+	50%
+	{
+		background: hsl(from var(--theme-color) h s 60%);
+		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
+	}
+
+	75%
+	{
+		background: hsl(from var(--theme-color) h s 15%);
+		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
+	}
+
+	100%
+	{
+		background: hsl(from var(--theme-color) h s 15%);
+		transform: translate(-50%, -50%) rotate(135deg) scale(100%);
+	}
+}
+
+.megatip
+{
+	position: absolute;
+	box-sizing: border-box;
+	z-index: 55000;
+
+	pointer-events: none;
+	user-select: none;
+
+	min-width: 1rem;
+	max-width: min(90vw, 36rem);
+	min-height: 1rem;
+	padding: calc(0.25rem + var(--gap-025));
+	border-radius: var(--gap-05);
+
+	font-size: 0.75rem;
+	letter-spacing: 0.5px;
+
+	background-blend-mode: multiply;
+	background-size: 100% 100%;
+	background-image: linear-gradient(attr(data-offset-angle deg) in hsl, rgba(from hsl(from var(--theme-color) h s 30%) r g b / 0.35), rgb(0 0 0 / 0.35));
+
+	border: solid hsl(from var(--theme-color) h s 60%) 2px;
+
+	overflow: visible;
+
+	backdrop-filter: blur(3px);
+
+	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
+}
+
+.megatip::before
+{
+	content: '';
+
+	position: absolute;
+	box-sizing: border-box;
+
+	top: calc(50% + 50% * attr(data-offset-y type(<number>), 0));
+	left: calc(50% + 50% * attr(data-offset-x type(<number>), 0));
+
+	width: 0.75rem;
+	height: 0.75rem;
+	transform-origin: 50% 50%;
+
+	border: solid hsl(from var(--theme-color) h s 60%) 2px;
+	border-radius: var(--gap-025);
+
+	animation: 1s linear megatip-flash infinite;
+
+	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
+}
+
+
+.megatip-field
+{
+	display: inline-block;
+	color: hsl(from var(--theme-color) h s 50%);
+	min-width: 4rem;
+	text-align: right;
+	font-weight: bold;
+	font-size: 0.6rem;
+}
+
+.megatip-warning
+{
+	display: block;
+	color: orange;
+	min-width: 4rem;
+	text-align: right;
+	font-weight: bold;
+	font-size: 0.6rem;
+	text-align: right;
+	padding-top: 0.25rem;
+}
+
+
+
+
+
 .page-root textarea[disabled]
 {
 	pointer-events: none !important;

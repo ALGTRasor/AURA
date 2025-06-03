@@ -13,6 +13,7 @@ import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
 import { AppInfo } from "../../app_info.js";
 import { Ripples } from "../../ui/ripple.js";
+import { MegaTips } from "../../systems/megatips.js";
 
 
 class SettingControl
@@ -457,20 +458,23 @@ export class PageSettings extends PageDescriptor
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
 
 				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
-				const addKey = (key = '', effect = '', tooltip = '', allow_emulate = true) => CreatePagePanel(
-					x, false, false, about_style,
-					_ =>
-					{
-						_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
-							+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
-						if (allow_emulate)
+				const addKey = (key = '', effect = '', tooltip = '', allow_emulate = true) =>
+				{
+					let e_hotkey = CreatePagePanel(
+						x, false, false, about_style,
+						_ =>
 						{
-							_.style.cursor = 'pointer';
-							_.title = tooltip;
-							_.addEventListener('click', e => { Hotkeys.Emulate(key, e.ctrlKey, e.altKey, e.shiftKey) });
+							_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
+								+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
+							if (allow_emulate)
+							{
+								_.style.cursor = 'pointer';
+								_.addEventListener('click', e => { Hotkeys.Emulate(key, e.ctrlKey, e.altKey, e.shiftKey) });
+							}
 						}
-					}
-				);
+					);
+					if (allow_emulate) MegaTips.RegisterSimple(e_hotkey, tooltip);
+				}
 
 				for (let hotkey_id in Hotkeys.descriptors)
 				{
@@ -517,16 +521,16 @@ export class PageSettings extends PageDescriptor
 				{
 					let info = perms[pid];
 					let group = perm_groups.find(x => info.Title.startsWith(x.key));
-					CreatePagePanel(
+					let e_perm = CreatePagePanel(
 						x, false, false, 'text-align:center;font-size:0.7rem;align-content:center;',
 						y =>
 						{
 							y.innerText = info.permission_name;
-							y.title = info.permission_desc;
 							y.style.setProperty('--theme-color', group.color);
 							y.classList.add('hover-lift');
 						}
 					);
+					MegaTips.RegisterSimple(e_perm, info.permission_desc);
 				}
 			}
 		);

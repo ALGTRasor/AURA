@@ -1,3 +1,4 @@
+import { MegaTips } from "../systems/megatips.js";
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 
 export class Trench
@@ -14,17 +15,18 @@ export class Trench
 
 	AddIconButton(icon = 'help', on_click = e => { }, tooltip = '', color = '')
 	{
-		return CreatePagePanel(
+		let e = CreatePagePanel(
 			this.e_root, !this.inset, false, 'flex-grow:0.0; flex-shrink:0.0; aspect-ratio:1.0;',
 			_ =>
 			{
 				_.classList.add('panel-button');
-				if (tooltip) _.title = tooltip;
 				if (on_click) _.addEventListener('click', on_click);
 				if (color && color.length > 0) _.style.setProperty('--theme-color', color);
 				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', icon);
 			}
 		);
+		if (tooltip) MegaTips.RegisterSimple(e, tooltip);
+		return e;
 	}
 
 	AddLabel(text = '')

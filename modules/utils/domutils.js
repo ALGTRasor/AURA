@@ -38,6 +38,30 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 
 
 
+
+export function AddElementRemoveListener(element, onremove = () => { })
+{
+    let remove_observer = new MutationObserver(
+        _ =>
+        {
+            if (element && document.body.contains(element) === true) return;
+            if (onremove) onremove();
+            remove_observer.disconnect();
+            remove_observer = undefined;
+        }
+    );
+    if (!element.parentElement) until(() => element.parentElement).then(_ => { remove_observer?.observe(element.parentElement, { childList: true }); });
+    else remove_observer.observe(element.parentElement, { childList: true });
+}
+
+
+
+
+
+
+
+
+
 export function getTransitionStyle(properties = '', duration_var = '--trans-dur-off-slow', timing_function = 'ease-in-out', delay = '0s')
 {
     return `transition-property:${properties}; transition-duration:var(${duration_var}); transition-timing-function:${timing_function}; transition-delay:${delay};`;

@@ -19,6 +19,7 @@ import { DevMode } from "../devmode.js";
 import { AnimJob } from "../AnimJob.js";
 import { LongOps } from "./longops.js";
 import { Fax } from "./fax.js";
+import { MegaTips } from "./megatips.js";
 
 export class AppCore extends EventTarget
 {
@@ -147,6 +148,8 @@ export class AppCore extends EventTarget
 		AppCore.UpdateClock();
 
 		AppCore.CreateSpotlightWalls();
+
+		MegaTips.CreateElements();
 
 		window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 		window.e_content_root = document.getElementById('content-body');

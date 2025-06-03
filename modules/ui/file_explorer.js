@@ -9,6 +9,7 @@ import { OverlayManager } from "./overlays.js";
 import { NotificationLog } from "../notificationlog.js";
 import { PanelContent } from "./panel_content.js";
 import { Trench } from "./trench.js";
+import { MegaTips } from "../systems/megatips.js";
 
 
 const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
@@ -163,7 +164,7 @@ class FileExplorerItem
         this.DetermineFileType();
         this.item_type_info = FileTypes.GetInfo(this.item_info.name);
 
-        this.tooltips.push(this.item_type.toUpperCase() + '  ' + this.item_info.name);
+        this.AddTooltip(this.item_type.toUpperCase(), this.item_info.name);
     }
 
     DetermineFileType()
@@ -180,18 +181,25 @@ class FileExplorerItem
         let valUser = this.item_info[user_property];
         let valDate = this.item_info[date_property];
 
-        if (hasUser && hasDate)
-        {
-            this.tooltips.push(`${verb} by ${valUser.user.displayName} @ ${new Date(valDate).toLocaleString()}`);
-        }
-        else if (hasUser && !hasDate)
-        {
-            this.tooltips.push(`${verb} by ${valUser.user.displayName}`);
-        }
-        else if (!hasUser && hasDate)
-        {
-            this.tooltips.push(`${verb} @ ${new Date(valDate).toLocaleString()}`);
-        }
+        if (hasUser && hasDate) this.AddTooltip(verb, `${valUser.user.displayName} @ ${new Date(valDate).toLocaleString()}`);
+        else if (hasUser && !hasDate) this.AddTooltip(verb, valUser.user.displayName);
+        else if (!hasUser && hasDate) this.AddTooltip(verb, new Date(valDate).toLocaleString());
+    }
+
+    AddTooltip(label = '', info = '', warning = false)
+    {
+        let has_label = typeof label === 'string' && label.length > 0;
+        let has_info = typeof info === 'string' && info.length > 0;
+        if (has_label !== true && has_info !== true) return;
+
+        let has_both = has_label && has_info;
+        let tip = has_both ? `(((${label}))) ${info}` : (has_label ? `(((${label})))` : `${info}`);
+        if (tip.length < 1) return;
+
+        if (warning === true) tip = `[[[${tip}]]]`;
+        else tip += '<br>';
+
+        this.tooltips.push(tip);
     }
 
     ToggleSelected(e)
@@ -220,6 +228,7 @@ class FileExplorerItem
                         + 'align-content:center; text-align:center; font-size:1.25rem;',
                         _ => _.innerText = 'check_box_outline_blank'
                     );
+                    MegaTips.RegisterSimple(this.e_checkbox, 'Add/Remove from Selection');
                 }
 
                 this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
@@ -234,10 +243,17 @@ class FileExplorerItem
             case 'bundle': this.CreateFolderElements(); break;
         }
 
-        this.AddTimestampTooltip('createdBy', 'createdDateTime', 'Created');
-        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'Modified');
+        this.AddTimestampTooltip('createdBy', 'createdDateTime', 'CREATED');
+        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'MODIFIED');
 
-        this.e_root.title = this.tooltips.join('\n');
+        switch (this.item_type)
+        {
+            case 'file': this.AddTooltip(undefined, 'Click to select', true); this.AddTooltip(undefined, 'Double-click to open', true); break;
+            case 'folder': this.AddTooltip(undefined, 'Click to open folder', true); break;
+            case 'bundle': this.AddTooltip(undefined, 'Click to open folder', true); break;
+        }
+
+        MegaTips.RegisterSimple(this.e_root, this.tooltips.join(''));
 
         this.RefreshElements();
         this.RefreshSelected();
@@ -441,21 +457,22 @@ class FileExplorerItem
         for (let bid in buttons)
         {
             let button = buttons[bid];
-            addElement(
+            let e_btn = addElement(
                 this.e_btn_root, 'div', 'file-explorer-item-button', null,
-                e_btn =>
+                _ =>
                 {
-                    e_btn.addEventListener(
+                    _.addEventListener(
                         'click',
                         button.click_action
                     );
-                    e_btn.title = button.label;
+
                     addElement(
-                        e_btn, 'i', 'material-symbols', null,
-                        e_icon => { e_icon.innerText = button.icon ?? 'help'; }
+                        _, 'i', 'material-symbols', null,
+                        _ => { _.innerText = button.icon ?? 'help'; }
                     );
                 }
             );
+            MegaTips.RegisterSimple(e_btn, button.label);
         }
     }
 
@@ -488,14 +505,14 @@ class FileExplorerItem
         const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap;';
 
         this.e_root.classList.add('file-explorer-file');
-        this.e_root.title = this.item_info.name;
+        //this.e_root.title = this.item_info.name;
 
         this.e_info_editor = addElement(this.e_root, 'div', '', style_info_label, this.item_info.lastModifiedBy.user.displayName);
         this.e_info_timestamp = addElement(this.e_root, 'div', '', style_info_label, new Date(this.item_info.lastModifiedDateTime).toLocaleDateString());
 
         let size_info = get_file_size_group(this.item_info.size);
         this.e_info_size = addElement(this.e_root, 'div', '', style_info_label, size_info.bytes_label);
-        this.tooltips.push('SIZE  ' + size_info.bytes_label);
+        this.AddTooltip('SIZE', size_info.bytes_label);
 
         window.setTimeout(
             () =>
@@ -689,7 +706,7 @@ class FileExplorerItem
     CreateFolderElements()
     {
         this.e_root.classList.add('file-explorer-folder');
-        this.e_root.title = "Open Folder:\n" + this.item_info.name;
+        //this.e_root.title = "Open Folder:\n" + this.item_info.name;
 
         if ('childCount' in this.item_info.folder) 
         {
@@ -915,18 +932,20 @@ export class FileExplorer extends PanelContent
             this.e_path_back.style.paddingRight = '0';
             this.e_path_back.style.minWidth = '0';
             this.e_path_back.style.maxWidth = '0';
+            MegaTips.Register(this.e_path_back, _ => { _.innerHTML = MegaTips.FormatHTML('Back to (((' + (this.drive_name + '/' + this.relative_path_current).split('/').filter(_ => _.length > 0).slice(0, -1).join('/') + ')))'); });
 
             this.e_path_label = addElement(this.e_path_root, 'div', 'file-explorer-nav-path');
 
             addElement(this.e_path_root, 'div', undefined, 'min-width:0; flex-grow:1.0; flex-shrink:1.0;');
             this.e_btn_path_copy = add_button(
-                this.e_path_root, 'COPY', 'Copy this relative path to your system clipboard', 'content_copy', undefined,
+                this.e_path_root, 'COPY', '', 'content_copy', undefined,
                 e =>
                 {
                     navigator.clipboard.writeText(this.e_path_label.innerText);
                     NotificationLog.Log('Copied text to clipboard.');
                 }
             );
+            MegaTips.RegisterSimple(this.e_btn_path_copy, 'Copy the current path');
 
             this.SetDisplayPath(this.relative_path_current);
         }
@@ -1346,7 +1365,7 @@ export class FileExplorer extends PanelContent
             this.e_path_back.style.removeProperty('padding-right');
             this.e_path_back.style.maxWidth = '4rem';
             this.e_path_back.style.pointerEvents = 'all';
-            this.e_path_back.title = 'Navigate back to ' + parent_name;
+            //this.e_path_back.title = 'Navigate back to ' + parent_name;
             this.e_path_back.innerHTML = '← Back';
         }
         else

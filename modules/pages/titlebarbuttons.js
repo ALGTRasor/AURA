@@ -1,6 +1,6 @@
 import { DebugLog } from "../debuglog.js";
 import { PageManager } from "../pagemanager.js";
-import { Distinct } from "../utils/arrayutils.js";
+import { MegaTips } from "../systems/megatips.js";
 import { addElement } from "../utils/domutils.js";
 
 export class TitleBarButtonDescriptor
@@ -156,8 +156,6 @@ export class PageTitleBarButton
 				_.style.zIndex = 30;
 				_.tabIndex = '0';
 
-				if (typeof descriptor.tooltip === 'function') _.title = descriptor.tooltip({});
-				else _.title = descriptor.tooltip;
 				_.addEventListener(
 					'mouseup',
 					_ =>
@@ -170,6 +168,7 @@ export class PageTitleBarButton
 								_.preventDefault();
 							}
 							this.InvokeAction(_);
+							if (this.megatip) MegaTips.Pop(this.megatip);
 							//Ripples.SpawnFromEvent(_);
 						}
 					}
@@ -179,7 +178,9 @@ export class PageTitleBarButton
 			}
 		);
 
-		this.SetAction(descriptor.click_action);
+		this.SetAction(this.descriptor.click_action);
+
+		this.megatip = MegaTips.RegisterSimple(this.e_root, null);
 	}
 
 	Remove() { this.e_root.remove(); }
@@ -218,8 +219,11 @@ export class PageTitleBarButton
 
 	RefreshTooltip()
 	{
-		if (typeof this.descriptor.tooltip === 'function') this.e_root.title = this.descriptor.tooltip(this.instance_data);
-		else this.e_root.title = this.descriptor.tooltip;
+		if (!this.descriptor) return;
+		if (!this.megatip) return;
+
+		if (typeof this.descriptor.tooltip === 'function') this.megatip.prep = _ => { _.innerHTML = MegaTips.FormatHTML(this.descriptor.tooltip({})); };
+		else this.megatip.prep = _ => { _.innerHTML = MegaTips.FormatHTML(this.descriptor.tooltip); };
 	}
 
 	RefreshIcon()
