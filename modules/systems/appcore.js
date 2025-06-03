@@ -20,7 +20,7 @@ import { AnimJob } from "../AnimJob.js";
 import { LongOps } from "./longops.js";
 import { Fax } from "./fax.js";
 
-export class AppCore
+export class AppCore extends EventTarget
 {
 	static async Initialize()
 	{
@@ -33,63 +33,77 @@ export class AppCore
 		UserSettings.LoadFromStorage();
 		GlobalStyling.Load();
 
-		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest);
-		AppEvents.AddListener('account-login', UserAccountInfo.UpdateUserSharedData);
-		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData);
+		AppEvents.AddListener('account-login', AppCore.#AfterTenantAccountLogin); // initial account auth success
+		AppEvents.AddListener('account-login-failed', AppCore.#AfterTenantAccountLoginFailed); // initial account auth failure
+		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // auth failure response received from a remote data request
+		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // any shared data table is downloaded
 
 		await UserAccountManager.CheckWindowLocationForCodes();
 		await UserAccountManager.AttemptAutoLogin();
 		ActionBar.UpdateAccountButton();
 
-		if (UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true)
-		{
-			LongOps.CreateActionBarElements();
-
-			await AppStrap.ImportPageModules();
-			await AppStrap.ImportDataModules();
-
-			window.DBLayer.config = new window.DB_SharePoint();
-			await window.DBLayer.Initialize();
-
-			// permissions data is required to interpret and display information about the user's granted permissions
-			window.global_needer_perms = window.SharedData.permissions.AddNeeder();
-
-			await UserAccountInfo.DownloadUserInfo();
-			await AppCore.CheckIdentity();
-
-			AppEvents.Dispatch('account-login');
-
-			AppCore.PopulateActionBarButtons();
-			window.addEventListener('keyup', AppCore.HandleKeyUp);
-			AppCore.RegisterHotkeys();
-
-			let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
-			if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
-			{
-				if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
-				else PageManager.OpenPageByTitle('user dashboard');
-			}
-
-			Fax.RefreshFact();
-
-			NotificationLog.Log('Ready', '#097');
-			Welcome.ShowWelcomeMessage();
-
-			AppCore.SetContentObscured(false);
-		}
-		else
-		{
-			NotificationLog.Log('Login Required', '#ff0');
-			AppCore.SetContentObscured(true, 'Login Required');
-			DebugLog.Log('! Login required');
-			AppEvents.Dispatch('account-login-failed');
-			//await AppEvents.onAccountLoginFailed.InvokeAsync();
-		}
+		let valid_tenant_account = UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true;
+		if (valid_tenant_account === true) AppEvents.Dispatch('account-login');
+		else AppEvents.Dispatch('account-login-failed');
 
 		GlobalStyling.Apply();
 
 		DebugLog.SubmitGroup('#fff4');
 	}
+
+
+	static async #AfterTenantAccountLogin()
+	{
+		LongOps.CreateActionBarElements();
+
+		await Promise.allSettled(
+			[
+				AppStrap.ImportPageModules(),
+				AppStrap.ImportDataModules()
+			]
+		);
+
+		window.DBLayer.config = new window.DB_SharePoint();
+		await window.DBLayer.Initialize();
+
+		// permissions data is required to interpret and display information about the user's granted permissions
+		window.global_needer_perms = window.SharedData.permissions.AddNeeder();
+
+		await UserAccountInfo.DownloadUserInfo();
+		await AppCore.CheckIdentity();
+
+		UserAccountInfo.UpdateUserSharedData();
+
+		AppCore.PopulateActionBarButtons();
+		window.addEventListener('keyup', AppCore.HandleKeyUp);
+		AppCore.RegisterHotkeys();
+
+		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
+		if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
+		{
+			if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
+			else PageManager.OpenPageByTitle('user dashboard');
+		}
+
+		Fax.RefreshFact();
+
+		NotificationLog.Log('Ready', '#097');
+		Welcome.ShowWelcomeMessage();
+
+		AppCore.SetContentObscured(false);
+	}
+
+	static #AfterTenantAccountLoginFailed()
+	{
+		NotificationLog.Log('Login Required', '#ff0');
+		AppCore.SetContentObscured(true, 'Login Required');
+		DebugLog.Log('! Login required');
+		//await AppEvents.onAccountLoginFailed.InvokeAsync();
+	}
+
+
+
+
 
 
 
@@ -115,7 +129,6 @@ export class AppCore
 			'REAUTHENTICATE', 'IGNORE'
 		);
 	}
-
 
 	static PrepareDocument()
 	{
@@ -167,8 +180,6 @@ export class AppCore
 	}
 
 	static OnWindowSizeChanged() { PageManager.onLayoutChange.Invoke(); }
-
-
 
 	static SetContentObscured(enabled = true, label = '...')
 	{
@@ -248,7 +259,6 @@ export class AppCore
 		}
 	}
 
-
 	static PrepareActionBar() { ActionBar.Initialize(); }
 
 	static CheckWindowArgs()
@@ -264,7 +274,6 @@ export class AppCore
 			window.args[k] = v;
 		}
 	}
-
 
 
 	static CheckSpoofing()
@@ -299,7 +308,6 @@ export class AppCore
 	}
 
 
-
 	static HandleKeyUp(e)
 	{
 		if (OverlayManager.visible && OverlayManager.overlays.length > 0)
@@ -311,8 +319,6 @@ export class AppCore
 
 		Hotkeys.EvaluateKeyEvent(e);
 	}
-
-
 
 
 	static CreateSpotlightWalls()

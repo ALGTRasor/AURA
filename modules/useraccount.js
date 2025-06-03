@@ -144,7 +144,7 @@ export class UserAccountInfo
 			UserAccountInfo.user_permissions = window.SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
 		let perms_changed = UserAccountInfo.user_permissions.length != perms_prev_count;
 
-		UserAccountInfo.hr_info.requests = window.SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
+		//UserAccountInfo.hr_info.requests = window.SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);
 		UserAccountInfo.UpdateIdentity();
 
 		if (perms_changed)
