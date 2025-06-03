@@ -49,36 +49,19 @@ export class FileUploadInstance extends EventTarget
 
         this.contents_read = false;
         this.submitted = false;
+        this.success = false;
 
         this.file_contents = undefined;
         this.op_upload = undefined;
         this.result = undefined;
-
-        /*
-        this.worker = new Worker('modules/workers/file_upload_worker.js');
-        this.worker.addEventListener('message', this.OnWorkerMessage);
-        this.InitWorker();
-        */
     }
-
-    /*
-    InitWorker()
-    {
-        if (this.submitted === true) return;
-        this.submitted = true;
-        this.worker.postMessage({ file: this.file, url: this.url_content });
-    }
-
-    OnWorkerMessage(event)
-    {
-        this.dispatchEvent(new CustomEvent('afterupload', {}));
-        console.log(`Received From File Upload Worker: ${event.data}`);
-    }
-    */
 
     async Process()
     {
+        this.success = false;
         this.op_upload = LongOps.Start(this.operation_id, { label: this.file_name, icon: 'upload', verb: 'Uploaded file' });
+        //this.InitWorker();
+        //await until(() => this.contents_read === true);
         await this.ReadFileContents();
         await this.SubmitFileContents();
         LongOps.Stop(this.op_upload);
@@ -135,7 +118,7 @@ export class ItemDeleteInstance extends EventTarget
     async Process()
     {
         if (this.submitted === true) return;
-        this.op = LongOps.Start(this.operation_id, { label: this.item_info.name, icon: 'delete_forever', verb: 'Deleted item(s)' });
+        this.op = LongOps.Start(this.operation_id, { label: this.item_info.name, icon: 'delete_forever', verb: ('folder' in this.item_info) ? 'Deleted folder' : 'Deleted file' });
         await this.Submit();
     }
 

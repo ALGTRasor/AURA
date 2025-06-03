@@ -111,7 +111,7 @@ export class LongOpsEntryUI
 		let col = op_error ? '#fa0' : (op_done ? '#0f0a' : '#fa0f');
 		this.e_op = CreatePagePanel(
 			e_ops_list, false, false,
-			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow); cursor:pointer;',
+			'display:flex; flex-direction:row; flex-wrap:nowrap; overflow:hidden; opacity:0%; transition-property:opacity; transition-duration:var(--trans-dur-off-slow);',
 			_ =>
 			{
 				_.classList.add('progress-filling');
@@ -168,7 +168,7 @@ export class LongOpsEntryUI
 		}
 		else
 		{
-			this.e_op.style.cursor = 'default';
+			this.e_op.style.cursor = 'wait';
 			this.e_op.style.setProperty('--theme-color', 'unset');
 			this.e_op.classList.remove('progress-filling');
 			this.e_op.classList.add('progress-filling');
@@ -203,7 +203,7 @@ export class LongOpsUI
 			'z-index:50000; position:absolute; top:50%; right:1rem; transform:translate(0%, -50%);'
 			+ 'outline:solid 2px orange; box-shadow:0px 0px 1rem black;'
 			+ 'display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025);'
-			+ 'min-width:2rem; max-height:80vh;' + getTransitionStyle('opacity'),
+			+ 'min-width:2rem; max-height:70vh;' + getTransitionStyle('opacity'),
 			_ =>
 			{
 				_.id = 'long_ops-output';
