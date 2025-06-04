@@ -566,7 +566,7 @@ div[disabled]
 
 	background-blend-mode: multiply;
 	background-size: 100% 100%;
-	background-image: linear-gradient(attr(data-offset-angle deg) in hsl, rgba(from hsl(from var(--theme-color) h s 30%) r g b / 0.35), rgb(0 0 0 / 0.35));
+	background-image: linear-gradient(attr(data-offset-angle deg) in hsl, rgba(from hsl(from var(--theme-color) h s 30%) r g b / 0.5), rgba(from hsl(from var(--theme-color) h s 10%) r g b / 0.5));
 
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
 

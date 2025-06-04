@@ -56,8 +56,13 @@ export class MegaTips
 
             pos.x += offset.x * target_rect.width * 0.5;
             pos.y += offset.y * target_rect.height * 0.5;
+
+            let keep_near_x = Math.min(1, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 240) * 0.002);
+            pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
+
             if (offset.x < 0) pos.x -= tip_rect.width;
             if (offset.y < 0) pos.y -= tip_rect.height;
+
 
             MegaTips.e_root.setAttribute('data-offset-x', -offset.x);
             MegaTips.e_root.setAttribute('data-offset-y', -offset.y);
@@ -115,8 +120,8 @@ export class MegaTips
     static Register(element, prep = _ => { })
     {
         let mti = new MegaTipInstance(element, prep);
-        element.addEventListener('mouseenter', e => { MegaTips.Push(mti); });
-        element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
+        element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
+        element.addEventListener('mouseleave', e => { MegaTips.UpdateMousePos(e); MegaTips.Pop(mti); });
         AddElementRemoveListener(element, _ => { MegaTips.Pop(mti); });
         return mti;
     }
@@ -125,9 +130,14 @@ export class MegaTips
     {
         tooltip = MegaTips.FormatHTML(tooltip);
         let mti = new MegaTipInstance(element, _ => { _.innerHTML = tooltip; });
-        element.addEventListener('mouseenter', e => { MegaTips.Push(mti); });
-        element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
-        AddElementRemoveListener(element, _ => { MegaTips.Pop(mti); });
+        element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
+        element.addEventListener('mouseleave', e => { MegaTips.UpdateMousePos(e); MegaTips.Pop(mti); });
+        AddElementRemoveListener(element, () => { MegaTips.Pop(mti); });
         return mti;
+    }
+
+    static UpdateMousePos(e)
+    {
+        MegaTips.mouse_pos = new DOMPoint(e.clientX, e.clientY);
     }
 }

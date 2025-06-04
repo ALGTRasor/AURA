@@ -152,6 +152,81 @@ export class ItemDeleteInstance extends EventTarget
 }
 
 
+class FileExplorerHeaderRow
+{
+    constructor(explorer = {})
+    {
+        this.explorer = explorer;
+    }
+
+    CreateElements()
+    {
+        this.e_root = CreatePagePanel(
+            this.explorer.e_items_root, false, false, 'display:flex; flex-direction:row; flex-wrap:nowrap; padding:var(--gap-025) var(--gap-1) var(--gap-025) var(--gap-1); border-radius:var(--gap-025);',
+            _ =>
+            {
+                _.classList.add('file-explorer-item');
+
+                if (this.explorer.allow_multiselect === true)
+                {
+                    this.e_checkbox = addElement(
+                        _, 'i', 'material-symbols',
+                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
+                        + 'align-content:center; text-align:center; font-size:1.25rem;',
+                        _ => { _.innerText = 'check_box_outline_blank'; }
+                    );
+                    this.e_checkbox.addEventListener(
+                        'click',
+                        e =>
+                        {
+                            if (e.ctrlKey === true) this.ToggleAllSelected();
+                            else this.TrySelectAll();
+                        }
+                    );
+                    MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>(((Hold CTRL to toggle selected)))');
+                }
+
+                this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = 'NAME'; });
+            }
+        );
+    }
+
+
+
+    ToggleAllSelected()
+    {
+        for (let item_id in this.explorer.current_items)
+        {
+            let item = this.explorer.current_items[item_id];
+            item.ToggleSelected();
+        }
+    }
+
+    TrySelectAll()
+    {
+        let any_changed = false;
+        for (let item_id in this.explorer.current_items)
+        {
+            let item = this.explorer.current_items[item_id];
+            let selection_index = item.GetSelectionIndex();
+            if (selection_index < 0)
+            {
+                item.TrySetSelected(true);
+                any_changed = true;
+            }
+        }
+        if (any_changed !== true)
+        {
+            for (let item_id in this.explorer.current_items)
+            {
+                let item = this.explorer.current_items[item_id];
+                this.explorer.DeselectItem(item);
+            }
+        }
+    }
+}
+
+
 class FileExplorerItem
 {
     constructor(explorer = {}, item_info = {})
@@ -202,11 +277,20 @@ class FileExplorerItem
         this.tooltips.push(tip);
     }
 
+    GetSelectionIndex() { return this.explorer.GetSelectionIndex(this); }
+
     ToggleSelected(e)
     {
         this.explorer.ToggleSelectedItem(this);
         this.RefreshSelected();
-        e.stopPropagation();
+        e?.stopPropagation();
+    }
+
+    TrySetSelected(selected = true)
+    {
+        if (selected) this.explorer.SelectItem(this);
+        else this.explorer.DeselectItem(this);
+        this.RefreshSelected();
     }
 
     CreateElements(e_parent)
@@ -228,11 +312,10 @@ class FileExplorerItem
                         + 'align-content:center; text-align:center; font-size:1.25rem;',
                         _ => _.innerText = 'check_box_outline_blank'
                     );
-                    MegaTips.RegisterSimple(this.e_checkbox, 'Add/Remove from Selection');
+                    MegaTips.RegisterSimple(this.e_checkbox, `(((Add / Remove))) ${this.item_info.name} (((from Selection)))`);
                 }
 
                 this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = this.item_info.name; });
-
             }
         );
 
@@ -502,7 +585,8 @@ class FileExplorerItem
 
     CreateFileElements()
     {
-        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap;';
+        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap; text-overflow:ellipsis; overflow:hidden; flex-shrink:0.0;'
+            + 'padding-left:0; padding-right:0;';
 
         this.e_root.classList.add('file-explorer-file');
         //this.e_root.title = this.item_info.name;
@@ -523,10 +607,9 @@ class FileExplorerItem
         );
 
         this.e_info_type = addElement(
-            this.e_root, 'div', 'file-explorer-item-info', 'width:4rem;',
+            this.e_root, 'div', 'file-explorer-item-info', 'min-width:4rem;',
             _ =>
             {
-
                 addElement(
                     _, 'span', null, 'padding:var(--gap-05); border-radius:var(--gap-05);',
                     _ =>
@@ -534,7 +617,6 @@ class FileExplorerItem
                         if (this.item_type_info)
                         {
                             _.innerText = this.item_type_info.label;
-                            _.title = this.item_type_info.description;
                             _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 25%)';
                             _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 35%)';
                         }
@@ -545,10 +627,13 @@ class FileExplorerItem
             }
         );
 
+        if (this.item_type_info) MegaTips.RegisterSimple(this.e_info_type, `(((${this.item_type_info.description})))`);
+        else MegaTips.RegisterSimple(this.e_info_type, '(((Information for this file type is not currently available.)))');
+
         this.CreateItemButtons(
             [
                 {
-                    label: 'More Options',
+                    label: '(((More Options)))',
                     icon: 'more_horiz',
                     click_action: e => this.ShowFileOptions()
                 }
@@ -737,7 +822,7 @@ class FileExplorerItem
         let buttons = [];
         buttons.push(
             {
-                label: 'More Options',
+                label: '(((More Options)))',
                 icon: 'more_horiz',
                 click_action: e =>
                 {
@@ -888,7 +973,9 @@ export class FileExplorer extends PanelContent
         this.DisableMultiselectActions();
 
         this.e_items_root = CreatePagePanel(this.e_root, true, false, null, _ => { _.classList.add('file-explorer-items-root'); });
-        this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { _.tabIndex = '0'; });
+        this.header_row = new FileExplorerHeaderRow(this);
+        this.header_row.CreateElements();
+        this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { });
 
         if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 130);
     }
@@ -1042,6 +1129,14 @@ export class FileExplorer extends PanelContent
 
     RefreshColumnVisibility() { if (this.current_items && this.current_items.length > 0) for (let id in this.current_items) this.current_items[id].RefreshElements(); }
 
+
+    GetSelectionIndex(item)
+    {
+        if (item && 'item_info' in item && 'id' in item.item_info && this.selected_items.length > 0)
+            return this.selected_items.findIndex(_ => _.id == item.item_info.id);
+        return -1;
+    }
+
     DeselectItem(item)
     {
         if (!item) return;
@@ -1050,6 +1145,19 @@ export class FileExplorer extends PanelContent
         {
             item.RefreshSelected(-1);
             this.selected_items.splice(selection_id, 1);
+        }
+    }
+
+    SelectItem(item)
+    {
+        if (!item) return;
+
+        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
+        if (selection_id < 0)
+        {
+            this.selected_items.push(item.item_info);
+            item.RefreshSelected(undefined);
+            this.AfterSelectionChange();
         }
     }
 

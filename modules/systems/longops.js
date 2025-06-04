@@ -182,7 +182,7 @@ export class LongOpsEntryUI
 			this.e_op.classList.add('progress-filling');
 
 			this.e_op.style.opacity = '100%';
-			this.megatip.prep = _ => { _.innerHTML = 'Pending'; };
+			this.megatip.prep = _ => { _.innerHTML = 'In Progress'; };
 
 			this.e_icon_status.innerText = 'pending';
 			this.e_icon_status.style.color = '#fa0f';
