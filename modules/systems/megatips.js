@@ -18,6 +18,7 @@ export class MegaTips
     static active = [];
     static dirty_timeout = new RunningTimeout(MegaTips.SwitchContent, 0.1, 50);
     static switching = false;
+    static fading_out = false;
     static fading_in = false;
     static showing = false;
 
@@ -32,50 +33,64 @@ export class MegaTips
         MegaTips.switching = true;
         if (MegaTips.showing === true)
         {
+            MegaTips.fading_out = true;
             await FadeElement(MegaTips.e_root, 100, 0, 0.125);
             MegaTips.showing = false;
+            MegaTips.fading_out = false;
         }
 
         let tip = MegaTips.active[MegaTips.active.length - 1];
+        while (tip && !tip.element)
+        {
+            MegaTips.active.splice(MegaTips.active.length - 1, 1);
+            if (MegaTips.active.length > 0) tip = MegaTips.active[MegaTips.active.length - 1];
+            else tip = undefined;
+        }
         if (tip && tip.prep)
         {
-            let body_rect = document.body.getBoundingClientRect();
-            let target_rect = tip.element.getBoundingClientRect();
-            tip.prep(MegaTips.e_root);
+            MegaTips.RecalculatePosition(tip);
 
-            let tip_rect = MegaTips.e_root.getBoundingClientRect();
-            let target_center = new DOMPoint(target_rect.x + target_rect.width * 0.5, target_rect.y + target_rect.height * 0.5);
-
-            let offset = new DOMPoint(0, 0);
-            let pos = new DOMPoint(target_center.x, target_center.y);
-
-            if (target_center.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
-            else { offset.x = -1.0; }
-            if (target_center.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
-            else { offset.y = -1.0; }
-
-            pos.x += offset.x * target_rect.width * 0.5;
-            pos.y += offset.y * target_rect.height * 0.5;
-
-            let keep_near_x = Math.min(1, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 240) * 0.002);
-            pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
-
-            if (offset.x < 0) pos.x -= tip_rect.width;
-            if (offset.y < 0) pos.y -= tip_rect.height;
-
-
-            MegaTips.e_root.setAttribute('data-offset-x', -offset.x);
-            MegaTips.e_root.setAttribute('data-offset-y', -offset.y);
-            let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
-            MegaTips.e_root.setAttribute('data-offset-angle', offset_angle);
-
-            MegaTips.SetPosition(pos.x - body_rect.x, pos.y - body_rect.y);
             MegaTips.fading_in = true;
             await FadeElement(MegaTips.e_root, 0, 100, 0.125);
             MegaTips.fading_in = this.fading_in;
             MegaTips.showing = true;
         }
         MegaTips.switching = false;
+    }
+
+    static RecalculatePosition(tip = MegaTipInstance.Nothing)
+    {
+        let body_rect = document.body.getBoundingClientRect();
+        let target_rect = tip.element.getBoundingClientRect();
+        tip.prep(MegaTips.e_root);
+
+        let tip_rect = MegaTips.e_root.getBoundingClientRect();
+        let target_center = new DOMPoint(target_rect.x + target_rect.width * 0.5, target_rect.y + target_rect.height * 0.5);
+
+        let offset = new DOMPoint(0, 0);
+        let pos = new DOMPoint(target_center.x, target_center.y);
+
+        if (MegaTips.mouse_pos.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
+        else { offset.x = -1.0; }
+        if (MegaTips.mouse_pos.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
+        else { offset.y = -1.0; }
+
+        pos.x += offset.x * target_rect.width * 0.5;
+        pos.y += offset.y * target_rect.height * 0.5;
+
+        let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
+        pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
+
+        if (offset.x < 0) pos.x -= tip_rect.width;
+        if (offset.y < 0) pos.y -= tip_rect.height;
+
+        let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
+
+        MegaTips.e_root.style.setProperty('--anchor-x', -offset.x);
+        MegaTips.e_root.style.setProperty('--anchor-y', -offset.y);
+        MegaTips.e_root.style.setProperty('--anchor-angle', offset_angle + 'deg');
+
+        MegaTips.SetPosition(pos.x - body_rect.x, pos.y - body_rect.y);
     }
 
     static Push(tip = MegaTipInstance.Nothing)

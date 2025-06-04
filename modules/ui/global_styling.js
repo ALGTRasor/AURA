@@ -120,7 +120,9 @@ GlobalStyling.themeColor = GlobalStyling.RegisterAspect(
     },
     _ =>
     {
-        GlobalStyling.SetRootStyleProperty('--theme-color', `hsl( ${Math.round(_.hue * 360.0)}deg, ${Math.round(_.saturation * 100.0)}%, 100%)`);
+        let h = Math.round(_.hue * 360);
+        let s = Math.round(_.saturation * 100);
+        GlobalStyling.SetRootStyleProperty('--theme-color', `hsl(${h}deg ${s}% 100%)`);
         GlobalStyling.TriggerChangeEvents(false);
     },
 );

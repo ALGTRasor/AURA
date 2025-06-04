@@ -87,14 +87,14 @@ export class PageFiles extends PageDescriptor
 	{
 		if (instance.state_data.docked === true)
 		{
-			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
+			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '86rem';
 			else instance.e_frame.style.maxWidth = '32rem';
 		}
 		else
 		{
 			instance.e_frame.style.maxWidth = 'unset';
 		}
-		window.setTimeout(() => { instance.root_selector.ApplySelection(); instance.explorer.RefreshElements(); }, 333);
+		window.setTimeout(() => { instance.root_selector.ApplySelection(); instance.explorer.RefreshElements(instance.state_data.expanding); }, 50);
 	}
 }
 

@@ -70,11 +70,14 @@ class SettingSlider extends SettingControl
 		this.e_fill.className = 'setting-slider-fill';
 		this.e_slider.appendChild(this.e_fill);
 
+		this.megatip = MegaTips.Register(this.e_slider, _ => { });
+
 		this.last_value_update_ts = 0;
 		this.UpdateStyling();
 
 		this.parent.appendChild(this.e_slider);
 		this.e_slider.addEventListener('mousedown', e => this.DragStart(e));
+
 	}
 
 	UpdateStyling()
@@ -86,7 +89,8 @@ class SettingSlider extends SettingControl
 		this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
 		this.e_icon.style.textShadow = '0px 0px 6px rgba(255,255,255,' + this.value + ')';
 
-		if (this.tooltip) this.e_slider.title = this.tooltip();
+		if (this.tooltip) this.megatip.prep = _ => { _.innerHTML = MegaTips.FormatHTML(`(((SETTING))) ${this.label.toUpperCase()}<br>(((INFO))) ${this.tooltip()}<br>(((VALUE))) ${Math.round(this.value * 100)}%`); };
+		//if (this.tooltip) this.e_slider.title = this.tooltip();
 	}
 
 	HandleMouse(e, force = false) 
@@ -171,12 +175,20 @@ class SettingToggle extends SettingControl
 			}
 		);
 
+		this.megatip = MegaTips.Register(this.e_root, _ => { });
+
 		this.UpdateStyle();
 	}
 
 	UpdateStyle()
 	{
-		if (this.tooltip) this.e_root.title = this.tooltip();
+		if (this.tooltip)
+			this.megatip.prep = _ =>
+			{
+				_.innerHTML = MegaTips.FormatHTML(`(((SETTING))) ${this.label.toUpperCase()}<br>(((INFO))) ${this.tooltip()}<br>(((VALUE))) ${this.toggled ? 'ENABLED' : 'DISABLED'}`);
+			};
+		//if (this.tooltip) this.e_root.title = this.tooltip();
+
 		if (this.toggled) this.e_root.classList.add('setting-root-on');
 		else this.e_root.classList.remove('setting-root-on');
 	}

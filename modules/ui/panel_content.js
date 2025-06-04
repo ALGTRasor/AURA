@@ -11,42 +11,42 @@ export class PanelContent
 		this.e_parent = e_parent;
 	}
 
-	RecreateElements()
+	RecreateElements(data)
 	{
-		this.RemoveElements();
-		this.CreateElements(this.e_parent);
+		this.RemoveElements(data);
+		this.CreateElements(data);
 	}
 
-	CreateElements()
+	CreateElements(data)
 	{
 		if (this.created === true) return;
 
 		try
 		{
-			this.OnCreateElements();
+			this.OnCreateElements(data);
 			this.created = true;
 		}
 		catch (e) { this.OnError(e); }
 	}
 
-	RefreshElements()
+	RefreshElements(data)
 	{
 		this.CreateElements();
 		if (this.created === false) return;
-		try { this.OnRefreshElements(); } catch (e) { this.OnError(e); }
+		try { this.OnRefreshElements(data); } catch (e) { this.OnError(e); }
 	}
 
-	RemoveElements()
+	RemoveElements(data)
 	{
 		if (this.created === false) return;
-		try { this.OnRemoveElements(); } catch (e) { this.OnError(e); }
+		try { this.OnRemoveElements(data); } catch (e) { this.OnError(e); }
 		this.created = false;
 	}
 
 	// override functions
-	OnCreateElements() { throw new Error('Panel Content Create Not Implemented'); }
-	OnRefreshElements() { throw new Error('Panel Content Refresh Not Implemented'); }
-	OnRemoveElements() { throw new Error('Panel Content Remove Not Implemented'); }
+	OnCreateElements(data) { throw new Error('Panel Content Create Not Implemented'); }
+	OnRefreshElements(data) { throw new Error('Panel Content Refresh Not Implemented'); }
+	OnRemoveElements(data) { throw new Error('Panel Content Remove Not Implemented'); }
 
 	OnError(error = new Error('UNDEFINED ERROR')) { console.error(error.stack); }
 }

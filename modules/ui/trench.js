@@ -29,9 +29,12 @@ export class Trench
 		return e;
 	}
 
-	AddLabel(text = '')
+	AddLabel(text = '', tooltip = '')
 	{
-		return addElement(this.e_root, 'div', '', 'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', text);
+		let e = addElement(this.e_root, 'div', '', 'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';');
+		e.innerHTML = text;
+		if (tooltip) MegaTips.RegisterSimple(e, tooltip);
+		return e;
 	}
 
 	AddFlexibleSpace(minWidth = '0px')

@@ -3,6 +3,7 @@ import { NotificationLog } from "../notificationlog.js";
 import { ActionBar } from "../actionbar.js";
 import { Trench } from "../ui/trench.js";
 import { MegaTips } from "./megatips.js";
+import { getDurationString } from "../utils/stringutils.js";
 
 const lskey_history = 'longops-history';
 
@@ -166,8 +167,14 @@ export class LongOpsEntryUI
 
 			this.megatip.prep = _ =>
 			{
-				_.innerHTML = this.op.error ? `${this.op.error} after ${Math.round(this.op.duration)}ms` : `${(this.op.verb ?? 'Completed')} after ${Math.round(this.op.duration)}ms`;
-				_.innerHTML += MegaTips.FormatHTML('<br>(((Click to Dismiss)))');
+				_.innerHTML = MegaTips.FormatHTML('(((OPERATION))) ' + (this.op.error ?? (this.op.verb ?? 'UNKNOWN')));
+				if ('ts_start' in this.op) _.innerHTML += MegaTips.FormatHTML('<br>(((STARTED))) ' + new Date(this.op.ts_start).toLocaleString());
+				if ('ts_stop' in this.op) _.innerHTML += MegaTips.FormatHTML('<br>(((ENDED))) ' + new Date(this.op.ts_stop).toLocaleString());
+				if ('duration' in this.op)
+				{
+					_.innerHTML += MegaTips.FormatHTML('<br>(((DURATION))) ' + getDurationString(this.op.duration));
+					_.innerHTML += MegaTips.FormatHTML('<br>[[[Click to Dismiss]]]');
+				}
 			};
 
 			this.e_icon_status.innerText = op_error ? 'error' : 'task_alt';
@@ -182,7 +189,11 @@ export class LongOpsEntryUI
 			this.e_op.classList.add('progress-filling');
 
 			this.e_op.style.opacity = '100%';
-			this.megatip.prep = _ => { _.innerHTML = 'In Progress'; };
+			this.megatip.prep = _ =>
+			{
+				_.innerHTML = MegaTips.FormatHTML('(((OPERATION))) ' + (this.op.error ?? (this.op.verb ?? 'UNKNOWN')));
+				_.innerHTML += MegaTips.FormatHTML('<br>[[[IN PROGRESS]]]');
+			};
 
 			this.e_icon_status.innerText = 'pending';
 			this.e_icon_status.style.color = '#fa0f';
@@ -217,7 +228,7 @@ export class LongOpsUI
 				_.id = 'long_ops-output';
 
 				let trench = new Trench(_, true, '0.8rem');
-				trench.AddLabel('OPERATIONS');
+				trench.AddLabel('OPERATIONS', 'Here you can see operations that are expected to take some time, and their progress or status.');
 				let e_btn_close = trench.AddIconButton('close', e => { LongOps.ToggleVisibility(); }, 'Hide the Operations panel');
 				e_btn_close.style.setProperty('--theme-color', '#f00');
 

@@ -171,7 +171,7 @@ class FileExplorerHeaderRow
                 {
                     this.e_checkbox = addElement(
                         _, 'i', 'material-symbols',
-                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
+                        'aspect-ratio:1.0; max-width:1rem; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
                         + 'align-content:center; text-align:center; font-size:1.25rem;',
                         _ => { _.innerText = 'check_box_outline_blank'; }
                     );
@@ -308,7 +308,7 @@ class FileExplorerItem
                 {
                     this.e_checkbox = addElement(
                         _, 'i', 'material-symbols',
-                        'aspect-ratio:1.0; width:auto; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
+                        'aspect-ratio:1.0; max-width:1rem; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
                         + 'align-content:center; text-align:center; font-size:1.25rem;',
                         _ => _.innerText = 'check_box_outline_blank'
                     );
@@ -562,12 +562,11 @@ class FileExplorerItem
     RefreshElements()
     {
         let root_rect = this.e_root.getBoundingClientRect();
-        let show_infos = root_rect.width > this.explorer.info_width_minimum;
 
         const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.padding = '0px'; _.style.opacity = '0%'; } };
         const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.padding = '0px var(--gap-1) 0px var(--gap-1)'; _.style.opacity = '60%'; } };
 
-        if (show_infos)
+        if (this.explorer.expanded === true)
         {
             show_col(this.e_info_editor);
             show_col(this.e_info_timestamp);
@@ -585,7 +584,7 @@ class FileExplorerItem
 
     CreateFileElements()
     {
-        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-wrap-mode:nowrap; text-overflow:ellipsis; overflow:hidden; flex-shrink:0.0;'
+        const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-overflow:ellipsis; overflow:hidden; flex-shrink:0.0;'
             + 'padding-left:0; padding-right:0;';
 
         this.e_root.classList.add('file-explorer-file');
@@ -964,9 +963,9 @@ export class FileExplorer extends PanelContent
         this.e_btn_uploadfile = this.trench_actions.AddIconButton('upload', _ => { this.RequestUploadFile(); }, 'Upload one or more files here.', '#0cf');
 
         this.trench_actions.AddFlexibleSpace();
-        this.e_btn_selection_move = this.trench_actions.AddIconButton('drive_file_move', _ => { this.RequestMoveSelected(); }, 'Move the selected file(s) to another location.', '#fd0');
-        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { this.RequestDownloadSelected(); }, 'Download the selected file(s).', '#0fc');
-        this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { this.RequestDeleteSelected(); }, 'Delete the selected file(s).', '#f44');
+        this.e_btn_selection_move = this.trench_actions.AddIconButton('drive_file_move', _ => { this.RequestMoveSelected(); }, 'Move the selected item(s) to another location.', '#fd0');
+        this.e_btn_selection_download = this.trench_actions.AddIconButton('download', _ => { this.RequestDownloadSelected(); }, 'Download the selected item(s).', '#0fc');
+        this.e_btn_selection_delete = this.trench_actions.AddIconButton('delete', _ => { this.RequestDeleteSelected(); }, 'Delete the selected item(s).', '#f44');
 
         this.e_btn_selection_move.setAttribute('coming-soon', '');
         this.e_btn_selection_download.setAttribute('coming-soon', '');
@@ -980,8 +979,9 @@ export class FileExplorer extends PanelContent
         if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 130);
     }
 
-    OnRefreshElements()
+    OnRefreshElements(expanded = false)
     {
+        this.expanded = expanded;
         this.RefreshColumnVisibility();
         this.RefreshActionElements();
     }
@@ -1127,7 +1127,11 @@ export class FileExplorer extends PanelContent
         }
     }
 
-    RefreshColumnVisibility() { if (this.current_items && this.current_items.length > 0) for (let id in this.current_items) this.current_items[id].RefreshElements(); }
+    RefreshColumnVisibility()
+    {
+        if (this.current_items && this.current_items.length > 0)
+            for (let id in this.current_items) this.current_items[id].RefreshElements();
+    }
 
 
     GetSelectionIndex(item)
@@ -1145,6 +1149,7 @@ export class FileExplorer extends PanelContent
         {
             item.RefreshSelected(-1);
             this.selected_items.splice(selection_id, 1);
+            this.AfterSelectionChange();
         }
     }
 

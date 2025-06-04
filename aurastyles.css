@@ -512,6 +512,19 @@ div[disabled]
 
 
 
+@property --anchor-x
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
+@property --anchor-y
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
 
 @keyframes megatip-flash
 {
@@ -566,7 +579,7 @@ div[disabled]
 
 	background-blend-mode: multiply;
 	background-size: 100% 100%;
-	background-image: linear-gradient(attr(data-offset-angle deg) in hsl, rgba(from hsl(from var(--theme-color) h s 30%) r g b / 0.5), rgba(from hsl(from var(--theme-color) h s 10%) r g b / 0.5));
+	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s 35%) r g b / 0.5), rgba(from hsl(from var(--theme-color) h s 10%) r g b / 0.5));
 
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
 
@@ -584,15 +597,15 @@ div[disabled]
 	position: absolute;
 	box-sizing: border-box;
 
-	top: calc(50% + 50% * attr(data-offset-y type(<number>), 0));
-	left: calc(50% + 50% * attr(data-offset-x type(<number>), 0));
+	top: calc(50% + 50% * var(--anchor-y));
+	left: calc(50% + 50% * var(--anchor-x));
 
 	width: 0.75rem;
 	height: 0.75rem;
 	transform-origin: 50% 50%;
 
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
-	border-radius: var(--gap-025);
+	border-radius: 2px;
 
 	animation: 1s linear megatip-flash infinite;
 
@@ -602,7 +615,7 @@ div[disabled]
 
 .megatip-field
 {
-	display: inline-block;
+	display: inline-flex;
 	color: hsl(from var(--theme-color) h s 50%);
 	min-width: 4rem;
 	text-align: right;
