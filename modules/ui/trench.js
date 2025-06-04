@@ -22,7 +22,7 @@ export class Trench
 				_.classList.add('panel-button');
 				if (on_click) _.addEventListener('click', on_click);
 				if (color && color.length > 0) _.style.setProperty('--theme-color', color);
-				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', icon);
+				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', _ => { _.innerText = icon; });
 			}
 		);
 		if (tooltip) MegaTips.RegisterSimple(e, tooltip);

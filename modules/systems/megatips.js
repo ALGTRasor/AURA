@@ -70,9 +70,9 @@ export class MegaTips
         let offset = new DOMPoint(0, 0);
         let pos = new DOMPoint(target_center.x, target_center.y);
 
-        if (MegaTips.mouse_pos.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
+        if (target_center.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
         else { offset.x = -1.0; }
-        if (MegaTips.mouse_pos.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
+        if (target_center.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
         else { offset.y = -1.0; }
 
         pos.x += offset.x * target_rect.width * 0.5;
@@ -127,6 +127,8 @@ export class MegaTips
         if (typeof tooltip !== 'string') return tooltip;
         tooltip = tooltip.replaceAll('(((', '<span class="megatip-field">');
         tooltip = tooltip.replaceAll(')))', '</span>');
+        tooltip = tooltip.replaceAll('{{{', '<span class="megatip-value">');
+        tooltip = tooltip.replaceAll('}}}', '</span>');
         tooltip = tooltip.replaceAll('[[[', '<span class="megatip-warning">');
         tooltip = tooltip.replaceAll(']]]', '</span>');
         return tooltip;

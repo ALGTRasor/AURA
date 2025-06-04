@@ -2,6 +2,7 @@ import { AnimJob } from "./AnimJob.js";
 import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
+import { MegaTips } from "./systems/megatips.js";
 import { UserAccountInfo, UserAccountManager } from "./useraccount.js";
 
 export class Autosave
@@ -9,6 +10,7 @@ export class Autosave
 	static invokesoon_delay = 1000;
 
 	static e_lastsaved = document.getElementById('info-bar-lastsaved');
+	static e_megatip = undefined;
 	static source = new EventSource();
 	static delay_seconds = 45.0;
 
@@ -33,11 +35,15 @@ export class Autosave
 		NotificationLog.Log('Saved', '#0f0');
 
 		Autosave.StartPulseAnimation();
+
 		Autosave.e_lastsaved.style.aspectRatio = '1.0';
 		Autosave.e_lastsaved.style.height = '100%';
 		Autosave.e_lastsaved.style.width = 'auto';
 		Autosave.e_lastsaved.style.setProperty('--theme-color', '#0f0');
-		Autosave.e_lastsaved.title = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString();
+
+		if (!Autosave.e_megatip) Autosave.e_megatip = MegaTips.Register(Autosave.e_lastsaved, _ => { });
+		Autosave.e_megatip.prep = _ => { _.innerHTML = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString(); };
+		//Autosave.e_lastsaved.title = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString();
 		Autosave.e_lastsaved.innerHTML = '';
 		let e_title_icon = document.createElement('i');
 		e_title_icon.className = 'material-symbols icon';

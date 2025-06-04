@@ -226,11 +226,11 @@ export class AppCore extends EventTarget
 
 	static PopulateActionBarButtons()
 	{
-		ActionBar.AddMenuButton(
+		let e_btn_settings = ActionBar.AddMenuButton(
 			'settings', 'settings',
-			_ => PageManager.OpenPageByTitle('settings'),
-			_ => { _.title = 'Configure your local settings and view useful information like available hotkeys or app permissions.'; }
+			_ => PageManager.OpenPageByTitle('settings')
 		);
+		MegaTips.RegisterSimple(e_btn_settings, 'Configure your local settings and view useful information like available hotkeys or app permissions.');
 
 		if (UserAccountInfo.HasAppAccess() === true)
 		{
@@ -258,7 +258,8 @@ export class AppCore extends EventTarget
 				);
 			}
 
-			ActionBar.AddMenuButton('home', 'menu', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
+			let e_btn_home = ActionBar.AddMenuButton('home', 'other_houses', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
+			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu.<br>[[[Hold {{{SHIFT}}} to keep all pages open and toggle the navigation menu instead.]]]');
 		}
 	}
 

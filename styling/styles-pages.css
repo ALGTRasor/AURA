@@ -737,6 +737,7 @@
 	font-weight: bold;
 
 	min-height: 0.5rem;
+	flex-basis: 100%;
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 
@@ -1237,8 +1238,8 @@
 	letter-spacing: 2px;
 
 	transition-property: opacity, padding-right;
-	transition-duration: var(--trans-dur-off-fast);
-	transition-timing-function: ease;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
 }
 
 .file-explorer-item:hover .file-explorer-item-info

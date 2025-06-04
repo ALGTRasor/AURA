@@ -5,6 +5,7 @@ import { PageManager } from "../../pagemanager.js";
 import { FillBar } from "../../ui/fillbar.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
+import { Trench } from "../../ui/trench.js";
 import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
@@ -154,15 +155,21 @@ class PanelUserAllocationGroup extends PanelContent
 						e_fill_total.style.flexShrink = '0.0';
 
 
+						let trench = new Trench(_, true, '1rem');
+						trench.AddIconButton('add', e => { }, 'Add an allocation to this allocation group', '#5f9');
+						trench.AddIconButton('monitoring', e => { }, 'View Reports for this allocation group', '#2bf');
+						trench.AddIconButton('archive', e => { }, 'Send this allocation group to the archive', '#fb2');
+
+						/*
 						addElement(
-							_, 'div', null, 'display:flex;flex-direction:row;justify-content:flex-end;gap:var(--gap-05);',
+							_, 'div', null, 'display:flex; flex-direction:row; justify-content:flex-end; gap:var(--gap-05);',
 							_ =>
 							{
 								CreatePagePanel(
-									_, true, false, 'display:flex;flex-direction:row;flex-grow:0.0;flex-shrink:0.0;',
+									_, true, false, 'display:flex; flex-direction:row; flex-grow:0.0; flex-shrink:0.0;',
 									_ =>
 									{
-										const style_action_button = 'align-content:center;text-align:center;flex-grow:0.0;padding:0.25rem;opacity:80%;cursor:pointer;';
+										const style_action_button = 'align-content:center; text-align:center; flex-grow:0.0; padding:0.25rem; opacity:80%; cursor:pointer;';
 										const style_action_icon = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.25rem;';
 
 										CreatePagePanel(
@@ -216,6 +223,7 @@ class PanelUserAllocationGroup extends PanelContent
 								);
 							}
 						);
+						*/
 					}
 				);
 

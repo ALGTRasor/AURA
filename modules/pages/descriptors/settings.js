@@ -470,13 +470,13 @@ export class PageSettings extends PageDescriptor
 				addElement(x, 'div', '', title_style, _ => { _.innerText = 'HOTKEYS'; });
 
 				const about_style = 'text-align:center;font-size:0.7rem;align-content:center;flex-basis:100%;flex-grow:1.0;';
-				const addKey = (key = '', effect = '', tooltip = '', allow_emulate = true) =>
+				const addKey = (key = '', label = '', effect = '', tooltip = '', allow_emulate = true) =>
 				{
 					let e_hotkey = CreatePagePanel(
 						x, false, false, about_style,
 						_ =>
 						{
-							_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + key.toUpperCase() + '</span>'
+							_.innerHTML = '<span style="position:absolute;display:block;inset:0;right:80%;align-content:center;background:#0003;">' + label.toUpperCase() + '</span>'
 								+ '<span style="position:absolute;display:block;inset:0;left:20%;align-content:center;text-align:left;padding-left:0.5rem;">' + effect + '</span>';
 							if (allow_emulate)
 							{
@@ -485,7 +485,8 @@ export class PageSettings extends PageDescriptor
 							}
 						}
 					);
-					if (allow_emulate) MegaTips.RegisterSimple(e_hotkey, tooltip);
+					if (allow_emulate) tooltip += '<br>[[[Select to trigger this hotkey now]]]';
+					MegaTips.RegisterSimple(e_hotkey, tooltip);
 				}
 
 				for (let hotkey_id in Hotkeys.descriptors)
@@ -494,14 +495,15 @@ export class PageSettings extends PageDescriptor
 					if ('permission' in hotkey && !UserAccountInfo.HasPermission(hotkey.permission)) continue;
 					if ('dev_only' in hotkey && hotkey.dev_only !== DevMode.active) continue;
 					let label = 'key_description' in hotkey ? hotkey.key_description : hotkey.key;
-					addKey(label, hotkey.action_description, 'Select to trigger this hotkey now', hotkey.requires_target !== true);
+					let tooltip = 'action_description' in hotkey ? hotkey.action_description : hotkey.key;
+					addKey(hotkey.key, label, hotkey.action_description, `(((ACTION))) ${tooltip}<br>(((KEY))) ${label.toUpperCase()}`, hotkey.requires_target !== true);
 				}
 			}
 		);
 
 		// permissions section
 		CreatePagePanel(
-			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
+			instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;padding-left:1rem;padding-right:1rem;',
 			x =>
 			{
 				x.classList.remove('scroll-y');

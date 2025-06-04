@@ -1,5 +1,5 @@
 import { Modules } from "../modules.js";
-import { addElement, CreatePagePanel, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, getTransitionStyle, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
 import { DOMHighlight } from "../ui/domhighlight.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
 import { FileTypes } from "../utils/filetypes.js";
@@ -139,7 +139,7 @@ export class ItemDeleteInstance extends EventTarget
         {
             case undefined:
             case 204:
-                NotificationLog.Log(`Deleted '${this.item_info.name}'`, '#0f0');
+                //NotificationLog.Log(`Deleted '${this.item_info.name}'`, '#0f0');
                 LongOps.Stop(this.op);
                 break;
             case 403: if ('folder' in this.item_info) LongOps.Stop(this.op, '403 Forbidden: Folder must be empty'); else LongOps.Stop(this.op, '403 Forbidden'); break;
@@ -180,7 +180,7 @@ class FileExplorerHeaderRow
                         e =>
                         {
                             if (e.ctrlKey === true) this.ToggleAllSelected();
-                            else this.TrySelectAll();
+                            else this.TrySelectAll(e.shiftKey === true ? 'file' : undefined);
                         }
                     );
                     MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>(((Hold CTRL to toggle selected)))');
@@ -202,12 +202,15 @@ class FileExplorerHeaderRow
         }
     }
 
-    TrySelectAll()
+    TrySelectAll(target_type = '')
     {
         let any_changed = false;
+
         for (let item_id in this.explorer.current_items)
         {
             let item = this.explorer.current_items[item_id];
+            if (typeof target_type === 'string' && target_type.length > 0 && !(target_type in item.item_info)) continue;
+
             let selection_index = item.GetSelectionIndex();
             if (selection_index < 0)
             {
@@ -215,6 +218,7 @@ class FileExplorerHeaderRow
                 any_changed = true;
             }
         }
+
         if (any_changed !== true)
         {
             for (let item_id in this.explorer.current_items)
@@ -383,7 +387,7 @@ class FileExplorerItem
             {
                 if (_.status == 204) 
                 {
-                    NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
+                    //NotificationLog.Log(`Deleted ${this.item_type}: ${this.item_info.name}`, '#0f0');
                     LongOps.Stop(longop);
                 }
                 else 
@@ -410,7 +414,7 @@ class FileExplorerItem
                 let any_changed = new_name !== this.item_info.name;
                 let type_prev = FileTypes.GetInfo(this.item_info.name);
                 let type_next = FileTypes.GetInfo(new_name);
-                let extension_changed = type_next?.label !== type_prev?.label;
+                let extension_changed = (type_next?.label ?? 'NULL') !== (type_prev?.label ?? 'NULL');
 
                 const execute = () =>
                 {
@@ -442,7 +446,7 @@ class FileExplorerItem
                     OverlayManager.ShowConfirmDialog(
                         _ => { execute(); OverlayManager.DismissOne(); },
                         _ => { OverlayManager.DismissOne(); },
-                        `Change File Extension: ${type_prev.label} -> ${type_next.label}`
+                        MegaTips.FormatHTML(`{{{Change File Extension:}}} ${type_prev?.label} {{{to}}} ${type_next?.label}`)
                     )
                 }
                 else
@@ -561,8 +565,7 @@ class FileExplorerItem
 
     RefreshElements()
     {
-        let root_rect = this.e_root.getBoundingClientRect();
-
+        //let root_rect = this.e_root.getBoundingClientRect();
         const hide_col = _ => { if (_) { _.style.width = '0px'; _.style.padding = '0px'; _.style.opacity = '0%'; } };
         const show_col = _ => { if (_) { _.style.width = '5rem'; _.style.padding = '0px var(--gap-1) 0px var(--gap-1)'; _.style.opacity = '60%'; } };
 
@@ -585,12 +588,12 @@ class FileExplorerItem
     CreateFileElements()
     {
         const style_info_label = 'align-content:center; text-align:right; font-size:0.6rem; opacity:60%; pointer-events:none; text-overflow:ellipsis; overflow:hidden; flex-shrink:0.0;'
-            + 'padding-left:0; padding-right:0;';
+            + 'padding-left:0; padding-right:0;' + getTransitionStyle('opacity, width, padding', '--trans-dur-off-slow', 'ease');
 
         this.e_root.classList.add('file-explorer-file');
         //this.e_root.title = this.item_info.name;
 
-        this.e_info_editor = addElement(this.e_root, 'div', '', style_info_label, this.item_info.lastModifiedBy.user.displayName);
+        this.e_info_editor = addElement(this.e_root, 'div', '', style_info_label + 'flex-grow:1.0;', this.item_info.lastModifiedBy.user.displayName);
         this.e_info_timestamp = addElement(this.e_root, 'div', '', style_info_label, new Date(this.item_info.lastModifiedDateTime).toLocaleDateString());
 
         let size_info = get_file_size_group(this.item_info.size);
@@ -616,8 +619,8 @@ class FileExplorerItem
                         if (this.item_type_info)
                         {
                             _.innerText = this.item_type_info.label;
-                            _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 25%)';
-                            _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h 50% 35%)';
+                            _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) 25%)';
+                            _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) 35%)';
                         }
                         else
                             _.innerText = 'file';
@@ -1213,6 +1216,7 @@ export class FileExplorer extends PanelContent
                     {
                         this.Navigate(this.relative_path_current);
                         this.ClearSelected();
+                        NotificationLog.Log(`Done deleting ${op_instances.length} items`, '#0f0');
                     }
                 );
             },

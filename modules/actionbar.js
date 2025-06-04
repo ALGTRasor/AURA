@@ -56,7 +56,8 @@ export class ActionBar
 			}
 		);
 
-		MegaTips.RegisterSimple(icon_info.e_root, tooltip);
+		if (typeof tooltip === 'string') MegaTips.RegisterSimple(icon_info.e_root, tooltip);
+		else if (typeof tooltip === 'function') MegaTips.Register(icon_info.e_root, tooltip);
 		return icon_info;
 	}
 
@@ -66,8 +67,10 @@ export class ActionBar
 			ActionBar.e_button_root, 'div', 'action-bar-button', null,
 			_ =>
 			{
-				_.innerHTML = label.toUpperCase();
-				if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
+				addElement(_, 'span', '', 'position:absolute; inset:0; align-content:center; text-align:center;', _ => { _.innerHTML = label.toUpperCase(); });
+				if (icon && icon.length && icon.length > 0) addElement(_, 'i', 'material-icons icon', '', _ => { _.innerText = icon; });
+				//_.innerHTML = label.toUpperCase();
+				//if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
 				//_.title = label.toUpperCase();
 
 				if (on_click) _.addEventListener('click', on_click);
@@ -95,8 +98,7 @@ export class ActionBar
 					() => { },
 					'Are you sure you want to log out?<br><br>'
 					+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function. You will be prompted to select another account.</span>`,
-					'[Y]es, Change Account',
-					'[N]o'
+					'[Y]es, Change Account', '[N]o'
 				),
 				_ =>
 				{
@@ -104,7 +106,7 @@ export class ActionBar
 				}
 			);
 
-			const login_tip = `Disconnect your tenant account from ${AppInfo.name}.(((Logging out will bring you back to tenant account selection.)))(((A valid login is required to use ${AppInfo.name}.)))`;
+			const login_tip = `Disconnect your tenant account from ${AppInfo.name}<br>[[[Logging out will bring you back to tenant account selection.]]](((A valid login is required to use ${AppInfo.name}.)))`;
 			MegaTips.RegisterSimple(ActionBar.e_button_login, login_tip);
 		}
 		else

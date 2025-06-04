@@ -38,12 +38,15 @@ export class HotkeyDescriptor
             DebugLog.Log(' ! hotkey skipped: hotkey invalid');
             return;
         }
-        if (!event.key || event.key.length < 1)
+        if (event)
         {
-            DebugLog.Log(' ! hotkey skipped: event invalid');
-            return;
+            if (!event.key || event.key.length < 1)
+            {
+                DebugLog.Log(' ! hotkey skipped: event invalid');
+                return;
+            }
+            if (event.key !== this.key) return;
         }
-        if (event.key !== this.key) return;
 
         if (!this.keyAction)
         {
@@ -65,8 +68,11 @@ export class HotkeyDescriptor
 
         this.keyAction(modifiers, event);
 
-        event.stopPropagation();
-        event.preventDefault();
+        if (event)
+        {
+            if (event.stopPropagation) event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+        }
     }
 }
 

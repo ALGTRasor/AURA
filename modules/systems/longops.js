@@ -388,7 +388,7 @@ export class LongOps extends EventTarget
 
 	static CreateActionBarElements()
 	{
-		LongOps.toggle_info = ActionBar.AddIcon('chronic', 'Show / Hide Long Operations', e => { LongOps.ToggleVisibility(); });
+		LongOps.toggle_info = ActionBar.AddIcon('chronic', _ => { _.innerHTML = LongOpsUI.instance.visible ? 'Hide Operations List' : 'Show Operations List' }, e => { LongOps.ToggleVisibility(); });
 		LongOps.toggle_info.e_icon.style.opacity = '50%';
 	}
 

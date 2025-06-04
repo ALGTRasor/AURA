@@ -143,6 +143,7 @@
 {
 	position: relative;
 	z-index: 10;
+	overflow: hidden;
 
 	--action-bar-button-hover: 0.0;
 	cursor: pointer;
@@ -166,7 +167,6 @@
 
 	background: linear-gradient(180deg, rgba(from var(--theme-color) r g b / calc(0.2 * var(--action-bar-button-hover))), transparent);
 
-	color: transparent;
 	font-size: 80%;
 	letter-spacing: 2px;
 
@@ -188,7 +188,7 @@
 .action-bar-button:active
 {
 	--action-bar-button-hover: 0.8;
-	scale: 90%;
+	scale: 98%;
 	color: var(--theme-color-text-50);
 	box-shadow: 0px 0px 0.25rem rgba(from var(--shadow-color) r g b / 0.25);
 	transition-duration: var(--trans-dur-on-fast);
@@ -198,7 +198,18 @@
 .action-bar-button > span
 {
 	pointer-events: none;
-	color: transparent;
+	translate: 0% 100%;
+
+	transition-property: translate;
+	transition-delay: 0s;
+	transition-duration: var(--trans-dur-off-slow);
+	transition-timing-function: ease-in-out;
+}
+
+.action-bar-button:active > span,
+.action-bar-button:hover > span
+{
+	translate: 0% 0%;
 }
 
 
@@ -208,7 +219,7 @@
 	text-shadow: 0px 0px 0rem transparent;
 	color: var(--theme-color-text-50);
 
-	transition-property: text-shadow, transform;
+	transition-property: translate, text-shadow, transform;
 	transition-delay: 0s;
 	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
@@ -218,10 +229,10 @@
 .action-bar-button:active > .icon
 {
 	z-index: -10;
-	color: transparent;
+	translate: 0% -100%;
 
 	text-shadow: none;
-	transition-duration: var(--trans-dur-on-fast);
+	transition-duration: var(--trans-dur-on-slow);
 	transition-delay: 0s;
 }
 

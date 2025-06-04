@@ -94,7 +94,9 @@ export class PageFiles extends PageDescriptor
 		{
 			instance.e_frame.style.maxWidth = 'unset';
 		}
-		window.setTimeout(() => { instance.root_selector.ApplySelection(); instance.explorer.RefreshElements(instance.state_data.expanding); }, 50);
+
+		instance.explorer.RefreshElements(instance.state_data.expanding);
+		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 500);
 	}
 }
 

@@ -526,6 +526,13 @@ div[disabled]
 	initial-value: 0.0;
 }
 
+@property --anchor-angle
+{
+	syntax: '<angle>';
+	inherits: true;
+	initial-value: 0deg;
+}
+
 @keyframes megatip-flash
 {
 	0%
@@ -585,7 +592,7 @@ div[disabled]
 
 	overflow: visible;
 
-	backdrop-filter: blur(3px);
+	backdrop-filter: blur(4px);
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 }
@@ -615,12 +622,21 @@ div[disabled]
 
 .megatip-field
 {
-	display: inline-flex;
+	display: inline-block;
 	color: hsl(from var(--theme-color) h s 50%);
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
-	font-size: 0.6rem;
+	font-size: 0.8rem;
+}
+
+.megatip-value
+{
+	display: inline-block;
+	color: hsl(from var(--theme-color) h s 50%);
+	text-align: right;
+	font-weight: bold;
+	font-size: 0.8rem;
 }
 
 .megatip-warning
@@ -630,7 +646,7 @@ div[disabled]
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
-	font-size: 0.6rem;
+	font-size: 0.7rem;
 	text-align: right;
 	padding-top: 0.25rem;
 }
@@ -733,7 +749,7 @@ input[type="textarea"]:active
 {
 	outline: solid 2px #aaa5;
 	outline-offset: 0px;
-	scale: 90%;
+	scale: 98%;
 	transform-origin: 0% 0%;
 
 	transition-property: scale, outline-offset;

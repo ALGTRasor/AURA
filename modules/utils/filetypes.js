@@ -47,8 +47,13 @@ export class FileTypes
 	static known_extensions = FileTypes.known.flatMap(_ => _.extensions);
 	static IsKnown(file_name = 'file.txt')
 	{
-		file_name = file_name.toLowerCase();
-		return FileTypes.known_extensions.indexOf(file_name.split('.').at(-1)) > -1;
+		let ext = FileTypes.GetExtension(file_name);
+		return FileTypes.known_extensions.indexOf(ext) > -1;
+	}
+
+	static GetExtension(file_name = 'file.txt')
+	{
+		return file_name.toLowerCase().split('.').at(-1)?.trim();
 	}
 
 	static GetInfoIndex(file_name = 'file.txt')
@@ -66,6 +71,9 @@ export class FileTypes
 		file_name = file_name.toLowerCase();
 		let info_index = FileTypes.GetInfoIndex(file_name);
 		if (info_index > -1) return FileTypes.known[info_index];
-		return undefined;
+
+		if (file_name.indexOf('.') < 0) return new FileType([''], 'NO FILE EXTENSION', '#aaa', 'This file does not have an extension');
+		let ext = FileTypes.GetExtension(file_name);
+		return new FileType([ext], ext.toUpperCase().replace('.', ''), '#aaa', 'This is not a recognized file type');
 	}
 }
