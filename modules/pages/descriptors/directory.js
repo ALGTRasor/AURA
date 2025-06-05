@@ -232,7 +232,7 @@ export class PageDirectory extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageDirectory('directory', undefined, 'phone_book', 'View and manage a list of Arrow\'s internal and external contacts.'), 'd', 'Directory', 'users.view');
+PageManager.RegisterPage(new PageDirectory('directory', undefined, 'phone_book', 'View and manage internal users or external contacts.'), 'd', 'Directory', 'users.view');
 Help.Register(
 	'pages.directory', 'The Directory',
 	'The Directory contains information for internal users and external contacts.'

@@ -301,9 +301,11 @@ class PanelUserAllocationList extends PanelContent
 			{
 				_.classList.add('panel-button');
 				_.style.setProperty('--theme-color', '#5f9');
-				_.innerText = 'Create Allocation';
+				_.innerText = 'Create New';
 			}
 		);
+
+		MegaTips.RegisterSimple(this.e_btn_create_new, 'Create a new User Allocation');
 	}
 
 	OnRefreshElements()
@@ -429,9 +431,8 @@ export class PageUserAllocations extends PageDescriptor
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.Title.toUpperCase(), _ => _.user_id);
-		const _afterModeChange = () => { this.UpdateMode(instance); };
-		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(_afterModeChange);
-
+		instance.afterModeChange = () => { this.UpdateMode(instance); };
+		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(instance.afterModeChange);
 		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
 
 		instance.RefreshData = () => this.RefreshData(instance);
