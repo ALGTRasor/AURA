@@ -1033,6 +1033,7 @@ export class FileExplorer extends PanelContent
             () =>
             {
                 this.EnableMultiselectActions();
+                if (this.show_folder_actions !== true) return;
                 let btn_elements = [this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete];
                 DOMHighlight.Elements(btn_elements, 'var(--gap-025)', 20);
             }
