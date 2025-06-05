@@ -205,27 +205,18 @@ class FileExplorerHeaderRow
     TrySelectAll(target_type = '')
     {
         let any_changed = false;
+        let has_target = typeof target_type === 'string' && target_type.length > 0;
 
         for (let item_id in this.explorer.current_items)
         {
             let item = this.explorer.current_items[item_id];
-            if (typeof target_type === 'string' && target_type.length > 0 && !(target_type in item.item_info)) continue;
-
-            let selection_index = item.GetSelectionIndex();
-            if (selection_index < 0)
-            {
-                item.TrySetSelected(true);
-                any_changed = true;
-            }
+            if (has_target === true && !(target_type in item.item_info)) continue;
+            if (this.explorer.SelectItem(item)) any_changed = true;
         }
 
         if (any_changed !== true)
         {
-            for (let item_id in this.explorer.current_items)
-            {
-                let item = this.explorer.current_items[item_id];
-                this.explorer.DeselectItem(item);
-            }
+            this.explorer.ClearSelected();
         }
     }
 }
@@ -346,15 +337,9 @@ class FileExplorerItem
         this.RefreshSelected();
     }
 
-    RefreshSelected(selection_id = undefined)
+    RefreshSelected()
     {
-        if (this.explorer.allow_multiselect !== true) 
-        {
-            this.is_selected = false;
-            return;
-        }
-        if (typeof selection_id !== 'number') selection_id = this.explorer.selected_items.findIndex(_ => _.id === this.item_info.id);
-        this.is_selected = selection_id > -1;
+        this.is_selected = this.explorer.selection.contains(this.item_info);
         if (this.is_selected === true)
         {
             this.e_root.style.backgroundImage = 'linear-gradient(45deg, rgb(from hsl(from var(--theme-color) h s 50%) r g b / 0.5), transparent)';
@@ -655,6 +640,16 @@ class FileExplorerItem
                     }
                 }
             );
+            this.e_root.addEventListener(
+                'auxclick',
+                e => 
+                {
+                    if (e.button === 1)
+                    {
+                        this.ShowFileOptions();
+                    }
+                }
+            );
             this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
         }
         else
@@ -813,11 +808,23 @@ class FileExplorerItem
             'click',
             _ =>
             {
+                if (_.button !== 0) return;
                 if (this.loading_items === true) return;
                 const rgx_get_rel_path = /(https?:\/\/[\w\.]+\.com)\/sites\/([^\/]+)\/([^\/]+)\/(.+)/;
                 let rgxmatch = decodeURIComponent(this.item_info.webUrl).match(rgx_get_rel_path);
                 if (rgxmatch) this.explorer.Navigate(rgxmatch[4]);
                 else this.explorer.Navigate(this.item_info.webUrl);
+            }
+        );
+
+        this.e_root.addEventListener(
+            'auxclick',
+            e => 
+            {
+                if (e.button === 1)
+                {
+                    this.ShowFolderOptions();
+                }
             }
         );
 
@@ -828,90 +835,165 @@ class FileExplorerItem
                 icon: 'more_horiz',
                 click_action: e =>
                 {
-                    OverlayManager.ShowChoiceDialog(
-                        'Folder Options: ((' + this.item_info.name + '))',
-                        [
-                            {
-                                label: 'Rename Folder',
-                                color: '#0af',
-                                on_click: overlay =>
-                                {
-                                    this.RequestRename();
-                                    overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Copy Folder Name',
-                                color: '#0fa',
-                                on_click: overlay =>
-                                {
-                                    NotificationLog.Log('Copied File Name', '#8ff');
-                                    navigator.clipboard.writeText(this.item_info.name);
-                                    //overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Copy Folder Path',
-                                color: '#0fa',
-                                on_click: overlay =>
-                                {
-                                    NotificationLog.Log('Copied File Path', '#8ff');
-                                    navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
-                                    //overlay.Remove();
-                                }
-                            },
-                            {
-                                label: 'Delete Folder',
-                                color: '#f40',
-                                on_click: overlay =>
-                                {
-                                    OverlayManager.ShowConfirmDialog(
-                                        _ =>
-                                        {
-                                            const min_byte_size_warning = 1024;
-                                            if (this.item_info.size < min_byte_size_warning)
-                                            {
-                                                this.RequestDelete();
-                                            }
-                                            else 
-                                            {
-                                                OverlayManager.ShowChoiceDialog(
-                                                    'Folders must be empty before they can be deleted.',
-                                                    [
-                                                        {
-                                                            label: 'GOT IT',
-                                                            on_click: _ =>
-                                                            {
-                                                                NotificationLog.Log('Could not delete folder: Must be empty', '#fa0');
-                                                                OverlayManager.DismissOne();
-                                                            },
-                                                            color: '#0f0'
-                                                        }
-                                                    ],
-                                                    _ =>
-                                                    {
-                                                        NotificationLog.Log('Cancelled folder deletion', '#fa0');
-                                                        //OverlayManager.DismissOne();
-                                                    }
-                                                );
-                                            }
-                                        },
-                                        _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },
-                                        'Are you sure you want to delete the folder: ((' + this.item_info.name + '))?',
-                                        'CONFIRM',
-                                        'CANCEL'
-                                    );
-                                    overlay.Remove();
-                                }
-                            }
-                        ]
-                    )
+                    this.ShowFolderOptions();
                 }
             }
         );
         this.CreateItemButtons(buttons);
 
         if (this.e_checkbox) this.e_checkbox.addEventListener('click', e => this.ToggleSelected(e));
+    }
+
+    ShowFolderOptions()
+    {
+        OverlayManager.ShowChoiceDialog(
+            'Folder Options: ((' + this.item_info.name + '))',
+            [
+                {
+                    label: 'Rename Folder',
+                    color: '#0af',
+                    on_click: overlay =>
+                    {
+                        this.RequestRename();
+                        overlay.Remove();
+                    }
+                },
+                {
+                    label: 'Copy Folder Name',
+                    color: '#0fa',
+                    on_click: overlay =>
+                    {
+                        NotificationLog.Log('Copied File Name', '#8ff');
+                        navigator.clipboard.writeText(this.item_info.name);
+                        //overlay.Remove();
+                    }
+                },
+                {
+                    label: 'Copy Folder Path',
+                    color: '#0fa',
+                    on_click: overlay =>
+                    {
+                        NotificationLog.Log('Copied File Path', '#8ff');
+                        navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
+                        //overlay.Remove();
+                    }
+                },
+                {
+                    label: 'Delete Folder',
+                    color: '#f40',
+                    on_click: overlay =>
+                    {
+                        OverlayManager.ShowConfirmDialog(
+                            _ =>
+                            {
+                                const min_byte_size_warning = 1024;
+                                if (this.item_info.size < min_byte_size_warning)
+                                {
+                                    this.RequestDelete();
+                                }
+                                else 
+                                {
+                                    OverlayManager.ShowChoiceDialog(
+                                        'Folders must be empty before they can be deleted.',
+                                        [
+                                            {
+                                                label: 'GOT IT',
+                                                on_click: _ =>
+                                                {
+                                                    NotificationLog.Log('Could not delete folder: Must be empty', '#fa0');
+                                                    OverlayManager.DismissOne();
+                                                },
+                                                color: '#0f0'
+                                            }
+                                        ],
+                                        _ =>
+                                        {
+                                            NotificationLog.Log('Cancelled folder deletion', '#fa0');
+                                            //OverlayManager.DismissOne();
+                                        }
+                                    );
+                                }
+                            },
+                            _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },
+                            'Are you sure you want to delete the folder: ((' + this.item_info.name + '))?',
+                            'CONFIRM',
+                            'CANCEL'
+                        );
+                        overlay.Remove();
+                    }
+                }
+            ]
+        )
+    }
+}
+
+class FileSelection extends EventTarget
+{
+    items = [];
+    any_selected = false;
+
+    get_item_identifier = item => item.id;
+
+    indexOf(item)
+    {
+        let item_identifier = this.get_item_identifier(item);
+        for (let item_index in this.items)
+        {
+            let selected_item = this.items[item_index];
+            if (this.get_item_identifier(selected_item) === item_identifier) return item_index;
+        }
+        return -1;
+    }
+
+    contains(item) { return this.indexOf(item) > -1; }
+
+    check_any()
+    {
+        this.any_selected = this.items.length > 0;
+        return this.any_selected;
+    }
+
+    clear()
+    {
+        if (this.any_selected === false) return false;
+        this.items = [];
+        this.any_selected = false;
+        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
+        this.dispatchEvent(new CustomEvent('allremoved', { detail: this }));
+        return true;
+    }
+
+    toggle(item)
+    {
+        if (this.contains(item)) this.remove(item);
+        else this.add(item);
+    }
+
+    add(item)
+    {
+        let existing_index = this.indexOf(item);
+        if (existing_index > -1) return false;
+        let was_any_selected = this.any_selected === true;
+        this.items.push(item);
+        this.check_any();
+        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
+        this.dispatchEvent(new CustomEvent('itemadded', { detail: item }));
+        if (was_any_selected === false) this.dispatchEvent(new CustomEvent('firstadded', { detail: item }));
+        return true;
+    }
+
+    remove(item)
+    {
+        if (this.items.length < 1) return false;
+        let existing_index = this.indexOf(item);
+        if (existing_index < 0) return false;
+        this.items.splice(existing_index, 1);
+        this.check_any();
+
+        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
+        this.dispatchEvent(new CustomEvent('itemremoved', { detail: item }));
+        if (this.any_selected === false) this.dispatchEvent(new CustomEvent('allremoved', { detail: this.items }));
+        return true;
     }
 }
 
@@ -934,8 +1016,8 @@ export class FileExplorer extends PanelContent
     info_width_minimum = 500;
 
     current_items = [];
-    selected_items = [];
-    any_selected = false;
+
+    selection = new FileSelection();
 
     on_load_start = () => { };
     on_load_stop = () => { };
@@ -945,7 +1027,18 @@ export class FileExplorer extends PanelContent
         super(e_parent);
         if (typeof site_name === 'string' && site_name.length > 0) this.site_name = site_name;
         if (typeof drive_name === 'string' && drive_name.length > 0) this.drive_name = drive_name;
-        this.selected_items = [];
+
+        this.selection.addEventListener(
+            'firstadded',
+            () =>
+            {
+                this.EnableMultiselectActions();
+                let btn_elements = [this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete];
+                DOMHighlight.Elements(btn_elements, 'var(--gap-025)', 20);
+            }
+        );
+        this.selection.addEventListener('allremoved', () => { this.DisableMultiselectActions(); });
+        this.selection.addEventListener('change', () => { this.AfterSelectionChange(); });
     }
 
     OnCreateElements()
@@ -1080,22 +1173,7 @@ export class FileExplorer extends PanelContent
 
     RefreshActionElements()
     {
-        if (this.show_folder_actions === true)
-        {
-            if (this.selected_items.length < 1 && this.any_selected === true)
-            {
-                this.DisableMultiselectActions();
-                this.any_selected = false;
-            }
-
-            if (this.selected_items.length > 0 && this.any_selected !== true)
-            {
-                this.EnableMultiselectActions();
-                this.any_selected = true;
-                DOMHighlight.Elements([this.e_btn_selection_move, this.e_btn_selection_download, this.e_btn_selection_delete], 'var(--gap-025)', 20);
-            }
-            this.ShowActionBar();
-        }
+        if (this.show_folder_actions === true) this.ShowActionBar();
         else this.HideActionBar();
     }
 
@@ -1137,77 +1215,29 @@ export class FileExplorer extends PanelContent
     }
 
 
-    GetSelectionIndex(item)
+    GetSelectionIndex(item) { return this.selection.indexOf(item); }
+    DeselectItem(item) { return this.selection.remove(item.item_info); }
+    SelectItem(item) { return this.selection.add(item.item_info); }
+    ToggleSelectedItem(item) { this.selection.toggle(item.item_info); }
+    ClearSelected() { return this.selection.clear(); }
+
+    AfterSelectionChange()
     {
-        if (item && 'item_info' in item && 'id' in item.item_info && this.selected_items.length > 0)
-            return this.selected_items.findIndex(_ => _.id == item.item_info.id);
-        return -1;
+        this.RefreshActionElements();
+        this.current_items.forEach(_ => { _.RefreshSelected(); });
     }
-
-    DeselectItem(item)
-    {
-        if (!item) return;
-        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
-        if (selection_id > -1)
-        {
-            item.RefreshSelected(-1);
-            this.selected_items.splice(selection_id, 1);
-            this.AfterSelectionChange();
-        }
-    }
-
-    SelectItem(item)
-    {
-        if (!item) return;
-
-        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
-        if (selection_id < 0)
-        {
-            this.selected_items.push(item.item_info);
-            item.RefreshSelected(undefined);
-            this.AfterSelectionChange();
-        }
-    }
-
-    ToggleSelectedItem(item)
-    {
-        if (!item) return;
-
-        let selection_id = this.selected_items.findIndex(_ => _.id == item.item_info.id);
-        if (selection_id < 0)
-        {
-            this.selected_items.push(item.item_info);
-            item.RefreshSelected(-1);
-        }
-        else
-        {
-            this.selected_items.splice(selection_id, 1);
-            item.RefreshSelected(selection_id);
-        }
-
-        this.AfterSelectionChange();
-    }
-
-    ClearSelected()
-    {
-        this.selected_items = [];
-        for (let id in this.current_items) this.current_items[id].RefreshSelected(-1);
-        this.AfterSelectionChange();
-    }
-
-    AfterSelectionChange() { this.RefreshActionElements(); }
 
     RequestMoveSelected() { }
     RequestDownloadSelected() { }
 
     RequestDeleteSelected()
     {
-        if (this.selected_items.length < 1) return;
+        if (this.selection.any_selected === false) return;
 
         OverlayManager.ShowConfirmDialog(
             _ =>
             {
-                let op_instances = this.selected_items.map(_ => new ItemDeleteInstance(_, this.drive_id, this.relative_path_current));
+                let op_instances = this.selection.items.map(_ => new ItemDeleteInstance(_, this.drive_id, this.relative_path_current));
                 this.OnStartLoading();
                 Promise.allSettled(
                     op_instances.map(_ => _['Process']())
@@ -1291,10 +1321,7 @@ export class FileExplorer extends PanelContent
         );
     }
 
-    static async ReadFileContents(file_ref)
-    {
-        return await new Response(file_ref).arrayBuffer();
-    }
+    static async ReadFileContents(file_ref) { return await new Response(file_ref).arrayBuffer(); }
 
     RequestUploadFile()
     {
@@ -1395,6 +1422,8 @@ export class FileExplorer extends PanelContent
 
         this.e_items_container.innerHTML = '';
         this.OnStartLoading();
+
+        if (this.maintain_selection !== true) this.ClearSelected();
 
         this.FetchFolderItems().then(
             result => 
