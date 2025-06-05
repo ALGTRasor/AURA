@@ -143,7 +143,7 @@ export class PageDirectory extends PageDescriptor
 
 	OnDirectoryChange(instance)
 	{
-		switch (instance.slide_directory.selected_index) 
+		switch (instance.slide_directory.selected_index)
 		{
 			case 0:
 				if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);

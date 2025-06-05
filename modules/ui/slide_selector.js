@@ -27,9 +27,11 @@ export class SlideSelector
             this.e_selector.style.cursor = 'wait';
             this.e_root.style.cursor = 'wait';
             this.e_root.style.pointerEvents = 'none';
+            for (let item_id in this.e_items) this.e_items[item_id].style.pointerEvents = 'none';
         }
         else
         {
+            for (let item_id in this.e_items) this.e_items[item_id].style.pointerEvents = 'all';
             this.e_root.style.pointerEvents = 'all';
             this.e_root.style.cursor = 'pointer';
             this.e_selector.style.cursor = 'pointer';
@@ -174,6 +176,7 @@ export class SlideSelector
                 x.style.textAlign = 'center';
                 x.style.minWidth = '0';
                 if (this.fixed_widths === true) x.style.flexBasis = '0%';
+                else x.style.flexBasis = 'auto';
                 x.addEventListener('click', _ => { on_click(_); this.SelectIndex(id, false); });
             }
         );

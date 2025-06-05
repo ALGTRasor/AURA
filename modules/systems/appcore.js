@@ -258,8 +258,15 @@ export class AppCore extends EventTarget
 				);
 			}
 
-			let e_btn_home = ActionBar.AddMenuButton('home', 'other_houses', _ => { if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu'); else PageManager.CloseAll(); });
-			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu.<br>[[[Hold {{{SHIFT}}} to keep all pages open and toggle the navigation menu instead.]]]');
+			let e_btn_home = ActionBar.AddMenuButton(
+				'home', 'other_houses',
+				_ =>
+				{
+					if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu');
+					else PageManager.CloseAll();
+				}
+			);
+			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu. <br> [[[Hold {{{SHIFT}}} to only toggle the navigation menu.]]]');
 		}
 	}
 

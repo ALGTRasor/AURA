@@ -106,7 +106,9 @@ export class ActionBar
 				}
 			);
 
-			const login_tip = `Disconnect your tenant account from ${AppInfo.name}<br>[[[Logging out will bring you back to tenant account selection.]]](((A valid login is required to use ${AppInfo.name}.)))`;
+			const login_tip = `Disconnect your tenant account from ${AppInfo.name}<br>`
+				+ `[[[This will bring you to account selection.]]]`
+				+ `[[[A valid login is required to use ${AppInfo.name}.]]]`;
 			MegaTips.RegisterSimple(ActionBar.e_button_login, login_tip);
 		}
 		else

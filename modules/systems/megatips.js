@@ -22,6 +22,12 @@ export class MegaTips
     static fading_in = false;
     static showing = false;
 
+    static PruneReferences()
+    {
+        const is_valid_tip_instance = mti => { return mti.element && document.body.contains(mti.element); };
+        MegaTips.active = MegaTips.active.filter(is_valid_tip_instance);
+    }
+
     static async SwitchContent()
     {
         if (MegaTips.switching === true)
@@ -39,22 +45,22 @@ export class MegaTips
             MegaTips.fading_out = false;
         }
 
-        let tip = MegaTips.active[MegaTips.active.length - 1];
-        while (tip && !tip.element)
-        {
-            MegaTips.active.splice(MegaTips.active.length - 1, 1);
-            if (MegaTips.active.length > 0) tip = MegaTips.active[MegaTips.active.length - 1];
-            else tip = undefined;
-        }
-        if (tip && tip.prep)
-        {
-            MegaTips.RecalculatePosition(tip);
+        MegaTips.PruneReferences();
 
-            MegaTips.fading_in = true;
-            await FadeElement(MegaTips.e_root, 0, 100, 0.125);
-            MegaTips.fading_in = this.fading_in;
-            MegaTips.showing = true;
+        if (MegaTips.active.length > 0)
+        {
+            let tip = MegaTips.active[MegaTips.active.length - 1];
+            if (tip && tip.prep)
+            {
+                MegaTips.RecalculatePosition(tip);
+
+                MegaTips.fading_in = true;
+                await FadeElement(MegaTips.e_root, 0, 100, 0.125);
+                MegaTips.fading_in = this.fading_in;
+                MegaTips.showing = true;
+            }
         }
+
         MegaTips.switching = false;
     }
 
