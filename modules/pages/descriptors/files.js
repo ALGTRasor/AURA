@@ -100,7 +100,7 @@ export class PageFiles extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageFiles('files', UserAccountInfo.app_access_permission), 'f', 'File Explorer');
+PageManager.RegisterPage(new PageFiles('files', UserAccountInfo.app_access_permission, 'files', 'View and manage work related files.'), 'f', 'File Explorer');
 Help.Register(
 	'pages.files', 'The Files Page',
 	'The Files page allows Users to browse the internal file library.'

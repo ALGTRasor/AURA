@@ -45,4 +45,4 @@ export class PageTimekeep extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageTimekeep('time keeper', 'time.keep'), 'k', 'Time Keeper');
+PageManager.RegisterPage(new PageTimekeep('time keeper', 'time.keep', 'chronic', 'View and manage your billable time.'), 'k', 'Time Keeper');

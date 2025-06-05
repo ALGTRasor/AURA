@@ -512,7 +512,7 @@ export class PageUserAllocations extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageUserAllocations('user allocations', 'projects.create'));
+PageManager.RegisterPage(new PageUserAllocations('user allocations', 'projects.create', 'people', 'View and manage billable time allocations.'));
 Help.Register(
 	'pages.user allocations', 'User Allocations',
 	'The User Allocations page allows you to view and manage hours allocated to Users.'

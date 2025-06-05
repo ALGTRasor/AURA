@@ -143,13 +143,7 @@ export function CreatePagePanel(parent = {}, inset = false, tiles = false, styli
 
 
 
-export function secondsDelta(x = new Date(), y = new Date())
-{
-    let delta = 0;
-    if (x > y) delta = x - y;
-    else delta = y - x;
-    return delta * 0.001;
-}
+
 
 
 

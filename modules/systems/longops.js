@@ -3,7 +3,7 @@ import { NotificationLog } from "../notificationlog.js";
 import { ActionBar } from "../actionbar.js";
 import { Trench } from "../ui/trench.js";
 import { MegaTips } from "./megatips.js";
-import { getDurationString } from "../utils/stringutils.js";
+import { getDurationString } from "../utils/timeutils.js";
 
 const lskey_history = 'longops-history';
 

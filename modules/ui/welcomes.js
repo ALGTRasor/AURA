@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { secondsDelta } from "../utils/domutils.js";
+import { minutesDelta, secondsDelta } from "../utils/timeutils.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { OverlayManager } from "./overlays.js";
 import { AppInfo } from "../app_info.js";
@@ -26,7 +26,7 @@ export class Welcome
         if (Welcome.info.ts)
         {
             Welcome.info.ts = new Date(Welcome.info.ts);
-            Welcome.info.delta_min = secondsDelta(Welcome.info.ts) / 60.0;
+            Welcome.info.delta_min = minutesDelta(Welcome.info.ts);
             Welcome.info.recent = Welcome.info.delta_min < Welcome.min_delta_minutes;
         }
         Welcome.info.user_name_short = Welcome.info.user_name_full.split(' ')[0];

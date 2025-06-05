@@ -93,7 +93,8 @@ export class PageHome extends PageDescriptor
 				{
 					label: button_label,
 					order_index: button_order_id,
-					on_click: button_action
+					on_click: button_action,
+					description: desc.description
 				}
 			);
 		};
@@ -183,7 +184,7 @@ export class PageHome extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission), 'n', 'Nav Menu');
+PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission, 'home'), 'n', 'Nav Menu');
 Help.Register(
 	'pages.nav menu', 'The Navigation Menu',
 	'The Navigation Menu shows all pages which you have access to.'

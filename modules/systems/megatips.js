@@ -1,4 +1,5 @@
 import { addElement, AddElementRemoveListener, FadeElement } from "../utils/domutils.js";
+import { sleep } from "../utils/asyncutils.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 
 export class MegaTipInstance
@@ -45,6 +46,7 @@ export class MegaTips
             MegaTips.fading_out = false;
         }
 
+        await sleep(100);
         MegaTips.PruneReferences();
 
         if (MegaTips.active.length > 0)
@@ -87,8 +89,8 @@ export class MegaTips
         let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
         pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
 
-        if (offset.x < 0) pos.x -= tip_rect.width;
-        if (offset.y < 0) pos.y -= tip_rect.height;
+        if (offset.x < 0) pos.x -= Math.max(24, tip_rect.width);
+        if (offset.y < 0) pos.y -= Math.max(24, tip_rect.height);
 
         let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
 

@@ -1,6 +1,7 @@
 import { addElement, CreatePagePanel, FadeElement } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { until } from "../utils/until.js";
+import { MegaTips } from "../systems/megatips.js";
 
 export class QuickMenu
 {
@@ -22,10 +23,7 @@ export class QuickMenu
         this.e_root = CreatePagePanel(
             parent, true, false,
             'letter-spacing:0.15rem; gap:0;',
-            x =>
-            {
-                x.className += ' menu-root';
-            }
+            x => { x.classList.add('menu-root'); }
         );
 
         for (let item_id in this.items)
@@ -34,7 +32,8 @@ export class QuickMenu
             this.e_items.push(
                 this.AddButton(
                     item.label ? item.label : '---',
-                    item.on_click ? item.on_click : e => { }
+                    item.on_click ? item.on_click : e => { },
+                    item.description
                 )
             );
         };
@@ -92,7 +91,7 @@ export class QuickMenu
         await until(() => this.fading < 1);
     }
 
-    AddButton(text = '', on_click = e => { })
+    AddButton(text = '', on_click = e => { }, tooltip = '')
     {
         return addElement(
             this.e_root, 'div', 'menu-button', null,
@@ -100,8 +99,9 @@ export class QuickMenu
             {
                 x.innerText = text ? text : '???';
                 x.tabIndex = '0';
-                x.title = text;
                 x.addEventListener('click', on_click);
+                //x.title = text;
+                if (tooltip) MegaTips.RegisterSimple(x, tooltip);
             }
         );
     }

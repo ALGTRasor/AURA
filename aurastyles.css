@@ -533,7 +533,30 @@ div[disabled]
 	initial-value: 0deg;
 }
 
-@keyframes megatip-flash
+@keyframes anim-megatip-body
+{
+	0%
+	{
+		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.0);
+	}
+
+	25%
+	{
+		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.4);
+	}
+
+	50%
+	{
+		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.4);
+	}
+
+	100%
+	{
+		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.0);
+	}
+}
+
+@keyframes anim-megatip-corner
 {
 	0%
 	{
@@ -588,13 +611,15 @@ div[disabled]
 	background-size: 100% 100%;
 	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s 35%) r g b / 0.5), rgba(from hsl(from var(--theme-color) h s 10%) r g b / 0.5));
 
-	border: solid hsl(from var(--theme-color) h s 60%) 2px;
+	border: solid hsl(from var(--theme-color) h s 40%) 2px;
 
 	overflow: visible;
 
 	backdrop-filter: blur(4px);
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
+
+	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear anim-megatip-body infinite;
 }
 
 .megatip::before
@@ -614,7 +639,7 @@ div[disabled]
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
 	border-radius: 2px;
 
-	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear megatip-flash infinite;
+	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear anim-megatip-corner infinite;
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 }

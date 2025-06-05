@@ -18,6 +18,7 @@ import { AURAProblem } from "../datamodels/aura_problem.js";
 import { DBLayer } from "./dblayer.js";
 import { AppEvents } from "../appevents.js";
 import { LongOps } from "../systems/longops.js";
+import { minutesDelta } from "../utils/timeutils.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -77,7 +78,9 @@ export class DataSourceInstance
 		if (this.datasource.list_title == null) return;
 
 		this.valid = true;
-		this.lskey_cache = 'dsc_' + this.datasource.list_title.toLowerCase().trim();
+		let smolname = this.datasource.list_title.toLowerCase().trim();
+		this.lskey_cache = 'dsc_' + smolname;
+		this.lskey_cache_ts = 'dsc_ts_' + smolname;
 	}
 
 	AddNeeder() { return this.needed.AddNeeder(); }
@@ -147,10 +150,23 @@ export class DataSourceInstance
 		else DebugLog.Log(' ! data invalid: ' + this.datasource.list_title, true, '#fa0');
 	}
 
+	GetCacheTimestamp()
+	{
+		let ls_text = localStorage.getItem(this.lskey_cache_ts);
+		if (!ls_text) return undefined;
+		let ls_data = JSON.parse(ls_text).data;
+		if (!ls_data) return undefined;
+		return new Date(ls_data);
+	}
+
 	TryLoadFromCache()
 	{
 		if (!this.lskey_cache) { DebugLog.Log('No Cache Key'); return; }
 		if (this.valid !== true) { DebugLog.Log('Invalid DataSource'); return; }
+
+		let cache_ts = this.GetCacheTimestamp();
+		let cache_tsdelta = minutesDelta(cache_ts);
+		if (!cache_ts || cache_tsdelta > 5.0) { DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + (Math.round(cache_tsdelta * 10.0) * 0.1) + 'min'); return; }
 
 		let cache_value = localStorage.getItem(this.lskey_cache);
 		let cache_valid = typeof cache_value === 'string' && cache_value.length > 0;
@@ -167,6 +183,7 @@ export class DataSourceInstance
 	TryStoreInCache()
 	{
 		if (this.valid !== true) return;
+		localStorage.setItem(this.lskey_cache_ts, JSON.stringify({ data: new Date().valueOf() }));
 		localStorage.setItem(this.lskey_cache, JSON.stringify({ data: this.data }));
 	}
 }

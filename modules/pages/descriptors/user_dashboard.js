@@ -342,7 +342,7 @@ export class PageMyData extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission), 'm', 'My Data');
+PageManager.RegisterPage(new PageMyData('my data', UserAccountInfo.app_access_permission, 'person', 'View and manage your own contact and work related information.'), 'm', 'My Data');
 Help.Register(
 	'pages.my data', 'My Data',
 	'The My Data page allows Users to view and manage their own employee information.'
