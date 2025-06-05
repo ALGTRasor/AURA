@@ -124,7 +124,7 @@ export class DataSourceInstance extends EventTarget
 
 		DebugLog.Log('downloading: ' + this.datasource.list_title);
 
-		let longop = LongOps.Start('download-' + this.datasource.list_title, { label: 'Download ' + this.datasource.list_title });
+		let longop = LongOps.Start('download-' + this.datasource.list_title, { label: this.datasource.list_title, icon: 'download', verb: 'Loaded Data' });
 		await DBLayer.GetRecords(this.table);
 		LongOps.Stop(longop);
 

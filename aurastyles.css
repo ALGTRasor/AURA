@@ -53,6 +53,23 @@
 }
 
 
+@media (prefers-contrast: more)
+{
+	body
+	{
+		filter: contrast(110%);
+	}
+}
+
+@media (prefers-contrast: less)
+{
+	body
+	{
+		filter: contrast(90%);
+	}
+}
+
+
 
 
 
@@ -620,6 +637,16 @@ div[disabled]
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 
 	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear anim-megatip-body infinite;
+}
+
+
+
+@media (prefers-reduced-transparency: reduce)
+{
+	.megatip
+	{
+		background-image: linear-gradient(var(--anchor-angle) in hsl, hsl(from var(--theme-color) h s 35%), hsl(from var(--theme-color) h s 10%));
+	}
 }
 
 .megatip::before
