@@ -220,7 +220,6 @@ export class PageDirectory extends PageDescriptor
 	{
 		window.SharedData.Subscribe('users', instance.SetDirectoryContentDirty);
 		window.SharedData.Subscribe('contacts', instance.SetDirectoryContentDirty);
-		//AppEvents.AddListener('data-loaded', instance.SetDirectoryContentDirty);
 	}
 
 	OnClose(instance)
@@ -228,7 +227,6 @@ export class PageDirectory extends PageDescriptor
 
 		window.SharedData.Unsubscribe('users', instance.SetDirectoryContentDirty);
 		window.SharedData.Unsubscribe('contacts', instance.SetDirectoryContentDirty);
-		//if (instance.SetDirectoryContentDirty) AppEvents.RemoveListener('data-loaded', instance.SetDirectoryContentDirty);
 		if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
 		if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
 	}

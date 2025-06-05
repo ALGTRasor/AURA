@@ -503,17 +503,13 @@ export class PageUserAllocations extends PageDescriptor
 	OnOpen(instance)
 	{
 		window.SharedData.Subscribe(window.SharedData.userAllocations.key, instance.RefreshData);
-		//AppEvents.AddListener('data-loaded', instance.RefreshData);
 		instance.relate_UserAllocations = window.SharedData.userAllocations.AddNeeder();
-		//instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefreshData(instance); });
 	}
 
 	OnClose(instance)
 	{
 		window.SharedData.Unsubscribe(window.SharedData.userAllocations.key, instance.RefreshData);
-		//AppEvents.RemoveListener('data-loaded', instance.RefreshData);
 		window.SharedData.userAllocations.RemoveNeeder(instance.relate_UserAllocations);
-		//AppEvents.onDataReloaded.RemoveSubscription(instance.sub_dataReload);
 	}
 }
 
