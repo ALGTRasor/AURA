@@ -4,6 +4,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
 import { AppEvents } from "../../appevents.js";
+import { RunningTimeout } from "../../utils/running_timeout.js";
 
 export class PageExternalLinks extends PageDescriptor
 {
@@ -39,8 +40,10 @@ export class PageExternalLinks extends PageDescriptor
 			}
 		);
 
+
 		instance.PopulateList = () => this.PopulateList(instance);
-		instance.PopulateList();
+		instance.refresh_timeout = new RunningTimeout(instance.PopulateList, 0.5, true, 150);
+		instance.refresh_soon = () => instance.refresh_timeout.ExtendTimer();
 	}
 
 	PopulateList(instance)
@@ -66,9 +69,9 @@ export class PageExternalLinks extends PageDescriptor
 			if (has_icon) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
 		};
 
-		window.SharedData.auraLinks.instance.data.sort((x, y) => sort_alpha(x.link_service_type, y.link_service_type));
+		window.SharedData.externalLinks.instance.data.sort((x, y) => sort_alpha(x.link_service_type, y.link_service_type));
 		const get_link_service = l => { if (typeof l.link_service_type === 'string' && l.link_service_type.length > 0) return l.link_service_type; return 'General'; };
-		let link_groups = Object.groupBy(window.SharedData.auraLinks.instance.data, get_link_service);
+		let link_groups = Object.groupBy(window.SharedData.externalLinks.instance.data, get_link_service);
 		let group_index = -1;
 		for (let link_group_id in link_groups)
 		{
@@ -107,14 +110,14 @@ export class PageExternalLinks extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.relate_ExternalLinks = window.SharedData.auraLinks.AddNeeder();
-		AppEvents.AddListener('data-loaded', instance.PopulateList);
+		instance.relate_ExternalLinks = window.SharedData.externalLinks.AddNeeder();
+		window.SharedData.Subscribe('external links', instance.refresh_soon);
 	}
 
 	OnClose(instance)
 	{
-		AppEvents.RemoveListener('data-loaded', instance.PopulateList);
-		window.SharedData.auraLinks.RemoveNeeder(instance.relate_ExternalLinks);
+		window.SharedData.externalLinks.RemoveNeeder(instance.relate_ExternalLinks);
+		window.SharedData.Unsubscribe('external links', instance.refresh_soon);
 	}
 }
 

@@ -138,7 +138,7 @@ export class PageDirectory extends PageDescriptor
 		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(instance.afterDirChange);
 		instance.slide_directory.SelectIndexAfterDelay(0, 150, true);
 
-		instance.directory_content_timeout = new RunningTimeout(() => this.UpdateDirectoryContent(instance), 0.25, false, 150);
+		instance.directory_content_timeout = new RunningTimeout(instance.UpdateDirectoryContent, 0.25, false, 150);
 	}
 
 	OnDirectoryChange(instance)
@@ -184,31 +184,22 @@ export class PageDirectory extends PageDescriptor
 		}
 
 		instance.slide_directory.SetDisabled(true);
-		if (this.IsValidContent(instance.content_current) === true) 
+
+		const perform = async () =>
 		{
-			FadeElement(
-				instance.content_current.e_root, 100, 0, 0.125
-			).then(
-				_ =>
-				{
-					instance.content_current.RemoveElements();
-					instance.content_current = content_next;
-					instance.content_current.CreateElements();
-				}
-			).then(
-				async _ =>
-				{
-					instance.slide_directory.SetDisabled(false);
-					await FadeElement(instance.content_current.e_root, 0, 100, 0.125);
-				}
-			);
-		}
-		else
-		{
+			let valid_next = this.IsValidContent(instance.content_current);
+			instance.slide_directory.SetDisabled(true);
+			if (valid_next)
+			{
+				await FadeElement(instance.content_current.e_root, 100, 0, 0.125);
+				instance.content_current.RemoveElements();
+			}
 			instance.content_current = content_next;
 			instance.content_current.CreateElements();
-			FadeElement(instance.content_current.e_root, 0, 100, 0.25).then(_ => { instance.slide_directory.SetDisabled(false); });
-		}
+			instance.slide_directory.SetDisabled(false);
+			await FadeElement(instance.content_current.e_root, 0, 100, 0.125);
+		};
+		perform();
 	}
 
 	UpdateSize(instance)

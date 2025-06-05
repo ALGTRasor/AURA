@@ -55,7 +55,7 @@ export class SharedData
 	static timekeepEvents = new SharedDataTable('timekeep events', DataSourceDescriptor.TimekeepEvents);
 	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSourceDescriptor.TimekeepStatuses);
 	static userAllocations = new SharedDataTable('user allocations', DataSourceDescriptor.UserAllocations);
-	static auraLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
+	static externalLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
 	static auraProblems = new SharedDataTable('aura problems', DataSourceDescriptor.AURAProblems);
 
 	static all_tables = [
@@ -69,7 +69,7 @@ export class SharedData
 		SharedData.hrRequests,
 		SharedData.timekeepEvents,
 		SharedData.timekeepStatuses,
-		SharedData.auraLinks,
+		SharedData.externalLinks,
 		SharedData.userAllocations,
 		SharedData.auraProblems
 	];
@@ -284,7 +284,7 @@ export class SharedData
 	static GetHrRequestDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.hrRequests, ids, 'requestee_id'); }
 	static GetTimekeepEventDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepEvents, ids, 'user_id'); }
 	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, ids); }
-	static GetAURALinksDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.auraLinks, ids); }
+	static GetAURALinksDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.externalLinks, ids); }
 
 	static GetUserData(id = '') { return SharedData.GetSharedDatum(SharedData.users, id); }
 	static GetRoleData(id = '') { return SharedData.GetSharedDatum(SharedData.roles, id); }
@@ -296,7 +296,7 @@ export class SharedData
 	static GetHrRequestData(id = '') { return SharedData.GetSharedDatum(SharedData.hrRequests, id, 'requestee_id'); }
 	static GetTimekeepEventData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepEvents, id, 'user_id'); }
 	static GetTimekeepStatusData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, id); }
-	static GetAURALinksData(id = '') { return SharedData.GetSharedDatum(SharedData.auraLinks, id); }
+	static GetAURALinksData(id = '') { return SharedData.GetSharedDatum(SharedData.externalLinks, id); }
 
 
 
