@@ -170,11 +170,11 @@ class FileExplorerHeaderRow
                 if (this.explorer.allow_multiselect === true)
                 {
                     this.e_checkbox = addElement(
-                        _, 'i', 'material-symbols',
-                        'aspect-ratio:1.0; max-width:1rem; flex-grow:0.0; flex-shrink:0.0; cursor:pointer; pointer-events:all;'
-                        + 'align-content:center; text-align:center; font-size:1.25rem;',
-                        _ => { _.innerText = 'check_box_outline_blank'; }
+                        _, 'i', 'material-symbols icon-button', '',
+                        _ => { _.innerText = 'playlist_add_check_circle'; }
                     );
+
+
                     this.e_checkbox.addEventListener(
                         'click',
                         e =>
@@ -183,7 +183,7 @@ class FileExplorerHeaderRow
                             else this.TrySelectAll(e.shiftKey === true ? 'file' : undefined);
                         }
                     );
-                    MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>(((Hold CTRL to toggle selected)))');
+                    MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>(((Hold [[[CTRL]]] to toggle selected)))');
                 }
 
                 this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = 'NAME'; });

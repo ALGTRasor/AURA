@@ -129,9 +129,10 @@ export class MegaTips
         let body_rect = document.body.getBoundingClientRect();
         let etip_rect = MegaTips.e_root.getBoundingClientRect();
 
-        if (x < 0) MegaTips.e_root.style.maxWidth = (etip_rect.width + x) + 'px';
-        else if ((x + etip_rect.width) > body_rect.width) MegaTips.e_root.style.maxWidth = (body_rect.width - etip_rect.x) + 'px';
-        else MegaTips.e_root.style.maxWidth = '50vw';
+        //if (x < 0) MegaTips.e_root.style.maxWidth = Math.max(320, etip_rect.width + x) + 'px';
+        //else if ((x + etip_rect.width) > body_rect.width) MegaTips.e_root.style.maxWidth = Math.max(320, body_rect.width - etip_rect.x) + 'px';
+        //else
+        //MegaTips.e_root.style.maxWidth = '50vw';
 
         x = Math.min(x, body_rect.width - etip_rect.width);
         x = Math.max(x, 0);

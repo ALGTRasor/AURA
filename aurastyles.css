@@ -550,26 +550,54 @@ div[disabled]
 	initial-value: 0deg;
 }
 
+@property --anim-phase
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
+@property --anim-phase-mid
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
 @keyframes anim-megatip-body
 {
 	0%
 	{
-		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.0);
+		--anim-phase: 0.0;
+		--anim-phase-mid: 1.0;
+		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
 	}
 
 	25%
 	{
-		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.4);
+		--anim-phase: 0.25;
+		--anim-phase-mid: 0.0;
+		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
+	}
+
+	25%
+	{
+		--anim-phase: 0.25;
+		--anim-phase-mid: 0.0;
+		box-shadow: 0px 0px 8px rgba(from var(--glow-color) r g b / 0.6);
 	}
 
 	50%
 	{
-		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.4);
+		--anim-phase: 0.5;
+		--anim-phase-mid: 0.0;
 	}
 
 	100%
 	{
-		box-shadow: 0px 0px 6px rgba(from var(--glow-color) r g b / 0.0);
+		--anim-phase: 1.0;
+		--anim-phase-mid: 1.0;
+		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
 	}
 }
 
@@ -577,30 +605,35 @@ div[disabled]
 {
 	0%
 	{
+		--anim-phase: 0.0;
 		background: hsl(from var(--theme-color) h s 15%);
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	25%
 	{
+		--anim-phase: 0.5;
 		background: hsl(from var(--theme-color) h s 60%);
 		transform: translate(-50%, -50%) rotate(45deg) scale(50%);
 	}
 
 	50%
 	{
+		--anim-phase: 1.0;
 		background: hsl(from var(--theme-color) h s 60%);
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	75%
 	{
+		--anim-phase: 0.5;
 		background: hsl(from var(--theme-color) h s 15%);
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	100%
 	{
+		--anim-phase: 0.0;
 		background: hsl(from var(--theme-color) h s 15%);
 		transform: translate(-50%, -50%) rotate(135deg) scale(100%);
 	}
@@ -626,7 +659,7 @@ div[disabled]
 
 	background-blend-mode: multiply;
 	background-size: 100% 100%;
-	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s 35%) r g b / 0.5), rgba(from hsl(from var(--theme-color) h s 10%) r g b / 0.5));
+	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s 35%) r g b / calc(0.5 - 0.25 * var(--anim-phase-mid))), rgba(from hsl(from var(--theme-color) h s calc(10% + 15% * var(--anim-phase-mid))) r g b / 0.5));
 
 	border: solid hsl(from var(--theme-color) h s 40%) 2px;
 
@@ -636,7 +669,7 @@ div[disabled]
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 
-	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear anim-megatip-body infinite;
+	animation: calc(0.5s + 1s * var(--trans-dur-mult)) ease-in-out anim-megatip-body infinite;
 }
 
 
@@ -656,8 +689,8 @@ div[disabled]
 	position: absolute;
 	box-sizing: border-box;
 
-	top: calc(50% + 50% * var(--anchor-y));
-	left: calc(50% + 50% * var(--anchor-x));
+	top: calc(50% + 50% * var(--anchor-y) + var(--anim-phase-mid) * 0.5rem * var(--anchor-y));
+	left: calc(50% + 50% * var(--anchor-x) + var(--anim-phase-mid) * 0.5rem * var(--anchor-x));
 
 	width: 0.75rem;
 	height: 0.75rem;
@@ -665,6 +698,9 @@ div[disabled]
 
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
 	border-radius: 2px;
+
+	outline: solid 1px rgb(255 255 255 / calc(var(--anim-phase) * var(--anim-phase)));
+	outline-offset: calc(0.5rem * calc(var(--anim-phase-mid) * var(--anim-phase-mid)));
 
 	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear anim-megatip-corner infinite;
 
@@ -674,7 +710,7 @@ div[disabled]
 
 .megatip-field
 {
-	display: inline-block;
+	display: inline;
 	color: hsl(from var(--theme-color) h s 50%);
 	min-width: 4rem;
 	text-align: right;
@@ -684,7 +720,7 @@ div[disabled]
 
 .megatip-value
 {
-	display: inline-block;
+	display: inline;
 	color: hsl(from var(--theme-color) h s 50%);
 	text-align: right;
 	font-weight: bold;
@@ -693,7 +729,7 @@ div[disabled]
 
 .megatip-warning
 {
-	display: block;
+	display: inline;
 	color: orange;
 	min-width: 4rem;
 	text-align: right;

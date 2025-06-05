@@ -8,3 +8,38 @@
 
 	color: var(--theme-color);
 }
+
+.icon-button
+{
+	cursor: pointer;
+	pointer-events: all;
+
+	display: block;
+	position: relative;
+	aspect-ratio: 1.0;
+	width: auto;
+	align-content: center;
+	text-align: center;
+
+	color: var(--theme-color);
+	scale: 90%;
+	opacity: 30%;
+	transform-origin: 50% 50%;
+
+	transition-property: opacity, scale;
+	transition-timing-function: var(--ease-elastic);
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.icon-button:hover
+{
+	scale: 100%;
+	opacity: 80%;
+}
+
+.icon-button:active
+{
+	scale: 90%;
+	opacity: 90%;
+	transition-duration: var(--trans-dur-on-fast);
+}

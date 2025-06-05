@@ -230,7 +230,7 @@ export class AppCore extends EventTarget
 			'settings', 'settings',
 			_ => PageManager.OpenPageByTitle('settings')
 		);
-		MegaTips.RegisterSimple(e_btn_settings, 'Configure your local settings and view useful information like available hotkeys or app permissions.');
+		MegaTips.RegisterSimple(e_btn_settings, 'Open the settings page. <br> (((You can view and manage your settings <br> and find useful information like hotkeys and permissions.)))');
 
 		if (UserAccountInfo.HasAppAccess() === true)
 		{
@@ -266,7 +266,7 @@ export class AppCore extends EventTarget
 					else PageManager.CloseAll();
 				}
 			);
-			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu. <br> [[[Hold {{{SHIFT}}} to only toggle the navigation menu.]]]');
+			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu. <br> (((Hold [[[SHIFT]]] to only toggle the navigation menu.)))');
 		}
 	}
 
