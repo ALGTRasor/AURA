@@ -614,7 +614,7 @@ div[disabled]
 	border: solid hsl(from var(--theme-color) h s 60%) 2px;
 	border-radius: 2px;
 
-	animation: 1s linear megatip-flash infinite;
+	animation: calc(0.5s + 1s * var(--trans-dur-mult)) linear megatip-flash infinite;
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 }

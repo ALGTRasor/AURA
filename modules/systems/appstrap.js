@@ -19,31 +19,31 @@ export class AppStrap
 
 	static async ImportPageModules()
 	{
-		await Promise.allSettled(
-			[
-				import('../pages/descriptors/home.js'),
-				import('../pages/descriptors/settings.js'),
-				import('../pages/descriptors/user_dashboard.js'),
-				import('../pages/descriptors/help.js'),
-				import('../pages/descriptors/problems.js'),
-				import('../pages/descriptors/files.js'),
-				import('../pages/descriptors/pdf_view.js'),
-				import('../pages/descriptors/directory.js'),
-				import('../pages/descriptors/internal_users.js'),
-				import('../pages/descriptors/external_contacts.js'),
-				import('../pages/descriptors/project_hub.js'),
-				import('../pages/descriptors/task_hub.js'),
-				import('../pages/descriptors/contact_logs.js'),
-				import('../pages/descriptors/scratchpad.js'),
-				import('../pages/descriptors/timekeep.js'),
-				import('../pages/descriptors/database_probe.js'),
-				import('../pages/descriptors/external_links.js'),
-				import('../pages/descriptors/demo_panel.js'),
-				import('../pages/descriptors/map.js'),
-				import('../pages/descriptors/hr.js'),
-				import('../pages/descriptors/user_allocations.js')
-			]
-		);
+		const page_names = [
+			'home',
+			'settings',
+			'user_dashboard',
+			'help',
+			'problems',
+			'files',
+			'pdf_view',
+			'directory',
+			'internal_users',
+			'external_contacts',
+			'project_hub',
+			'task_hub',
+			'contact_logs',
+			'scratchpad',
+			'timekeep',
+			'database_probe',
+			'external_links',
+			'demo_panel',
+			'map',
+			'hr',
+			'user_allocations'
+		];
+
+		await Promise.allSettled(page_names.map(_ => import(`../pages/descriptors/${_}.js`)));
 		console.info(' >>> IMPORT Page Modules');
 	}
 }

@@ -124,6 +124,14 @@ export class MegaTips
 
     static SetPosition(x, y)
     {
+        let body_rect = document.body.getBoundingClientRect();
+        let etip_rect = MegaTips.e_root.getBoundingClientRect();
+
+        x = Math.min(x, body_rect.width - etip_rect.width);
+        x = Math.max(x, 0);
+        y = Math.min(y, body_rect.height - etip_rect.height);
+        y = Math.max(y, 0);
+
         MegaTips.e_root.style.left = x + 'px';
         MegaTips.e_root.style.top = y + 'px';
     }
