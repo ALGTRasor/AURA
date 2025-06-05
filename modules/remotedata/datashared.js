@@ -23,11 +23,7 @@ export class SharedDataTable
 			this.instance.addEventListener('datachange', () => SharedData.InvokeChangeEvent(this.key));
 	}
 
-	async Download()
-	{
-		await this.instance.TryLoad(true);
-	}
-
+	async Download() { await this.instance.TryLoad(true); }
 	AddNeeder() { return this.instance.AddNeeder(); }
 	RemoveNeeder(needer) { return this.instance.RemoveNeeder(needer); }
 }
