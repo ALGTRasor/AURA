@@ -234,7 +234,7 @@ export class PageSettings extends PageDescriptor
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 		instance.e_mode_content_container = CreatePagePanel(instance.e_content, true, false, '', _ => { });
 		instance.e_mode_content_root = addElement(
-			instance.e_mode_content_container, 'div', '',
+			instance.e_mode_content_container, 'div', 'scroll-y',
 			'position:absolute;inset:0;padding:var(--gap-025);gap:var(--gap-025);margin:0;'
 			+ 'display:flex;flex-direction:row;flex-wrap:wrap; align-content:flex-start;'
 			+ getTransitionStyle('translate', '--trans-dur-off-slow', 'ease')

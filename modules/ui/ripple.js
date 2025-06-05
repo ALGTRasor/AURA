@@ -103,7 +103,8 @@ class RectRipple extends RippleTypeBase
 	constructor(element)
 	{
 		let rect = element.getBoundingClientRect();
-		super(rect.x, rect.y, rect.width, rect.height);
+		let rect_body = document.body.getBoundingClientRect();
+		super(rect.x - rect_body.x, rect.y - rect_body.y, rect.width, rect.height);
 		this.e_ripple.style.borderRadius = window.getComputedStyle(element).borderRadius;
 		this.e_ripple.style.transformOrigin = '50% 50%';
 		this.origin_offset_x = 0;

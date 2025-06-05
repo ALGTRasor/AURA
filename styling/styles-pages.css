@@ -38,6 +38,8 @@
 	position: absolute;
 	inset: 0;
 
+	z-index: 1;
+
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
@@ -59,6 +61,8 @@
 	position: absolute;
 	overflow: hidden;
 	inset: 0;
+
+	z-index: 1000;
 
 	border-radius: 0;
 	padding: var(--gap-05);
@@ -118,6 +122,7 @@
 
 .page-root
 {
+	pointer-events: all;
 	position: absolute;
 	display: block;
 
@@ -810,7 +815,7 @@
 	flex-grow: 1.0;
 	flex-shrink: 0.0;
 
-	min-width: 8rem;
+	min-width: 10rem;
 	min-height: 4rem;
 	margin: 0;
 
@@ -879,15 +884,15 @@
 
 	position: absolute;
 	left: 50%;
-	bottom: var(--gap-025);
-	width: calc(100% - var(--gap-025));
+	bottom: calc(0.25rem + var(--gap-025));
+	width: calc(100% - 0.5rem - var(--gap-05));
 
 	line-height: 1rem;
 	text-wrap: pretty;
 	align-content: center;
 	text-align: center;
 	font-variant: small-caps;
-	font-size: 120%;
+	font-size: 1rem;
 
 	color: hsl(from var(--theme-color) h s 65%);
 	transform: translate(-50%, 0%);
