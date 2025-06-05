@@ -58,10 +58,12 @@ export class DataSourceDescriptor
 }
 
 // class used to manage data obtained from a DataSourceDescriptor
-export class DataSourceInstance
+export class DataSourceInstance extends EventTarget
 {
 	constructor(datasource = DataSourceDescriptor.Nothing, table)
 	{
+		super();
+
 		this.datasource = datasource;
 		this.table = table;
 		this.loading = false;
@@ -85,12 +87,7 @@ export class DataSourceInstance
 
 	AddNeeder() { return this.needed.AddNeeder(); }
 	RemoveNeeder(needer) { return this.needed.RemoveNeeder(needer); }
-
-	OnNeeded()
-	{
-		if (this.loaded !== true)
-			this.TryLoad(false);
-	}
+	OnNeeded() { if (this.loaded !== true) this.TryLoad(false); }
 	OnNotNeeded() { }
 
 	ClearData()
@@ -105,7 +102,7 @@ export class DataSourceInstance
 		if (this.valid !== true) return;
 		if (this.loading === true) return;
 
-		let was_loaded = this.loading;
+		let was_loaded = this.loaded;
 
 		this.loading = true;
 		this.loaded = false;
@@ -119,6 +116,7 @@ export class DataSourceInstance
 				{
 					DebugLog.Log('first load from cache: ' + this.datasource.list_title + `(${this.data.length})`);
 					AppEvents.Request('data-loaded');
+					this.dispatchEvent(new CustomEvent('datachange', { detail: this }));
 				}
 				return;
 			}
@@ -148,6 +146,8 @@ export class DataSourceInstance
 			}
 		}
 		else DebugLog.Log(' ! data invalid: ' + this.datasource.list_title, true, '#fa0');
+
+		this.dispatchEvent(new CustomEvent('datachange', { detail: this }));
 	}
 
 	GetCacheTimestamp()
@@ -166,7 +166,7 @@ export class DataSourceInstance
 
 		let cache_ts = this.GetCacheTimestamp();
 		let cache_tsdelta = minutesDelta(cache_ts);
-		if (!cache_ts || cache_tsdelta > 5.0) { DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + (Math.round(cache_tsdelta * 10.0) * 0.1) + 'min'); return; }
+		if (!cache_ts || cache_tsdelta > 1.0) { DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + (Math.round(cache_tsdelta * 10.0) * 0.1) + 'min'); return; }
 
 		let cache_value = localStorage.getItem(this.lskey_cache);
 		let cache_valid = typeof cache_value === 'string' && cache_value.length > 0;

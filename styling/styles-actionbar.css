@@ -56,12 +56,13 @@
 .action-bar-title
 {
 	user-select: none;
-	color: var(--theme-color);
+	color: hsl(from var(--theme-color) h s 60%);
+	font-weight: bold;
 
-	text-shadow: 0px 0px 0px transparent;
+	text-shadow: 0px 0.4rem 3px rgba(from var(--shadow-color) r g b / 0.2);
 	letter-spacing: calc(0.5 * var(--font-size));
 
-	transition-property: transform, opacity, text-shadow;
+	transition-property: transform, opacity;
 	transition-duration: var(--trans-dur-off-slow);
 	transition-delay: 0.25s;
 	transition-timing-function: ease-in-out;
@@ -70,7 +71,6 @@
 .action-bar:hover > .action-bar-title,
 .action-bar:active > .action-bar-title
 {
-	text-shadow: 0px 0.4rem 3px rgba(from var(--shadow-color) r g b / 0.2);
 	opacity: 50%;
 	transform: translate(0%, calc(-0.75 * var(--action-bar-height)));
 	transition-delay: 0s;

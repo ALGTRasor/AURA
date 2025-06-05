@@ -2,6 +2,7 @@
 import { AppEvents } from "../../appevents.js";
 import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
+import { MegaTips } from "../../systems/megatips.js";
 import { FillBar } from "../../ui/fillbar.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
@@ -121,16 +122,18 @@ class PanelUserAllocationGroup extends PanelContent
 						);
 
 
-						addElement(
-							_, 'div', null,
+						let e_title = addElement(
+							_, 'div', 'active-border-flash',
 							'text-align:left; padding-left:calc(var(--gap-05) + 0.5rem); padding-right:calc(var(--gap-05) + 0.5rem);'
-							+ 'align-content:center; flex-shrink:0.0; flex-grow:0.0; background:#0003; border-radius:var(--gap-05);',
+							+ 'align-content:center; flex-shrink:0.0; flex-grow:0.0; background:#0003; border-radius:var(--gap-05);'
+							+ 'cursor:pointer;',
 							_ =>
 							{
 								_.innerText = this.group_id;
 								_.addEventListener('click', _ => { navigator.clipboard.writeText(this.group_id); NotificationLog.Log('Copied text to clipboard'); });
 							}
 						);
+						MegaTips.RegisterSimple(e_title, 'Click to Copy');
 
 						let e_fill_total = FillBar.Create(
 							_,
@@ -499,16 +502,18 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		AppEvents.AddListener('data-loaded', instance.RefreshData);
+		window.SharedData.Subscribe(window.SharedData.userAllocations.key, instance.RefreshData);
+		//AppEvents.AddListener('data-loaded', instance.RefreshData);
 		instance.relate_UserAllocations = window.SharedData.userAllocations.AddNeeder();
-		instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefreshData(instance); });
+		//instance.sub_dataReload = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefreshData(instance); });
 	}
 
 	OnClose(instance)
 	{
-		AppEvents.RemoveListener('data-loaded', instance.RefreshData);
+		window.SharedData.Unsubscribe(window.SharedData.userAllocations.key, instance.RefreshData);
+		//AppEvents.RemoveListener('data-loaded', instance.RefreshData);
 		window.SharedData.userAllocations.RemoveNeeder(instance.relate_UserAllocations);
-		AppEvents.onDataReloaded.RemoveSubscription(instance.sub_dataReload);
+		//AppEvents.onDataReloaded.RemoveSubscription(instance.sub_dataReload);
 	}
 }
 

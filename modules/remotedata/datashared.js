@@ -19,6 +19,8 @@ export class SharedDataTable
 	{
 		this.key = key;
 		this.instance = new DataSourceInstance(datasource, this);
+		if (typeof this.key === 'string' && this.key.length > 0)
+			this.instance.addEventListener('datachange', () => SharedData.InvokeChangeEvent(this.key));
 	}
 
 	async Download()
@@ -72,6 +74,25 @@ export class SharedData
 		SharedData.auraProblems
 	];
 
+	static #GetChangeEventName(table_name) { return 'shared-data-change-' + table_name; }
+
+	static InvokeChangeEvent(table_name = '')
+	{
+		let data = table_name in SharedData ? SharedData[table_name] : {};
+		AppEvents.Dispatch(SharedData.#GetChangeEventName(table_name), data);
+		DebugLog.Log('Shared Data Change: ' + table_name);
+	}
+
+	static Subscribe(table_name = '', action = () => { })
+	{
+		AppEvents.AddListener(SharedData.#GetChangeEventName(table_name), action);
+	}
+
+	static Unsubscribe(table_name = '', action = () => { })
+	{
+		AppEvents.RemoveListener(SharedData.#GetChangeEventName(table_name), action);
+	}
+
 	static UpdateDataSourceFilters()
 	{
 		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
@@ -81,6 +102,7 @@ export class SharedData
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSourceDescriptor.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
 	}
 
+	// LOAD ALL SHARED DATA TABLES
 	static async LoadData(useCache = true)
 	{
 		const timer_shareddataload = 'shared data load';

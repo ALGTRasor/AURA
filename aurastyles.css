@@ -789,3 +789,24 @@ input[type="textarea"]:active
 	outline-offset: 4px;
 	scale: 100%;
 }
+
+
+
+
+
+
+
+
+.active-border-flash
+{
+	transition-property: outline-color;
+	transition-duration: 0.5s;
+	transition-timing-function: ease-in;
+	outline: solid 2px transparent;
+}
+
+.active-border-flash:active
+{
+	transition-duration: 0s;
+	outline-color: white;
+}

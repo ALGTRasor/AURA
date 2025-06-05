@@ -136,7 +136,7 @@ export class PageDirectory extends PageDescriptor
 		instance.UpdateDirectoryContent = () => this.UpdateDirectoryContent(instance);
 		instance.afterDirChange = () => { this.OnDirectoryChange(instance); };
 		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(instance.afterDirChange);
-		instance.slide_directory.SelectIndexAfterDelay(0, 333, true);
+		instance.slide_directory.SelectIndexAfterDelay(0, 150, true);
 
 		instance.directory_content_timeout = new RunningTimeout(() => this.UpdateDirectoryContent(instance), 0.25, false, 150);
 	}
@@ -227,12 +227,17 @@ export class PageDirectory extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		AppEvents.AddListener('data-loaded', instance.SetDirectoryContentDirty);
+		window.SharedData.Subscribe('users', instance.SetDirectoryContentDirty);
+		window.SharedData.Subscribe('contacts', instance.SetDirectoryContentDirty);
+		//AppEvents.AddListener('data-loaded', instance.SetDirectoryContentDirty);
 	}
 
 	OnClose(instance)
 	{
-		if (instance.SetDirectoryContentDirty) AppEvents.RemoveListener('data-loaded', instance.SetDirectoryContentDirty);
+
+		window.SharedData.Unsubscribe('users', instance.SetDirectoryContentDirty);
+		window.SharedData.Unsubscribe('contacts', instance.SetDirectoryContentDirty);
+		//if (instance.SetDirectoryContentDirty) AppEvents.RemoveListener('data-loaded', instance.SetDirectoryContentDirty);
 		if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
 		if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
 	}
