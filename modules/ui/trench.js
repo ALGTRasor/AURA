@@ -9,7 +9,7 @@ export class Trench
 		this.fontSize = fontSize;
 		this.e_root = CreatePagePanel(
 			e_parent, this.inset, false,
-			'display:flex; flex-direction:row; justify-content:flex-end; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:0.0; font-size:' + this.fontSize + ';'
+			'display:flex; flex-direction:row; justify-content:center; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:0.0; font-size:' + this.fontSize + ';'
 		);
 	}
 
