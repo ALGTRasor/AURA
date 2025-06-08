@@ -64,4 +64,4 @@ export class PageProjectHub extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageProjectHub('project hub', 'projects.view'), 'p', 'Project Hub');
+PageManager.RegisterPage(new PageProjectHub('project hub', 'projects.view', undefined, 'View and manage active or archived projects.'), 'p', 'Project Hub');

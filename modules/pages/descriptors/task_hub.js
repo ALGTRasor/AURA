@@ -51,4 +51,4 @@ export class PageTaskHub extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageTaskHub('task tracker', 'tasks.view'), 't', 'Task Tracker');
+PageManager.RegisterPage(new PageTaskHub('task tracker', 'tasks.view', undefined, 'View and manage or assign tasks.'), 't', 'Task Tracker');

@@ -426,8 +426,8 @@ export class PageUserAllocations extends PageDescriptor
 
 		instance.slide_mode = new SlideSelector();
 		const modes = [
-			{ label: 'BY GROUP', on_click: _ => { } },
-			{ label: 'BY USER', on_click: _ => { } }
+			{ label: 'BY GROUP', on_click: _ => { }, tooltip: 'Allocations by Group ID' },
+			{ label: 'BY USER', on_click: _ => { }, tooltip: 'Allocations by User' }
 		];
 
 		instance.slide_mode.CreateElements(instance.e_content, modes);

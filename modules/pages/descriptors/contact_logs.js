@@ -18,4 +18,4 @@ export class PageContactLogs extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageContactLogs('contact logs'));
+PageManager.RegisterPage(new PageContactLogs('contact logs', undefined, undefined, 'View and manage official external contact logs.'));

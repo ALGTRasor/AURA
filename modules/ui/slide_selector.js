@@ -1,6 +1,7 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
+import { MegaTips } from "../systems/megatips.js";
 
 export class SlideSelector
 {
@@ -78,7 +79,8 @@ export class SlideSelector
             let e_item = this.AddButton(
                 item_id,
                 item.label ? item.label : '---',
-                item.on_click ? item.on_click : e => { }
+                item.on_click ? item.on_click : e => { },
+                item.tooltip
             );
             this.e_items.push(e_item);
         };
@@ -158,16 +160,15 @@ export class SlideSelector
         this.created = false;
     }
 
-    AddButton(index = 0, text = '', on_click = e => { })
+    AddButton(index = 0, text = '', on_click = e => { }, tooltip = undefined)
     {
         const id = index;
-        return addElement(
+        let e = addElement(
             this.e_root, 'div', 'menu-button', null,
             x =>
             {
                 x.innerText = text ? text : '???';
                 x.tabIndex = '0';
-                x.title = text;
                 x.style.zIndex = '5';
                 x.style.background = 'none';
                 x.style.opacity = '50%';
@@ -180,6 +181,8 @@ export class SlideSelector
                 x.addEventListener('click', _ => { on_click(_); this.SelectIndex(id, false); });
             }
         );
+        MegaTips.RegisterSimple(e, tooltip ?? text);
+        return e;
     }
 
     ClearButtons()

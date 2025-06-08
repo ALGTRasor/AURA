@@ -91,4 +91,4 @@ Help.Register('settings.theme.saturation', 'Theme Saturation', 'The overall satu
 Help.Register('settings.theme.contrast', 'Theme Contrast', 'The overall contrast of the app. This can help or hurt readability.');
 Help.Register('settings.theme.brightness', 'Theme Brightness', 'The overall brightness of the app. This can help or hurt readability.');
 
-PageManager.RegisterPage(new PageHelp('help'), '/', 'Help');
+PageManager.RegisterPage(new PageHelp('help', undefined, 'help', 'Get more information about a variety of topics related to the site.'), '/', 'Help');

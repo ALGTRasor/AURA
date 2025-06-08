@@ -226,10 +226,10 @@ export class PageSettings extends PageDescriptor
 		instance.slide_mode = new SlideSelector();
 		instance.slide_mode.fixed_widths = false;
 		let modes = [
-			{ label: 'GENERAL', on_click: e => { } },
-			{ label: 'THEME', on_click: e => { } },
-			{ label: 'HOTKEYS', on_click: e => { } },
-			{ label: 'PERMISSIONS', on_click: e => { } }
+			{ label: 'GENERAL', on_click: e => { }, tooltip: 'Options that affect how the site behaves' },
+			{ label: 'THEME', on_click: e => { }, tooltip: 'Options that affect how the site looks' },
+			{ label: 'HOTKEYS', on_click: e => { }, tooltip: 'Information about currently available hotkeys' },
+			{ label: 'PERMISSIONS', on_click: e => { }, tooltip: 'Information about currently granted permissions' }
 		];
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 		instance.e_mode_content_container = CreatePagePanel(instance.e_content, true, false, '', _ => { });

@@ -55,4 +55,4 @@ export class PageHR extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHR('hr', 'hr.access'), 'h', 'HR');
+PageManager.RegisterPage(new PageHR('hr', 'hr.access', undefined, 'View and manage HR related activities.'), 'h', 'HR');

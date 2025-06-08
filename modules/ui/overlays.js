@@ -353,7 +353,7 @@ export class OverlayManager
         return o;
     }
 
-    static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; }, files = new FileList())
+    static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; }, files = undefined)
     {
         prompt = prompt.replaceAll('((', '<span style="color:white;">');
         prompt = prompt.replaceAll('))', '</span>');

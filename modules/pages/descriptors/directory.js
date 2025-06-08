@@ -108,8 +108,8 @@ export class PageDirectory extends PageDescriptor
 
 		instance.slide_directory = new SlideSelector();
 		const directories = [
-			{ label: 'INTERNAL', on_click: _ => { } },
-			{ label: 'EXTERNAL', on_click: _ => { } }
+			{ label: 'INTERNAL', on_click: _ => { }, tooltip: 'View Internal Contacts' },
+			{ label: 'EXTERNAL', on_click: _ => { }, tooltip: 'View External Contacts' }
 		];
 		instance.slide_directory.CreateElements(instance.e_content, directories);
 

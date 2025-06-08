@@ -140,7 +140,7 @@ export class PageExternalLinks extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission), 'l', 'External Links');
+PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission, '', 'A curated list of external sites which might be useful.'), 'l', 'External Links');
 Help.Register(
 	'pages.external links', 'External Links',
 	'The External Links page provides a list of websites Users might find useful.'

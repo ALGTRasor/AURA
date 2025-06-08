@@ -8,6 +8,7 @@ export class PageProblems extends PageDescriptor
 	title = 'problems';
 	order_index = 98;
 	extra_page = true;
+	hidden_page = true;
 
 	OnOpen(instance)
 	{

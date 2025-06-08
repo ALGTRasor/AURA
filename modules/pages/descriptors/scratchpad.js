@@ -46,4 +46,4 @@ export class PageScratchPad extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageScratchPad('scratch pad'), 'x', 'Scratch Pad');
+PageManager.RegisterPage(new PageScratchPad('scratch pad', undefined, undefined, 'View and manage your notes about work.'), 'x', 'Scratch Pad');
