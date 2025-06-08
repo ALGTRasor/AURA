@@ -28,7 +28,7 @@ export class Fax
 			Fax.all = (await resp.text()).split('\n').map(x => x.trim()).filter(x => x != '');
 			Fax.allRead = Fax.all.length > 0;
 			Fax.allReading = false;
-			DebugLog.Log("...loaded fax");
+			DebugLog.Log("loaded fax");
 		}
 	}
 
@@ -40,11 +40,10 @@ export class Fax
 
 	static async RefreshFact()
 	{
-		DebugLog.StartGroup('refreshing fax');
 		let fact = await Fax.GetOne();
 		Fax.current_fact = fact;
-		Fax.e_marquee.innerHTML = '<div>' + fact + "</div>";
-		DebugLog.SubmitGroup();
+		Fax.e_marquee.innerHTML = `<div>${fact}</div>`;
+		DebugLog.Log('refreshed fact');
 	}
 }
 

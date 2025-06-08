@@ -1,8 +1,6 @@
 import { Autosave } from "./autosave.js";
-import { DebugLog } from "./debuglog.js";
-import { CreatePagePanel, FlashElement } from "./utils/domutils.js";
+import { FlashElement } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
-import { NotificationLog } from "./notificationlog.js";
 import { AppEvents } from "./appevents.js";
 import { ActionBar } from "./actionbar.js";
 
@@ -66,19 +64,17 @@ export class DevMode
 		if (DevMode.active) return;
 		Autosave.HookSaveEvent(DevMode.SaveState);
 		DevMode.active = true;
-		DebugLog.Log(' ~ debug mode active');
-		NotificationLog.Log('Activated Debug Mode');
-		AppEvents.onDebugModeActivated.Invoke();
+		document.documentElement.setAttribute('devmode', '');
+		AppEvents.Dispatch('debugmode-enabled');
 
 	}
 	static Deactivate()
 	{
 		if (!DevMode.active) return;
+		document.documentElement.removeAttribute('devmode');
 		Autosave.ReleaseSaveEvent(DevMode.SaveState);
 		DevMode.active = false;
-		DebugLog.Log(' ~ debug mode inactive');
-		NotificationLog.Log('Deactivated Debug Mode');
-		AppEvents.onDebugModeDeactivated.Invoke();
+		AppEvents.Dispatch('debugmode-disabled');
 	}
 
 	static TryLoadState()
@@ -99,11 +95,11 @@ export class DevMode
 		localStorage.setItem(lskey_devmode_state, JSON.stringify({ active: DevMode.active }));
 	}
 
-	static AddActivateAction(action = () => { }) { return AppEvents.onDebugModeActivated.RequestSubscription(action); }
-	static RemoveActivateAction(action_sub) { AppEvents.onDebugModeActivated.RemoveSubscription(action_sub); }
+	static AddActivateAction(action = () => { }) { AppEvents.AddListener('debugmode-enabled', action); }
+	static RemoveActivateAction(action = () => { }) { AppEvents.RemoveListener('debugmode-enabled', action); }
 
-	static AddDeactivateAction(action = () => { }) { return AppEvents.onDebugModeDeactivated.RequestSubscription(action); }
-	static RemoveDeactivateAction(action_sub) { AppEvents.onDebugModeDeactivated.RemoveSubscription(action_sub); }
+	static AddDeactivateAction(action = () => { }) { AppEvents.AddListener('debugmode-disabled', action); }
+	static RemoveDeactivateAction(action = () => { }) { AppEvents.RemoveListener('debugmode-disabled', action); }
 }
 
 Modules.Report('Developer Mode', 'This module adds debug functionality, if you have the expected permissions.');

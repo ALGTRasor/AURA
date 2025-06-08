@@ -28,6 +28,27 @@ export function getDurationString(duration_ms = 1000)
 }
 
 
+Date.prototype.to12HourTime = (d = new Date()) =>
+{
+    const fmt_str = s => s.toString().padStart(2, '0');
+
+    let hr = d.getHours();
+    let min = d.getMinutes();
+    let suffix = hr >= 12.0 ? 'PM' : 'AM';
+    return fmt_str(hr % 12) + ':' + fmt_str(min) + suffix;
+};
+
+export function Get12HourTimeString(d = new Date())
+{
+    const fmt_str = s => s.toString().padStart(2, '0');
+
+    let hr = d.getHours();
+    let min = d.getMinutes();
+    let suffix = hr >= 12.0 ? 'PM' : 'AM';
+    return fmt_str(hr % 12) + ':' + fmt_str(min) + suffix;
+}
+
+
 const seconds_per_minute = 60.0;
 const inv_seconds_per_minute = 1.0 / seconds_per_minute;
 

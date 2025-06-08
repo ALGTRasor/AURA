@@ -4,10 +4,11 @@ import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { FillBar } from "../../ui/fillbar.js";
+import { GlobalStyling } from "../../ui/global_styling.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { Trench } from "../../ui/trench.js";
-import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
+import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
@@ -445,10 +446,13 @@ export class PageUserAllocations extends PageDescriptor
 
 	UpdateMode(instance)
 	{
-		const fade_out = () => FadeElement(instance.panel_list.e_root_records_actual, 100, 0, 0.1);
-		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, 0.25);
+		let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
+		const fade_out = () => FadeElement(instance.panel_list.e_root_records_actual, 100, 0, fade_time);
+		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, fade_time);
 
 		instance.slide_mode.SetDisabled(true);
+
+		MarkElementLoading(instance.panel_list.e_root_records_actual);
 
 		fade_out().then(
 			_ =>
@@ -472,7 +476,11 @@ export class PageUserAllocations extends PageDescriptor
 		).then(
 			fade_in
 		).then(
-			() => { instance.slide_mode.SetDisabled(false); }
+			() =>
+			{
+				instance.slide_mode.SetDisabled(false);
+				ClearElementLoading(instance.panel_list.e_root_records_actual);
+			}
 		);
 	}
 

@@ -63,14 +63,14 @@ export class PageHome extends PageDescriptor
 			);
 		};
 		AppEvents.AddListener('permissions-changed', instance.repopulate);
-		instance.sub_debug_on = DevMode.AddActivateAction(instance.repopulate);
-		instance.sub_debug_off = DevMode.AddDeactivateAction(instance.repopulate);
+		DevMode.AddActivateAction(instance.repopulate);
+		DevMode.AddDeactivateAction(instance.repopulate);
 	}
 
 	OnRemoveElements(instance)
 	{
-		DevMode.RemoveActivateAction(instance.sub_debug_on);
-		DevMode.RemoveDeactivateAction(instance.sub_debug_off);
+		DevMode.RemoveActivateAction(instance.repopulate);
+		DevMode.RemoveDeactivateAction(instance.repopulate);
 		AppEvents.RemoveListener('permissions-changed', instance.repopulate);
 	}
 

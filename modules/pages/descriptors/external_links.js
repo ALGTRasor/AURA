@@ -1,10 +1,10 @@
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
+import { addElement, ClearElementLoading, CreatePagePanel, MarkElementLoading } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
-import { AppEvents } from "../../appevents.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
+import { until } from "../../utils/until.js";
 
 export class PageExternalLinks extends PageDescriptor
 {
@@ -42,8 +42,27 @@ export class PageExternalLinks extends PageDescriptor
 
 
 		instance.PopulateList = () => this.PopulateList(instance);
-		instance.refresh_timeout = new RunningTimeout(instance.PopulateList, 0.5, true, 150);
+		instance.refresh_timeout = new RunningTimeout(instance.PopulateList, 0.5, false, 150);
 		instance.refresh_soon = () => instance.refresh_timeout.ExtendTimer();
+
+		this.PopulateAfterData(instance);
+	}
+
+	PopulateAfterData(instance)
+	{
+		MarkElementLoading(instance.e_body_root);
+		until(
+			() =>
+			{
+				return window.SharedData.externalLinks.instance.data && window.SharedData.externalLinks.instance.data.length > 0;
+			}
+		).then(
+			_ =>
+			{
+				instance.PopulateList();
+				ClearElementLoading(instance.e_body_root);
+			}
+		);
 	}
 
 	PopulateList(instance)

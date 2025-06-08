@@ -3,8 +3,8 @@ import { AppInfo } from "./app_info.js";
 import { addElement, CreatePagePanel } from "./utils/domutils.js";
 import { OverlayManager } from "./ui/overlays.js";
 import { PageManager } from "./pagemanager.js";
-import { UserAccountManager } from "./useraccount.js";
 import { MegaTips } from "./systems/megatips.js";
+import { AccountStateManager } from "./systems/accountstatemanager.js";
 
 export class ActionBar
 {
@@ -13,6 +13,8 @@ export class ActionBar
 	static Initialize()
 	{
 		ActionBar.e_root = document.getElementById('action-bar');
+		ActionBar.e_title = document.getElementById('action-bar-title');
+		ActionBar.e_title.innerText = AppInfo.name;
 		ActionBar.e_icons_root = document.getElementById('action-bar-icons-container');
 		ActionBar.e_button_root = document.getElementById('action-bar-button-container');
 
@@ -89,12 +91,12 @@ export class ActionBar
 	{
 		if (ActionBar.e_button_login && ActionBar.e_button_login.remove) ActionBar.e_button_login.remove();
 
-		if (UserAccountManager.account_provider.logged_in)
+		if (AccountStateManager.tenant.logged_in === true)
 		{
 			ActionBar.e_button_login = ActionBar.AddMenuButton(
 				'Log Out', 'logout',
 				_ => OverlayManager.ShowConfirmDialog(
-					() => { UserAccountManager.ForceLogOut(); },
+					() => { AccountStateManager.tenant.OnTryLogOut(); },
 					() => { },
 					'Are you sure you want to log out?<br><br>'
 					+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function. You will be prompted to select another account.</span>`,
@@ -118,7 +120,7 @@ export class ActionBar
 				_ => 
 				{
 					const prompt_login = 'You will be prompted to select an account on the following screen.';
-					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => UserAccountManager.ForceLogOut())]);
+					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => AccountStateManager.tenant.TryLogOut())]);
 				},
 				_ =>
 				{

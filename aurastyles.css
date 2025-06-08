@@ -5,8 +5,8 @@
 	--info-bar-height: 2rem;
 	--limit-content-width: 1.0;
 	--spacing-multiplier: 0.0;
-	--gap-1: calc(2px + 0.95rem * var(--spacing-multiplier));
-	--gap-05: calc(2px + 0.45rem * var(--spacing-multiplier));
+	--gap-1: calc(6px + 0.95rem * var(--spacing-multiplier));
+	--gap-05: calc(4px + 0.45rem * var(--spacing-multiplier));
 	--gap-025: calc(2px + 0.2rem * var(--spacing-multiplier));
 
 	--ease-elastic: cubic-bezier(.4, -0.2, .6, 1.2);
@@ -105,6 +105,41 @@ body
 	transition-timing-function: ease-in-out;
 }
 
+html[devmode]::after
+{
+	content: 'DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE DEBUG MODE';
+
+	display: block;
+	z-index: 99999999;
+	pointer-events: none;
+	overflow: visible;
+
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+
+	border-radius: 2%;
+	color: #ff00ff05;
+	font-size: 100px;
+	line-height: 80px;
+	word-spacing: 120px;
+	letter-spacing: 20px;
+	font-weight: bold;
+	font-family: 'Calibri';
+
+	outline: solid 2px #f0fa;
+	outline-offset: -8px;
+
+	text-align: center;
+	align-content: center;
+
+	transform: translate(-50%, -50%);
+}
+
 .notransitions
 {
 	animation: none !important;
@@ -126,6 +161,50 @@ body
 		-o-transition: none !important;
 		transition: none !important;
 	}
+}
+
+
+body *[content-loading]
+{
+	pointer-events: none;
+	user-select: none;
+}
+
+
+@keyframes anim-loading-overlay
+{
+	0%
+	{
+		background-position: 0% 200%;
+	}
+
+	50%
+	{
+		background-position: 0% 0%;
+	}
+
+	100%
+	{
+		background-position: 0% -200%;
+	}
+}
+
+body *[content-loading]::after
+{
+	content: '';
+	z-index: 10;
+	position: absolute;
+	inset: 0;
+
+	backdrop-filter: blur(2px) saturate(30%);
+
+	background-size: 100% 400%;
+	background-image: linear-gradient(0deg, transparent 45%, rgb(from hsl(from var(--theme-color) h s 25%) r g b / 0.3) 50%, transparent 55%);
+
+	pointer-events: none;
+	user-select: none;
+
+	animation: anim-loading-overlay linear 3s infinite;
 }
 
 

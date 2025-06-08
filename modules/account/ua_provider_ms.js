@@ -126,10 +126,7 @@ export class MSAccountProvider extends UserAccountProvider
 		UserAccountManager.account_provider.logging_in = false;
 	}
 
-	async AfterAuthenticationError()
-	{
-
-	}
+	async AfterAuthenticationError() { }
 
 
 	AttemptReauthorize(reason = '')
@@ -162,11 +159,7 @@ export class MSAccountProvider extends UserAccountProvider
 		return url;
 	}
 
-	InitiateLogin()
-	{
-		var auth_url = this.GetAuthorizationURL();
-		window.open(auth_url, "_self");
-	}
+	InitiateLogin() { window.open(this.GetAuthorizationURL(), "_self"); }
 
 	ClearCachedData()
 	{
@@ -251,8 +244,5 @@ export class MSAccountProvider extends UserAccountProvider
 		}
 	}
 
-	async UpdateAccountProfilePicture(resp)
-	{
-		ActionBar.SetProfileImageSource('data:image/jpeg;base64,' + resp.body);
-	}
+	async UpdateAccountProfilePicture(resp) { ActionBar.SetProfileImageSource('data:image/jpeg;base64,' + resp.body); }
 }

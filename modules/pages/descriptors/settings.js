@@ -247,9 +247,14 @@ export class PageSettings extends PageDescriptor
 			{
 				instance.slide_mode.SetDisabled(true);
 
+				let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
+
 				instance.e_mode_content_root.style.translate = '0 -2rem';
 				instance.e_mode_content_root.pointerEvents = 'none';
-				if (instance.mode_ever_changed === true) await FadeElement(instance.e_mode_content_root, 100, 0, 0.1);
+				if (instance.mode_ever_changed === true)
+				{
+					await FadeElement(instance.e_mode_content_root, 100, 0, fade_time);
+				}
 				instance.mode_ever_changed = true;
 				instance.e_mode_content_root.innerHTML = '';
 				instance.e_mode_content_root.style.transitionDuration = '0s';
@@ -267,7 +272,7 @@ export class PageSettings extends PageDescriptor
 					case 3: this.CreateElements_Permissions(instance); break;
 				}
 				instance.e_mode_content_root.pointerEvents = 'all';
-				await FadeElement(instance.e_mode_content_root, 0, 100, 0.1);
+				await FadeElement(instance.e_mode_content_root, 0, 100, fade_time);
 				instance.slide_mode.SetDisabled(false);
 			};
 			perform_change();

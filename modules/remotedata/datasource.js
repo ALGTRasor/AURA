@@ -52,6 +52,8 @@ export class DataSourceDescriptor
 		this.data_model = data_model;
 		this.fields = (data_model && data_model.fields) ? data_model.fields : [];
 		this.view_filter = view_filter;
+
+		this.max_cache_duration = 5.0; // 5 default minute cache duration
 	}
 
 	async GetData() { return await window.DBLayer.GetRecords(this); }
@@ -166,7 +168,17 @@ export class DataSourceInstance extends EventTarget
 
 		let cache_ts = this.GetCacheTimestamp();
 		let cache_tsdelta = minutesDelta(cache_ts);
-		if (!cache_ts || cache_tsdelta > 1.0) { DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + (Math.round(cache_tsdelta * 10.0) * 0.1) + 'min'); return; }
+		if (!cache_ts)
+		{
+			DebugLog.Log(this.datasource.list_title + ' : Empty Cache');
+			return;
+		}
+		else if (cache_tsdelta > this.datasource.max_cache_duration)
+		{
+			let mins = Math.ceil(cache_tsdelta * 10.0) * 0.1;
+			DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + mins + ' of ' + this.datasource.max_cache_duration + ' min');
+			return;
+		}
 
 		let cache_value = localStorage.getItem(this.lskey_cache);
 		let cache_valid = typeof cache_value === 'string' && cache_value.length > 0;

@@ -1,6 +1,6 @@
 import "../useraccount.js";
 
-import { UserAccountInfo, UserAccountManager } from "../useraccount.js";
+import { UserAccountInfo } from "../useraccount.js";
 import { HotkeyDescriptor, Hotkeys } from "../utils/hotkeys.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { NotificationLog } from "../notificationlog.js";
@@ -20,6 +20,7 @@ import { AnimJob } from "../AnimJob.js";
 import { LongOps } from "./longops.js";
 import { Fax } from "./fax.js";
 import { MegaTips } from "./megatips.js";
+import { AccountStateManager } from "./accountstatemanager.js";
 
 export class AppCore extends EventTarget
 {
@@ -39,13 +40,8 @@ export class AppCore extends EventTarget
 		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // auth failure response received from a remote data request
 		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // any shared data table is downloaded
 
-		await UserAccountManager.CheckWindowLocationForCodes();
-		await UserAccountManager.AttemptAutoLogin();
+		await AccountStateManager.tenant.TryLogIn();
 		ActionBar.UpdateAccountButton();
-
-		let valid_tenant_account = UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true;
-		if (valid_tenant_account === true) AppEvents.Dispatch('account-login');
-		else AppEvents.Dispatch('account-login-failed');
 
 		GlobalStyling.Apply();
 
@@ -115,16 +111,15 @@ export class AppCore extends EventTarget
 			e.preventDefault();
 			let emsg = LongOps.active.length > 1 ? 'Operation Pending!' : 'Multiple Operations Pending!';
 			e.returnValue = emsg;
-			NotificationLog.Log(emsg, 'orange');
+			NotificationLog.Log(emsg, '#fa0');
 		}
 	}
 
 	static NotifyReauthorizeRequest()
 	{
 		DebugLog.Log('authentication required! auth error status from batch request');
-		UserAccountManager.account_provider.logged_in = false; // trigger reauthentication flow
 		OverlayManager.ShowConfirmDialog(
-			_ => { UserAccountManager.RequestLogin(); },
+			_ => { AccountStateManager.tenant.TryLogIn(); },
 			_ => { },
 			'Account token expired or invalid! Authentication required.',
 			'REAUTHENTICATE', 'IGNORE'
@@ -195,7 +190,7 @@ export class AppCore extends EventTarget
 
 	static RegisterHotkeys()
 	{
-		if (!UserAccountInfo.HasAppAccess()) return;
+		if (AccountStateManager.tenant.logged_in !== true) return;
 
 		const hkaction_save = (m, e) => { if (m.ctrl) Autosave.InvokeNow(); };
 		const hkinfo_save = { key_description: 'ctrl﹢s', action_description: 'Save Settings' };
@@ -212,14 +207,11 @@ export class AppCore extends EventTarget
 		PageManager.RegisterHotkeys();
 	}
 
-
 	static UpdateClock()
 	{
 		const e_clock = document.getElementById('info-bar-clock');
-		let d = new Date();
-		let hr = d.getHours();
-		let min = d.getMinutes();
-		e_clock.innerText = (hr % 12).toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + (hr >= 12.0 ? 'PM' : 'AM');
+		const d = new Date();
+		e_clock.innerText = d.to12HourTime();
 		e_clock.title = d.toTimeString();
 	}
 
@@ -234,30 +226,6 @@ export class AppCore extends EventTarget
 
 		if (UserAccountInfo.HasAppAccess() === true)
 		{
-			if (false)
-			{
-				ActionBar.AddMenuButton(
-					'refresh', 'refresh',
-					_ =>
-					{
-						OverlayManager.ShowConfirmDialog(
-							_ => { AppCore.RequestSharedDataRefresh(); },
-							_ => { },
-							'Refresh all shared data?<br><br>'
-							+ '<span style="opacity:50%;font-size:0.85rem;">This operation may take a few seconds.</span>',
-							'[Y]ES', '[N]o'
-						)
-					},
-					_ =>
-					{
-						_.title = 'Refresh all Shared Data.'
-							+ '\nShared Data does include all company, client, and employee related data.'
-							+ '\nShared Data does not include local app settings.'
-							+ '\nRefreshing Shared Data might take several seconds to complete.';
-					}
-				);
-			}
-
 			let e_btn_home = ActionBar.AddMenuButton(
 				'home', 'other_houses',
 				_ =>
@@ -308,16 +276,6 @@ export class AppCore extends EventTarget
 		if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');
 		else DebugLog.SubmitGroup();
 	}
-
-	static async RequestSharedDataRefresh()
-	{
-		DebugLog.StartGroup('manual refresh');
-		//await UserAccountManager.account_provider.DownloadAccountData();
-		//await AppCore.CheckIdentity();
-		await window.SharedData.LoadData(false);
-		DebugLog.SubmitGroup("#f808");
-	}
-
 
 	static HandleKeyUp(e)
 	{

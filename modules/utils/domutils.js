@@ -173,6 +173,15 @@ export async function FadeElement(target, opacity_from = 0, opacity_to = 100, du
 
 
 
+
+export function MarkElementLoading(e) { e?.setAttribute('content-loading', ''); }
+export function ClearElementLoading(e) { e?.removeAttribute('content-loading'); }
+
+
+
+
+
+
 const fade_duration_ms = 250;
 const fade_duration_quick_ms = 120;
 
