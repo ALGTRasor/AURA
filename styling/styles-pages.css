@@ -1351,3 +1351,12 @@
 	padding-top: var(--gap-025);
 	padding-bottom: var(--gap-025);
 }
+
+
+
+.file-drop-zone
+{
+	outline: dashed 3px hsl(from var(--theme-color) h s 60%);
+	outline-offset: -6px;
+	opacity: 50%;
+}

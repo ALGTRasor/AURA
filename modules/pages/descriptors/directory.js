@@ -198,7 +198,7 @@ export class PageDirectory extends PageDescriptor
 			instance.content_current.CreateElements();
 			instance.slide_directory.SetDisabled(false);
 			await FadeElement(instance.content_current.e_root, 0, 100, 0.125);
-			ClearElementLoading(instance.directory_content_root);
+			ClearElementLoading(instance.directory_content_root, 250);
 		};
 		perform();
 	}

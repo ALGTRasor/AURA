@@ -294,6 +294,7 @@ class PanelUserAllocationList extends PanelContent
 		this.e_root_records.classList.add('scroll-y');
 
 		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:column; gap:var(--gap-1);');
+		MarkElementLoading(this.e_root_records_actual);
 
 		this.e_actions = CreatePagePanel(this.e_root, true, false, 'display:flex; gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
@@ -479,7 +480,7 @@ export class PageUserAllocations extends PageDescriptor
 			() =>
 			{
 				instance.slide_mode.SetDisabled(false);
-				ClearElementLoading(instance.panel_list.e_root_records_actual);
+				ClearElementLoading(instance.panel_list.e_root_records_actual, 250);
 			}
 		);
 	}

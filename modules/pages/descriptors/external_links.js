@@ -60,7 +60,7 @@ export class PageExternalLinks extends PageDescriptor
 			_ =>
 			{
 				instance.PopulateList();
-				ClearElementLoading(instance.e_body_root);
+				ClearElementLoading(instance.e_body_root, 250);
 			}
 		);
 	}

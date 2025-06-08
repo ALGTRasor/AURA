@@ -353,7 +353,7 @@ export class OverlayManager
         return o;
     }
 
-    static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; })
+    static ShowFileUploadDialog(prompt = 'Select File', on_submit = files => { }, on_cancel = () => { }, upload_prompt = count => { return 'SUBMIT ' + count + ' FILES'; }, files = new FileList())
     {
         prompt = prompt.replaceAll('((', '<span style="color:white;">');
         prompt = prompt.replaceAll('))', '</span>');
@@ -519,6 +519,12 @@ export class OverlayManager
                                 );
                             }
                         );
+
+                        if (files)
+                        {
+                            o.input_file.files = files;
+                            o.input_file.dispatchEvent(new CustomEvent('change', { bubbles: true }));
+                        }
                     }
                 );
             },

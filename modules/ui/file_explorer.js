@@ -1,5 +1,5 @@
 import { Modules } from "../modules.js";
-import { addElement, CreatePagePanel, getTransitionStyle, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
+import { addElement, ClearElementLoading, CreatePagePanel, getTransitionStyle, MarkElementLoading, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
 import { DOMHighlight } from "../ui/domhighlight.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
 import { FileTypes } from "../utils/filetypes.js";
@@ -267,7 +267,7 @@ class FileExplorerItem
         if (tip.length < 1) return;
 
         if (warning === true) tip = `[[[${tip}]]]`;
-        else tip += '<br>';
+        tip += '<br>';
 
         this.tooltips.push(tip);
     }
@@ -326,7 +326,10 @@ class FileExplorerItem
 
         switch (this.item_type)
         {
-            case 'file': this.AddTooltip(undefined, 'Click to select', true); this.AddTooltip(undefined, 'Double-click to open', true); break;
+            case 'file':
+                this.AddTooltip(undefined, 'Click to select', true);
+                this.AddTooltip(undefined, 'Double-click to open', true);
+                break;
             case 'folder': this.AddTooltip(undefined, 'Click to open folder', true); break;
             case 'bundle': this.AddTooltip(undefined, 'Click to open folder', true); break;
         }
@@ -1052,7 +1055,7 @@ export class FileExplorer extends PanelContent
         this.e_root = CreatePagePanel(this.e_parent, false, false, null, _ => _.classList.add('file-explorer-root'));
         this.e_root.tabIndex = '0';
 
-        this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
+        //this.load_blocker = addElement(this.e_root, 'div', null, null, _ => _.classList.add('file-explorer-load-blocker'));
 
         this.trench_actions = new Trench(this.e_root, true);
         setTransitionStyle(this.trench_actions.e_root, 'height, min-height', '--trans-dur-off-fast');
@@ -1073,7 +1076,54 @@ export class FileExplorer extends PanelContent
         this.header_row.CreateElements();
         this.e_items_container = addElement(this.e_items_root, 'div', 'file-explorer-items-container scroll-y', _ => { });
 
+        this.e_items_root.addEventListener('dragover', e => e.preventDefault());
+        this.e_items_root.addEventListener('dragenter', e => this.onDragEnter(e));
+        this.e_items_root.addEventListener('dragleave', e => this.onDragLeave(e));
+        this.e_items_root.addEventListener('drop', e => this.onDrop(e));
+
         if (this.autonavigate === true) this.NavigateAfter(this.base_relative_path ?? '', 130);
+    }
+
+    onDragEnter(event)
+    {
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.e_items_root.classList.remove('file-drop-zone');
+        this.e_items_root.classList.add('file-drop-zone');
+    }
+    onDragLeave(event)
+    {
+        event.preventDefault();
+        event.stopPropagation();
+        this.e_items_root.classList.remove('file-drop-zone');
+    }
+
+    onDrop(event)
+    {
+        const get_last_path_part = path =>
+        {
+            let parts = path.split('/');
+            if (parts && parts.length > 0) return parts[parts.length - 1];
+            return path;
+        };
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.e_items_root.classList.remove('file-drop-zone');
+
+        if (event.dataTransfer.files)
+        {
+            OverlayManager.ShowFileUploadDialog(
+                'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
+                + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
+                files => { this.UploadFilesAtCurrentPath(files); },
+                () => { NotificationLog.Log('Cancelled Uploading File(s)', '#f86'); },
+                count => { return 'SUBMIT ' + count + ' FILES'; },
+                event.dataTransfer.files
+            );
+        }
     }
 
     OnRefreshElements(expanded = false)
@@ -1324,6 +1374,41 @@ export class FileExplorer extends PanelContent
 
     static async ReadFileContents(file_ref) { return await new Response(file_ref).arrayBuffer(); }
 
+
+    UploadFilesAtCurrentPath(files = [])
+    {
+        if (!files || files.length < 1) return;
+
+        this.OnStartLoading();
+
+        let uploads = [];
+
+        let fid = 0;
+        while (fid < files.length)
+        {
+            const file = files.item(fid);
+            fid++;
+            if (file.size > (150 * bytes_mb)) continue;
+            uploads.push(new FileUploadInstance(file, this.drive_id, this.relative_path_current));
+        }
+
+        if (uploads.length < 1)
+        {
+            this.OnStopLoading();
+            return;
+        }
+
+        Promise.allSettled(
+            uploads.map(u => u['Process']())
+        ).then(
+            _ =>
+            {
+                NotificationLog.Log('Done Uploading File(s)', '#0f0');
+                this.Navigate(this.relative_path_current);
+            }
+        ).catch(_ => { NotificationLog.Log('Error While Uploading File(s)', '#f00'); });
+    }
+
     RequestUploadFile()
     {
         const get_last_path_part = path =>
@@ -1336,60 +1421,27 @@ export class FileExplorer extends PanelContent
         OverlayManager.ShowFileUploadDialog(
             'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
             + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
-            files =>
-            {
-                if (files)
-                {
-                    this.OnStartLoading();
-
-                    let uploads = [];
-
-                    let fid = 0;
-                    while (fid < files.length)
-                    {
-                        const file = files.item(fid);
-                        if (file.size < (150 * bytes_mb)) uploads.push(new FileUploadInstance(file, this.drive_id, this.relative_path_current));
-                        fid++;
-                    }
-
-                    if (uploads.length < 1)
-                    {
-                        this.OnStopLoading();
-                        return;
-                    }
-
-                    Promise.allSettled(
-                        uploads.map(u => u['Process']())
-                    ).then(
-                        _ =>
-                        {
-                            NotificationLog.Log('Done Uploading File(s)', '#0f0');
-                            this.Navigate(this.relative_path_current);
-                        }
-                    ).catch(_ => { NotificationLog.Log('Error While Uploading File(s)', '#f00'); });
-                }
-            },
-            () =>
-            {
-                NotificationLog.Log('Cancelled Uploading File(s)', '#f86');
-            }
+            files => { this.UploadFilesAtCurrentPath(files); },
+            () => { NotificationLog.Log('Cancelled Uploading File(s)', '#f86'); }
         );
     }
 
     OnStartLoading()
     {
+        MarkElementLoading(this.e_items_root);
         this.loading_items = true;
-        this.load_blocker.style.opacity = '100%';
-        this.load_blocker.style.pointerEvents = 'all';
+        //this.load_blocker.style.opacity = '100%';
+        //this.load_blocker.style.pointerEvents = 'all';
         if (this.on_load_start) this.on_load_start();
     }
 
     OnStopLoading()
     {
         this.loading_items = false;
-        this.load_blocker.style.opacity = '0%';
-        this.load_blocker.style.pointerEvents = 'none';
+        //this.load_blocker.style.opacity = '0%';
+        //this.load_blocker.style.pointerEvents = 'none';
         if (this.on_load_stop) this.on_load_stop();
+        ClearElementLoading(this.e_items_root);
     }
 
     DownloadFile(file_url = '') { window.open(file_url, '_blank'); }
