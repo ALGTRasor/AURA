@@ -56,14 +56,16 @@ export class AccountState extends EventTarget
 		return result;
 	}
 
+	async RefreshAccess()
+	{
+		await this.OnRefreshAccess();
+	}
+
 	async OnTryLogIn() { NotificationLog.Log('<< LOGIN >> NOT IMPLEMENTED'); }
 	async OnTryLogOut() { NotificationLog.Log('<< LOGOUT >> NOT IMPLEMENTED'); }
 
-	async OnVerifyAccess()
-	{
-		NotificationLog.Log('<< VERIFY >> NOT IMPLEMENTED');
-		return false;
-	}
+	async OnVerifyAccess() { NotificationLog.Log('<< VERIFY >> NOT IMPLEMENTED'); }
+	async OnRefreshAccess() { NotificationLog.Log('<< REFRESH >> NOT IMPLEMENTED'); }
 }
 
 Modules.Report("Account States", "This module introduces the AccountState, which manages the log-in state of 3rd party accounts.");

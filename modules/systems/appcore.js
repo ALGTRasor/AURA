@@ -117,9 +117,9 @@ export class AppCore extends EventTarget
 
 	static NotifyReauthorizeRequest()
 	{
-		DebugLog.Log('authentication required! auth error status from batch request');
+		DebugLog.Log('<< Authentication Requested >>');
 		OverlayManager.ShowConfirmDialog(
-			_ => { AccountStateManager.tenant.TryLogIn(); },
+			_ => { AccountStateManager.tenant.RefreshAccess(); },
 			_ => { },
 			'Account token expired or invalid! Authentication required.',
 			'REAUTHENTICATE', 'IGNORE'

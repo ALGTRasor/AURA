@@ -87,7 +87,7 @@ export class MSAccountProvider extends UserAccountProvider
 	{
 		UserAccountManager.account_provider.logging_in = true;
 
-		DebugLog.StartGroup('autologin');
+		DebugLog.Log('autologin start');
 		this.LoadCachedData();
 
 		if (this.has_access_token) // may still be invalid or expired
@@ -114,19 +114,21 @@ export class MSAccountProvider extends UserAccountProvider
 			localStorage.removeItem(lskey_login_attempts);
 			localStorage.removeItem(lskey_login_forced);
 
-			DebugLog.SubmitGroup('#0f04');
+			DebugLog.Log('autologin done');
 			UserAccountManager.account_provider.logged_in = true;
 		}
 		else
 		{
 			DebugLog.Log('! authorization required');
-			DebugLog.SubmitGroup('#f004');
+			DebugLog.Log('autologin failed');
 			UserAccountManager.account_provider.logged_in = false;
 		}
 		UserAccountManager.account_provider.logging_in = false;
 	}
 
-	async AfterAuthenticationError() { }
+	async AfterAuthenticationError()
+	{
+	}
 
 
 	AttemptReauthorize(reason = '')

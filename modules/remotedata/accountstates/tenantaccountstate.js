@@ -16,15 +16,15 @@ export class TenantAccountState extends AccountState
         else AppEvents.Dispatch('account-login-failed');
     }
 
-    async OnVerifyAccess()
-    {
-        NotificationLog.Log('ACCOUNT VERIFY NOT IMPLEMENTED');
-        return this.logged_in === true;
-    }
-
     async OnTryLogOut()
     {
         this.logged_in = false;
         UserAccountManager.ForceLogOut();
+    }
+
+    async OnRefreshAccess()
+    {
+        UserAccountManager.account_provider.AttemptReauthorize();
+        this.logged_in = UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true;
     }
 }
