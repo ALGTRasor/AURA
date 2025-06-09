@@ -122,7 +122,7 @@ html[devmode]::after
 	padding: 0;
 	margin: 0;
 
-	border-radius: 2%;
+	border-radius: var(--gap-1);
 	color: #ff00ff05;
 	font-size: 100px;
 	line-height: 80px;
@@ -131,8 +131,8 @@ html[devmode]::after
 	font-weight: bold;
 	font-family: 'Calibri';
 
-	outline: solid 2px #f0fa;
-	outline-offset: -8px;
+	outline: solid 3px #f0fa;
+	outline-offset: calc(-1 * var(--gap-05));
 
 	text-align: center;
 	align-content: center;
