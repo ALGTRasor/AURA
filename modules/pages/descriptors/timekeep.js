@@ -28,7 +28,7 @@ export class PageTimekeep extends PageDescriptor
 						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "Active Allocations" });
 						instance.e_unused_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-grow:1.0; overflow-y:auto; padding:var(--gap-05); gap:var(--gap-025); justify-content:flex-start;');
 						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "Past Allocations" });
-						instance.e_used_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-basis:fit-content; flex-grow:0.0; overflow-y:auto; padding:var(--gap-05); gap:var(--gap-025); justify-content:flex-start;');
+						instance.e_used_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-basis:fit-content; flex-grow:0.0; overflow-y:auto; max-height:20rem; padding:var(--gap-05); gap:var(--gap-025); justify-content:flex-start;');
 					}
 				);
 			}
