@@ -44,8 +44,8 @@ export class PageHelp extends PageDescriptor
 		if (instance.topicList) instance.topicList.remove();
 
 		let all_topics = [];
-		if (instance.state_data.topic && instance.state_data.topic.length > 0) all_topics = instance.state_data.topic.split(';');
-		if (all_topics.length < 1) instance.state_data.topic = '';
+		if (instance.state.data.topic && instance.state.data.topic.length > 0) all_topics = instance.state.data.topic.split(';');
+		if (all_topics.length < 1) instance.state.data.topic = '';
 
 		let topics = [];
 		for (let hid in Help.all_help)
@@ -64,9 +64,9 @@ export class PageHelp extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true)
+		if (instance.state.data.docked === true)
 		{
-			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '48rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '48rem';
 			else instance.e_frame.style.maxWidth = '24rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';

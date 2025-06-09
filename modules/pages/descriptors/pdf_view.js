@@ -13,7 +13,7 @@ export class PagePdfView extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.state_data.target_url = '';
+		instance.state.data.target_url = '';
 
 		instance.e_frame.style.minWidth = '32rem';
 		instance.e_content.style.overflow = 'hidden';
@@ -22,7 +22,7 @@ export class PagePdfView extends PageDescriptor
 
 		instance.viewer = new PdfContent(instance.e_viewer_root);
 		instance.viewer.CreateElements();
-		if ('target_url' in instance.state_data) instance.viewer.Load(instance.state_data.target_url);
+		if ('target_url' in instance.state.data) instance.viewer.Load(instance.state.data.target_url);
 	}
 
 	UpdateSize(instance)
@@ -33,7 +33,7 @@ export class PagePdfView extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		let fixed_width = instance.state_data.docked === true && instance.state_data.expanding === false;
+		let fixed_width = instance.state.data.docked === true && instance.state.data.expanding === false;
 		if (fixed_width === true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = '64rem';
 	}

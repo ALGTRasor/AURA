@@ -5,6 +5,37 @@ import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
 import { Ripples } from "../ui/ripple.js";
 
+
+// class handling the state and state data of a page instance 
+export class PageInstanceState extends EventTarget
+{
+	constructor(page_instance, data = {})
+	{
+		super();
+		this.page_instance = page_instance;
+		this.data = {};
+		this.SetData(data);
+	}
+
+	SetData(data = {}, skip_equal_values = true)
+	{
+		let any_change = false;
+		for (let prop_id in data)
+		{
+			if (skip_equal_values === true && this.data[prop_id] === data[prop_id]) continue;
+			this.data[prop_id] = data[prop_id];
+			any_change = true;
+		}
+		this.dispatchEvent(new CustomEvent('datachange', { detail: data }));
+		return any_change;
+	}
+
+	Get(property_name = '', default_value = undefined) { return this.data[property_name] ?? default_value; }
+	Set(property_name = '', value = undefined) { this.data[property_name] = value; }
+}
+
+
+// an instance of a page constructed from a PageDescriptor and predetermined state data
 export class PageInstance
 {
 	static Nothing = new PageInstance();
@@ -21,9 +52,17 @@ export class PageInstance
 		this.e_frame = {};
 		this.e_body = {};
 		this.e_content = {};
-		this.state_data = {};
 
-		this.UpdateStateData(state_data);
+		this.state = new PageInstanceState(this, state_data);
+
+		//this.state.data = {};
+		//this.UpdateStateData(state_data);
+	}
+
+	RequireSharedDataTable(datatable)
+	{
+		datatable.instance.addEventListener('datachange', this.Refresh);
+		this.relations = datatable.AddNeeder();
 	}
 
 	SetContentBodyLabel(text)
@@ -84,7 +123,7 @@ export class PageInstance
 
 	TogglePinned()
 	{
-		this.state_data.pinned = this.state_data.pinned !== true;
+		this.state.Set('pinned', this.state.Get('pinned') !== true);
 		PageManager.onLayoutChange.Invoke();
 	}
 
@@ -107,8 +146,8 @@ export class PageInstance
 		const loose_root = 'content-page-frames-loose';
 		const docked_root = 'content-page-frames-root';
 		const pinned_root = 'content-page-frames-pinned';
-		if (this.state_data.pinned === true) return document.getElementById(pinned_root);
-		if (this.state_data.docked === true) return document.getElementById(docked_root);
+		if (this.state.Get('pinned') === true) return document.getElementById(pinned_root);
+		if (this.state.Get('docked') === true) return document.getElementById(docked_root);
 		return document.getElementById(loose_root);
 	}
 
@@ -136,7 +175,7 @@ export class PageInstance
 	{
 		const loose_root = 'content-pages-loose';
 		const docked_root = 'content-pages-root';
-		if (this.state_data.docked === true) return document.getElementById(docked_root);
+		if (this.state.Get('docked') === true) return document.getElementById(docked_root);
 		return document.getElementById(loose_root);
 	}
 
@@ -149,41 +188,41 @@ export class PageInstance
 	DetermineFrameClassList()
 	{
 		this.e_body.classList.remove('page-loose');
-		if (this.state_data.docked !== true) this.e_body.classList.add('page-loose');
+		if (this.state.Get('docked') !== true) this.e_body.classList.add('page-loose');
 	}
 
 	SetDepth(depth = 10)
 	{
-		this.state_data.depth = depth;
-		if (this.e_body) this.e_body.style.zIndex = this.state_data.depth;
+		this.state.Get('depth') = depth;
+		if (this.e_body) this.e_body.style.zIndex = this.state.Get('depth');
 	}
 
 	ModifyDepth(depth_delta = 0)
 	{
-		if ('depth' in this.state_data) this.state_data.depth += depth_delta;
-		else this.state_data.depth = depth_delta;
+		if ('depth' in this.state.data) this.state.data.depth += depth_delta;
+		else this.state.data.depth = depth_delta;
 
-		if (this.e_body) this.e_body.style.zIndex = this.state_data.depth;
+		if (this.e_body) this.e_body.style.zIndex = this.state.data.depth;
 	}
 
 	TryToggleDocked()
 	{
-		if (this.state_data.docked === true) this.TryUndock(); else this.TryDock();
+		if (this.state.data.docked === true) this.TryUndock(); else this.TryDock();
 		Ripples.SpawnFromElement(this.e_body);
 	}
 
 	TryUndock()
 	{
-		this.state_data.expanding = false;
-		this.state_data.docked = false;
+		this.state.data.expanding = false;
+		this.state.data.docked = false;
 
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
-		this.state_data.position_x = frame_rect.x - frame_parent_rect.x + 8;
-		this.state_data.position_y = frame_rect.y - frame_parent_rect.y + 8;
-		this.state_data.width = frame_rect.width - 16;
-		this.state_data.height = frame_rect.height - 16;
+		this.state.data.position_x = frame_rect.x - frame_parent_rect.x + 8;
+		this.state.data.position_y = frame_rect.y - frame_parent_rect.y + 8;
+		this.state.data.width = frame_rect.width - 16;
+		this.state.data.height = frame_rect.height - 16;
 
 		this.DisableBodyTransitions();
 		this.ApplyFrameState();
@@ -192,7 +231,7 @@ export class PageInstance
 
 	TryDock()
 	{
-		this.state_data.docked = this.page_descriptor.dockable === true;
+		this.state.data.docked = this.page_descriptor.dockable === true;
 		this.ApplyFrameState();
 	}
 
@@ -211,14 +250,14 @@ export class PageInstance
 	// called from titlebar drag event
 	SetLoosePosition(new_x = 0, new_y = 0)
 	{
-		this.state_data.position_x = Math.round(new_x);
-		this.state_data.position_y = Math.round(new_y);
+		this.state.data.position_x = Math.round(new_x);
+		this.state.data.position_y = Math.round(new_y);
 		this.ApplyFrameState(true);
 	}
 
 	ToggleExpanding()
 	{
-		this.state_data.expanding = this.state_data.expanding !== true;
+		this.state.data.expanding = this.state.data.expanding !== true;
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 		this.UpdateBodyTransform();
 		this.ApplyFrameState(true);
@@ -297,13 +336,13 @@ export class PageInstance
 	{
 		if (!this.e_frame || !this.e_frame.parentElement) return;
 
-		this.state_data.position_x = Math.round(this.state_data.position_x);
-		this.state_data.position_y = Math.round(this.state_data.position_y);
+		this.state.data.position_x = Math.round(this.state.data.position_x);
+		this.state.data.position_y = Math.round(this.state.data.position_y);
 
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
-		if (this.state_data.docked === true || this.state_data.pinned === true)
+		if (this.state.data.docked === true || this.state.data.pinned === true)
 		{
 			this.e_frame.style.position = 'relative';
 			this.e_frame.style.left = 'unset';
@@ -314,7 +353,7 @@ export class PageInstance
 		else
 		{
 			this.e_frame.style.position = 'absolute';
-			if (this.state_data.expanding === true)
+			if (this.state.data.expanding === true)
 			{
 				this.e_frame.style.left = 0;
 				this.e_frame.style.top = 0;
@@ -323,10 +362,10 @@ export class PageInstance
 			}
 			else
 			{
-				this.e_frame.style.left = this.state_data.position_x + 'px';
-				this.e_frame.style.top = this.state_data.position_y + 'px';
-				this.e_frame.style.width = this.state_data.width + 'px';
-				this.e_frame.style.height = this.state_data.height + 'px';
+				this.e_frame.style.left = this.state.data.position_x + 'px';
+				this.e_frame.style.top = this.state.data.position_y + 'px';
+				this.e_frame.style.width = this.state.data.width + 'px';
+				this.e_frame.style.height = this.state.data.height + 'px';
 			}
 		}
 
@@ -339,7 +378,7 @@ export class PageInstance
 
 	RequireStateProperty(property_name = '', default_value = undefined)
 	{
-		if (!(property_name in this.state_data)) this.state_data[property_name] = default_value;
+		if (!(property_name in this.state.data)) this.state.data[property_name] = default_value;
 	}
 
 	ValidateStateData()
@@ -359,21 +398,12 @@ export class PageInstance
 	GetStateValue(key = '', value_default = undefined)
 	{
 		if (typeof key === 'string' && key.length < 1) return value_default;
-		return this.state_data[key] ?? value_default;
+		return this.state.data[key] ?? value_default;
 	}
 
 	UpdateStateData(state_data = undefined)
 	{
-		if (state_data)
-		{
-			let any_applied = false;
-			for (let prop_id in state_data)
-			{
-				this.state_data[prop_id] = state_data[prop_id];
-				any_applied = true;
-			}
-			if (any_applied === true) this.page_descriptor.OnStateChange(this);
-		}
+		if (this.state.SetData(state_data)) this.page_descriptor.OnStateChange(this);
 	}
 
 	ApplyStateData()

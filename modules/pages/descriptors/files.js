@@ -85,9 +85,9 @@ export class PageFiles extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true)
+		if (instance.state.data.docked === true)
 		{
-			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '86rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '86rem';
 			else instance.e_frame.style.maxWidth = '32rem';
 		}
 		else
@@ -95,7 +95,7 @@ export class PageFiles extends PageDescriptor
 			instance.e_frame.style.maxWidth = 'unset';
 		}
 
-		instance.explorer.RefreshElements(instance.state_data.expanding);
+		instance.explorer.RefreshElements(instance.state.data.expanding);
 		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 500);
 	}
 }

@@ -352,12 +352,12 @@ export class LongOps extends EventTarget
 		LongOps.instance.dispatchEvent(new CustomEvent("startop", { detail: { op: op } }));
 		LongOps.instance.dispatchEvent(new CustomEvent("opchange", { detail: { op: op } }));
 
-		LongOpsUI.instance.SetVisible(true);
-		//LongOpsUI.instance.AppendListElement(op);
+		if (data.silent !== true || LongOpsUI.instance.visible === true) LongOpsUI.instance.SetVisible(true);
 
-		LongOps.toggle_info.e_icon.style.opacity = '80%';
-		LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');
-		FlashElement(LongOps.toggle_info.e_btn, 1.0, 1.0, 'black');
+		//LongOps.toggle_info.e_icon.style.opacity = '80%';
+		//LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');
+		//FlashElement(LongOps.toggle_info.e_btn, 1.0, 1.0, 'black');
+
 		return op;
 	}
 

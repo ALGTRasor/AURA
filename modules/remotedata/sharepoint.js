@@ -349,31 +349,12 @@ export class SharePoint
 
 	static HandleListItemsResult(table, result) 
 	{
+		const data_model = table.instance.datasource.data_model;
+
 		const expand_fields = x => { return x.fields ?? x; };
 		let page_items = result.body.value.map(expand_fields);
 
-		// executes the expander on data in all DataFieldDescs that contain an expander
-		for (let field_id in table.instance.datasource.data_model.field_descs)
-		{
-			let desc = table.instance.datasource.data_model.field_descs[field_id];
-			if ('expander' in desc && typeof desc.expander === 'function')
-			{
-				DebugLog.Log('expanded field: ' + desc.label);
-				const try_expand = record =>
-				{
-					try
-					{
-						record[desc.key] = desc.expander(record[desc.key]);
-					}
-					catch (e)
-					{
-						DebugLog.Log('error expanding field ' + desc.key + ': ' + e, "#f55");
-					}
-					return record;
-				};
-				page_items = page_items.map(try_expand);
-			}
-		}
+		if ('expander' in data_model) page_items = page_items.map(data_model.expander);
 
 		table.instance.data = (table.instance.data ?? []).concat(page_items);
 		table.instance.loaded = true;

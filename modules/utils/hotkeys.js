@@ -1,5 +1,5 @@
 import { DebugLog } from "../debuglog.js";
-import { DevMode } from "../devmode.js";
+import { DevMode } from "../systems/devmode.js";
 
 export class HotkeyDescriptor
 {

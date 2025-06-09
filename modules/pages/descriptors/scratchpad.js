@@ -40,7 +40,7 @@ export class PageScratchPad extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		let fixed_width = instance.state_data.docked === true && instance.state_data.expanding === false;
+		let fixed_width = instance.state.data.docked === true && instance.state.data.expanding === false;
 		if (fixed_width === true) instance.e_frame.style.maxWidth = '24rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 	}

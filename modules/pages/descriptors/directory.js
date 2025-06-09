@@ -211,7 +211,7 @@ export class PageDirectory extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true && instance.state_data.expanding === false) instance.e_frame.style.maxWidth = '24rem';
+		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '24rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 
 		window.setTimeout(() => instance.slide_directory.ApplySelection(), 250);

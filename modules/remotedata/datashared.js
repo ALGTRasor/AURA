@@ -144,7 +144,7 @@ export class SharedData
 			DebugLog.Log('fetching missing shared data...');
 		}
 
-		let longop = LongOps.Start('shared-data-download-' + Math.random() * 89999 + 10000, { label: 'Reload Shared Data' });
+		let longop = LongOps.Start('shared-data-download-' + Math.random() * 89999 + 10000, { label: 'Reload Shared Data', silent: true });
 
 		for (let table_id in SharedData.all_tables)
 		{

@@ -15,7 +15,7 @@ import { Welcome } from "../ui/welcomes.js";
 import { Autosave } from "../autosave.js";
 import { DebugLog } from "../debuglog.js";
 import { AppStrap } from "./appstrap.js";
-import { DevMode } from "../devmode.js";
+import { DevMode } from "./devmode.js";
 import { AnimJob } from "../AnimJob.js";
 import { LongOps } from "./longops.js";
 import { Fax } from "./fax.js";

@@ -1,5 +1,5 @@
 import { AppEvents } from "../../appevents.js";
-import { DevMode } from "../../devmode.js";
+import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
 import { UserAccountInfo } from "../../useraccount.js";
@@ -178,8 +178,7 @@ export class PageHome extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true && instance.state_data.expanding === false)
-			instance.e_frame.style.maxWidth = '20rem';
+		if (instance.state.Get('docked') === true && instance.state.Get('expanding') === false) instance.e_frame.style.maxWidth = '20rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
 }

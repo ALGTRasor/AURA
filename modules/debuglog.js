@@ -1,4 +1,4 @@
-import { DevMode } from "./devmode.js";
+import { DevMode } from "./systems/devmode.js";
 import { addElement } from "./utils/domutils.js";
 import { GlobalStyling } from "./ui/global_styling.js";
 import { NotificationLog } from "./notificationlog.js";

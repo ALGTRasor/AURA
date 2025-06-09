@@ -14,13 +14,13 @@ export class PageMap extends PageDescriptor
 
 	Resize(instance)
 	{
-		instance.state_data.expanding = instance.state_data.expanding !== true;
+		instance.state.data.expanding = instance.state.data.expanding !== true;
 		this.UpdateSize(instance);
 	}
 
 	UpdateSize(instance)
 	{
-		if (instance.state_data.expanding) instance.e_frame.style.maxWidth = 'unset';
+		if (instance.state.data.expanding) instance.e_frame.style.maxWidth = 'unset';
 		else instance.e_frame.style.maxWidth = '17rem';
 	}
 

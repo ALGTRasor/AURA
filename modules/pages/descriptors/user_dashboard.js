@@ -327,7 +327,7 @@ export class PageMyData extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true && instance.state_data.expanding === false) instance.e_frame.style.maxWidth = '36rem';
+		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '36rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 
 		window.setTimeout(

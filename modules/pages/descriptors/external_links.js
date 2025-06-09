@@ -119,7 +119,7 @@ export class PageExternalLinks extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true) instance.e_frame.style.maxWidth = '32rem';
+		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 
 		let frame_rect = instance.e_frame.getBoundingClientRect();

@@ -5,7 +5,7 @@ import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageDescriptor } from "./pages/pagebase.js";
 import { UserAccountInfo } from "./useraccount.js";
-import { DevMode } from "./devmode.js";
+import { DevMode } from "./systems/devmode.js";
 import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";
 import { NotificationLog } from "./notificationlog.js";
 
@@ -121,7 +121,7 @@ export class PageManager
 
 	static CacheCurrentLayout()
 	{
-		const get_page_data = _ => { return { title: _.page_descriptor.title, state: _.state_data } };
+		const get_page_data = _ => { return { title: _.page_descriptor.title, state: _.state.data } };
 		const pages_sort = (x, y) =>
 		{
 			if (x.siblingIndex > y.siblingIndex) return 1;
@@ -228,7 +228,7 @@ export class PageManager
 		PageManager.page_instance_focused = page_instance;
 		PageManager.page_instance_focused.e_body.classList.add('page-focused');
 		page_instance.title_bar.e_root.focus();
-		if (page_instance.state_data.docked !== true) PageManager.BringToFront(page_instance);
+		if (page_instance.state.Get('docked') !== true) PageManager.BringToFront(page_instance);
 	}
 
 	static BringToFront(page_instance = undefined)

@@ -493,9 +493,9 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true)
+		if (instance.state.data.docked === true)
 		{
-			if (instance.state_data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
 			else instance.e_frame.style.maxWidth = '32rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';

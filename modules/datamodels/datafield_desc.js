@@ -22,7 +22,6 @@ export class DataFieldDesc
         this.format = format;
         this.multiline = multiline;
         this.read_only = read_only;
-        this.expander = undefined;
     }
 }
 

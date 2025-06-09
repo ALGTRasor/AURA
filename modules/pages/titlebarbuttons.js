@@ -43,7 +43,7 @@ export class TitleBarButtonDescriptor
 				let pageInstance = PageManager.GetInstanceByTitle('help');
 				if (pageInstance) 
 				{
-					//let topic_prev = pageInstance.state_data.topic;
+					//let topic_prev = pageInstance.state.data.topic;
 					//let topics_prev = topic_prev ? topic_prev.split(';') : [];
 					//topics_prev.push(topic);
 					//topics_prev = Distinct(topics_prev);
@@ -65,7 +65,7 @@ export class TitleBarButtonDescriptor
 		},
 		(data) =>
 		{
-			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
+			const is_page_docked = p => 'docked' in p.state.data && p.state.data.docked === true;
 			if ('page' in data)
 			{
 				if (is_page_docked(data.page)) return 'Undock this page';
@@ -76,7 +76,7 @@ export class TitleBarButtonDescriptor
 		_ =>
 		{
 			_.sort_order = 0;
-			const is_page_docked = p => 'docked' in p.state_data && p.state_data.docked === true;
+			const is_page_docked = p => 'docked' in p.state.data && p.state.data.docked === true;
 			_.get_color = data => is_page_docked(data.page) ? '' : 'cyan';
 		}
 	);
@@ -92,7 +92,7 @@ export class TitleBarButtonDescriptor
 	static PageToggleExpanding = new TitleBarButtonDescriptor(
 		(data) =>
 		{
-			return data.page.state_data.docked === true ? 'fit_page_width' : 'fit_screen';
+			return data.page.state.data.docked === true ? 'fit_page_width' : 'fit_screen';
 		},
 		(e, data) =>
 		{
@@ -103,7 +103,7 @@ export class TitleBarButtonDescriptor
 		},
 		(data) =>
 		{
-			const is_page_expanding = p => 'expanding' in p.state_data && p.state_data.expanding === true;
+			const is_page_expanding = p => 'expanding' in p.state.data && p.state.data.expanding === true;
 			if ('page' in data)
 			{
 				if (is_page_expanding(data.page)) return 'Collapse this page';
@@ -113,7 +113,7 @@ export class TitleBarButtonDescriptor
 		},
 		_ =>
 		{
-			const is_page_expanding = p => 'expanding' in p.state_data && p.state_data.expanding === true;
+			const is_page_expanding = p => 'expanding' in p.state.data && p.state.data.expanding === true;
 			_.sort_order = -10;
 			_.get_color = data => is_page_expanding(data.page) ? 'cyan' : '';
 		}

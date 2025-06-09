@@ -8,10 +8,12 @@ export class DataTableDesc
     fields = [];
     field_descs = {};
 
-    constructor(field_descs = {})
+    constructor(field_descs = {}, expander = _ => _)
     {
         this.fields = [];
         this.field_descs = {};
+        this.expander = expander;
+
         for (let key in field_descs) 
         {
             this.fields.push(key);
@@ -19,7 +21,7 @@ export class DataTableDesc
         }
     }
 
-    static Build(descs = [])
+    static Build(descs = [], expander = _ => _)
     {
         let descs_expanded = {};
         for (let desc_index in descs)
@@ -35,11 +37,10 @@ export class DataTableDesc
             if ('format' in desc) exp.format = desc.format;
             if ('multiline' in desc) exp.multiline = desc.multiline;
             if ('read_only' in desc) exp.read_only = desc.read_only;
-            if ('expander' in desc) exp.expander = desc.expander;
 
             descs_expanded[desc.key] = exp;
         }
-        return new DataTableDesc(descs_expanded);
+        return new DataTableDesc(descs_expanded, expander);
     }
 
     static RandDate()

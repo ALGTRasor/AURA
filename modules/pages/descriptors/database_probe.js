@@ -101,7 +101,7 @@ export class DatabaseProbe extends PageDescriptor
 			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = getLabel(record); });
 			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
 
-			RecordFormUtils.CreateRecordInfoList(e_info_body, record, field_descs, 'info', records.length < 2);
+			RecordFormUtils.CreateRecordInfoList(e_info_body, record, field_descs, 'info', true);
 		}
 	}
 

@@ -35,9 +35,9 @@ export class PageTitleBar
 
 	UpdateDraggable()
 	{
-		//let dock_state_changed = this.page.state_data.docked === this.draggable;
+		//let dock_state_changed = this.page.state.data.docked === this.draggable;
 		//if (dock_state_changed !== true) return;
-		if (this.page.state_data.docked === true || this.page.state_data.expanding === true) this.#MakeNotDraggable(); else this.#MakeDraggable();
+		if (this.page.state.data.docked === true || this.page.state.data.expanding === true) this.#MakeNotDraggable(); else this.#MakeDraggable();
 	}
 
 	#MakeDraggable()
@@ -200,7 +200,7 @@ export class PageTitleBar
 
 	RefreshAllButtons()
 	{
-		let showMoveButtons = this.page.state_data.docked === true;
+		let showMoveButtons = this.page.state.data.docked === true;
 		let hasSiblingL = showMoveButtons && this.page.e_frame.previousElementSibling != null;
 		let hasSiblingR = showMoveButtons && this.page.e_frame.nextElementSibling != null;
 
@@ -212,7 +212,7 @@ export class PageTitleBar
 
 		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
 
-		if (this.page.page_descriptor.UpdateSize || this.page.state_data.docked === false)
+		if (this.page.page_descriptor.UpdateSize || this.page.state.data.docked === false)
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
 
 		//this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageTogglePin);

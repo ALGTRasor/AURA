@@ -1,6 +1,6 @@
 import { About } from "../../about.js";
 import { Autosave } from "../../autosave.js";
-import { DevMode } from "../../devmode.js";
+import { DevMode } from "../../systems/devmode.js";
 import { addElement, CreatePagePanel, FadeElement, getTransitionStyle } from "../../utils/domutils.js";
 import { sleep } from "../../utils/asyncutils.js";
 import { clamp } from "../../utils/mathutils.js";
@@ -208,7 +208,7 @@ export class PageSettings extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state_data.docked === true) instance.e_frame.style.maxWidth = '32rem';
+		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
 
