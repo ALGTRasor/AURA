@@ -5,6 +5,7 @@ import { OverlayManager } from "./ui/overlays.js";
 import { PageManager } from "./pagemanager.js";
 import { MegaTips } from "./systems/megatips.js";
 import { AccountStateManager } from "./systems/accountstatemanager.js";
+import { ChoiceOverlay } from "./ui/overlays/overlay_choice.js";
 
 export class ActionBar
 {
@@ -95,12 +96,25 @@ export class ActionBar
 		{
 			ActionBar.e_button_login = ActionBar.AddMenuButton(
 				'Log Out', 'logout',
-				_ => OverlayManager.ShowConfirmDialog(
-					() => { AccountStateManager.tenant.OnTryLogOut(); },
-					() => { },
-					'Are you sure you want to log out?<br><br>'
-					+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function. You will be prompted to select another account.</span>`,
-					'[Y]es, Change Account', '[N]o'
+				_ => OverlayManager.Show(
+					ChoiceOverlay.host.GetNewInstance(
+						{
+							prompt: 'Are you sure you want to log out?<br><br>'
+								+ `<span style="opacity:50%;font-size:0.85rem;">NOTE: ${AppInfo.name} requires an active log in to function.<br>You will be prompted to select another account.</span>`,
+							choices: [
+								{
+									label: '[Y]es, Change Account',
+									color: '#0ff',
+									on_click: overlay => { AccountStateManager.tenant.OnTryLogOut(); overlay.Dismiss(); }
+								},
+								{
+									label: '[N]o',
+									color: '#fff',
+									on_click: overlay => { overlay.Dismiss(); }
+								}
+							]
+						}
+					)
 				),
 				_ =>
 				{
@@ -120,7 +134,19 @@ export class ActionBar
 				_ => 
 				{
 					const prompt_login = 'You will be prompted to select an account on the following screen.';
-					OverlayManager.ShowChoiceDialog(prompt_login, [OverlayManager.OkayChoice(_ => AccountStateManager.tenant.TryLogOut())]);
+					OverlayManager.Show(
+						ChoiceOverlay.host.GetNewInstance(
+							{
+								prompt: prompt_login,
+								choices: [
+									{
+										label: 'OKAY',
+										on_click: overlay => { AccountStateManager.tenant.TryLogOut(); overlay.Dismiss(); }
+									}
+								]
+							}
+						)
+					);
 				},
 				_ =>
 				{

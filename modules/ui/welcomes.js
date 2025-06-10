@@ -1,8 +1,9 @@
 import { DebugLog } from "../debuglog.js";
-import { minutesDelta, secondsDelta } from "../utils/timeutils.js";
+import { minutesDelta } from "../utils/timeutils.js";
 import { UserAccountInfo } from "../useraccount.js";
-import { OverlayManager } from "./overlays.js";
 import { AppInfo } from "../app_info.js";
+import { OverlayManager } from "./overlays.js";
+import { ChoiceOverlay } from "./overlays/overlay_choice.js";
 
 export class Welcome
 {
@@ -34,7 +35,8 @@ export class Welcome
 
     static showWelcome(msg = '') 
     {
-        OverlayManager.ShowChoiceDialog(msg, [OverlayManager.OkayChoice()]);
+        let overlay_data = { prompt: msg, choices: [{ label: 'OKAY', color: '#0f0', on_click: overlay => { overlay.Dismiss(); } }] };
+        OverlayManager.Show(ChoiceOverlay.host.GetNewInstance(overlay_data));
         Welcome.ResetTimer();
     };
 

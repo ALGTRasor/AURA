@@ -11,6 +11,9 @@ import { PanelContent } from "./panel_content.js";
 import { Trench } from "./trench.js";
 import { MegaTips } from "../systems/megatips.js";
 import { SelectionInstance } from "../utils/selections.js";
+import { ChoiceOverlay } from "./overlays/overlay_choice.js";
+import { TextInputOverlay } from "./overlays/overlay_input_text.js";
+import { FileSelectionOverlay } from "./overlays/overlay_selection_files.js";
 
 
 const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
@@ -395,58 +398,58 @@ class FileExplorerItem
     RequestRename()
     {
         if (this.explorer.drive_id_valid !== true) return undefined;
-        OverlayManager.ShowStringDialog(
-            `Renaming ${this.item_type}: '${this.item_info.name}'`,
-            this.item_info.name,
-            new_name =>
-            {
-                let any_changed = new_name !== this.item_info.name;
-                let type_prev = FileTypes.GetInfo(this.item_info.name);
-                let type_next = FileTypes.GetInfo(new_name);
-                let extension_changed = (type_next?.label ?? 'NULL') !== (type_prev?.label ?? 'NULL');
-
-                const execute = () =>
+        OverlayManager.Show(
+            TextInputOverlay.host.GetNewInstance(
                 {
-                    const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: this.item_info.name, icon: 'edit_square', verb: 'Renamed item' });
-                    let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
-                    window.SharePoint.SetData(
-                        url_post, { name: new_name }, 'put'
-                    ).then(
-                        _ =>
+                    prompt: `Renaming ${this.item_type}: '${this.item_info.name}'`,
+                    default_value: this.item_info.name,
+                    with_input: new_name =>
+                    {
+                        let any_changed = new_name !== this.item_info.name;
+                        let type_prev = FileTypes.GetInfo(this.item_info.name);
+                        let type_next = FileTypes.GetInfo(new_name);
+                        let extension_changed = (type_next?.label ?? 'NULL') !== (type_prev?.label ?? 'NULL');
+
+                        const execute = () =>
                         {
-                            if ('status' in _)
-                            {
-                                NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
-                                LongOps.Stop(longop, 'Error ' + _.status);
-                                if (_.status == 404) this.WarnNotFound('Renaming');
-                            }
-                            else
-                            {
-                                NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
-                                this.explorer.Navigate(this.explorer.relative_path_current);
-                                LongOps.Stop(longop);
-                            }
-                        }
-                    );
-                };
+                            const longop = LongOps.Start('driveitem-rename-' + this.item_info.id, { label: this.item_info.name, icon: 'edit_square', verb: 'Renamed item' });
+                            let url_post = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}`;
+                            window.SharePoint.SetData(
+                                url_post, { name: new_name }, 'put'
+                            ).then(
+                                _ =>
+                                {
+                                    if ('status' in _)
+                                    {
+                                        NotificationLog.Log(`Error While Renaming '${this.item_info.name}' ||| ${_.status}`, '#f50');
+                                        LongOps.Stop(longop, 'Error ' + _.status);
+                                        if (_.status == 404) this.WarnNotFound('Renaming');
+                                    }
+                                    else
+                                    {
+                                        NotificationLog.Log(`Renamed '${this.item_info.name}' -> '${new_name}'`, '#0f0');
+                                        this.explorer.Navigate(this.explorer.relative_path_current);
+                                        LongOps.Stop(longop);
+                                    }
+                                }
+                            );
+                        };
 
-                if (extension_changed === true)
-                {
-                    OverlayManager.ShowConfirmDialog(
-                        _ => { execute(); OverlayManager.DismissOne(); },
-                        _ => { OverlayManager.DismissOne(); },
-                        MegaTips.FormatHTML(`{{{Change File Extension:}}} ${type_prev?.label} {{{to}}} ${type_next?.label}`)
-                    )
+                        if (extension_changed === true)
+                        {
+                            OverlayManager.ShowConfirmDialog(
+                                _ => { execute(); OverlayManager.DismissOne(); },
+                                _ => { OverlayManager.DismissOne(); },
+                                MegaTips.FormatHTML(`{{{Change File Extension:}}} ${type_prev?.label} {{{to}}} ${type_next?.label}`)
+                            )
+                        }
+                        else
+                        {
+                            execute();
+                        }
+                    }
                 }
-                else
-                {
-                    execute();
-                }
-            },
-            () =>
-            {
-                NotificationLog.Log(`Cancelled ${this.item_type} Rename`, '#fa0');
-            }
+            )
         );
     }
 
@@ -484,43 +487,62 @@ class FileExplorerItem
         };
 
         if (this.explorer.drive_id_valid !== true) return undefined;
-        OverlayManager.ShowConfirmDialog(
-            _ =>
-            {
-                const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: this.item_info.name, icon: 'content_copy', verb: 'Duplicated item' });
-                let body =
-                {
-                    parentReference:
-                    {
-                        driveId: this.item_info.parentReference.driveId,
-                        id: this.item_info.parentReference.id
-                    },
-                    name: increment_filename(this.item_info.name)
-                };
-                let url = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}/copy?@microsoft.graph.conflictBehavior=rename`;
-                window.SharePoint.SetData(
-                    url, body
-                ).then(
-                    _ =>
-                    {
-                        if ('status' in _ && _.status != 202)
-                        {
-                            NotificationLog.Log(`Error While Duplicating '${this.item_info.name}': ${_.status}`, '#f50');
-                            LongOps.Stop(longop, 'Error ' + _.status);
-                            if (_.status == 404) this.WarnNotFound('Duplicating');
-                        }
-                        else
-                        {
-                            NotificationLog.Log(`Duplicated '${this.item_info.name}'`, '#0f0');
-                            this.explorer.Navigate(this.explorer.relative_path_current);
-                            LongOps.Stop(longop);
-                        }
-                    }
-                );
-            },
-            _ => { NotificationLog.Log(`Cancelled ${this.item_type} Duplicate`, '#fa0'); },
 
-            'Duplicate ' + this.item_type + '?'
+        OverlayManager.Show(
+            ChoiceOverlay.host.GetNewInstance(
+                {
+                    prompt: 'Duplicate ' + this.item_type + '?',
+                    choices: [
+                        {
+                            label: '[Y]ES',
+                            color: '#0f0',
+                            on_click: overlay =>
+                            {
+                                const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: this.item_info.name, icon: 'content_copy', verb: 'Duplicated item' });
+                                let body =
+                                {
+                                    parentReference:
+                                    {
+                                        driveId: this.item_info.parentReference.driveId,
+                                        id: this.item_info.parentReference.id
+                                    },
+                                    name: increment_filename(this.item_info.name)
+                                };
+                                let url = `${window.SharePoint.url_api}/drives/${this.explorer.drive_id}/items/${this.item_info.id}/copy?@microsoft.graph.conflictBehavior=rename`;
+                                window.SharePoint.SetData(
+                                    url, body
+                                ).then(
+                                    _ =>
+                                    {
+                                        if ('status' in _ && _.status != 202)
+                                        {
+                                            NotificationLog.Log(`Error While Duplicating '${this.item_info.name}': ${_.status}`, '#f50');
+                                            LongOps.Stop(longop, 'Error ' + _.status);
+                                            if (_.status == 404) this.WarnNotFound('Duplicating');
+                                        }
+                                        else
+                                        {
+                                            NotificationLog.Log(`Duplicated '${this.item_info.name}'`, '#0f0');
+                                            this.explorer.Navigate(this.explorer.relative_path_current);
+                                            LongOps.Stop(longop);
+                                        }
+                                    }
+                                );
+                                overlay.Dismiss();
+                            }
+                        },
+                        {
+                            label: '[N]O',
+                            color: '#f00',
+                            on_click: overlay =>
+                            {
+                                NotificationLog.Log(`Cancelled ${this.item_type} Duplicate`, '#fa0');
+                                overlay.Dismiss();
+                            }
+                        }
+                    ]
+                }
+            )
         );
     }
 
@@ -676,7 +698,7 @@ class FileExplorerItem
         {
             option_infos.push(
                 {
-                    label: 'View File Online',
+                    label: '[V]iew File Online',
                     color: '#0af',
                     on_click: overlay =>
                     {
@@ -689,7 +711,7 @@ class FileExplorerItem
 
         option_infos.push(
             {
-                label: 'Download File',
+                label: '[D]ownload File',
                 color: '#0af',
                 on_click: overlay =>
                 {
@@ -702,7 +724,7 @@ class FileExplorerItem
 
         option_infos.push(
             {
-                label: 'Rename File',
+                label: '[R]ename File',
                 color: '#0af',
                 on_click: overlay =>
                 {
@@ -714,7 +736,7 @@ class FileExplorerItem
 
         option_infos.push(
             {
-                label: 'Duplicate File',
+                label: 'Dupli[c]ate File',
                 color: '#0ff',
                 on_click: overlay =>
                 {
@@ -726,7 +748,7 @@ class FileExplorerItem
 
         option_infos.push(
             {
-                label: 'Copy File Name',
+                label: 'Copy File [N]ame',
                 color: '#0df',
                 on_click: overlay =>
                 {
@@ -739,7 +761,7 @@ class FileExplorerItem
 
         option_infos.push(
             {
-                label: 'Copy File Path',
+                label: 'Copy File [P]ath',
                 color: '#0df',
                 on_click: overlay =>
                 {
@@ -756,37 +778,72 @@ class FileExplorerItem
                 color: '#f40',
                 on_click: overlay =>
                 {
-                    OverlayManager.ShowConfirmDialog(
-                        _ =>
+                    overlay.Dismiss();
+                    ChoiceOverlay.ShowNew(
                         {
-                            const min_byte_size_warning = 10240;
-                            if (this.item_info.size < min_byte_size_warning)
-                            {
-                                this.explorer.OnStartLoading();
-                                this.RequestDelete();
-                            }
-                            else 
-                            {
-                                OverlayManager.ShowConfirmDialog(
-                                    _ => this.RequestDelete(),
-                                    _ => { NotificationLog.Log('Cancelled file deletion', '#fa0'); },
-                                    'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
-                                    'CONFIRM - DELETE FILE',
-                                    'CANCEL'
-                                );
-                            }
-                        },
-                        _ => { NotificationLog.Log('Cancelled file deletion', '#fa0') },
-                        'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
-                        'YES',
-                        'NO'
+                            prompt: 'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
+                            choices:
+                                [
+                                    {
+                                        label: '[Y]ES',
+                                        color: '#0f0',
+                                        on_click: overlay =>
+                                        {
+                                            const min_byte_size_warning = 10240;
+                                            if (this.item_info.size < min_byte_size_warning)
+                                            {
+                                                this.explorer.OnStartLoading();
+                                                this.RequestDelete();
+                                            }
+                                            else 
+                                            {
+                                                overlay.Dismiss();
+                                                ChoiceOverlay.ShowNew(
+                                                    {
+                                                        prompt: 'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
+                                                        choices: [
+                                                            {
+                                                                label: 'CONFIRM - DELETE FILE',
+                                                                color: '#0f0',
+                                                                on_click: overlay =>
+                                                                {
+                                                                    this.RequestDelete();
+                                                                    overlay.Dismiss();
+                                                                }
+                                                            },
+                                                            {
+                                                                label: 'CANCEL',
+                                                                color: '#f00',
+                                                                on_click: overlay =>
+                                                                {
+                                                                    NotificationLog.Log('Cancelled file deletion', '#fa0');
+                                                                    overlay.Dismiss();
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                );
+                                            }
+                                        }
+                                    },
+                                    {
+                                        label: '[N]O',
+                                        color: '#f00',
+                                        on_click: overlay =>
+                                        {
+                                            NotificationLog.Log('Cancelled file deletion', '#fa0');
+                                            overlay.Dismiss();
+                                        }
+                                    }
+                                ]
+                        }
                     );
-                    overlay.Remove();
                 }
             }
         );
 
-        OverlayManager.ShowChoiceDialog('File Options: ((' + this.item_info.name + '))', option_infos);
+        let overlay_data = { prompt: 'File Options: ((' + this.item_info.name + '))', choices: option_infos };
+        ChoiceOverlay.ShowNew(overlay_data);
     }
 
     CreateFolderElements()
@@ -850,84 +907,102 @@ class FileExplorerItem
 
     ShowFolderOptions()
     {
-        OverlayManager.ShowChoiceDialog(
-            'Folder Options: ((' + this.item_info.name + '))',
-            [
-                {
-                    label: 'Rename Folder',
-                    color: '#0af',
-                    on_click: overlay =>
+        let overlay_data = {
+            prompt: 'Folder Options: ((' + this.item_info.name + '))',
+            choices:
+                [
                     {
-                        this.RequestRename();
-                        overlay.Remove();
-                    }
-                },
-                {
-                    label: 'Copy Folder Name',
-                    color: '#0fa',
-                    on_click: overlay =>
+                        label: '[R]ename Folder',
+                        color: '#0af',
+                        on_click: overlay =>
+                        {
+                            this.RequestRename();
+                            overlay.Remove();
+                        }
+                    },
                     {
-                        NotificationLog.Log('Copied File Name', '#8ff');
-                        navigator.clipboard.writeText(this.item_info.name);
-                        //overlay.Remove();
-                    }
-                },
-                {
-                    label: 'Copy Folder Path',
-                    color: '#0fa',
-                    on_click: overlay =>
+                        label: 'Copy Folder [N]ame',
+                        color: '#0fa',
+                        on_click: overlay =>
+                        {
+                            NotificationLog.Log('Copied File Name', '#8ff');
+                            navigator.clipboard.writeText(this.item_info.name);
+                            //overlay.Remove();
+                        }
+                    },
                     {
-                        NotificationLog.Log('Copied File Path', '#8ff');
-                        navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
-                        //overlay.Remove();
-                    }
-                },
-                {
-                    label: 'Delete Folder',
-                    color: '#f40',
-                    on_click: overlay =>
+                        label: 'Copy Folder [P]ath',
+                        color: '#0fa',
+                        on_click: overlay =>
+                        {
+                            NotificationLog.Log('Copied File Path', '#8ff');
+                            navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
+                            //overlay.Remove();
+                        }
+                    },
                     {
-                        OverlayManager.ShowConfirmDialog(
-                            _ =>
-                            {
-                                const min_byte_size_warning = 1024;
-                                if (this.item_info.size < min_byte_size_warning)
+                        label: 'Delete Folder',
+                        color: '#f40',
+                        on_click: overlay =>
+                        {
+                            overlay.Dismiss();
+
+                            ChoiceOverlay.ShowNew(
                                 {
-                                    this.RequestDelete();
-                                }
-                                else 
-                                {
-                                    OverlayManager.ShowChoiceDialog(
-                                        'Folders must be empty before they can be deleted.',
+                                    prompt: 'Are you sure you want to delete the folder: ((' + this.item_info.name + '))?',
+                                    choices:
                                         [
                                             {
-                                                label: 'GOT IT',
-                                                on_click: _ =>
+                                                label: 'CONFIRM',
+                                                color: '#0f0',
+                                                on_click: overlay =>
                                                 {
-                                                    NotificationLog.Log('Could not delete folder: Must be empty', '#fa0');
-                                                    OverlayManager.DismissOne();
-                                                },
-                                                color: '#0f0'
+                                                    const min_byte_size_warning = 1024;
+                                                    if (this.item_info.size < min_byte_size_warning)
+                                                    {
+                                                        this.RequestDelete();
+                                                    }
+                                                    else 
+                                                    {
+                                                        overlay.Dismiss();
+                                                        ChoiceOverlay.ShowNew(
+                                                            {
+                                                                prompt: 'Folders must be empty before they can be deleted.',
+                                                                choices: [
+                                                                    {
+                                                                        label: 'GOT IT',
+                                                                        on_click: overlay =>
+                                                                        {
+                                                                            NotificationLog.Log('Could not delete folder: Must be empty', '#fa0');
+                                                                            overlay.Dismiss();
+                                                                        },
+                                                                        color: '#0f0'
+                                                                    }
+                                                                ]
+                                                            }
+
+                                                        );
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                label: 'CANCEL',
+                                                color: '#f00',
+                                                on_click: overlay =>
+                                                {
+                                                    NotificationLog.Log('Cancelled folder deletion', '#fa0');
+                                                    overlay.Dismiss();
+                                                }
                                             }
-                                        ],
-                                        _ =>
-                                        {
-                                            NotificationLog.Log('Cancelled folder deletion', '#fa0');
-                                            //OverlayManager.DismissOne();
-                                        }
-                                    );
+                                        ]
                                 }
-                            },
-                            _ => { NotificationLog.Log('Cancelled folder deletion', '#fa0') },
-                            'Are you sure you want to delete the folder: ((' + this.item_info.name + '))?',
-                            'CONFIRM',
-                            'CANCEL'
-                        );
-                        overlay.Remove();
+
+                            );
+                        }
                     }
-                }
-            ]
-        )
+                ]
+        };
+        ChoiceOverlay.ShowNew(overlay_data);
     }
 }
 
@@ -1051,6 +1126,15 @@ export class FileExplorer extends PanelContent
 
         if (event.dataTransfer.files)
         {
+            FileSelectionOverlay.ShowNew(
+                {
+                    prompt: 'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
+                        + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
+                    with_files: files => { this.UploadFilesAtCurrentPath(files); },
+                    default_value: event.dataTransfer.files
+                }
+            );
+            /*
             OverlayManager.ShowFileUploadDialog(
                 'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
                 + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
@@ -1059,6 +1143,7 @@ export class FileExplorer extends PanelContent
                 count => { return 'SUBMIT ' + count + ' FILES'; },
                 event.dataTransfer.files
             );
+            */
         }
     }
 
@@ -1221,31 +1306,42 @@ export class FileExplorer extends PanelContent
     {
         if (this.selection.any_selected === false) return;
 
-        OverlayManager.ShowConfirmDialog(
-            _ =>
-            {
-                let op_instances = this.selection.items.map(_ => new ItemDeleteInstance(_, this.drive_id, this.relative_path_current));
-                this.OnStartLoading();
-                Promise.allSettled(
-                    op_instances.map(_ => _['Process']())
-                ).then(
-                    _ =>
-                    {
-                        this.Navigate(this.relative_path_current);
-                        this.ClearSelected();
-                        NotificationLog.Log(`Done deleting ${op_instances.length} items`, '#0f0');
-                    }
-                );
-            },
-            _ =>
-            {
+        OverlayManager.Show(
+            ChoiceOverlay.host.GetNewInstance(
+                {
+                    prompt: 'Delete the selected files?',
+                    choices: [
+                        {
+                            label: 'DELETE ALL',
+                            color: '#f00',
+                            on_click: overlay =>
+                            {
 
-            },
-            'Delete the selected files?',
-            'DELETE ALL', 'CANCEL'
-        )
+                                let op_instances = this.selection.items.map(_ => new ItemDeleteInstance(_, this.drive_id, this.relative_path_current));
+                                this.OnStartLoading();
+                                Promise.allSettled(
+                                    op_instances.map(_ => _['Process']())
+                                ).then(
+                                    _ =>
+                                    {
+                                        this.Navigate(this.relative_path_current);
+                                        this.ClearSelected();
+                                        NotificationLog.Log(`Done deleting ${op_instances.length} items`, '#0f0');
+                                    }
+                                );
 
-
+                                overlay.Dismiss();
+                            }
+                        },
+                        {
+                            label: 'CANCEL',
+                            color: '#fff',
+                            on_click: overlay => { overlay.Dismiss(); }
+                        }
+                    ]
+                }
+            )
+        );
     }
 
     async CreateFolderInRelativePath(name)
@@ -1255,7 +1351,8 @@ export class FileExplorer extends PanelContent
         let url = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path_current}:/children`;
         let data = { name: name, folder: {} };
         data['@microsoft.graph.conflictBehavior'] = 'rename';
-        let result = await window.SharePoint.SetData(url, data, 'post');
+        let resp = await window.SharePoint.SetData(url, data, 'post');
+        let result = await resp.json();
         LongOps.Stop(longop);
         return result;
     }
@@ -1272,38 +1369,38 @@ export class FileExplorer extends PanelContent
 
     RequestCreateFolder()
     {
-        OverlayManager.ShowStringDialog(
-            'New Folder Name', '',
-            folder_name =>
+        TextInputOverlay.ShowNew(
             {
-                folder_name = folder_name.trim();
-                if (folder_name.length > 0)
+                prompt: 'New Folder Name',
+                default_value: '',
+                with_input: folder_name =>
                 {
-                    this.OnStartLoading();
-                    this.CreateFolderInRelativePath(folder_name).then(
-                        resp =>
-                        {
-                            if (!resp)
+                    folder_name = folder_name.trim();
+                    if (folder_name.length > 0)
+                    {
+                        this.OnStartLoading();
+                        this.CreateFolderInRelativePath(folder_name).then(
+                            resp =>
                             {
-                                NotificationLog.Log(`Failed to Create New Folder: '${folder_name}' (NULL Response)`, '#6f8');
-                                return;
+                                if (!resp)
+                                {
+                                    NotificationLog.Log(`Failed to Create New Folder: '${folder_name}' (NULL Response)`, '#6f8');
+                                    return;
+                                }
+
+                                if (folder_name == resp.name)
+                                {
+                                    NotificationLog.Log(`Created New Folder: '${folder_name}'`, '#6f8');
+                                }
+                                else
+                                {
+                                    NotificationLog.Log(`Created New Folder: '${folder_name}' AUTORENAMED TO: '${resp.name}'`, '#f82');
+                                }
+                                this.Navigate(this.relative_path_current);
                             }
-                            if (folder_name == resp.name)
-                            {
-                                NotificationLog.Log(`Created New Folder: '${folder_name}'`, '#6f8');
-                            }
-                            else
-                            {
-                                NotificationLog.Log(`Created New Folder: '${folder_name}' AUTORENAMED TO: '${resp.name}'`, '#f82');
-                            }
-                            this.Navigate(this.relative_path_current);
-                        }
-                    );
+                        );
+                    }
                 }
-            },
-            () =>
-            {
-                NotificationLog.Log('Cancelled Create New Folder', '#f86');
             }
         );
     }
@@ -1354,11 +1451,12 @@ export class FileExplorer extends PanelContent
             return path;
         };
 
-        OverlayManager.ShowFileUploadDialog(
-            'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
-            + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
-            files => { this.UploadFilesAtCurrentPath(files); },
-            () => { NotificationLog.Log('Cancelled Uploading File(s)', '#f86'); }
+        FileSelectionOverlay.ShowNew(
+            {
+                prompt: 'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
+                    + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
+                with_files: files => { this.UploadFilesAtCurrentPath(files); }
+            }
         );
     }
 

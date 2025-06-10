@@ -727,7 +727,7 @@ div[disabled]
 {
 	position: absolute;
 	box-sizing: border-box;
-	z-index: 55000;
+	z-index: 555000;
 
 	pointer-events: none;
 	user-select: none;

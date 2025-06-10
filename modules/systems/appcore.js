@@ -21,6 +21,7 @@ import { LongOps } from "./longops.js";
 import { Fax } from "./fax.js";
 import { MegaTips } from "./megatips.js";
 import { AccountStateManager } from "./accountstatemanager.js";
+import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
 
 export class AppCore extends EventTarget
 {
@@ -118,11 +119,14 @@ export class AppCore extends EventTarget
 	static NotifyReauthorizeRequest()
 	{
 		DebugLog.Log('<< Authentication Requested >>');
-		OverlayManager.ShowConfirmDialog(
-			_ => { AccountStateManager.tenant.RefreshAccess(); },
-			_ => { },
-			'Account token expired or invalid! Authentication required.',
-			'REAUTHENTICATE', 'IGNORE'
+		ChoiceOverlay.ShowNew(
+			{
+				prompt: 'Account token expired or invalid! Authentication required.',
+				choices: [
+					{ label: 'REAUTHENTICATE', color: '#0f0', on_click: overlay => { AccountStateManager.tenant.RefreshAccess(); overlay.Dismiss(); } },
+					{ label: 'IGNORE', color: '#f70', on_click: overlay => { overlay.Dismiss(); } }
+				]
+			}
 		);
 	}
 
@@ -282,7 +286,7 @@ export class AppCore extends EventTarget
 		if (OverlayManager.visible && OverlayManager.overlays.length > 0)
 		{
 			let o = OverlayManager.overlays[OverlayManager.overlays.length - 1];
-			if (o && o.handleHotkeys) o.handleHotkeys(e);
+			if (o && o.HandleHotkeys) o.HandleHotkeys(e);
 			return;
 		}
 
