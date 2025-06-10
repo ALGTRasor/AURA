@@ -21,6 +21,8 @@ export class FileSelectionOverlay extends SelectionOverlay
         overlay.selection = new SelectionInstance();
         overlay.selection.get_item_identifier = _ => _.id;
         overlay.e_root.innerHTML = '';
+        overlay.prompt = overlay.prompt.replaceAll('((', '<span style="color:white;">');
+        overlay.prompt = overlay.prompt.replaceAll('))', '</span>');
 
         const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
             + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
