@@ -133,11 +133,12 @@ export class PageDirectory extends PageDescriptor
 		instance.directory_external = new DirectoryContentExternal(instance.directory_content_root, instance);
 
 		instance.UpdateDirectoryContent = () => this.UpdateDirectoryContent(instance);
+		instance.directory_content_timeout = new RunningTimeout(instance.UpdateDirectoryContent, 0.25, false, 150);
+		instance.SetDirectoryContentDirty = () => instance.directory_content_timeout.ExtendTimer();
+
 		instance.afterDirChange = () => { this.OnDirectoryChange(instance); };
 		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(instance.afterDirChange);
 		instance.slide_directory.SelectIndexAfterDelay(0, 150, true);
-
-		instance.directory_content_timeout = new RunningTimeout(instance.UpdateDirectoryContent, 0.25, false, 150);
 	}
 
 	OnDirectoryChange(instance)
@@ -153,7 +154,6 @@ export class PageDirectory extends PageDescriptor
 				instance.relate_contacts = window.SharedData.contacts.AddNeeder();
 				break;
 		}
-		instance.SetDirectoryContentDirty = () => instance.directory_content_timeout.ExtendTimer();
 		instance.SetDirectoryContentDirty();
 	}
 

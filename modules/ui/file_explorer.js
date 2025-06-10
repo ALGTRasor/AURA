@@ -10,6 +10,7 @@ import { NotificationLog } from "../notificationlog.js";
 import { PanelContent } from "./panel_content.js";
 import { Trench } from "./trench.js";
 import { MegaTips } from "../systems/megatips.js";
+import { SelectionInstance } from "../utils/selections.js";
 
 
 const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
@@ -930,74 +931,9 @@ class FileExplorerItem
     }
 }
 
-class FileSelection extends EventTarget
+class FileSelection extends SelectionInstance
 {
-    items = [];
-    any_selected = false;
-
     get_item_identifier = item => item.id;
-
-    indexOf(item)
-    {
-        let item_identifier = this.get_item_identifier(item);
-        for (let item_index in this.items)
-        {
-            let selected_item = this.items[item_index];
-            if (this.get_item_identifier(selected_item) === item_identifier) return item_index;
-        }
-        return -1;
-    }
-
-    contains(item) { return this.indexOf(item) > -1; }
-
-    check_any()
-    {
-        this.any_selected = this.items.length > 0;
-        return this.any_selected;
-    }
-
-    clear()
-    {
-        if (this.any_selected === false) return false;
-        this.items = [];
-        this.any_selected = false;
-        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
-        this.dispatchEvent(new CustomEvent('allremoved', { detail: this }));
-        return true;
-    }
-
-    toggle(item)
-    {
-        if (this.contains(item)) this.remove(item);
-        else this.add(item);
-    }
-
-    add(item)
-    {
-        let existing_index = this.indexOf(item);
-        if (existing_index > -1) return false;
-        let was_any_selected = this.any_selected === true;
-        this.items.push(item);
-        this.check_any();
-        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
-        this.dispatchEvent(new CustomEvent('itemadded', { detail: item }));
-        if (was_any_selected === false) this.dispatchEvent(new CustomEvent('firstadded', { detail: item }));
-        return true;
-    }
-
-    remove(item)
-    {
-        if (this.items.length < 1) return false;
-        let existing_index = this.indexOf(item);
-        if (existing_index < 0) return false;
-        this.items.splice(existing_index, 1);
-        this.check_any();
-
-        this.dispatchEvent(new CustomEvent('change', { detail: this.items }));
-        this.dispatchEvent(new CustomEvent('itemremoved', { detail: item }));
-        if (this.any_selected === false) this.dispatchEvent(new CustomEvent('allremoved', { detail: this.items }));
-        return true;
-    }
 }
 
 
