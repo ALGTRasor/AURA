@@ -11,6 +11,7 @@ export class PageProjectHub extends PageDescriptor
 {
 	title = 'project hub';
 	order_index = -5;
+	coming_soon = true;
 
 	OnCreateElements(instance)
 	{

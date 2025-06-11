@@ -141,7 +141,7 @@ export class UserAccountInfo
 	{
 		let perms_prev_count = UserAccountInfo.user_permissions.length;
 		if (typeof UserAccountInfo.user_info.user_permissions === 'string')
-			UserAccountInfo.user_permissions = window.SharedData.GetPermDatum(UserAccountInfo.user_info.user_permissions.split(';'));
+			UserAccountInfo.user_permissions = window.SharedData.GetSharedDatum('permissions', UserAccountInfo.user_info.user_permissions.split(';'));
 		let perms_changed = UserAccountInfo.user_permissions.length != perms_prev_count;
 
 		//UserAccountInfo.hr_info.requests = window.SharedData.GetHrRequestDatum(UserAccountInfo.account_info.user_id);

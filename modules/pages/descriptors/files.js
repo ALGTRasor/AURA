@@ -8,7 +8,7 @@ import { Help } from "./help.js";
 
 export class PageFiles extends PageDescriptor
 {
-	title = 'files';
+	title = 'file browser';
 	order_index = 4;
 
 	OnCreateElements(instance)
@@ -100,9 +100,9 @@ export class PageFiles extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageFiles('files', UserAccountInfo.app_access_permission, 'files', 'View and manage work related files.'), 'f', 'File Explorer');
+PageManager.RegisterPage(new PageFiles('file browser', UserAccountInfo.app_access_permission, 'files', 'View and manage work related files.'), 'f', 'File Browser');
 Help.Register(
-	'pages.files', 'The Files Page',
+	'pages.files', 'The File Browser',
 	'The Files page allows Users to browse the internal file library.'
 	+ '\nThe internal file library contains files relevant to projects, users, tasks, HR, contacts, and more.'
 	+ '\nEach User is also allocated a reserved directory for their own (work related) usage.'

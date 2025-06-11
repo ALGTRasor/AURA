@@ -4,6 +4,7 @@ import { Modules } from "../modules.js";
 import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
 import { Ripples } from "../ui/ripple.js";
+import { AppEvents } from "../appevents.js";
 
 
 // class handling the state and state data of a page instance 
@@ -53,10 +54,9 @@ export class PageInstance
 		this.e_body = {};
 		this.e_content = {};
 
-		this.state = new PageInstanceState(this, state_data);
+		this.created = false;
 
-		//this.state.data = {};
-		//this.UpdateStateData(state_data);
+		this.state = new PageInstanceState(this, state_data);
 	}
 
 	RequireSharedDataTable(datatable)
@@ -73,6 +73,7 @@ export class PageInstance
 
 	CreateBody()
 	{
+
 		this.e_frame = document.createElement('div');
 		this.e_frame.id = 'page-frame-' + this.page_descriptor.title + '[' + this.instance_id + ']';
 		this.e_frame.className = 'page-root-frame';
@@ -105,7 +106,7 @@ export class PageInstance
 		else this.e_frame.parentElement.insertBefore(this.e_frame, this.e_frame.previousSibling);
 		this.moving = false;
 		Ripples.SpawnFromElement(this.e_body);
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 	}
 
 	MoveRight(toEnd = false)
@@ -118,13 +119,13 @@ export class PageInstance
 		else this.e_frame.parentElement.insertBefore(this.e_frame.nextSibling, this.e_frame);
 		this.moving = false;
 		Ripples.SpawnFromElement(this.e_body);
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 	}
 
 	TogglePinned()
 	{
 		this.state.Set('pinned', this.state.Get('pinned') !== true);
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 	}
 
 	SetFrameParentElement(new_parent)
@@ -138,7 +139,7 @@ export class PageInstance
 			old_parent.removeChild(this.e_frame);
 		}
 		new_parent.appendChild(this.e_frame);
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 	}
 
 	DetermineFrameParent()
@@ -168,7 +169,6 @@ export class PageInstance
 			old_parent.removeChild(this.e_body);
 		}
 		new_parent.appendChild(this.e_body);
-		//PageManager.onLayoutChange.Invoke();
 	}
 
 	DetermineBodyParent()
@@ -244,7 +244,7 @@ export class PageInstance
 			this.DetermineFrameClassList();
 		}
 		this.UpdateBodyTransform();
-		PageManager.onLayoutChange.Invoke();
+		PageManager.NotifyLayoutChange();
 	}
 
 	// called from titlebar drag event
@@ -266,34 +266,10 @@ export class PageInstance
 
 	CloseInstance() { this.page_descriptor.CloseInstance(this); }
 
-	RemoveElements(immediate = false)
-	{
-		PageManager.onLayoutChange.RemoveSubscription(this.sub_LayoutChange);
-		Ripples.SpawnFromElement(this.e_body, 0);
-
-		if (immediate)
-		{
-			if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
-			this.e_frame.remove();
-			this.e_frame = null;
-			this.e_body.remove();
-			this.e_body = null;
-		}
-		else
-		{
-			this.e_frame.remove();
-			this.e_frame = null;
-			fadeRemoveElement(
-				this.e_body,
-				() => { },
-				'95%',
-				() => { if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this); },
-			);
-		}
-	}
-
 	CreateElements()
 	{
+		if (this.created === true) return;
+
 		let frame_parent = this.DetermineFrameParent();
 		if (!frame_parent) 
 		{
@@ -316,12 +292,47 @@ export class PageInstance
 		fadeAppendChild(body_parent, this.e_body);
 		window.setTimeout(() => { fadeAppendChild(this.e_body, this.e_content); }, 125);
 
-		this.sub_LayoutChange = PageManager.onLayoutChange.RequestSubscription(() => { this.UpdatePageContext(); });
+		AppEvents.AddListener('page-layout-change', _ => this.UpdatePageContext());
 		this.page_descriptor.OnOpen(this);
+
+		this.created = true;
+	}
+
+	RemoveElements(immediate = false)
+	{
+		if (this.created !== true) return;
+
+		AppEvents.RemoveListener('page-layout-change', _ => this.UpdatePageContext());
+		Ripples.SpawnFromElement(this.e_body, 0);
+		this.created = false;
+
+		if (immediate)
+		{
+			if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
+			this.e_frame.remove();
+			this.e_frame = null;
+			this.e_body.remove();
+			this.e_body = null;
+		}
+		else
+		{
+			this.e_frame.remove();
+			this.e_frame = null;
+			fadeRemoveElement(
+				this.e_body,
+				() => { },
+				'95%',
+				() =>
+				{
+					if (this.page_descriptor.OnClose) this.page_descriptor.OnClose(this);
+				},
+			);
+		}
 	}
 
 	UpdatePageContext()
 	{
+		if (this.created !== true) return;
 		this.siblingIndex = this.e_frame ? getSiblingIndex(this.e_frame) : -1;
 		this.title_bar.RemoveAllButtons();
 		this.UpdateBodyTransform();

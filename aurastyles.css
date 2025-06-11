@@ -5,8 +5,8 @@
 	--info-bar-height: 2rem;
 	--limit-content-width: 1.0;
 	--spacing-multiplier: 0.0;
-	--gap-1: calc(6px + 0.95rem * var(--spacing-multiplier));
-	--gap-05: calc(4px + 0.45rem * var(--spacing-multiplier));
+	--gap-1: calc(4px + 0.95rem * var(--spacing-multiplier));
+	--gap-05: calc(3px + 0.45rem * var(--spacing-multiplier));
 	--gap-025: calc(2px + 0.2rem * var(--spacing-multiplier));
 
 	--ease-elastic: cubic-bezier(.4, -0.2, .6, 1.2);
@@ -588,7 +588,7 @@ div[disabled]
 
 *[coming-soon]::after
 {
-	content: 'SOON' / 'Coming Soon';
+	content: 'SOON™' / 'Coming Soon';
 	position: absolute;
 	pointer-events: none !important;
 	user-select: none !important;

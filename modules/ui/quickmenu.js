@@ -31,9 +31,7 @@ export class QuickMenu
             let item = this.items[item_id];
             this.e_items.push(
                 this.AddButton(
-                    item.label ? item.label : '---',
-                    item.on_click ? item.on_click : e => { },
-                    item.description
+                    item
                 )
             );
         };
@@ -91,17 +89,42 @@ export class QuickMenu
         await until(() => this.fading < 1);
     }
 
-    AddButton(text = '', on_click = e => { }, tooltip = '')
+    AddButton(button_data = {})
     {
+        let text = button_data.label ?? '---';
+        let on_click = button_data.on_click ?? (e => { });
+        let tooltip = button_data.description;
+
         return addElement(
             this.e_root, 'div', 'menu-button', null,
             x =>
             {
+                if (button_data.coming_soon === true) x.setAttribute('coming-soon', '');
                 x.innerText = text ? text : '???';
                 x.tabIndex = '0';
                 x.addEventListener('click', on_click);
                 //x.title = text;
                 if (tooltip) MegaTips.RegisterSimple(x, tooltip);
+
+                if ('alerts' in button_data)
+                {
+                    let alert_count = button_data.alerts.length;
+                    if (alert_count > 0)
+                    {
+                        x.appendElement(
+                            'div',
+                            _ =>
+                            {
+                                _.classList.add('menu-button-alert');
+                                _.appendElement('span', _ => { _.innerHTML = alert_count; });
+                            },
+                            _ =>
+                            {
+                                MegaTips.RegisterSimple(_, button_data.alerts.map(_ => `${_.notification_title} [[[${_.notification_body}]]]`).join('<br>'));
+                            }
+                        );
+                    }
+                }
             }
         );
     }

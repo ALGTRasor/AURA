@@ -12,12 +12,12 @@ export class PageProblems extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.relate_Problems = window.SharedData.auraProblems.instance.AddNeeder();
+		instance.relate_Problems = window.SharedData['aura problems'].instance.AddNeeder();
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.auraProblems.instance.RemoveNeeder(instance.relate_Problems);
+		window.SharedData['aura problems'].instance.RemoveNeeder(instance.relate_Problems);
 	}
 
 	OnCreateElements(instance)
@@ -29,9 +29,9 @@ export class PageProblems extends PageDescriptor
 
 		let e_problems_root = CreatePagePanel(instance.e_content, true, false, 'display:flex;flex-direction:column;', _ => { _.classList.add('scroll-y'); });
 
-		for (let pid in window.SharedData.auraProblems.instance.data)
+		for (let pid in window.SharedData['aura problems'].instance.data)
 		{
-			let problem = window.SharedData.auraProblems.instance.data[pid];
+			let problem = window.SharedData['aura problems'].instance.data[pid];
 			CreatePagePanel(e_problems_root, false, false, '', problem.problem_name);
 		}
 	}

@@ -13,7 +13,6 @@ export class PageHelp extends PageDescriptor
 {
 	title = 'help';
 	icon = 'help';
-	extra_page = true;
 	order_index = 99;
 
 	OnCreateElements(instance)

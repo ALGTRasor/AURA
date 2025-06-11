@@ -124,7 +124,7 @@ export class LongOpsEntryUI
 
 				this.e_label = addElement(
 					_, 'div', undefined,
-					'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:0.0; min-width:10rem;',
+					'font-size:0.7rem; align-content:center; line-height:0; text-wrap:nowrap; flex-grow:1.0; flex-shrink:1.0; min-width:4rem; text-overflow:ellipsis; overflow:hidden;',
 					_ =>
 					{
 						_.innerText = this.op.label ?? this.op.id;
@@ -219,13 +219,11 @@ export class LongOpsUI
 		if (this.created === true) return;
 		this.e_root = CreatePagePanel(
 			document.body, false, false,
-			'z-index:50000; position:absolute; top:50%; right:1rem; transform:translate(0%, -50%);'
-			+ 'outline:solid 2px orange; box-shadow:0px 0px 1rem black;'
-			+ 'display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--gap-025);'
-			+ 'min-width:2rem; max-height:70vh;' + getTransitionStyle('opacity'),
+			'',
 			_ =>
 			{
 				_.id = 'long_ops-output';
+				_.classList.add('long-ops-root');
 
 				let trench = new Trench(_, true, '0.8rem');
 				trench.AddLabel('OPERATIONS', 'Here you can see operations that are expected to take some time, and their progress or status.');

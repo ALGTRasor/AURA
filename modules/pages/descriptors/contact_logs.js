@@ -6,6 +6,7 @@ export class PageContactLogs extends PageDescriptor
 {
 	title = 'contact logs';
 	order_index = -3;
+	coming_soon = true;
 
 	CreateElements(instance)
 	{

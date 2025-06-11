@@ -1,23 +1,25 @@
 import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { setSiblingIndex } from "./utils/domutils.js";
-import { EventSource } from "./eventsource.js";
 import { Modules } from "./modules.js";
 import { PageDescriptor } from "./pages/pagebase.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./systems/devmode.js";
 import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";
-import { NotificationLog } from "./notificationlog.js";
+import { AppEvents } from "./appevents.js";
 
 const lskey_page_layout = 'pagemanager_layout';
 
 export class PageManager
 {
 	static page_descriptors = [];
+
 	static page_instances = [];
 	static page_instance_focused = null;
 	static page_instance_hovered = null;
 	static pages_being_dragged = 0;
+
+	static pauseLayoutChange = false;
 
 	static GetHotkeyTarget()
 	{
@@ -26,11 +28,6 @@ export class PageManager
 		DebugLog.Log('! NULL HOTKEY TARGET');
 		return null;
 	}
-
-	static pauseLayoutChange = false;
-	static onLayoutChange = new EventSource();
-
-	static sub_AutosaveOnLayoutChange = PageManager.onLayoutChange.RequestSubscription(Autosave.InvokeSoon);
 
 	static RegisterHotkeys()
 	{
@@ -329,7 +326,8 @@ export class PageManager
 	static NotifyLayoutChange()
 	{
 		if (PageManager.pauseLayoutChange === true) return;
-		PageManager.onLayoutChange.Invoke();
+		AppEvents.Dispatch('page-layout-change');
+		Autosave.InvokeSoon();
 	}
 
 	static ShowNavMenuAfter(delay = 250, condition = () => true)

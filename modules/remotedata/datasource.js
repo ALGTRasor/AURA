@@ -19,6 +19,7 @@ import { DBLayer } from "./dblayer.js";
 import { AppEvents } from "../appevents.js";
 import { LongOps } from "../systems/longops.js";
 import { minutesDelta } from "../utils/timeutils.js";
+import { AppNotification } from "../datamodels/app_notification.js";
 
 const DEF_TABLE_SITE = 'ALGInternal';
 const DEF_TABLE_DATA_MODEL = DataTableDesc.Build([{ key: 'id', label: 'table index', exclude: true }, { key: 'Title', label: 'item guid', exclude: true }]);
@@ -42,6 +43,7 @@ export class DataSourceDescriptor
 	static UserAllocations = new DataSourceDescriptor('ALGUserAllocations', UserAllocation.data_model);
 	static AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
 	static AURAProblems = new DataSourceDescriptor('AURAProblems', AURAProblem.data_model);
+	static AppNotifications = new DataSourceDescriptor('AURANotifications', AppNotification.data_model);
 
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{

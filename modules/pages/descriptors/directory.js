@@ -70,7 +70,7 @@ class DirectoryContentBase extends PanelContent
 
 class DirectoryContentInternal extends DirectoryContentBase
 {
-	get_data = () => SharedData.users.instance.data;
+	get_data = () => SharedData['users'].instance.data;
 	get_entry_title = _ => _.display_name_full;
 	get_entry_search_blob = _ => _.display_name_full.toLowerCase().trim();
 	constructor(e_parent, page_instance) { super(e_parent, page_instance); }
@@ -78,7 +78,7 @@ class DirectoryContentInternal extends DirectoryContentBase
 
 class DirectoryContentExternal extends DirectoryContentBase
 {
-	get_data = () => SharedData.contacts.instance.data;
+	get_data = () => SharedData['contacts'].instance.data;
 	get_entry_title = _ => _.contact_name;
 	get_entry_search_blob = _ => _.contact_name.toLowerCase().trim();
 	constructor(e_parent, page_instance) { super(e_parent, page_instance); }
@@ -146,12 +146,12 @@ export class PageDirectory extends PageDescriptor
 		switch (instance.slide_directory.selected_index)
 		{
 			case 0:
-				if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
-				instance.relate_users = window.SharedData.users.AddNeeder();
+				if (instance.relate_contacts) window.SharedData['contacts'].RemoveNeeder(instance.relate_contacts);
+				instance.relate_users = window.SharedData['users'].AddNeeder();
 				break;
 			case 1:
-				if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
-				instance.relate_contacts = window.SharedData.contacts.AddNeeder();
+				if (instance.relate_users) window.SharedData['users'].RemoveNeeder(instance.relate_users);
+				instance.relate_contacts = window.SharedData['contacts'].AddNeeder();
 				break;
 		}
 		instance.SetDirectoryContentDirty();
@@ -173,7 +173,7 @@ export class PageDirectory extends PageDescriptor
 		if (content_next === instance.content_current)
 		{
 			console.warn('same next content');
-			return;
+			//return;
 		}
 
 		if (this.IsValidContent(content_next) === false)
@@ -228,8 +228,8 @@ export class PageDirectory extends PageDescriptor
 
 		window.SharedData.Unsubscribe('users', instance.SetDirectoryContentDirty);
 		window.SharedData.Unsubscribe('contacts', instance.SetDirectoryContentDirty);
-		if (instance.relate_contacts) window.SharedData.contacts.RemoveNeeder(instance.relate_contacts);
-		if (instance.relate_users) window.SharedData.users.RemoveNeeder(instance.relate_users);
+		if (instance.relate_contacts) window.SharedData['contacts'].RemoveNeeder(instance.relate_contacts);
+		if (instance.relate_users) window.SharedData['users'].RemoveNeeder(instance.relate_users);
 	}
 }
 

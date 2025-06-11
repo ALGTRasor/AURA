@@ -5,6 +5,7 @@ import { QuickMenu } from "../../ui/quickmenu.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Help } from "./help.js";
+import { AppNotifications } from "../../systems/app_notifications.js";
 
 /*
 EXPECTED PAGE ORDER
@@ -89,14 +90,16 @@ export class PageHome extends PageDescriptor
 				else PageManager.TogglePageByTitle(id);
 			};
 
-			button_list.push(
-				{
-					label: button_label,
-					order_index: button_order_id,
-					on_click: button_action,
-					description: desc.description
-				}
-			);
+			let button_data = {
+				label: button_label,
+				order_index: button_order_id,
+				on_click: button_action,
+				description: desc.description
+			};
+			if ('coming_soon' in desc && DevMode.active !== true) button_data.coming_soon = desc.coming_soon;
+			button_data.alerts = AppNotifications.GetAll(desc.title);
+
+			button_list.push(button_data);
 		};
 
 		instance.menu_main.RemoveElements();

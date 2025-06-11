@@ -49,7 +49,7 @@ export class PageTimekeep extends PageDescriptor
 		instance.e_used_root.innerHTML = '';
 		instance.e_unused_root.innerHTML = '';
 
-		let records = window.SharedData.userAllocations.instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
+		let records = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
 		let records_used = records.filter(_ => _.use_total >= _.allocation_max);
 		let records_unused = records.filter(_ => _.use_total < _.allocation_max);
 
@@ -101,14 +101,14 @@ export class PageTimekeep extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		window.SharedData.userAllocations.instance.addEventListener('datachange', instance.RefreshContent);
-		instance.relate_allocations = window.SharedData.userAllocations.AddNeeder();
+		window.SharedData['user allocations'].instance.addEventListener('datachange', instance.RefreshContent);
+		instance.relate_allocations = window.SharedData['user allocations'].AddNeeder();
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.userAllocations.instance.removeEventListener('datachange', instance.RefreshContent);
-		window.SharedData.userAllocations.RemoveNeeder(instance.relate_allocations);
+		window.SharedData['user allocations'].instance.removeEventListener('datachange', instance.RefreshContent);
+		window.SharedData['user allocations'].RemoveNeeder(instance.relate_allocations);
 	}
 
 	UpdateSize(instance)

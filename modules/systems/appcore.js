@@ -65,7 +65,8 @@ export class AppCore extends EventTarget
 		await window.DBLayer.Initialize();
 
 		// permissions data is required to interpret and display information about the user's granted permissions
-		window.global_needer_perms = window.SharedData.permissions.AddNeeder();
+		window.global_needer_perms = window.SharedData['permissions'].AddNeeder();
+		window.global_needer_notifications = window.SharedData['app notifications'].AddNeeder();
 
 		await UserAccountInfo.DownloadUserInfo();
 		await AppCore.CheckIdentity();
@@ -181,7 +182,7 @@ export class AppCore extends EventTarget
 		}
 	}
 
-	static OnWindowSizeChanged() { PageManager.onLayoutChange.Invoke(); }
+	static OnWindowSizeChanged() { PageManager.NotifyLayoutChange(); }
 
 	static SetContentObscured(enabled = true, label = '...')
 	{

@@ -10,6 +10,7 @@ export class PageHR extends PageDescriptor
 {
 	extra_page = true;
 	order_index = -9999;
+	coming_soon = true;
 
 	GetTitle() { return 'hr'; }
 	OnCreateElements(instance)

@@ -51,7 +51,7 @@ export class GlobalStyling
     static TriggerChangeEvents(doLayoutChange = false, doAutosave = true)
     {
         GlobalStyling.onStylingChange.Invoke();
-        if (doLayoutChange) PageManager.onLayoutChange.Invoke();
+        if (doLayoutChange) PageManager.NotifyLayoutChange();
         if (doAutosave) Autosave.InvokeSoon();
     }
 

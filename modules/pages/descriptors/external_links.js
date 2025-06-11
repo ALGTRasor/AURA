@@ -9,7 +9,7 @@ import { until } from "../../utils/until.js";
 export class PageExternalLinks extends PageDescriptor
 {
 	pinnable = true;
-	extra_page = true;
+	order_index = 98;
 
 	GetTitle() { return 'external links'; }
 	OnCreateElements(instance)
@@ -54,7 +54,7 @@ export class PageExternalLinks extends PageDescriptor
 		until(
 			() =>
 			{
-				return window.SharedData.externalLinks.instance.data && window.SharedData.externalLinks.instance.data.length > 0;
+				return window.SharedData['external links'].instance.data && window.SharedData['external links'].instance.data.length > 0;
 			}
 		).then(
 			_ =>
@@ -88,9 +88,11 @@ export class PageExternalLinks extends PageDescriptor
 			if (has_icon) addElement(e_btn, 'img', '', (!label || label == '') ? style_icon_full : style_icon, _ => { _.src = icon });
 		};
 
-		window.SharedData.externalLinks.instance.data.sort((x, y) => sort_alpha(x.link_service_type, y.link_service_type));
+		instance.e_body_root.innerHTML = '';
+
+		window.SharedData['external links'].instance.data.sort((x, y) => sort_alpha(x.link_service_type, y.link_service_type));
 		const get_link_service = l => { if (typeof l.link_service_type === 'string' && l.link_service_type.length > 0) return l.link_service_type; return 'General'; };
-		let link_groups = Object.groupBy(window.SharedData.externalLinks.instance.data, get_link_service);
+		let link_groups = Object.groupBy(window.SharedData['external links'].instance.data, get_link_service);
 		let group_index = -1;
 		for (let link_group_id in link_groups)
 		{
@@ -129,13 +131,13 @@ export class PageExternalLinks extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.relate_ExternalLinks = window.SharedData.externalLinks.AddNeeder();
+		instance.relate_ExternalLinks = window.SharedData['external links'].AddNeeder();
 		window.SharedData.Subscribe('external links', instance.refresh_soon);
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.externalLinks.RemoveNeeder(instance.relate_ExternalLinks);
+		window.SharedData['external links'].RemoveNeeder(instance.relate_ExternalLinks);
 		window.SharedData.Unsubscribe('external links', instance.refresh_soon);
 	}
 }

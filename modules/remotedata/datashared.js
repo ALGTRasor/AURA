@@ -40,35 +40,14 @@ export class SharedData
 	static onSavedToCache = new EventSource();
 	static onDownloaded = new EventSource();
 
-	static roles = new SharedDataTable('roles', DataSourceDescriptor.Roles);
-	static teams = new SharedDataTable('teams', DataSourceDescriptor.Teams);
-	static users = new SharedDataTable('users', DataSourceDescriptor.Users);
-	static tasks = new SharedDataTable('tasks', DataSourceDescriptor.Tasks);
-	static contacts = new SharedDataTable('contacts', DataSourceDescriptor.Contacts);
-	static projects = new SharedDataTable('projects', DataSourceDescriptor.Projects);
-	static permissions = new SharedDataTable('permissions', DataSourceDescriptor.Permissions);
-	static hrRequests = new SharedDataTable('hr requests', DataSourceDescriptor.HrRequests);
-	static timekeepEvents = new SharedDataTable('timekeep events', DataSourceDescriptor.TimekeepEvents);
-	static timekeepStatuses = new SharedDataTable('timekeep statuses', DataSourceDescriptor.TimekeepStatuses);
-	static userAllocations = new SharedDataTable('user allocations', DataSourceDescriptor.UserAllocations);
-	static externalLinks = new SharedDataTable('aura links', DataSourceDescriptor.AURALinks);
-	static auraProblems = new SharedDataTable('aura problems', DataSourceDescriptor.AURAProblems);
+	static all_tables = [];
 
-	static all_tables = [
-		SharedData.roles,
-		SharedData.teams,
-		SharedData.users,
-		SharedData.tasks,
-		SharedData.contacts,
-		SharedData.projects,
-		SharedData.permissions,
-		SharedData.hrRequests,
-		SharedData.timekeepEvents,
-		SharedData.timekeepStatuses,
-		SharedData.externalLinks,
-		SharedData.userAllocations,
-		SharedData.auraProblems
-	];
+	static RegisterTable(key = 'shared-data-table', source_descriptor = DataSourceDescriptor.Nothing)
+	{
+		let table = new SharedDataTable(key, source_descriptor);
+		SharedData[key] = table;
+		SharedData.all_tables.push(table);
+	}
 
 	static #GetChangeEventName(table_name) { return 'shared-data-change-' + table_name; }
 
@@ -230,7 +209,15 @@ export class SharedData
 
 	static GetSharedDatum(table = SharedDataTable.Nothing, keys = [], key_field = 'Title')
 	{
-		if (!Array.isArray(table.instance.data) || table.instance.data.length < 1) return [];
+		if (typeof table === 'string') table = SharedData[table];
+
+		if (!Array.isArray(table.instance.data)) 
+		{
+			DebugLog.Log('Invalid shared data table');
+			return [];
+		}
+
+		if (table.instance.data.length < 1) return [];
 		if (!Array.isArray(keys)) keys = [keys];
 
 		let results = [];
@@ -270,30 +257,6 @@ export class SharedData
 		);
 	}
 
-	static GetUserDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.users, ids); }
-	static GetRoleDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.roles, ids); }
-	static GetTeamDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.teams, ids); }
-	static GetTaskDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.tasks, ids); }
-	static GetPermDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.permissions, ids); }
-	static GetContactDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.contacts, ids); }
-	static GetProjectDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.projects, ids); }
-	static GetHrRequestDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.hrRequests, ids, 'requestee_id'); }
-	static GetTimekeepEventDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepEvents, ids, 'user_id'); }
-	static GetTimekeepStatusDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, ids); }
-	static GetAURALinksDatum(ids = []) { return SharedData.GetSharedDatum(SharedData.externalLinks, ids); }
-
-	static GetUserData(id = '') { return SharedData.GetSharedDatum(SharedData.users, id); }
-	static GetRoleData(id = '') { return SharedData.GetSharedDatum(SharedData.roles, id); }
-	static GetTeamData(id = '') { return SharedData.GetSharedDatum(SharedData.teams, id); }
-	static GetTaskData(id = '') { return SharedData.GetSharedDatum(SharedData.tasks, id); }
-	static GetPermData(id = '') { return SharedData.GetSharedDatum(SharedData.permissions, id); }
-	static GetContactData(id = '') { return SharedData.GetSharedDatum(SharedData.contacts, id); }
-	static GetProjectData(id = '') { return SharedData.GetSharedDatum(SharedData.projects, id); }
-	static GetHrRequestData(id = '') { return SharedData.GetSharedDatum(SharedData.hrRequests, id, 'requestee_id'); }
-	static GetTimekeepEventData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepEvents, id, 'user_id'); }
-	static GetTimekeepStatusData(id = '') { return SharedData.GetSharedDatum(SharedData.timekeepStatuses, id); }
-	static GetAURALinksData(id = '') { return SharedData.GetSharedDatum(SharedData.externalLinks, id); }
-
 
 
 
@@ -303,7 +266,7 @@ export class SharedData
 	{
 		const getRoleString = (role_key = '') =>
 		{
-			let role_info = SharedData.GetRoleData(role_key)[0];
+			let role_info = SharedData.GetSharedDatum('roles', [role_key])[0];
 			if (role_info) return role_info.role_name_short;
 			return role_key;
 		};
@@ -311,6 +274,21 @@ export class SharedData
 		return raw.split(';').map(getRoleString).join(', ');
 	}
 }
+
+SharedData.RegisterTable('roles', DataSourceDescriptor.Roles);
+SharedData.RegisterTable('teams', DataSourceDescriptor.Teams);
+SharedData.RegisterTable('users', DataSourceDescriptor.Users);
+SharedData.RegisterTable('tasks', DataSourceDescriptor.Tasks);
+SharedData.RegisterTable('contacts', DataSourceDescriptor.Contacts);
+SharedData.RegisterTable('projects', DataSourceDescriptor.Projects);
+SharedData.RegisterTable('permissions', DataSourceDescriptor.Permissions);
+SharedData.RegisterTable('hr requests', DataSourceDescriptor.HrRequests);
+SharedData.RegisterTable('timekeep events', DataSourceDescriptor.TimekeepEvents);
+SharedData.RegisterTable('timekeep statuses', DataSourceDescriptor.TimekeepStatuses);
+SharedData.RegisterTable('user allocations', DataSourceDescriptor.UserAllocations);
+SharedData.RegisterTable('external links', DataSourceDescriptor.AURALinks);
+SharedData.RegisterTable('aura problems', DataSourceDescriptor.AURAProblems);
+SharedData.RegisterTable('app notifications', DataSourceDescriptor.AppNotifications);
 
 //SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(async () => { await SharedData.LoadData(true) });
 FieldValidation.RegisterValidator('role', SharedData.Validator_Roles);

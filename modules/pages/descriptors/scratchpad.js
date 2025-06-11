@@ -9,6 +9,7 @@ export class PageScratchPad extends PageDescriptor
 	title = 'scratch pad';
 	icon = 'notepad';
 	order_index = -2;
+	coming_soon = true;
 
 	OnCreateElements(instance)
 	{

@@ -734,6 +734,7 @@
 
 .menu-button
 {
+	position: relative;
 	user-select: none;
 	cursor: pointer;
 
@@ -778,10 +779,63 @@
 
 
 
+.menu-button-alert
+{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
 
+	position: absolute;
+	top: var(--gap-05);
+	right: var(--gap-05);
+	width: fit-content;
+	min-width: 1rem;
+	height: fit-content;
+	border-radius: 1.75rem;
 
+	padding: var(--gap-05);
 
+	background: #f556;
+	border: solid 2px #f551;
+	box-shadow: 0 0 0 #000;
+	text-shadow: -1px 1px 0 black;
 
+	scale: 85%;
+
+	transition-property: scale, box-shadow, border;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-veryslow);
+}
+
+.menu-button:hover .menu-button-alert
+{
+	box-shadow: -2px 2px 4px #0007;
+	border: solid 2px #f558;
+	scale: 100%;
+	transition-duration: var(--trans-dur-on-fast);
+}
+
+.menu-button-alert > span
+{
+	position: relative;
+	display: flex;
+	flex-shrink: 0.0;
+	flex-grow: 0.0;
+	flex-basis: 0.0;
+
+	font-size: 0.666rem;
+	color: #fffa;
+	text-align: center;
+	text-anchor: middle;
+	align-content: center;
+	align-self: center;
+}
+
+.menu-button:hover .menu-button-alert > span
+{
+	color: white;
+}
 
 
 
@@ -1359,4 +1413,43 @@
 	outline: dashed 3px hsl(from var(--theme-color) h s 60%);
 	outline-offset: -6px;
 	opacity: 50%;
+}
+
+
+
+
+
+
+
+.long-ops-root
+{
+	z-index: 50000;
+
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	gap: var(--gap-025);
+
+	position: absolute;
+	top: 50%;
+	right: 1rem;
+	transform: translate(0%, -50%);
+	max-width: 12rem;
+
+	outline: solid 2px orange;
+	box-shadow: 0px 0px 1rem black;
+
+	min-width: 2rem;
+	max-height: 70vh;
+
+	transition-property: opacity, max-width;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-slow);
+}
+
+.long-ops-root:hover,
+.long-ops-root:focus,
+.long-ops-root:focus-within
+{
+	max-width: 24rem;
 }

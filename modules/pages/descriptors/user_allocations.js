@@ -413,7 +413,7 @@ export class PageUserAllocations extends PageDescriptor
 	title = 'user allocations';
 	icon = 'help';
 	order_index = 10;
-	page_extra = true;
+	extra_page = true;
 
 	OnCreateElements(instance)
 	{
@@ -458,7 +458,7 @@ export class PageUserAllocations extends PageDescriptor
 		fade_out().then(
 			_ =>
 			{
-				instance.panel_list.records = window.SharedData.userAllocations.instance.data;
+				instance.panel_list.records = window.SharedData['user allocations'].instance.data;
 				switch (instance.slide_mode.selected_index)
 				{
 					case 0:
@@ -505,21 +505,21 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		window.setTimeout(() =>
 		{
-			instance.panel_list.records = window.SharedData.userAllocations.instance.data;
+			instance.panel_list.records = window.SharedData['user allocations'].instance.data;
 			instance.panel_list.RefreshElements();
 		}, 50);
 	}
 
 	OnOpen(instance)
 	{
-		window.SharedData.Subscribe(window.SharedData.userAllocations.key, instance.RefreshData);
-		instance.relate_UserAllocations = window.SharedData.userAllocations.AddNeeder();
+		window.SharedData.Subscribe(window.SharedData['user allocations'].key, instance.RefreshData);
+		instance.relate_UserAllocations = window.SharedData['user allocations'].AddNeeder();
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.Unsubscribe(window.SharedData.userAllocations.key, instance.RefreshData);
-		window.SharedData.userAllocations.RemoveNeeder(instance.relate_UserAllocations);
+		window.SharedData.Unsubscribe(window.SharedData['user allocations'].key, instance.RefreshData);
+		window.SharedData['user allocations'].RemoveNeeder(instance.relate_UserAllocations);
 	}
 }
 
