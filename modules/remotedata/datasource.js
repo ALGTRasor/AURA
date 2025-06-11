@@ -60,6 +60,7 @@ export class DataSourceDescriptor
 
 	async GetData() { return await window.DBLayer.GetRecords(this); }
 }
+DataSourceDescriptor.AppNotifications.max_cache_duration = 1;
 
 // class used to manage data obtained from a DataSourceDescriptor
 export class DataSourceInstance extends EventTarget

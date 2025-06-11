@@ -120,7 +120,8 @@ export class QuickMenu
                             },
                             _ =>
                             {
-                                MegaTips.RegisterSimple(_, button_data.alerts.map(_ => `${_.notification_title} [[[${_.notification_body}]]]`).join('<br>'));
+                                const get_text = _ => `${_.notification_title} [[[${_.notification_body}]]]<br>(((${new Date(_.datetime_arrival).toLocaleString()})))`;
+                                MegaTips.RegisterSimple(_, button_data.alerts.map(get_text).join('<br>'));
                             }
                         );
                     }
