@@ -5,6 +5,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { FillBar } from "../../ui/fillbar.js";
 import { ChoiceOverlay } from "../../ui/overlays/overlay_choice.js";
+import { RunningTimeout } from "../../utils/running_timeout.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:0.0; flex-shrink:0.0;';
 const style_panel_label = 'text-align:center; align-content:center; position:absolute; inset:0;';
@@ -18,6 +19,9 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (!instance) return;
 
+		instance.content_timeout = new RunningTimeout(() => { this.RefreshContent(instance); }, 0.25, false, 150);
+		instance.RefreshContentSoon = () => { instance.content_timeout.ExtendTimer(); };
+
 		instance.CreatePanel(
 			instance.e_content, true, true, 'overflow:hidden;',
 			e =>
@@ -27,16 +31,15 @@ export class PageTimekeep extends PageDescriptor
 					e =>
 					{
 						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "Available" });
-						instance.e_unused_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-grow:1.0; overflow-y:auto; padding:var(--gap-05); gap:var(--gap-025); justify-content:flex-start;');
+						instance.e_unused_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-grow:1.0; overflow-y:auto; padding:var(--gap-05); gap:var(--gap-05); justify-content:flex-start;');
 						addElement(e, 'div', '', style_panel_title, e => { e.innerText = "Completed" });
-						instance.e_used_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-basis:fit-content; flex-grow:0.0; overflow-y:auto; max-height:33vh; padding:var(--gap-05); gap:var(--gap-025); justify-content:flex-start;');
+						instance.e_used_root = instance.CreatePanel(e, true, false, 'display:flex; flex-direction:column; flex-basis:fit-content; flex-grow:0.0; overflow-y:auto; max-height:33vh; padding:var(--gap-05); gap:var(--gap-05); justify-content:flex-start;');
 					}
 				);
 			}
 		);
 
-		instance.RefreshContent = () => this.RefreshContent(instance, 20);
-		instance.RefreshContent();
+		instance.RefreshContentSoon();
 	}
 
 	RefreshContent(instance, delay = -1)
@@ -138,13 +141,13 @@ export class PageTimekeep extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		window.SharedData.Subscribe('user allocations', instance.RefreshContent);
+		window.SharedData.Subscribe('user allocations', instance.RefreshContentSoon);
 		instance.relate_allocations = window.SharedData['user allocations'].AddNeeder();
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.Unsubscribe('user allocations', instance.RefreshContent);
+		window.SharedData.Unsubscribe('user allocations', instance.RefreshContentSoon);
 		window.SharedData['user allocations'].RemoveNeeder(instance.relate_allocations);
 	}
 

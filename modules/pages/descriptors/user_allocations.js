@@ -48,7 +48,7 @@ class PanelUserAllocationGroup extends PanelContent
 		else if (use_percent == 1.0) { use_note = 'task_alt'; use_note_color = '#0ff'; }
 
 		return CreatePagePanel(
-			e_parent, false, false, 'display:flex;padding:var(--gap-025);box-shadow:none;',
+			e_parent, false, false, 'display:flex; padding:var(--gap-025); box-shadow:none;',
 			_ =>
 			{
 				let label_str = get_row_label(allocation);

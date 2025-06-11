@@ -49,11 +49,11 @@ export class DataSourceDescriptor
 // class used to manage data obtained from a DataSourceDescriptor
 export class DataSourceInstance extends EventTarget
 {
-	constructor(datasource = DataSourceDescriptor.Nothing, table)
+	constructor(descriptor = DataSourceDescriptor.Nothing, table)
 	{
 		super();
 
-		this.datasource = datasource;
+		this.descriptor = descriptor;
 		this.table = table;
 		this.loading = false;
 		this.loaded = false;
@@ -61,15 +61,15 @@ export class DataSourceInstance extends EventTarget
 		this.data = [];
 
 		this.needed = new Needed();
-		this.needed.name = 'DATA::' + datasource.list_title;
+		this.needed.name = 'DATA::' + this.descriptor.list_title;
 		this.needed.after_became_needed = () => { this.OnNeeded(); };
 		this.needed.after_became_not_needed = () => { this.OnNotNeeded(); };
 		//this.needed.log_changes = true;
 
-		if (this.datasource.list_title == null) return;
+		if (this.descriptor.list_title == null) return;
 
 		this.valid = true;
-		let smolname = this.datasource.list_title.toLowerCase().trim();
+		let smolname = this.descriptor.list_title.toLowerCase().trim();
 		this.lskey_cache = 'dsc_' + smolname;
 		this.lskey_cache_ts = 'dsc_ts_' + smolname;
 	}
@@ -103,7 +103,7 @@ export class DataSourceInstance extends EventTarget
 				this.loading = false;
 				if (was_loaded !== true)
 				{
-					DebugLog.Log('first load from cache: ' + this.datasource.list_title + `(${this.data.length})`);
+					DebugLog.Log('first load from cache: ' + this.descriptor.list_title + `(${this.data.length})`);
 					AppEvents.Request('data-loaded');
 					this.dispatchEvent(new CustomEvent('datachange', { detail: this }));
 				}
@@ -111,9 +111,9 @@ export class DataSourceInstance extends EventTarget
 			}
 		}
 
-		DebugLog.Log('downloading: ' + this.datasource.list_title);
+		DebugLog.Log('downloading: ' + this.descriptor.list_title);
 
-		let longop = LongOps.Start('download-' + this.datasource.list_title, { label: this.datasource.list_title, icon: 'download', verb: 'Loaded Data' });
+		let longop = LongOps.Start('download-' + this.descriptor.list_title, { label: this.descriptor.list_title, icon: 'download', verb: 'Loaded Data' });
 		this.table.instance.data = [];
 		await DBLayer.GetRecords(this.table);
 		LongOps.Stop(longop);
@@ -126,16 +126,16 @@ export class DataSourceInstance extends EventTarget
 			if (this.data.length > 0)
 			{
 				this.TryStoreInCache();
-				if (was_loaded !== true) DebugLog.Log('first download: ' + this.datasource.list_title + ` (${this.data ? this.data.length : -1} items)`);
-				else DebugLog.Log('reloaded ' + this.data.length + ' ' + this.datasource.list_title, true, '#0f0');
+				if (was_loaded !== true) DebugLog.Log('first download: ' + this.descriptor.list_title + ` (${this.data ? this.data.length : -1} items)`);
+				else DebugLog.Log('reloaded ' + this.data.length + ' ' + this.descriptor.list_title, true, '#0f0');
 				AppEvents.Request('data-loaded');
 			}
 			else
 			{
-				DebugLog.Log(' ! data empty: ' + this.datasource.list_title, true, '#ff0');
+				DebugLog.Log(' ! data empty: ' + this.descriptor.list_title, true, '#ff0');
 			}
 		}
-		else DebugLog.Log(' ! data invalid: ' + this.datasource.list_title, true, '#fa0');
+		else DebugLog.Log(' ! data invalid: ' + this.descriptor.list_title, true, '#fa0');
 
 		this.dispatchEvent(new CustomEvent('datachange', { detail: this }));
 	}
@@ -158,13 +158,13 @@ export class DataSourceInstance extends EventTarget
 		let cache_tsdelta = minutesDelta(cache_ts);
 		if (!cache_ts)
 		{
-			DebugLog.Log(this.datasource.list_title + ' : Empty Cache');
+			DebugLog.Log(this.descriptor.list_title + ' : Empty Cache');
 			return;
 		}
-		else if (cache_tsdelta > this.datasource.max_cache_duration)
+		else if (cache_tsdelta > this.descriptor.max_cache_duration)
 		{
 			let mins = Math.ceil(cache_tsdelta * 10.0) * 0.1;
-			DebugLog.Log(this.datasource.list_title + ' : Cache Expired : ' + mins + ' of ' + this.datasource.max_cache_duration + ' min');
+			DebugLog.Log(this.descriptor.list_title + ' : Cache Expired : ' + mins + ' of ' + this.descriptor.max_cache_duration + ' min');
 			return;
 		}
 

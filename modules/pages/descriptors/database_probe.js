@@ -53,11 +53,11 @@ export class DatabaseProbe extends PageDescriptor
 						this.SetTableData(
 							instance,
 							sd.instance,
-							sd.instance.datasource.list_title,
+							sd.instance.descriptor.list_title,
 							sd.instance.data,
-							sd.instance.datasource.data_model.field_descs,
-							x => x[sd.instance.datasource.label_field],
-							x => x[sd.instance.datasource.sorting_field]
+							sd.instance.descriptor.data_model.field_descs,
+							x => x[sd.instance.descriptor.label_field],
+							x => x[sd.instance.descriptor.sorting_field]
 						);
 					};
 					x.addEventListener('click', view_this_table);

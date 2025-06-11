@@ -321,16 +321,21 @@ export class SharePoint
 		return all_items.map(expand_fields);
 	}
 
-	static async PatchListItem(source = DataSourceDescriptor.Nothing, item_id = '', patchData = {})
+	static async CreateListItem(datasource_descriptor = DataSourceDescriptor.Nothing, data = {})
 	{
-		let url = SharePoint.GetListUrl(source.site_name, source.list_title) + '/items/' + item_id + '/fields';
-		let result = await SharePoint.SetData(url, patchData);
+		let url = SharePoint.GetListUrl(datasource_descriptor.site_name, datasource_descriptor.list_title) + '/items';
+		let result = await SharePoint.SetData(url, data);
 		DebugLog.Log('Patch sharepoint list items result: ' + result);
+		return result;
 	}
 
-
-
-
+	static async PatchListItem(datasource_descriptor = DataSourceDescriptor.Nothing, item_id = '', data = {})
+	{
+		let url = SharePoint.GetListUrl(datasource_descriptor.site_name, datasource_descriptor.list_title) + '/items/' + item_id + '/fields';
+		let result = await SharePoint.SetData(url, data);
+		DebugLog.Log('Patch sharepoint list items result: ' + result);
+		return result;
+	}
 
 
 
@@ -339,7 +344,7 @@ export class SharePoint
 		SharePoint.Enqueue(
 			new RequestBatchRequest(
 				'get',
-				SharePoint.GetBatchURL_GetList(table.instance.datasource),
+				SharePoint.GetBatchURL_GetList(table.instance.descriptor),
 				_ => { SharePoint.HandleListItemsResult(table, _); }
 			)
 		);
@@ -349,7 +354,7 @@ export class SharePoint
 
 	static HandleListItemsResult(table, result) 
 	{
-		const data_model = table.instance.datasource.data_model;
+		const data_model = table.instance.descriptor.data_model;
 
 		const expand_fields = x => { return x.fields ?? x; };
 		let page_items = result.body.value.map(expand_fields);
@@ -396,7 +401,7 @@ export class DB_SharePoint extends DBConfig
 	async GetRecords(source) { return await SharePoint.GetListItems(source); }
 	async GetRecordById(source, record_id) { }
 	async UpdateRecord(source, record_id, record_data) { return await SharePoint.PatchListItem(source, record_id, record_data); }
-	async CreateRecord(source, record_data) { }
+	async CreateRecord(source, record_data) { return await SharePoint.CreateListItem(source, record_data); }
 
 	// methods for handling remotely stored items in a folder / file structure
 	async CreateItem(path, data) { }

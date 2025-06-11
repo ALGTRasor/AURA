@@ -15,15 +15,16 @@ export class SharedDataTable
 {
 	static Nothing = new SharedDataTable('nothing', DataSourceDescriptor.Nothing);
 
-	constructor(key = '', datasource = DataSourceDescriptor.Nothing)
+	constructor(key = '', datasource_descriptor = DataSourceDescriptor.Nothing)
 	{
 		this.key = key;
-		this.instance = new DataSourceInstance(datasource, this);
+		this.instance = new DataSourceInstance(datasource_descriptor, this);
 		if (typeof this.key === 'string' && this.key.length > 0)
 			this.instance.addEventListener('datachange', () => SharedData.InvokeChangeEvent(this.key));
 	}
 
 	async Download() { await this.instance.TryLoad(true); }
+
 	AddNeeder() { return this.instance.AddNeeder(); }
 	RemoveNeeder(needer) { return this.instance.RemoveNeeder(needer); }
 }
@@ -161,12 +162,12 @@ export class SharedData
 				x.instance.TryLoadFromCache();
 				if (x.instance.loaded !== true) 
 				{
-					DebugLog.Log('not cached: ' + x.instance.datasource.list_title);
+					DebugLog.Log('not cached: ' + x.instance.descriptor.list_title);
 					full = false;
 				}
 				else
 				{
-					DebugLog.Log('in cache: ' + x.instance.datasource.list_title);
+					DebugLog.Log('in cache: ' + x.instance.descriptor.list_title);
 				}
 			}
 		);
@@ -179,10 +180,10 @@ export class SharedData
 		return SharedData.LoadFromStorage(key);
 	}
 
-	static async LoadTable(datasource = DataSourceDescriptor.Nothing, key = '????')
+	static async LoadTable(descriptor = DataSourceDescriptor.Nothing, key = '????')
 	{
 		let result = [];
-		result = await datasource.GetData();
+		result = await descriptor.GetData();
 		if (result && result.length) { }
 		else DebugLog.Log('loaded ' + result + ' ' + key, false, '#f00');
 		return result;

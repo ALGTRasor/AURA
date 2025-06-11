@@ -1,11 +1,10 @@
-import { AppEvents } from "../../appevents.js";
 import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
-import { Help } from "./help.js";
 import { AppNotifications } from "../../systems/app_notifications.js";
+import { Help } from "./help.js";
 
 /*
 EXPECTED PAGE ORDER
@@ -26,11 +25,11 @@ help
 ----
 */
 
-export class PageHome extends PageDescriptor
+export class PageNavMenu extends PageDescriptor
 {
 	hidden_page = true;
 
-	GetTitle() { return 'nav menu'; }
+	title = 'nav menu';
 
 	OnCreateElements(instance)
 	{
@@ -196,7 +195,7 @@ export class PageHome extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageHome('nav menu', UserAccountInfo.app_access_permission, 'home'), 'n', 'Nav Menu');
+PageManager.RegisterPage(new PageNavMenu('nav menu', UserAccountInfo.app_access_permission, 'home'), 'n', 'Nav Menu');
 Help.Register(
 	'pages.nav menu', 'The Navigation Menu',
 	'The Navigation Menu shows all pages which you have access to.'

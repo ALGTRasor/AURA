@@ -17,7 +17,7 @@ export class MegaTipInstance
 export class MegaTips
 {
     static active = [];
-    static dirty_timeout = new RunningTimeout(MegaTips.SwitchContent, 0.1, 50);
+    static dirty_timeout = new RunningTimeout(MegaTips.SwitchContent, 0.25, 50);
     static switching = false;
     static fading_out = false;
     static fading_in = false;
@@ -52,9 +52,9 @@ export class MegaTips
         if (MegaTips.active.length > 0)
         {
             let tip = MegaTips.active[MegaTips.active.length - 1];
-            if (tip && tip.prep)
+            if (tip)
             {
-                MegaTips.RecalculatePosition(tip);
+                MegaTips.AdjustTo(tip);
 
                 MegaTips.fading_in = true;
                 await FadeElement(MegaTips.e_root, 0, 100, 0.125);
@@ -66,31 +66,34 @@ export class MegaTips
         MegaTips.switching = false;
     }
 
-    static RecalculatePosition(tip = MegaTipInstance.Nothing)
+    static AdjustTo(tip = MegaTipInstance.Nothing)
     {
+        if ('prep' in tip) tip.prep(MegaTips.e_root);
+
         let body_rect = document.body.getBoundingClientRect();
         let target_rect = tip.element.getBoundingClientRect();
-        tip.prep(MegaTips.e_root);
-
         let tip_rect = MegaTips.e_root.getBoundingClientRect();
-        let target_center = new DOMPoint(target_rect.x + target_rect.width * 0.5, target_rect.y + target_rect.height * 0.5);
+        let anchor_point = new DOMPoint(
+            target_rect.x + target_rect.width * 0.5 - body_rect.x,
+            target_rect.y + target_rect.height * 0.5 - body_rect.y
+        );
 
         let offset = new DOMPoint(0, 0);
-        let pos = new DOMPoint(target_center.x, target_center.y);
+        let pos = new DOMPoint(anchor_point.x, anchor_point.y);
 
-        if (target_center.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
+        if (pos.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
         else { offset.x = -1.0; }
-        if (target_center.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
+        if (pos.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
         else { offset.y = -1.0; }
 
         pos.x += offset.x * target_rect.width * 0.5;
         pos.y += offset.y * target_rect.height * 0.5;
 
-        let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
-        pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
+        //let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
+        //pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
 
-        if (offset.x < 0) pos.x -= Math.max(24, tip_rect.width);
-        if (offset.y < 0) pos.y -= Math.max(24, tip_rect.height);
+        if (offset.x < 0) pos.x -= tip_rect.width; // right half of view
+        if (offset.y < 0) pos.y -= tip_rect.height; // bottom half of view
 
         let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
 
@@ -98,7 +101,8 @@ export class MegaTips
         MegaTips.e_root.style.setProperty('--anchor-y', -offset.y);
         MegaTips.e_root.style.setProperty('--anchor-angle', offset_angle + 'deg');
 
-        MegaTips.SetPosition(pos.x - body_rect.x, pos.y - body_rect.y);
+        MegaTips.SetPosition(pos.x, pos.y);
+
     }
 
     static Push(tip = MegaTipInstance.Nothing)
@@ -118,10 +122,7 @@ export class MegaTips
         MegaTips.dirty_timeout.ExtendTimer();
     }
 
-    static CreateElements()
-    {
-        MegaTips.e_root = addElement(document.body, 'div', 'megatip', undefined, _ => { });
-    }
+    static CreateElements() { MegaTips.e_root = addElement(document.body, 'div', 'megatip', 'filter:opacity(0%);', _ => { }); }
     static RemoveElements() { if (MegaTips.e_root) MegaTips.e_root.remove(); }
 
     static SetPosition(x, y)
@@ -129,15 +130,8 @@ export class MegaTips
         let body_rect = document.body.getBoundingClientRect();
         let etip_rect = MegaTips.e_root.getBoundingClientRect();
 
-        //if (x < 0) MegaTips.e_root.style.maxWidth = Math.max(320, etip_rect.width + x) + 'px';
-        //else if ((x + etip_rect.width) > body_rect.width) MegaTips.e_root.style.maxWidth = Math.max(320, body_rect.width - etip_rect.x) + 'px';
-        //else
-        //MegaTips.e_root.style.maxWidth = '50vw';
-
-        x = Math.min(x, body_rect.width - etip_rect.width);
-        x = Math.max(x, 0);
-        y = Math.min(y, body_rect.height - etip_rect.height);
-        y = Math.max(y, 0);
+        x = Math.max(0, Math.min(x, body_rect.width - etip_rect.width));
+        y = Math.max(0, Math.min(y, body_rect.height - etip_rect.height));
 
         MegaTips.e_root.style.left = x + 'px';
         MegaTips.e_root.style.top = y + 'px';
@@ -176,6 +170,8 @@ export class MegaTips
 
     static UpdateMousePos(e)
     {
-        MegaTips.mouse_pos = new DOMPoint(e.clientX, e.clientY);
+        if (!MegaTips.mouse_pos) MegaTips.mouse_pos = new DOMPoint(0, 0);
+        if ('clientX' in e) MegaTips.mouse_pos.x = e.clientX;
+        if ('clientY' in e) MegaTips.mouse_pos.y = e.clientY;
     }
 }
