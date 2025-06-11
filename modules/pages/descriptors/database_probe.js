@@ -52,6 +52,7 @@ export class DatabaseProbe extends PageDescriptor
 						x.classList.add('panel-button-selected');
 						this.SetTableData(
 							instance,
+							sd.instance,
 							sd.instance.datasource.list_title,
 							sd.instance.data,
 							sd.instance.datasource.data_model.field_descs,
@@ -65,7 +66,7 @@ export class DatabaseProbe extends PageDescriptor
 		}
 	}
 
-	SetTableData(instance, title = '', data = [], field_descs = {}, getLabel = x => x.Title, getSortingField = x => x.Title)
+	SetTableData(instance, datasource_instance, title = '', data = [], field_descs = {}, getLabel = x => x.Title, getSortingField = x => x.Title)
 	{
 		instance.e_table_view.innerHTML = '';
 
@@ -87,6 +88,27 @@ export class DatabaseProbe extends PageDescriptor
 		instance.viewer.SetListItemSorter(sort);
 		instance.viewer.SetViewBuilder(records => this.BuildRecordView(instance, records, field_descs, getLabel));
 		instance.viewer.CreateElements(instance.e_table_view);
+
+		instance.e_table_view.appendElement(
+			'div',
+			_ =>
+			{
+				_.innerHTML = 'REFRESH NOW';
+				_.classList.add('page-panel');
+				_.classList.add('panel-button');
+				_.style.width = 'fit-content';
+				_.style.padding = 'var(--gap-1)';
+				_.style.alignSelf = 'center';
+				_.addEventListener(
+					'click',
+					e =>
+					{
+						datasource_instance.TryLoad(true);
+					}
+				);
+			},
+			_ => { }
+		);
 	}
 
 	BuildRecordView(instance, records, field_descs = {}, getLabel = x => x.Title)

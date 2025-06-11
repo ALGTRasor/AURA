@@ -63,7 +63,6 @@ export class PageHome extends PageDescriptor
 				}
 			);
 		};
-		AppEvents.AddListener('permissions-changed', instance.repopulate);
 		DevMode.AddActivateAction(instance.repopulate);
 		DevMode.AddDeactivateAction(instance.repopulate);
 	}
@@ -72,7 +71,6 @@ export class PageHome extends PageDescriptor
 	{
 		DevMode.RemoveActivateAction(instance.repopulate);
 		DevMode.RemoveDeactivateAction(instance.repopulate);
-		AppEvents.RemoveListener('permissions-changed', instance.repopulate);
 	}
 
 	Populate(instance)
@@ -183,6 +181,18 @@ export class PageHome extends PageDescriptor
 	{
 		if (instance.state.Get('docked') === true && instance.state.Get('expanding') === false) instance.e_frame.style.maxWidth = '20rem';
 		else instance.e_frame.style.maxWidth = 'unset';
+	}
+
+	OnOpen(instance)
+	{
+		window.SharedData.Subscribe('permissions', instance.repopulate);
+		window.SharedData.Subscribe('app notifications', instance.repopulate);
+	}
+
+	OnClose(instance)
+	{
+		window.SharedData.Unsubscribe('permissions', instance.repopulate);
+		window.SharedData.Unsubscribe('app notifications', instance.repopulate);
 	}
 }
 

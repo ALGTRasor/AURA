@@ -30,21 +30,6 @@ export class DataSourceDescriptor
 {
 	static Nothing = new DataSourceDescriptor(null, null, null);
 
-	static Teams = new DataSourceDescriptor('ALGTeams', Team.data_model, 'team_name', 'team_name');
-	static Roles = new DataSourceDescriptor('ALGRoles', Role.data_model, 'role_name', 'role_name');
-	static Permissions = new DataSourceDescriptor('ALGPerms', Permission.data_model);
-	static Users = new DataSourceDescriptor('ALGUsers', InternalUser.data_model, 'display_name_full', 'display_name_full');
-	static Tasks = new DataSourceDescriptor('ALGTasks', TaskData.data_model, 'task_title', 'task_title');
-	static Contacts = new DataSourceDescriptor('ALGContacts', ExternalContact.data_model, 'contact_name', 'contact_name');
-	static Projects = new DataSourceDescriptor('ALGProjects', ProjectCoreData.data_model, 'project_name', 'project_name');
-	static HrRequests = new DataSourceDescriptor('ALGHRRequests', HrRequest.data_model, 'request_name', 'request_name');
-	static TimekeepEvents = new DataSourceDescriptor('ALGTimekeepEvents', TimekeepEvent.data_model);
-	static TimekeepStatuses = new DataSourceDescriptor('ALGTimekeepStatuses', TimekeepStatus.data_model);
-	static UserAllocations = new DataSourceDescriptor('ALGUserAllocations', UserAllocation.data_model);
-	static AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
-	static AURAProblems = new DataSourceDescriptor('AURAProblems', AURAProblem.data_model);
-	static AppNotifications = new DataSourceDescriptor('AURANotifications', AppNotification.data_model);
-
 	constructor(list_title, data_model = DEF_TABLE_DATA_MODEL, label_field = 'Title', sorting_field = 'Title', view_filter = '', site_name = DEF_TABLE_SITE)
 	{
 		this.list_title = list_title;
@@ -60,7 +45,6 @@ export class DataSourceDescriptor
 
 	async GetData() { return await window.DBLayer.GetRecords(this); }
 }
-DataSourceDescriptor.AppNotifications.max_cache_duration = 1;
 
 // class used to manage data obtained from a DataSourceDescriptor
 export class DataSourceInstance extends EventTarget
@@ -130,7 +114,7 @@ export class DataSourceInstance extends EventTarget
 		DebugLog.Log('downloading: ' + this.datasource.list_title);
 
 		let longop = LongOps.Start('download-' + this.datasource.list_title, { label: this.datasource.list_title, icon: 'download', verb: 'Loaded Data' });
-		this.table.data = [];
+		this.table.instance.data = [];
 		await DBLayer.GetRecords(this.table);
 		LongOps.Stop(longop);
 
@@ -203,5 +187,21 @@ export class DataSourceInstance extends EventTarget
 		localStorage.setItem(this.lskey_cache, JSON.stringify({ data: this.data }));
 	}
 }
+
+DataSourceDescriptor.Teams = new DataSourceDescriptor('ALGTeams', Team.data_model, 'team_name', 'team_name');
+DataSourceDescriptor.Roles = new DataSourceDescriptor('ALGRoles', Role.data_model, 'role_name', 'role_name');
+DataSourceDescriptor.Permissions = new DataSourceDescriptor('ALGPerms', Permission.data_model);
+DataSourceDescriptor.Users = new DataSourceDescriptor('ALGUsers', InternalUser.data_model, 'display_name_full', 'display_name_full');
+DataSourceDescriptor.Tasks = new DataSourceDescriptor('ALGTasks', TaskData.data_model, 'task_title', 'task_title');
+DataSourceDescriptor.Contacts = new DataSourceDescriptor('ALGContacts', ExternalContact.data_model, 'contact_name', 'contact_name');
+DataSourceDescriptor.Projects = new DataSourceDescriptor('ALGProjects', ProjectCoreData.data_model, 'project_name', 'project_name');
+DataSourceDescriptor.HrRequests = new DataSourceDescriptor('ALGHRRequests', HrRequest.data_model, 'request_name', 'request_name');
+DataSourceDescriptor.TimekeepEvents = new DataSourceDescriptor('ALGTimekeepEvents', TimekeepEvent.data_model);
+DataSourceDescriptor.TimekeepStatuses = new DataSourceDescriptor('ALGTimekeepStatuses', TimekeepStatus.data_model);
+DataSourceDescriptor.UserAllocations = new DataSourceDescriptor('ALGUserAllocations', UserAllocation.data_model);
+DataSourceDescriptor.AURALinks = new DataSourceDescriptor('AURALinks', AURALink.data_model);
+DataSourceDescriptor.AURAProblems = new DataSourceDescriptor('AURAProblems', AURAProblem.data_model);
+DataSourceDescriptor.AppNotifications = new DataSourceDescriptor('AURANotifications', AppNotification.data_model);
+DataSourceDescriptor.AppNotifications.max_cache_duration = 1;
 
 Modules.Report('Data Sources', 'This module adds a reusable code component to keep references to database tables and their cached data.');
