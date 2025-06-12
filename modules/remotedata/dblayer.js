@@ -1,4 +1,6 @@
 import { Modules } from "../modules.js";
+import { AppStats } from "../systems/appstats.js";
+import { Timers } from "../timers.js";
 import { DBConfig } from "./dbconfig.js";
 
 export class DBLayer
@@ -9,7 +11,15 @@ export class DBLayer
 
 	static async WaitAllRequests() { return await DBLayer.config.WaitAllRequests(); }
 
-	static async GetRecords(source) { return await DBLayer.config.GetRecords(source); }
+	static async GetRecords(source)
+	{
+		let timer_name = 'db-layer-get-records ' + Math.round(Math.random() * 9999999);
+		Timers.Start(timer_name);
+		let result = await DBLayer.config.GetRecords(source);
+		let ms_delta = Timers.Stop(timer_name);
+		AppStats.Average('datasource-load-time', ms_delta);
+		return result;
+	}
 	static async GetRecordById(source, record_id) { return await DBLayer.config.GetRecordById(source, record_id); }
 	static async UpdateRecord(source, record_id, record_data) { return await DBLayer.config.UpdateRecord(source, record_id, record_data); }
 	static async CreateRecord(source, record_data) { return await DBLayer.config.CreateRecord(source, record_data); }

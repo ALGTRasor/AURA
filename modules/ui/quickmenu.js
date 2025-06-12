@@ -101,8 +101,8 @@ export class QuickMenu
             {
                 if (button_data.coming_soon === true) x.setAttribute('coming-soon', '');
                 x.innerText = text ? text : '???';
-                x.tabIndex = '0';
                 x.addEventListener('click', on_click);
+                //x.tabIndex = '0';
                 //x.title = text;
                 if (tooltip) MegaTips.RegisterSimple(x, tooltip);
 

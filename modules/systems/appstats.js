@@ -1,44 +1,46 @@
 const default_stat_name = 'null-stat';
 const lskey_appstats = 'lsc-app-statistics';
 
-class AppStatBase
+class AppStat
 {
 	constructor(name = default_stat_name, initial_value = undefined)
 	{
 		this.name = name;
 		this.value = initial_value;
-		this.initial_value_type = typeof initial_value;
 	}
-}
-
-class AppStatCounter extends AppStatBase
-{
-	constructor(name = default_stat_name, initial_value = 0) { super(name, initial_value); }
-	AddCount(count) { this.value = Math.max(0, this.value + count); }
 }
 
 export class AppStats
 {
-	static counters = [];
+	static statistics = [];
 
-	static IndexOfCounter(name = default_stat_name) { return AppStats.counters.findIndex(_ => _.name === name); };
+	static IndexOf(name = default_stat_name) { return AppStats.statistics.findIndex(_ => _.name == name); };
+
+	static Average(name = default_stat_name, value = 0.0)
+	{
+		let existing_index = AppStats.IndexOf(name);
+		if (existing_index > -1)
+		{
+			let pvalue = AppStats.statistics[existing_index].value;
+			AppStats.statistics[existing_index].value = (pvalue + value) * 0.5;
+		}
+		else AppStats.statistics.push(new AppStat(name, value));
+	}
 
 	static Count(name = default_stat_name, count = 1)
 	{
-		let existing_index = AppStats.IndexOfCounter(name);
-		if (existing_index > 0) AppStats.counters[existing_index].AddCount(count);
-		else AppStats.counters.push(new AppStatCounter(name, count));
-	}
-
-	static Uncount(name = default_stat_name, count = 1)
-	{
-		let existing_index = AppStats.IndexOfCounter(name);
-		if (existing_index > 0) AppStats.counters[existing_index].AddCount(-count);
+		let existing_index = AppStats.IndexOf(name);
+		if (existing_index > -1) 
+		{
+			let pvalue = AppStats.statistics[existing_index].value;
+			AppStats.statistics[existing_index].value = Math.max(0.0, pvalue + count);
+		}
+		else AppStats.statistics.push(new AppStat(name, count));
 	}
 
 	static Clear()
 	{
-		AppStats.counters = [];
+		AppStats.statistics = [];
 	}
 
 	static Load()
@@ -48,19 +50,12 @@ export class AppStats
 		{
 			AppStats.Clear();
 			let ls_obj = JSON.parse(ls_json);
-			if ('counters' in ls_obj) AppStats.counters = ls_obj.counters;
+			if ('statistics' in ls_obj) AppStats.statistics = ls_obj.statistics;
 		}
 	}
 
 	static Save()
 	{
-		localStorage.setItem(
-			lskey_appstats,
-			JSON.stringify(
-				{
-					counters: AppStats.counters
-				}
-			)
-		);
+		localStorage.setItem(lskey_appstats, JSON.stringify({ statistics: AppStats.statistics }));
 	}
 }
