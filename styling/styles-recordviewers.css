@@ -30,7 +30,7 @@
 	overflow: hidden;
 
 	padding: 1rem;
-	border-radius: 0.5rem;
+	border-radius: var(--corner-05);
 
 	clip-path: stroke-box;
 
@@ -53,7 +53,7 @@
 .record-viewer-list-filters
 {
 	min-height: 3rem;
-	border-radius: 0.5rem;
+	border-radius: var(--corner-05);
 	min-width: 0;
 	background: hsl(from var(--theme-color) h s 14%);
 	outline: solid 2px hsl(from var(--theme-color) h s 10%);
@@ -76,7 +76,7 @@
 	scrollbar-width: 0px;
 
 	padding: 0.5rem;
-	border-radius: 0.5rem;
+	border-radius: var(--corner-05);
 
 	outline: solid 2px hsl(from var(--theme-color) h s 10%);
 
@@ -90,7 +90,7 @@
 	bottom: 0;
 	left: 50%;
 	max-width: 80%;
-	border-radius: 0.5rem 0.5rem 0 0;
+	border-radius: var(--corner-05) var(--corner-05) 0 0;
 	transform: translate(-50%, 0);
 	height: 1rem;
 	line-height: 1rem;
@@ -195,7 +195,7 @@
 	overflow-y: auto;
 
 	padding: 1rem;
-	border-radius: 0.5rem;
+	border-radius: var(--corner-05);
 
 	clip-path: stroke-box;
 
@@ -227,7 +227,7 @@
 
 	margin: 0.25rem;
 	padding: 0.75rem;
-	border-radius: 0.5em;
+	border-radius: var(--corner-05);
 
 	border: solid 2px hsl(from var(--theme-color) h s 15%);
 
@@ -286,7 +286,7 @@
 	margin-bottom: 1px;
 
 	overflow: hidden;
-	border-radius: 0.3rem;
+	border-radius: var(--corner-05);
 
 	transition-property: background-color;
 	transition-timing-function: ease-in-out;
@@ -364,7 +364,7 @@
 {
 	color: hsl(from var(--theme-color) h s 55%);
 	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-	border-radius: 0.5rem;
+	border-radius: var(--corner-05);
 }
 
 .info-value a:hover
@@ -384,7 +384,7 @@
 	font-size: 0.8rem;
 	padding: 0.25rem;
 	padding-left: 1rem;
-	border-radius: 0.3rem;
+	border-radius: var(--corner-025);
 }
 
 

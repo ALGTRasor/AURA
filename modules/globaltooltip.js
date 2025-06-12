@@ -123,7 +123,7 @@ export class GlobalTooltip
 		GlobalTooltip.e_tooltip_root.style.backgroundColor = "#00000080";
 		GlobalTooltip.e_tooltip_root.style.color = "#ffffff";
 		GlobalTooltip.e_tooltip_root.style.position = "fixed";
-		GlobalTooltip.e_tooltip_root.style.borderRadius = "0.25rem";
+		GlobalTooltip.e_tooltip_root.style.borderRadius = "var(--corner-025)";
 		GlobalTooltip.e_tooltip_root.style.fontSize = "0.8rem";
 		GlobalTooltip.e_tooltip_root.style.top = "0px";
 		GlobalTooltip.e_tooltip_root.style.left = "0px";

@@ -530,6 +530,15 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
+		instance.e_slider_roundness = new SettingSlider(
+			instance.e_mode_content_root, 'roundness', 'circle', GlobalStyling.roundness.value, 0.05, () => 'UI roundness',
+			_ =>
+			{
+				GlobalStyling.roundness.value = _.value;
+				GlobalStyling.roundness.Apply(true);
+			}
+		);
+
 		instance.e_theme_color_warning = addElement(instance.e_mode_content_root, 'div', 'setting-root-warning', null, e => { e.innerText = '' });
 		instance.updateColorWarning(instance.e_theme_color_warning);
 	}

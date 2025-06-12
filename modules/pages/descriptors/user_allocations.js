@@ -126,7 +126,7 @@ class PanelUserAllocationGroup extends PanelContent
 						let e_title = addElement(
 							_, 'div', 'active-border-flash',
 							'text-align:left; padding-left:calc(var(--gap-05) + 0.5rem); padding-right:calc(var(--gap-05) + 0.5rem);'
-							+ 'align-content:center; flex-shrink:0.0; flex-grow:0.0; background:#0003; border-radius:var(--gap-05);'
+							+ 'align-content:center; flex-shrink:0.0; flex-grow:0.0; background:#0003; border-radius:var(--corner-05);'
 							+ 'cursor:pointer;',
 							_ =>
 							{
@@ -238,7 +238,7 @@ class PanelUserAllocationGroup extends PanelContent
 					_, true, false, 'display:flex; flex-direction:column; padding:var(--gap-05); gap:0;',
 					_ =>
 					{
-						let e_container = addElement(_, 'div', null, 'flex-basis:100%; border-radius:var(--gap-05); overflow:hidden; clip-path:fill;');
+						let e_container = addElement(_, 'div', null, 'flex-basis:100%; border-radius:var(--corner-05); overflow:hidden; clip-path:fill;');
 						for (let rid in this.records)
 						{
 							let p_record = PanelUserAllocationGroup.CreateAllocationRow(e_container, this.records[rid], this.get_row_label);

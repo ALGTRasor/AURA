@@ -75,7 +75,7 @@ export class PageExternalLinks extends PageDescriptor
 		};
 
 		const style_button = 'flex-grow:0.0; flex-shrink:0.0; flex-basis:2rem; text-align:right; align-content:center; font-weight:bold; position:relative; padding-right:3rem;';
-		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%); border-radius:6px;';
+		const style_icon = 'position:absolute; top:50%; right:0.5rem; aspect-ratio:1.0; align-content:center; height:70%; object-fit:contain; transform:translate(0%,-50%); border-radius:var(--corner-05);';
 		const style_icon_full = 'position:absolute; inset:0.5rem; aspect-ratio:1.0; align-content:center; object-fit:contain;';
 
 		let AddButton = (parent = {}, label = '', link = '', icon = '') =>

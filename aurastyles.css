@@ -4,10 +4,17 @@
 	--action-bar-height: 3rem;
 	--info-bar-height: 2rem;
 	--limit-content-width: 1.0;
+
+
 	--spacing-multiplier: 0.0;
 	--gap-1: calc(4px + 0.95rem * var(--spacing-multiplier));
 	--gap-05: calc(3px + 0.45rem * var(--spacing-multiplier));
 	--gap-025: calc(2px + 0.2rem * var(--spacing-multiplier));
+
+	--roundness-multiplier: 0.0;
+	--corner-1: calc(1rem * var(--roundness-multiplier));
+	--corner-05: calc(0.5rem * var(--roundness-multiplier));
+	--corner-025: calc(0.25rem * var(--roundness-multiplier));
 
 	--ease-elastic: cubic-bezier(.4, -0.2, .6, 1.2);
 
@@ -94,7 +101,7 @@ body
 	inset: 0;
 
 	margin: var(--gap-05);
-	border-radius: var(--gap-05);
+	border-radius: var(--corner-05);
 
 	font-family: AtkinsonHyperlegible;
 	font-size: var(--font-size);
@@ -122,7 +129,7 @@ html[devmode]::after
 	padding: 0;
 	margin: 0;
 
-	border-radius: var(--gap-1);
+	border-radius: var(--corner-1);
 	color: #ff00ff05;
 	font-size: 100px;
 	line-height: 80px;
@@ -336,6 +343,7 @@ body *
 	inset: 0;
 	background-image: linear-gradient(to right, red, green, blue, red);
 	opacity: 50%;
+	border-radius: inherit;
 }
 
 .gradient-value-foreground-h::after
@@ -381,7 +389,7 @@ body *
 	user-select: none;
 	cursor: pointer;
 
-	border-radius: calc(0.5 * var(--font-size));
+	border-radius: var(--corner-05);
 	margin: 4px;
 	padding: var(--font-size);
 	min-width: 6rem;
@@ -736,7 +744,7 @@ div[disabled]
 	max-width: min(90vw, 36rem);
 	min-height: 1rem;
 	padding: calc(0.25rem + var(--gap-025));
-	border-radius: var(--gap-05);
+	border-radius: var(--corner-05);
 
 	font-size: 0.75rem;
 	letter-spacing: 0.5px;

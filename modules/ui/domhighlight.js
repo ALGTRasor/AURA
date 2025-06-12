@@ -3,7 +3,7 @@ import { addElement, getTransitionStyle } from "../utils/domutils.js";
 
 class DOMElementHighlight
 {
-	constructor(rect, border_radius = 'var(--gap-025)')
+	constructor(rect, border_radius = 'var(--corner-025)')
 	{
 		this.rect = rect;
 		this.e_root = addElement(

@@ -29,7 +29,7 @@
 	font-weight: lighter;
 	font-size: 0.7rem;
 
-	border-radius: var(--gap-05);
+	border-radius: var(--corner-05);
 	background: var(--theme-color-background);
 
 	outline: solid 2px hsl(from var(--theme-color-text) h s calc(l * 0.25));

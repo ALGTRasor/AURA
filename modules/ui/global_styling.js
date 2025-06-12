@@ -83,6 +83,7 @@ const lskey_ripples = 'ripples';
 const lskey_hide_sensitive = 'hide-sensitive-info';
 const lskey_limit_width = 'limit-content-width';
 const lskey_spacing = 'spacing';
+const lskey_roundness = 'roundness';
 const lskey_show_debug_log = 'show-debug-log';
 const lskey_anim_speed = 'anim-speed';
 
@@ -154,6 +155,16 @@ GlobalStyling.spacing = GlobalStyling.RegisterAspect(
     {
         GlobalStyling.SetRootStyleProperty('--spacing-multiplier', _.value);
         GlobalStyling.TriggerChangeEvents(true);
+    },
+);
+
+GlobalStyling.roundness = GlobalStyling.RegisterAspect(
+    _ => { _.value = UserSettings.GetOptionValue(lskey_roundness, 0.5); },
+    _ => { UserSettings.SetOptionValue(lskey_roundness, _.value); },
+    _ =>
+    {
+        GlobalStyling.SetRootStyleProperty('--roundness-multiplier', _.value);
+        GlobalStyling.TriggerChangeEvents(false);
     },
 );
 

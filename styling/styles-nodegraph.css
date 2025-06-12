@@ -1,7 +1,7 @@
 .node-graph-root
 {
 	padding: var(--gap-05);
-	border-radius: var(--gap-05);
+	border-radius: var(--corner-05);
 
 	background-size: 1rem 1rem;
 	background-position: 0 1px;
@@ -22,7 +22,7 @@
 	font-size: 0.8rem;
 	min-height: calc(2rem - 1px);
 	min-width: calc(10rem - 1px);
-	border-radius: var(--gap-025);
+	border-radius: var(--corner-025);
 	text-align: center;
 	align-content: center;
 }

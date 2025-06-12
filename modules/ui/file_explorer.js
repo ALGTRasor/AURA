@@ -166,7 +166,7 @@ class FileExplorerHeaderRow
     CreateElements()
     {
         this.e_root = CreatePagePanel(
-            this.explorer.e_items_root, false, false, 'display:flex; flex-direction:row; flex-wrap:nowrap; padding:var(--gap-025) var(--gap-1) var(--gap-025) var(--gap-1); border-radius:var(--gap-025);',
+            this.explorer.e_items_root, false, false, 'display:flex; flex-direction:row; flex-wrap:nowrap; padding:var(--gap-025) var(--gap-1) var(--gap-025) var(--gap-1); border-radius:var(--corner-025);',
             _ =>
             {
                 _.classList.add('file-explorer-item');
@@ -624,7 +624,7 @@ class FileExplorerItem
             _ =>
             {
                 addElement(
-                    _, 'span', null, 'padding:var(--gap-05); border-radius:var(--gap-05);',
+                    _, 'span', null, 'padding:var(--gap-05); border-radius:var(--corner-05);',
                     _ =>
                     {
                         if (this.item_type_info)

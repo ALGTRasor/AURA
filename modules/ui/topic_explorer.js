@@ -70,7 +70,7 @@ export class TopicExplorer
                             addElement(
                                 _, 'div', undefined,
                                 'flex-shrink:0.0; flex-grow:0.0; padding:calc(var(--gap-025) + 0.25rem); background:hsl(from var(--theme-color) h s 15%);'
-                                + 'border-radius:var(--gap-025); font-size:0.86rem; line-height:0.86rem; font-weight:normal; letter-spacing:1px;',
+                                + 'border-radius:var(--corner-025); font-size:0.86rem; line-height:0.86rem; font-weight:normal; letter-spacing:1px;',
                                 _ => _.innerText = item.body
                             );
                         }

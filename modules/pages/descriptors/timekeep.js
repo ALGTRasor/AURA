@@ -65,7 +65,7 @@ export class PageTimekeep extends PageDescriptor
 			let sum_used = x.use_total;// x.use_history.reduce((sum, record) => sum + record.hours, 0);
 
 			instance.e_item = CreatePagePanel(
-				e_parent, false, false, 'display:flex; flex-direction:column; border-radius:var(--gap-05); flex-basis:fit-content; flex-grow:0.0; flex-shrink:0.0; padding:var(--gap-05);',
+				e_parent, false, false, 'display:flex; flex-direction:column; border-radius:var(--corner-05); flex-basis:fit-content; flex-grow:0.0; flex-shrink:0.0; padding:var(--gap-05);',
 				_ =>
 				{
 					addElement(

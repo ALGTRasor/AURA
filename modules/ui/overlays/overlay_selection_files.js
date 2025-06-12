@@ -98,7 +98,7 @@ export class FileSelectionOverlay extends SelectionOverlay
                                                         addElement(
                                                             _, 'div', null,
                                                             'font-weight:bold; font-size:0.6rem; align-content:center; text-align:center; background-color:#f003; padding:var(--gap-025);'
-                                                            + 'border-radius:var(--gap-025); border:solid 2px red; flex-shrink:0.0;',
+                                                            + 'border-radius:var(--corner-025); border:solid 2px red; flex-shrink:0.0;',
                                                             _ => { _.innerText = 'TOO BIG'; }
                                                         );
                                                         addElement(

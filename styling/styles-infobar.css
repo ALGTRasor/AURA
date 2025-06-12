@@ -87,7 +87,7 @@
 	padding-bottom: 0.3rem;
 	padding-left: 0.5rem;
 	padding-right: 0.5rem;
-	border-radius: 0.25rem;
+	border-radius: var(--corner-025);
 
 	color: hsl(from var(--theme-color) h s 70%);
 
