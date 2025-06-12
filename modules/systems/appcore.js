@@ -1,7 +1,9 @@
 import "../useraccount.js";
 
 import { UserAccountInfo } from "../useraccount.js";
+import { AccountStateManager } from "./accountstatemanager.js";
 import { HotkeyDescriptor, Hotkeys } from "../utils/hotkeys.js";
+import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { NotificationLog } from "../notificationlog.js";
 import { GlobalStyling } from "../ui/global_styling.js";
@@ -18,10 +20,9 @@ import { AppStrap } from "./appstrap.js";
 import { DevMode } from "./devmode.js";
 import { AnimJob } from "../AnimJob.js";
 import { LongOps } from "./longops.js";
-import { Fax } from "./fax.js";
 import { MegaTips } from "./megatips.js";
-import { AccountStateManager } from "./accountstatemanager.js";
-import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
+import { AppStats } from "./appstats.js";
+import { Fax } from "./fax.js";
 
 export class AppCore extends EventTarget
 {
@@ -72,10 +73,12 @@ export class AppCore extends EventTarget
 		await AppCore.CheckIdentity();
 
 		UserAccountInfo.UpdateUserSharedData();
+		AppStats.Load();
+		Autosave.HookSaveEvent(AppStats.Save);
 
 		AppCore.PopulateActionBarButtons();
-		window.addEventListener('keyup', AppCore.HandleKeyUp);
 		AppCore.RegisterHotkeys();
+		window.addEventListener('keyup', AppCore.HandleKeyUp);
 
 		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
 		if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
@@ -220,7 +223,6 @@ export class AppCore extends EventTarget
 		e_clock.title = d.toTimeString();
 	}
 
-
 	static PopulateActionBarButtons()
 	{
 		let e_btn_settings = ActionBar.AddMenuButton(
@@ -259,7 +261,6 @@ export class AppCore extends EventTarget
 		}
 	}
 
-
 	static CheckSpoofing()
 	{
 		const sdanger = { user_id: 's.danger', display_name: 'Stranger Danger', mail: 's.danger@evil.corp' };
@@ -293,7 +294,6 @@ export class AppCore extends EventTarget
 
 		Hotkeys.EvaluateKeyEvent(e);
 	}
-
 
 	static CreateSpotlightWalls()
 	{

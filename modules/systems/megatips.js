@@ -160,7 +160,8 @@ export class MegaTips
         let mti = new MegaTipInstance(element, prep);
         element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
         element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
-        AddElementRemoveListener(element, _ => { MegaTips.Pop(mti); });
+        element.addEventListener('beforeremove', e => { MegaTips.Pop(mti); });
+        //AddElementRemoveListener(element, _ => { MegaTips.Pop(mti); });
         return mti;
     }
 
@@ -170,7 +171,8 @@ export class MegaTips
         let mti = new MegaTipInstance(element, _ => { _.innerHTML = tooltip; });
         element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
         element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
-        AddElementRemoveListener(element, () => { MegaTips.Pop(mti); });
+        element.addEventListener('beforeremove', e => { MegaTips.Pop(mti); });
+        //AddElementRemoveListener(element, () => { MegaTips.Pop(mti); });
         return mti;
     }
 

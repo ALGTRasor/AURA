@@ -45,7 +45,13 @@ HTMLElement.prototype.appendElement =
         return e;
     };
 
-
+Element.prototype.removeSilently = Element.prototype.remove;
+Element.prototype.remove = function ()
+{
+    this.dispatchEvent(new CustomEvent('beforeremove', { detail: this }));
+    this.removeSilently();
+    this.dispatchEvent(new CustomEvent('afterremove', { detail: this }));
+};
 
 
 

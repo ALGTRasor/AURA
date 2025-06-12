@@ -4,6 +4,7 @@ import { UserAccountInfo } from "../useraccount.js";
 import { AppInfo } from "../app_info.js";
 import { OverlayManager } from "./overlays.js";
 import { ChoiceOverlay } from "./overlays/overlay_choice.js";
+import { AppStats } from "../systems/appstats.js";
 
 export class Welcome
 {
@@ -38,6 +39,7 @@ export class Welcome
         let overlay_data = { prompt: msg, choices: [{ label: 'OKAY', color: '#0f0', on_click: overlay => { overlay.Dismiss(); } }] };
         OverlayManager.Show(ChoiceOverlay.host.GetNewInstance(overlay_data));
         Welcome.ResetTimer();
+        AppStats.Count('welcomed');
     };
 
     static queueWelcome(msg)

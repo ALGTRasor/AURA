@@ -1,4 +1,5 @@
 import { DebugLog } from "../debuglog.js";
+import { AppStats } from "../systems/appstats.js";
 import { DevMode } from "../systems/devmode.js";
 
 export class HotkeyDescriptor
@@ -28,6 +29,8 @@ export class HotkeyDescriptor
 
     Evaluate(event, modifiers = {})
     {
+        if (Hotkeys.timed_out === true) return;
+
         if (this.disabled === true)
         {
             DebugLog.Log(' ! hotkey ignored: this hotkey is disabled');
@@ -66,10 +69,13 @@ export class HotkeyDescriptor
         DebugLog.Log(msg);
         */
 
+        Hotkeys.timed_out = true;
+        window.setTimeout(() => { Hotkeys.timed_out = false; }, 150);
         this.keyAction(modifiers, event);
 
         if (event)
         {
+            AppStats.Count('hotkey used');
             if (event.stopPropagation) event.stopPropagation();
             if (event.preventDefault) event.preventDefault();
         }
