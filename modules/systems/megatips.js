@@ -107,6 +107,9 @@ export class MegaTips
 
     static Push(tip = MegaTipInstance.Nothing)
     {
+        if (tip.pushed === true) return;
+        tip.pushed = true;
+
         let active_id = MegaTips.active.indexOf(tip);
         if (active_id >= Math.max(0, MegaTips.active.length - 1)) return; //already forefront
 
@@ -117,6 +120,9 @@ export class MegaTips
 
     static Pop(tip = MegaTipInstance.Nothing)
     {
+        if (tip.pushed !== true) return;
+        tip.pushed = false;
+
         let active_id = MegaTips.active.indexOf(tip);
         if (active_id > -1) MegaTips.active.splice(active_id, 1);
         MegaTips.dirty_timeout.ExtendTimer();

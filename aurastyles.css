@@ -749,7 +749,7 @@ div[disabled]
 
 	overflow: visible;
 
-	backdrop-filter: blur(4px);
+	backdrop-filter: url(#displace-perlin) blur(3px);
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 

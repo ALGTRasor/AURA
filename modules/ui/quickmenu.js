@@ -125,7 +125,6 @@ export class QuickMenu
                                     _ =>
                                     {
                                         _.innerHTML = '';
-                                        _.style.background = '#0002';
                                         _.style.padding = 'var(--gap-05)';
                                         _.style.borderRadius = 'var(--gap-05)';
 
@@ -146,7 +145,7 @@ export class QuickMenu
                                                             _ =>
                                                             {
                                                                 _.style.flexDirection = 'column';
-                                                                _.style.background = '#fff1';
+                                                                _.style.background = '#0004';
                                                                 _.style.padding = 'var(--gap-05)';
                                                                 _.style.gap = 'var(--gap-05)';
                                                                 _.style.borderRadius = 'var(--gap-05)';
