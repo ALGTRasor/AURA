@@ -96,7 +96,7 @@ export class PageFiles extends PageDescriptor
 		}
 
 		instance.explorer.RefreshElements(instance.state.data.expanding);
-		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 500);
+		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 333);
 	}
 }
 

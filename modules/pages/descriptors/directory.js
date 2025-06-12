@@ -208,7 +208,7 @@ export class PageDirectory extends PageDescriptor
 		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '24rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 
-		window.setTimeout(() => instance.slide_directory.ApplySelection(), 250);
+		window.setTimeout(() => instance.slide_directory.ApplySelection(), 333);
 	}
 
 	OnOpen(instance)

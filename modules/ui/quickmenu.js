@@ -102,8 +102,20 @@ export class QuickMenu
                 if (button_data.coming_soon === true) x.setAttribute('coming-soon', '');
                 x.innerText = text ? text : '???';
                 x.addEventListener('click', on_click);
+                x.addEventListener('auxclick', on_click);
                 //x.tabIndex = '0';
                 //x.title = text;
+
+                const def_tip = () =>
+                {
+                    let tips = [];
+                    if (tooltip) tips.push(tooltip);
+                    if (button_data.extra_tips) tips = tips.concat(button_data.extra_tips);
+                    if (tips.length > 0)
+                    {
+                        MegaTips.RegisterSimple(x, tips.join('<br>'));
+                    }
+                };
 
                 if ('alerts' in button_data)
                 {
@@ -129,28 +141,24 @@ export class QuickMenu
                             {
                                 _.innerHTML = '';
                                 _.style.padding = 'var(--gap-05)';
-                                _.style.borderRadius = 'var(--gap-05)';
-
-                                if (tooltip)
-                                {
-                                    _.appendElement(
-                                        'div',
-                                        _ =>
-                                        {
-                                            _.style.padding = 'var(--gap-1)';
-                                            _.innerText = tooltip;
-                                        }
-                                    );
-                                }
+                                _.style.borderRadius = 'var(--corner-05)';
 
                                 _.appendElement(
                                     'div',
                                     _ =>
                                     {
+                                        _.innerText = button_data.label.toUpperCase() + ' NOTIFICATIONS';
+
                                         _.style.display = 'flex';
                                         _.style.flexDirection = 'column';
-                                        _.style.gap = 'var(--gap-05)';
+                                        _.style.gap = 'var(--gap-025)';
                                         _.style.padding = 'var(--gap-05)';
+                                        _.style.margin = 'var(--gap-05)';
+                                        _.style.borderRadius = 'var(--corner-05)';
+                                        _.style.border = 'solid 2px orange';
+                                        _.style.backgroundColor = 'rgb(from orange r g b / 0.1)';
+                                        _.style.textAlign = 'left';
+                                        _.style.color = 'orange';
 
                                         button_data.alerts.forEach(
                                             alert =>
@@ -159,11 +167,13 @@ export class QuickMenu
                                                     'div',
                                                     _ =>
                                                     {
+                                                        _.style.color = 'white';
+                                                        _.style.textAlign = 'left';
                                                         _.style.flexDirection = 'column';
                                                         _.style.background = '#0004';
                                                         _.style.padding = 'var(--gap-05)';
                                                         _.style.gap = 'var(--gap-05)';
-                                                        _.style.borderRadius = 'var(--gap-05)';
+                                                        _.style.borderRadius = 'var(--corner-05)';
 
                                                         _.appendElement(
                                                             'div',
@@ -171,6 +181,7 @@ export class QuickMenu
                                                             {
                                                                 _.style.display = 'flex';
                                                                 _.style.flexDirection = 'row';
+                                                                _.style.gap = '0';
 
                                                                 _.appendElement(
                                                                     'div',
@@ -206,6 +217,7 @@ export class QuickMenu
                                                                 _.style.flexBasis = '100%';
                                                                 _.style.overflow = 'hidden';
                                                                 _.style.textOverflow = 'ellipsis';
+                                                                _.style.paddingLeft = 'var(--gap-1)';
                                                                 _.innerText = alert.notification_body;
                                                             }
                                                         );
@@ -215,17 +227,39 @@ export class QuickMenu
                                         );
                                     }
                                 );
+
+                                if (tooltip)
+                                {
+                                    _.appendElement(
+                                        'div',
+                                        _ =>
+                                        {
+                                            _.innerText = tooltip;
+                                        }
+                                    );
+                                }
+
+                                for (let extra_tip_id in button_data.extra_tips)
+                                {
+                                    _.appendElement(
+                                        'div',
+                                        _ =>
+                                        {
+                                            _.innerHTML = MegaTips.FormatHTML(button_data.extra_tips[extra_tip_id]);
+                                        }
+                                    );
+                                }
                             }
                         );
                     }
                     else
                     {
-                        if (tooltip) MegaTips.RegisterSimple(x, tooltip);
+                        def_tip();
                     }
                 }
                 else
                 {
-                    if (tooltip) MegaTips.RegisterSimple(x, tooltip);
+                    def_tip();
                 }
             }
         );

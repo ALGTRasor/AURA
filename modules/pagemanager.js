@@ -190,6 +190,7 @@ export class PageManager
 		{
 			if (PageManager.page_instances.length < 1)
 			{
+				PageManager.closingAll = false;
 				PageManager.pauseLayoutChange = false;
 				PageManager.AfterPageClosed();
 				return;
@@ -198,6 +199,7 @@ export class PageManager
 			window.setTimeout(close_first, 50);
 		};
 
+		PageManager.closingAll = true;
 		PageManager.pauseLayoutChange = true;
 		close_first();
 	}

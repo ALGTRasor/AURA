@@ -338,7 +338,7 @@ export class PageMyData extends PageDescriptor
 				if (instance.content_current) instance.content_current.RefreshElements();
 				if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
 			},
-			250
+			333
 		);
 	}
 }

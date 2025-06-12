@@ -5,6 +5,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
 import { AppNotifications } from "../../systems/app_notifications.js";
 import { Help } from "./help.js";
+import { until } from "../../utils/until.js";
 
 /*
 EXPECTED PAGE ORDER
@@ -83,8 +84,21 @@ export class PageNavMenu extends PageDescriptor
 			const button_order_id = ('order_index' in desc) ? desc.order_index : 0;
 			const button_action = e =>
 			{
-				if (e.shiftKey === true) PageManager.OpenPageFromDescriptor(desc, undefined, true);
-				else PageManager.TogglePageByTitle(id);
+				if (e.button === 2) return; // right click / context menu
+				if (e.button === 1) // middle click
+				{
+					PageManager.CloseAll();
+					until(
+						() => { return PageManager.closingAll !== true; }
+					).then(
+						() => { PageManager.TogglePageByTitle(id); }
+					);
+				}
+				if (e.button === 0) // left click
+				{
+					if (e.shiftKey === true) PageManager.OpenPageFromDescriptor(desc, undefined, true);
+					else PageManager.TogglePageByTitle(id);
+				}
 			};
 
 			let button_data = {
@@ -95,6 +109,11 @@ export class PageNavMenu extends PageDescriptor
 			};
 			if ('coming_soon' in desc && DevMode.active !== true) button_data.coming_soon = desc.coming_soon;
 			button_data.alerts = AppNotifications.GetAll(desc.title);
+
+			button_data.extra_tips = [
+				'(((Hold [[[shift]]] to force a new instance)))',
+				'((([[[Middle click]]] to close other pages)))',
+			];
 
 			button_list.push(button_data);
 		};

@@ -203,13 +203,15 @@ export class PageSettings extends PageDescriptor
 	extra_page = true;
 	hidden_page = true;
 
-	GetTitle() { return 'settings'; }
-	GetIcon() { return 'settings'; }
+	title = 'settings';
+	icon = 'settings';
 
 	OnLayoutChange(instance)
 	{
 		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = 'unset';
+
+		window.setTimeout(() => { instance.slide_mode.ApplySelection(); }, 333);
 	}
 
 	OnCreateElements(instance)

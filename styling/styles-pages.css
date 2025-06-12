@@ -797,19 +797,18 @@
 	padding-right: var(--gap-05);
 
 	color: var(--theme-color-text-40);
+	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 
-	transition-property: background-color, color, padding, text-shadow;
+	transition-property: background-color, color;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
 
-.menu-button:hover,
-.menu-button:active
+.menu-button:hover
 {
 	padding-left: calc(var(--gap-05) + 4px);
 	padding-right: calc(var(--gap-05) - 4px);
 
-	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 	color: var(--theme-color-text);
 	background-color: hsl(from var(--theme-color) h s 20%);
 
@@ -818,7 +817,9 @@
 
 .menu-button:active
 {
-	font-size: 85%;
+	color: var(--theme-color-text-60);
+	background-color: hsl(from var(--theme-color) h s 20%);
+	transition-duration: var(--trans-dur-on-fast);
 }
 
 
