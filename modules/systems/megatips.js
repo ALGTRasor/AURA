@@ -108,7 +108,7 @@ export class MegaTips
         anchor_point.x = Math.round(anchor_point.x);
         anchor_point.y = Math.round(anchor_point.y);
 
-        let offset_angle = (Math.atan2(offset.x, offset.y) * 180) / Math.PI;
+        let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
 
         //let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
         //pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;

@@ -170,12 +170,6 @@ export class PageDirectory extends PageDescriptor
 
 	SetContent(instance, content_next = PanelContent.Nothing)
 	{
-		if (content_next === instance.content_current)
-		{
-			console.warn('same next content');
-			//return;
-		}
-
 		if (this.IsValidContent(content_next) === false)
 		{
 			console.warn('invalid next content');
