@@ -52,7 +52,8 @@ class PanelUserAllocationGroup extends PanelContent
 			_ =>
 			{
 				let label_str = get_row_label(allocation);
-				if (label_str && label_str.length > 0)
+				let has_label = label_str && label_str.length > 0;
+				if (has_label)
 				{
 					addElement(
 						_, 'div', null,
@@ -62,10 +63,11 @@ class PanelUserAllocationGroup extends PanelContent
 				}
 
 				FillBar.Create(
-					_, `${hoursUsed} of ${allocation.allocation_max} hrs used`,
+					_,
+					`${hoursUsed} / ${allocation.allocation_max} used`,
 					use_percent,
 					{
-						label_alt: `${Math.round(hoursUsed / allocation.allocation_max * 100)}% used`,
+						label_alt: `${allocation.allocation_max - hoursUsed} / ${allocation.allocation_max} left`,//`${Math.round(hoursUsed / allocation.allocation_max * 100)}% used of ${allocation.allocation_max}`,
 						from_hue_deg: 35.0,
 						to_hue_deg: 65.0,
 						style_full: _ => { _.style.border = 'solid 1px cyan'; },
@@ -122,7 +124,6 @@ class PanelUserAllocationGroup extends PanelContent
 							}
 						);
 
-
 						let e_title = addElement(
 							_, 'div', 'active-border-flash',
 							'text-align:left; padding-left:calc(var(--gap-05) + 0.5rem); padding-right:calc(var(--gap-05) + 0.5rem);'
@@ -138,10 +139,10 @@ class PanelUserAllocationGroup extends PanelContent
 
 						let e_fill_total = FillBar.Create(
 							_,
-							`${summary_used} / ${summary_max} hrs used`,
+							`${summary_used} / ${summary_max} used`,
 							summary_used / summary_max,
 							{
-								label_alt: `${Math.round(summary_used / summary_max * 100)}% used`,
+								label_alt: `${summary_max - summary_used} / ${summary_max} left`,//`${Math.round(summary_used / summary_max * 100)}% used of ${summary_max}`,
 								from_hue_deg: 35.0,
 								to_hue_deg: 65.0,
 								style_full: _ => { _.style.border = 'solid 1px cyan'; },
@@ -495,8 +496,8 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
-			else instance.e_frame.style.maxWidth = '32rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '84rem';
+			else instance.e_frame.style.maxWidth = '42rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
