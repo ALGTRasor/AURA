@@ -50,6 +50,7 @@ export class SharedData
 	{
 		let data = table_name in SharedData ? SharedData[table_name] : {};
 		AppEvents.Dispatch(SharedData.#GetChangeEventName(table_name), data);
+		AppEvents.Dispatch('shared-data-changed');
 		DebugLog.Log('Shared Data Change: ' + table_name);
 	}
 

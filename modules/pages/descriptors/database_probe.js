@@ -11,7 +11,8 @@ export class DatabaseProbe extends PageDescriptor
 	debug_page = true;
 	order_index = 9999;
 
-	GetTitle() { return 'database probe'; }
+	title = 'database probe';
+	icon = 'database';
 
 	OnCreateElements(instance)
 	{
@@ -134,12 +135,13 @@ export class DatabaseProbe extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.sub_sharedDataCached = AppEvents.onDataReloaded.RequestSubscription(_ => { this.RefeshTablesData(instance); });
+		instance.refresh = _ => { this.RefeshTablesData(instance); };
+		AppEvents.AddListener('shared-data-changed', instance.refresh);
 	}
 
 	OnClose(instance)
 	{
-		AppEvents.onDataReloaded.RemoveSubscription(instance.sub_sharedDataCached);
+		AppEvents.RemoveListener('shared-data-changed', instance.refresh);
 	}
 
 	RefeshTablesData(instance)

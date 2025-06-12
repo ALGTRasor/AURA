@@ -15,6 +15,7 @@ import { InternalUser } from "../../datamodels/internal_user.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { HrRequest } from "../../datamodels/hr_request.js";
 import { Help } from "./help.js";
+import { AppEvents } from "../../appevents.js";
 
 
 
@@ -310,12 +311,13 @@ export class PageMyData extends PageDescriptor
 
 	OnOpen(instance)
 	{
-		instance.sub_SharedDataRefresh = window.SharedData.onLoaded.RequestSubscription(() => { window.setTimeout(() => { this.UpdateBlocks(instance); }, 50) });
+		instance.refresh = () => { this.UpdateBlocks(instance); };
+		AppEvents.AddListener('shared-data-changed', instance.refresh);
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.onLoaded.RemoveSubscription(instance.sub_SharedDataRefresh);
+		AppEvents.RemoveListener('shared-data-changed', instance.refresh);
 	}
 
 	UpdateSize(instance)
