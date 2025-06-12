@@ -1802,7 +1802,7 @@ Butterflies have skeletons on the outside of their bodies. This is known as the 
 
 The creators of the PNG image file format wanted it to be pronounced as "ping".
 
-Dogs can be allergic to humans – specifically, their dander. While being treated for this allergy, it can take up to 12 months for a dog to recover.
+Dogs can be allergic to human dander. While being treated for this allergy, it can take up to 12 months for a dog to recover.
 
 World Kindness Day falls on November 13th and is a day to make the world a better place by showing just a little kindness to everybody.
 
@@ -1812,11 +1812,11 @@ Makeup has been used by women since before Cleopatra’s time. They would use be
 
 When he was President, George H.W. Bush banned broccoli from Air Force One and the White House.
 
-The British tried to invent a ship made out of wood pulp and ice during World War II. Called Project Habakkuk, it was shelved due to costs.
+The British tried to invent a ship made of wood pulp and ice during World War II. Called Project Habakkuk, it was shelved due to costs.
 
 Although the saltwater crocodile has the highest recorded bite force of any animal, the muscles to open its mouth are relatively weak.
 
-John Steinbeck was born on February 27, 1902. He wrote 27 books, including Of Mice and Men.
+John Steinbeck wrote 27 books, including Of Mice and Men.
 
 In over 35 British divorce cases in 2012 alone, the video game "Football Manager" was cited.
 
@@ -1876,7 +1876,7 @@ It’s only the males that are called peacocks, while females are called peahens
 
 Evangeline Lilly is a notoriously bad driver. She has been in at least 8 car accidents, and none of them were with another car.
 
-In 1993, Aleksandr A. Serebrov took his Game Boy to space. Later, it was auctioned for $1,220 and is said to have orbited earth 3,000 times.
+In 1993, Aleksandr A. Serebrov took a Game Boy to space. It was auctioned for $1,220 and is said to have orbited earth 3,000 times.
 
 The patterns on a giraffe are totally unique – no two giraffes are ever the same.
 
@@ -1894,11 +1894,11 @@ Legoland Billund opened on June 7, 1968, and attracted over 3,000 visitors on th
 
 The state vegetable of Oklahoma is the Watermelon, despite the fact that it is indeed a fruit.
 
-In 1911, Bobby Leach was the 2nd person to go over Niagara Falls in a barrel. He died 15 years later from slipping on an orange peel and getting gangrene.
+Bobby Leach was the 2nd person to go over Niagara Falls in a barrel. He died 15 years later from slipping on an orange peel and getting gangrene.
 
-In Texas, according to Texas Parks and Wildlife Department, it is legal to kill Bigfoot if you find it. It would be considered a non-protected nongame animal.
+According to Texas Parks and Wildlife Department, it is legal to kill Bigfoot. It would be considered a non-protected non-game animal.
 
-In 1922 & 1933, The Coca-Cola Company was offered a chance to buy the Pepsi-Cola company, and it declined on three separate occasions.
+In 1922 & 1933, The Coca-Cola Company was offered a chance to buy the Pepsi-Cola company. It declined on three separate occasions.
 
 Putting your phone in airplane mode will stop ads while playing games.
 
@@ -1920,7 +1920,7 @@ In New Jersey, it’s illegal to wear a bulletproof vest while committing a viol
 
 The most leaves ever found on a single clover is 56.
 
-There is actually a difference between coffins and caskets – coffins are typically tapered and six-sided, while caskets are rectangular.
+There is actually a difference between coffins and caskets – coffins are typically tapered and six-sided, caskets are rectangular.
 
 "Strategic incompetence" is the art of avoiding certain tasks by pretending you don’t know how to do them.
 
@@ -1938,13 +1938,13 @@ The serial number on Darth Vader’s suit of armor was E-3778Q-1.
 
 More than 45 million turkeys are cooked and eaten in the U.S. at Thanksgiving.
 
-Liège, Belgium, tried to use 37 cats to deliver mail in the 1870s. Most of the cats took up to a day to deliver the mail, and the service was short-lived.
+Liège, Belgium, tried to use 37 cats to deliver mail in the 1870s. Most mail took up to a day to deliver and the service was short-lived.
 
 The heart is smaller in young women than in young men by ~25%. However, the gap decreases as we age down to ~4%.
 
-In 1325, two Italian city states fought over a bucket, which resulted in 2,000 deaths. It started when two soldiers stole a bucket from a well in the city center.
+In 1325, two Italian city states fought over a bucket from a well, which resulted in 2,000 deaths.
 
-In 2000 the first permanent crew inhabited the International Space Station (ISS). Since then, there’s always been a human presence in space.
+In 2000, the first permanent crew inhabited the ISS. Since then, there has always been humans in space.
 
 Turkey vultures use defensive vomit to get rid of any disturbing animal. They can propel their vomit up to 10 feet.
 
@@ -1954,7 +1954,11 @@ Peaches are the third most popular fruit grown in America.
 
 Emilie de Ravin‘s character 'Claire Littleton' from the show 'Lost' loves peanut butter, though Emilie is actually allergic to peanuts.
 
-Jupiter has 69 moons. A few are 12-37 miles in diameter, but most are barely 1 mile in size. Jupiter itself is 317 times the mass of the Earth.
+Jupiter has 69 moons.
+
+A few of Jupiter's moons are up to 37 miles in diameter, but most are barely a mile wide.
+
+Jupiter is 317 times the mass of the Earth.
 
 In a survey, 33% of dog owners admitted to chatting over the telephone with their dogs.
 
@@ -1962,9 +1966,11 @@ Losing Weight is the most common New Year’s resolution.
 
 A sunset on Mars is blue.
 
-In "Part 1" of the Battlestar Galactica mini-series, there is a scene where Serenity, the ship from Firefly, can be seen flying through the sky.
+There is a scene in the Battlestar Galactica mini-series where Serenity, the ship from Firefly, can be seen in the sky.
 
-The smallest possible measurement of length is known as the Planck Length. Anything smaller than this would break everything we understand about physics.
+The smallest possible measurement of length is known as the Planck Length.
+
+Anything smaller than the Planck Length would break everything we understand about physics.
 
 The social media website, MySpace, was founded in 2003 and sold near its peak for $580 million in 2005.
 
@@ -1974,11 +1980,13 @@ The most expensive domain name ever sold was cars.com for an astonishing $872.3 
 
 'Polygyny' is when a man is married to more than one woman, and 'polyandry' is when a woman is married to more than one husband.
 
-As of September 2016, the Giant Panda was downgraded from "endangered" to "vulnerable" on the Global List of Species at Risk of Extinction.
+As of September 2016, the Giant Panda was downgraded from "endangered" to "vulnerable".
 
-The world’s oldest surviving bank is "Banca Monte dei Paschi di Siena", which was founded in 1472 and is currently Italy’s 3rd largest bank.
+The world’s oldest surviving bank is "Banca Monte dei Paschi di Siena", founded in 1472 and currently Italy’s 3rd largest bank.
 
-The letter Z is the least frequently used letter in written English. It is more common in American English than in British English due to spelling differences.
+The letter Z is the least frequently used letter in written English.
+
+The letter Z is more common in American English than in British English due to spelling differences.
 
 The cardboard holder that you often get around a takeaway cup of coffee is called a "zarf".
 
@@ -1988,12 +1996,12 @@ The largest pumpkin pie ever baked was in 2005 and weighed 2,020 pounds or just 
 
 The Triangle took nearly 100 years to become a popular orchestral instrument.
 
-The first computer virus ever created was called Creeper back in 1971. Shortly after this virus was created, Reaper was created as the world’s first anti-virus.
+The first computer virus created was 'Creeper' in 1971. Shortly after, 'Reaper' was introduced as the first anti-virus.
 
-The earliest mention of the mythical creature, the Unicorn, dates back as far as 2700 BC in Asia and was described as a creature of great power and wisdom.
+The earliest mention of the Unicorn dates back as far as 2700 BC in Asia, described as a creature of great power and wisdom.
 
 The oldest webcam stream online today is The San Francisco FogCam which has been operational since 1994.
 
 In Japanese legend, it is said that anyone who folds 1,000 origami cranes will be granted a wish by the gods.
 
-Doggerland is the area of land connecting Great Britain to continental Europe. It was flooded by rising sea levels (6500-6200 BC), turning Great Britain into an island.
+Doggerland is the area connecting Great Britain to Europe. Flooded by rising sea levels around 6300 BC, it became an island.
