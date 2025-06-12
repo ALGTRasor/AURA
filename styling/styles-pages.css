@@ -794,7 +794,7 @@
 	height: fit-content;
 	border-radius: 1.75rem;
 
-	padding: var(--gap-05);
+	padding: var(--gap-025);
 
 	background: #f556;
 	border: solid 2px #f551;

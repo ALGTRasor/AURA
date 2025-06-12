@@ -71,7 +71,7 @@ export class PageFiles extends PageDescriptor
 			instance.explorer.ClearSelected();
 			instance.explorer.Navigate();
 		};
-		instance.sub_root_changed = instance.root_selector.afterSelectionChanged.RequestSubscription(OnRootChange);
+		instance.root_selector.Subscribe(OnRootChange);
 		instance.root_selector.SelectIndexAfterDelay(0, 250, true);
 	}
 

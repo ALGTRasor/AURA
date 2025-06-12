@@ -1,4 +1,4 @@
-import { addElement, AddElementRemoveListener, FadeElement } from "../utils/domutils.js";
+import { addElement, FadeElement } from "../utils/domutils.js";
 import { sleep } from "../utils/asyncutils.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 
@@ -31,78 +31,93 @@ export class MegaTips
 
     static async SwitchContent()
     {
+        const fade_time = 0.2;
+
+        const try_hide_tip = async () =>
+        {
+            if (MegaTips.showing === true)
+            {
+                MegaTips.fading_out = true;
+                await FadeElement(MegaTips.e_root, 100, 0, fade_time);
+                MegaTips.showing = false;
+                MegaTips.fading_out = false;
+            }
+        };
+
+        const try_show_tip = async () =>
+        {
+            if (MegaTips.active.length > 0)
+            {
+                let tip = MegaTips.active[MegaTips.active.length - 1];
+                if (tip)
+                {
+                    if ('prep' in tip) tip.prep(MegaTips.e_root);
+                    await sleep(10);
+                    MegaTips.AdjustTo(tip);
+
+                    MegaTips.fading_in = true;
+                    await FadeElement(MegaTips.e_root, 0, 100, fade_time);
+                    MegaTips.fading_in = this.fading_in;
+                    MegaTips.showing = true;
+                }
+            }
+        };
+
         if (MegaTips.switching === true)
         {
             if (MegaTips.fading_in === true) MegaTips.dirty_timeout.ExtendTimer();
-            return;
         }
-
-        MegaTips.switching = true;
-        if (MegaTips.showing === true)
+        else
         {
-            MegaTips.fading_out = true;
-            await FadeElement(MegaTips.e_root, 100, 0, 0.125);
-            MegaTips.showing = false;
-            MegaTips.fading_out = false;
+            MegaTips.switching = true;
+            await try_hide_tip();
+            await sleep(100);
+            MegaTips.PruneReferences();
+            await try_show_tip();
+            MegaTips.switching = false;
         }
-
-        await sleep(100);
-        MegaTips.PruneReferences();
-
-        if (MegaTips.active.length > 0)
-        {
-            let tip = MegaTips.active[MegaTips.active.length - 1];
-            if (tip)
-            {
-                MegaTips.AdjustTo(tip);
-
-                MegaTips.fading_in = true;
-                await FadeElement(MegaTips.e_root, 0, 100, 0.125);
-                MegaTips.fading_in = this.fading_in;
-                MegaTips.showing = true;
-            }
-        }
-
-        MegaTips.switching = false;
     }
 
     static AdjustTo(tip = MegaTipInstance.Nothing)
     {
-        if ('prep' in tip) tip.prep(MegaTips.e_root);
+
+        let tip_rect = MegaTips.e_root.getBoundingClientRect();
 
         let body_rect = document.body.getBoundingClientRect();
+        let body_origin = new DOMPoint(body_rect.x, body_rect.y);
+        let body_midpoint = new DOMPoint(body_rect.width * 0.5, body_rect.height * 0.5);
+
         let target_rect = tip.element.getBoundingClientRect();
-        let tip_rect = MegaTips.e_root.getBoundingClientRect();
-        let anchor_point = new DOMPoint(
-            target_rect.x + target_rect.width * 0.5 - body_rect.x,
-            target_rect.y + target_rect.height * 0.5 - body_rect.y
+        let target_midpoint = new DOMPoint(
+            target_rect.x + Math.abs(target_rect.width) * 0.5 - body_origin.x,
+            target_rect.y + Math.abs(target_rect.height) * 0.5 - body_origin.y
         );
 
+        let anchor_point = new DOMPoint(target_midpoint.x, target_midpoint.y);
+
         let offset = new DOMPoint(0, 0);
-        let pos = new DOMPoint(anchor_point.x, anchor_point.y);
+        offset.x = Math.round(0.5 + 0.5 * Math.sign(body_midpoint.x - anchor_point.x)) * 2 - 1;
+        offset.y = Math.round(0.5 + 0.5 * Math.sign(body_midpoint.y - anchor_point.y)) * 2 - 1;
 
-        if (pos.x < (body_rect.width * 0.5)) { offset.x = +1.0; }
-        else { offset.x = -1.0; }
-        if (pos.y < (body_rect.height * 0.5)) { offset.y = +1.0; }
-        else { offset.y = -1.0; }
+        anchor_point.x += offset.x * target_rect.width * 0.5;
+        anchor_point.y += offset.y * target_rect.height * 0.5;
 
-        pos.x += offset.x * target_rect.width * 0.5;
-        pos.y += offset.y * target_rect.height * 0.5;
+        if (offset.x < 0) anchor_point.x -= Math.max(24, Math.abs(tip_rect.width));
+        if (offset.y < 0) anchor_point.y -= Math.max(24, Math.abs(tip_rect.height));
+
+        anchor_point.x = Math.round(anchor_point.x);
+        anchor_point.y = Math.round(anchor_point.y);
+
+        let offset_angle = (Math.atan2(offset.x, offset.y) * 180) / Math.PI;
 
         //let keep_near_x = Math.min(0.95, Math.max(0, Math.abs(MegaTips.mouse_pos.x - pos.x) - 320) * 0.002);
         //pos.x += (MegaTips.mouse_pos.x - pos.x) * keep_near_x;
 
-        if (offset.x < 0) pos.x -= tip_rect.width; // right half of view
-        if (offset.y < 0) pos.y -= tip_rect.height; // bottom half of view
-
-        let offset_angle = (Math.atan2(offset.x, -offset.y) * 180) / Math.PI;
-
-        MegaTips.e_root.style.setProperty('--anchor-x', -offset.x);
-        MegaTips.e_root.style.setProperty('--anchor-y', -offset.y);
+        MegaTips.e_root.style.setProperty('--anchor-x', offset.x);
+        MegaTips.e_root.style.setProperty('--anchor-y', offset.y);
         MegaTips.e_root.style.setProperty('--anchor-angle', offset_angle + 'deg');
 
-        MegaTips.SetPosition(pos.x, pos.y);
-
+        MegaTips.SetPosition(anchor_point.x, anchor_point.y);
     }
 
     static Push(tip = MegaTipInstance.Nothing)
@@ -161,7 +176,6 @@ export class MegaTips
         element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
         element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
         element.addEventListener('beforeremove', e => { MegaTips.Pop(mti); });
-        //AddElementRemoveListener(element, _ => { MegaTips.Pop(mti); });
         return mti;
     }
 
@@ -172,7 +186,6 @@ export class MegaTips
         element.addEventListener('mouseenter', e => { MegaTips.UpdateMousePos(e); MegaTips.Push(mti); });
         element.addEventListener('mouseleave', e => { MegaTips.Pop(mti); });
         element.addEventListener('beforeremove', e => { MegaTips.Pop(mti); });
-        //AddElementRemoveListener(element, () => { MegaTips.Pop(mti); });
         return mti;
     }
 

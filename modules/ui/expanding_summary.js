@@ -1,5 +1,4 @@
 import { addElement } from "../utils/domutils.js";
-import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
 
 export class ExpandingSummary

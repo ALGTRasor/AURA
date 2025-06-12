@@ -130,7 +130,6 @@ export class PageMyData extends PageDescriptor
 		if (!instance) return;
 
 		instance.sub_SharedDataRefresh = {};
-		instance.sub_modeChange = {};
 
 		instance.e_frame.style.minWidth = '32rem';
 
@@ -154,7 +153,7 @@ export class PageMyData extends PageDescriptor
 		instance.content_hr.page_instance = instance;
 
 		const _afterModeChange = () => { this.AfterModeChange(instance); };
-		instance.sub_modeChange = mode_slider.afterSelectionChanged.RequestSubscription(_afterModeChange);
+		mode_slider.Subscribe(_afterModeChange);
 
 		mode_slider.SelectIndexAfterDelay(0, 333, true);
 	}

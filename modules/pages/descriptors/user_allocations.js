@@ -433,8 +433,8 @@ export class PageUserAllocations extends PageDescriptor
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.Title.toUpperCase(), _ => _.user_id);
-		instance.afterModeChange = () => { this.UpdateMode(instance); };
-		instance.sub_modeChange = instance.slide_mode.afterSelectionChanged.RequestSubscription(instance.afterModeChange);
+		instance.afterModeChange = index => { this.UpdateMode(instance); };
+		instance.slide_mode.Subscribe(instance.afterModeChange);
 		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
 
 		instance.RefreshData = () => this.RefreshData(instance);
@@ -442,7 +442,7 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnRemoveElements(instance)
 	{
-		instance.slide_mode.afterSelectionChanged.RemoveSubscription(instance.sub_modeChange);
+		instance.slide_mode.Unsubscribe(instance.afterModeChange);
 	}
 
 	UpdateMode(instance)

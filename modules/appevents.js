@@ -1,4 +1,3 @@
-import { EventSource } from "./eventsource.js";
 import { NotificationLog } from "./notificationlog.js";
 import { RunningTimeout } from "./utils/running_timeout.js";
 
@@ -37,6 +36,8 @@ export class AppEvents extends EventTarget
 		}
 	}
 
+
+	/*
 	static windowSizeChanged = new EventSource();
 
 	static pageLayoutChanged = new EventSource();
@@ -52,4 +53,5 @@ export class AppEvents extends EventTarget
 
 	static onDebugModeActivated = new EventSource();
 	static onDebugModeDeactivated = new EventSource();
+	*/
 }

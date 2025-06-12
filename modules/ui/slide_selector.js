@@ -1,23 +1,21 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { EventSource } from "../eventsource.js";
 import { Modules } from "../modules.js";
 import { MegaTips } from "../systems/megatips.js";
 
-export class SlideSelector
+export class SlideSelector extends EventTarget
 {
     e_root = {};
     e_items = [];
     disabled = false;
     selected_index = -1;
     fixed_widths = true;
-    afterSelectionChanged = new EventSource();
 
     constructor()
     {
+        super();
         this.e_root = {};
         this.e_items = [];
         this.selected_index = -1;
-        this.afterSelectionChanged = new EventSource();
     }
 
     SetDisabled(disabled = true)
@@ -109,8 +107,11 @@ export class SlideSelector
         this.selected_index = index;
         this.ApplySelection();
 
-        if (this.afterSelectionChanged) this.afterSelectionChanged.Invoke();
+        this.dispatchEvent(new CustomEvent('selectionchange', { detail: index }));
     }
+
+    Subscribe(onchange = index => { }) { this.addEventListener('selectionchange', onchange); }
+    Unsubscribe(onchange = index => { }) { this.removeEventListener('selectionchange', onchange); }
 
     ApplySelection()
     {

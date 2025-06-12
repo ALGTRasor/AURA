@@ -240,7 +240,7 @@ export class PageSettings extends PageDescriptor
 			+ getTransitionStyle('translate', '--trans-dur-off-slow', 'ease')
 		);
 
-		instance.afterModeChange = () => { instance.mode_change_timeout?.ExtendTimer(); };
+		instance.afterModeChange = index => { instance.mode_change_timeout?.ExtendTimer(); };
 		instance.updateModeContent = () =>
 		{
 			let perform_change = async () =>
@@ -277,7 +277,7 @@ export class PageSettings extends PageDescriptor
 			};
 			perform_change();
 		};
-		instance.slide_mode.afterSelectionChanged.RequestSubscription(instance.afterModeChange);
+		instance.slide_mode.Subscribe(instance.afterModeChange);
 		instance.mode_change_timeout = new RunningTimeout(() => instance.updateModeContent(), 0.25, false, 150);
 		instance.slide_mode.SelectIndexAfterDelay(0, 333, true);
 

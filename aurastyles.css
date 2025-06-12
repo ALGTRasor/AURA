@@ -749,7 +749,7 @@ div[disabled]
 
 	overflow: visible;
 
-	backdrop-filter: url(#displace-perlin) blur(3px);
+	backdrop-filter: blur(8px);
 
 	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
 
@@ -773,8 +773,8 @@ div[disabled]
 	position: absolute;
 	box-sizing: border-box;
 
-	top: calc(50% + 50% * var(--anchor-y) + var(--anim-phase-mid) * 0.5rem * var(--anchor-y));
-	left: calc(50% + 50% * var(--anchor-x) + var(--anim-phase-mid) * 0.5rem * var(--anchor-x));
+	top: calc(50% - 50% * var(--anchor-y) - var(--anim-phase-mid) * 0.5rem * var(--anchor-y));
+	left: calc(50% - 50% * var(--anchor-x) - var(--anim-phase-mid) * 0.5rem * var(--anchor-x));
 
 	width: 0.75rem;
 	height: 0.75rem;

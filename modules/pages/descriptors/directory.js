@@ -137,7 +137,7 @@ export class PageDirectory extends PageDescriptor
 		instance.SetDirectoryContentDirty = () => instance.directory_content_timeout.ExtendTimer();
 
 		instance.afterDirChange = () => { this.OnDirectoryChange(instance); };
-		instance.sub_directoryChange = instance.slide_directory.afterSelectionChanged.RequestSubscription(instance.afterDirChange);
+		instance.slide_directory.Subscribe(instance.afterDirChange);
 		instance.slide_directory.SelectIndexAfterDelay(0, 150, true);
 	}
 
