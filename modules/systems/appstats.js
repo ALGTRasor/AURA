@@ -1,5 +1,3 @@
-import { NotificationLog } from "../notificationlog.js";
-
 const default_stat_name = 'null-stat';
 const lskey_appstats = 'lsc-app-statistics';
 
