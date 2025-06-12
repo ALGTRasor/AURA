@@ -68,6 +68,7 @@ export class SharedData
 	{
 		let user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
 		//DataSourceDescriptor.UserAllocations.view_filter = user_id_filter('user_id');
+		DataSourceDescriptor.AppNotifications.view_filter = user_id_filter('user_id');
 		DataSourceDescriptor.TimekeepEvents.view_filter = user_id_filter('user_id');
 		DataSourceDescriptor.TimekeepStatuses.view_filter = user_id_filter('Title');
 		if (!UserAccountInfo.HasPermission('hr.access')) DataSourceDescriptor.HrRequests.view_filter = `fields/requestee_id eq '${UserAccountInfo.account_info.user_id}'`;
@@ -281,6 +282,11 @@ SharedData.RegisterTable('user allocations', DataSourceDescriptor.UserAllocation
 SharedData.RegisterTable('external links', DataSourceDescriptor.AURALinks);
 SharedData.RegisterTable('aura problems', DataSourceDescriptor.AURAProblems);
 SharedData.RegisterTable('app notifications', DataSourceDescriptor.AppNotifications);
+
+const user_id_filter = (field_name = 'Title') => `fields/${field_name} eq '${UserAccountInfo.account_info.user_id}'`;
+DataSourceDescriptor.AppNotifications.view_filter = user_id_filter('Title');
+DataSourceDescriptor.TimekeepEvents.view_filter = user_id_filter('user_id');
+DataSourceDescriptor.TimekeepStatuses.view_filter = user_id_filter('Title');
 
 //SharedData.sub_AccountLogin = AppEvents.onAccountLogin.RequestSubscription(async () => { await SharedData.LoadData(true) });
 FieldValidation.RegisterValidator('role', SharedData.Validator_Roles);
