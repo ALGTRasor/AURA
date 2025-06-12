@@ -3,7 +3,6 @@ import { DebugLog } from "../debuglog.js";
 import { AppInfo } from "../app_info.js";
 import { AppEvents } from "../appevents.js";
 import { Timers } from "../timers.js";
-import { EventSource } from "../eventsource.js";
 import { DataSourceDescriptor, DataSourceInstance } from "./datasource.js";
 import { NotificationLog } from "../notificationlog.js";
 import { UserAccountInfo } from "../useraccount.js";
@@ -35,11 +34,6 @@ export class SharedData
 
 	static loading = false;
 	static loaded = false;
-
-	static onLoaded = new EventSource();
-	static onLoadedFromCache = new EventSource();
-	static onSavedToCache = new EventSource();
-	static onDownloaded = new EventSource();
 
 	static all_tables = [];
 
@@ -115,8 +109,6 @@ export class SharedData
 				SharedData.loaded = true;
 				SharedData.loading = false;
 
-				await SharedData.onLoaded.InvokeAsync();
-				await SharedData.onLoadedFromCache.InvokeAsync();
 				AppEvents.Request('data-loaded');
 				return;
 			}
@@ -148,8 +140,6 @@ export class SharedData
 		SharedData.loading = false;
 		SharedData.loaded = true;
 
-		await SharedData.onLoaded.InvokeAsync();
-		await SharedData.onDownloaded.InvokeAsync();
 		AppEvents.Request('data-loaded');
 	}
 

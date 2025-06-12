@@ -35,23 +35,4 @@ export class AppEvents extends EventTarget
 			AppEvents.requested[existing_id].timeout.ExtendTimer();
 		}
 	}
-
-
-	/*
-	static windowSizeChanged = new EventSource();
-
-	static pageLayoutChanged = new EventSource();
-
-	static onAccountLogin = new EventSource();
-	static onAccountLoginFailed = new EventSource();
-	static onPermissionsChanged = new EventSource();
-
-	static onSaveSettings = new EventSource();
-	static onDataReloaded = new EventSource();
-
-	static onAuthorizationFailure = new EventSource();
-
-	static onDebugModeActivated = new EventSource();
-	static onDebugModeDeactivated = new EventSource();
-	*/
 }

@@ -1,5 +1,5 @@
 import { AnimJob } from "./AnimJob.js";
-import { EventSource } from "./eventsource.js";
+import { AppEvents } from "./appevents.js";
 import { Modules } from "./modules.js";
 import { NotificationLog } from "./notificationlog.js";
 import { MegaTips } from "./systems/megatips.js";
@@ -11,7 +11,6 @@ export class Autosave
 
 	static e_lastsaved = document.getElementById('info-bar-lastsaved');
 	static e_megatip = undefined;
-	static source = new EventSource();
 	static delay_seconds = 45.0;
 
 	static last_invoke_ts;
@@ -28,7 +27,7 @@ export class Autosave
 		if (UserAccountManager.account_provider.logged_in !== true) return;
 		if (UserAccountInfo.is_alg_account !== true) return;
 
-		Autosave.source.Invoke();
+		AppEvents.Dispatch('localsave');
 
 		Autosave.last_invoke_ts = new Date();
 
@@ -70,8 +69,8 @@ export class Autosave
 		Autosave.invokesoon_tid = window.setTimeout(Autosave.InvokeNow, Autosave.invokesoon_delay);
 	}
 
-	static HookSaveEvent(save_action = () => { }) { return Autosave.source.RequestSubscription(save_action); }
-	static ReleaseSaveEvent(save_action_sub) { Autosave.source.RemoveSubscription(save_action_sub); }
+	static HookSaveEvent(save_action = () => { }) { AppEvents.AddListener('localsave', save_action); }
+	static ReleaseSaveEvent(save_action = () => { }) { AppEvents.RemoveListener('localsave', save_action); }
 
 	static loop = new AnimJob(4000, Autosave.StepLoop); // checks for autosave every 5 seconds, might be interrupted by manual Invokes
 	static StepLoop(dt)
@@ -84,6 +83,4 @@ export class Autosave
 }
 
 Modules.Report('Autosave', 'This module adds autosave functionality. Autosave applies to your local app settings, but not to database/remote data.');
-
-
 //Autosave.loop.Start();

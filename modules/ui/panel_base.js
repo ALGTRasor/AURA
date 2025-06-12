@@ -1,9 +1,10 @@
 import { DebugLog } from "../debuglog.js";
 
-export class PanelBase
+export class PanelBase extends EventTarget
 {
 	constructor()
 	{
+		super();
 		this.created = false;
 		this.e_parent = {};
 		this.children = [];

@@ -1,6 +1,5 @@
 import { Autosave } from "../autosave.js";
 import { DebugLog } from "../debuglog.js";
-import { EventSource } from "../eventsource.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
 import { clamp } from "../utils/mathutils.js";
@@ -47,10 +46,8 @@ export class GlobalStyling
         if (save === true) GlobalStyling.Save();
     }
 
-    static onStylingChange = new EventSource();
     static TriggerChangeEvents(doLayoutChange = false, doAutosave = true)
     {
-        GlobalStyling.onStylingChange.Invoke();
         if (doLayoutChange) PageManager.NotifyLayoutChange();
         if (doAutosave) Autosave.InvokeSoon();
     }

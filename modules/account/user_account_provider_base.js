@@ -1,5 +1,3 @@
-import { EventSource } from "../eventsource.js";
-
 export class UserAccountProvider
 {
 	static Nothing = new UserAccountProvider();
@@ -8,9 +6,6 @@ export class UserAccountProvider
 	{
 		this.logging_in = false;
 		this.logged_in = false;
-
-		this.onLoginSuccess = new EventSource();
-		this.onLoginFail = new EventSource();
 
 		this.has_id_token = false;
 		this.id_token = '';

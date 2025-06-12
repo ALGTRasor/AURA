@@ -148,7 +148,8 @@ export class RecordSummaryPanelBase extends PanelBase
 		fvp.edit_mode = info.read_only !== true;
 		if (info.spellcheck) fvp.spellcheck = info.spellcheck;
 		if ('format' in info) fvp.validator = FieldValidation.GetValidator(info.format);
-		fvp.onValueChangedDelayed.RequestSubscription(_ => { this.OnAnyValueChanged(); });
+
+		fvp.addEventListener('change', _ => { this.OnAnyValueChanged(); });
 
 		let e_fvp = this.PushChild(fvp);
 		e_fvp.Create(this.e_block);

@@ -1,5 +1,4 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { EventSource } from "../eventsource.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { PanelBase } from "./panel_base.js";
 
@@ -17,9 +16,7 @@ export class FieldValuePanel extends PanelBase
 	minWidth = '10rem';
 	edit_mode = true;
 
-	onValueChanged = new EventSource();
-	onValueChangedDelayed = new EventSource();
-	valueChangeTimeout = new RunningTimeout(() => { this.onValueChangedDelayed.Invoke() }, 0.6, false, 50);
+	valueChangeTimeout = new RunningTimeout(() => { this.dispatchEvent(new CustomEvent('change')); }, 0.6, false, 50);
 
 	TryValidateValue(target_value) 
 	{
@@ -56,7 +53,6 @@ export class FieldValuePanel extends PanelBase
 
 	AfterAnyValueChanged(prev_value = '', new_value = '')
 	{
-		this.onValueChanged.Invoke({ value_original: this.value_original, value_current: new_value });
 		this.valueChangeTimeout.ExtendTimer();
 		this.RefreshStyling();
 	}
@@ -103,7 +99,6 @@ export class FieldValuePanel extends PanelBase
 		this.value = this.e_value.value; // copy live value to source
 
 		this.OnRefresh();
-		this.onValueChanged.Invoke({ value_original: this.value_original, value_current: this.e_value.value });
 		this.valueChangeTimeout.ExtendTimer();
 	}
 
