@@ -122,102 +122,106 @@ export class QuickMenu
 
                             }
                         );
-                    }
 
-                    MegaTips.Register(
-                        x,
-                        _ =>
-                        {
-                            _.innerHTML = '';
-                            _.style.padding = 'var(--gap-05)';
-                            _.style.borderRadius = 'var(--gap-05)';
-
-                            if (tooltip)
+                        MegaTips.Register(
+                            x,
+                            _ =>
                             {
+                                _.innerHTML = '';
+                                _.style.padding = 'var(--gap-05)';
+                                _.style.borderRadius = 'var(--gap-05)';
+
+                                if (tooltip)
+                                {
+                                    _.appendElement(
+                                        'div',
+                                        _ =>
+                                        {
+                                            _.style.padding = 'var(--gap-1)';
+                                            _.innerText = tooltip;
+                                        }
+                                    );
+                                }
+
                                 _.appendElement(
                                     'div',
                                     _ =>
                                     {
-                                        _.style.padding = 'var(--gap-1)';
-                                        _.innerText = tooltip;
+                                        _.style.display = 'flex';
+                                        _.style.flexDirection = 'column';
+                                        _.style.gap = 'var(--gap-05)';
+                                        _.style.padding = 'var(--gap-05)';
+
+                                        button_data.alerts.forEach(
+                                            alert =>
+                                            {
+                                                _.appendElement(
+                                                    'div',
+                                                    _ =>
+                                                    {
+                                                        _.style.flexDirection = 'column';
+                                                        _.style.background = '#0004';
+                                                        _.style.padding = 'var(--gap-05)';
+                                                        _.style.gap = 'var(--gap-05)';
+                                                        _.style.borderRadius = 'var(--gap-05)';
+
+                                                        _.appendElement(
+                                                            'div',
+                                                            _ =>
+                                                            {
+                                                                _.style.display = 'flex';
+                                                                _.style.flexDirection = 'row';
+
+                                                                _.appendElement(
+                                                                    'div',
+                                                                    _ =>
+                                                                    {
+                                                                        _.style.flexBasis = '100%';
+                                                                        _.style.overflow = 'hidden';
+                                                                        _.style.textWrap = 'nowrap';
+                                                                        _.style.textOverflow = 'ellipsis';
+                                                                        _.innerText = alert.notification_title;
+                                                                    }
+                                                                );
+                                                                _.appendElement(
+                                                                    'div',
+                                                                    _ =>
+                                                                    {
+                                                                        _.style.flexGrow = '0.0';
+                                                                        _.style.flexShrink = '0.0';
+                                                                        _.style.width = 'fit-content';
+                                                                        _.style.textWrap = 'nowrap';
+                                                                        _.style.color = 'hsl(from var(--theme-color) h s 50%)';
+                                                                        _.innerText = new Date(alert.datetime_arrival).toLocaleDateString();
+                                                                    }
+                                                                );
+                                                            }
+                                                        );
+
+                                                        _.appendElement(
+                                                            'div',
+                                                            _ =>
+                                                            {
+                                                                _.style.color = 'hsl(from var(--theme-color) h s 70%)';
+                                                                _.style.flexBasis = '100%';
+                                                                _.style.overflow = 'hidden';
+                                                                _.style.textOverflow = 'ellipsis';
+                                                                _.innerText = alert.notification_body;
+                                                            }
+                                                        );
+                                                    }
+                                                );
+                                            }
+                                        );
                                     }
                                 );
                             }
-
-                            _.appendElement(
-                                'div',
-                                _ =>
-                                {
-                                    _.style.display = 'flex';
-                                    _.style.flexDirection = 'column';
-                                    _.style.gap = 'var(--gap-05)';
-                                    _.style.padding = 'var(--gap-05)';
-
-                                    button_data.alerts.forEach(
-                                        alert =>
-                                        {
-                                            _.appendElement(
-                                                'div',
-                                                _ =>
-                                                {
-                                                    _.style.flexDirection = 'column';
-                                                    _.style.background = '#0004';
-                                                    _.style.padding = 'var(--gap-05)';
-                                                    _.style.gap = 'var(--gap-05)';
-                                                    _.style.borderRadius = 'var(--gap-05)';
-
-                                                    _.appendElement(
-                                                        'div',
-                                                        _ =>
-                                                        {
-                                                            _.style.display = 'flex';
-                                                            _.style.flexDirection = 'row';
-
-                                                            _.appendElement(
-                                                                'div',
-                                                                _ =>
-                                                                {
-                                                                    _.style.flexBasis = '100%';
-                                                                    _.style.overflow = 'hidden';
-                                                                    _.style.textWrap = 'nowrap';
-                                                                    _.style.textOverflow = 'ellipsis';
-                                                                    _.innerText = alert.notification_title;
-                                                                }
-                                                            );
-                                                            _.appendElement(
-                                                                'div',
-                                                                _ =>
-                                                                {
-                                                                    _.style.flexGrow = '0.0';
-                                                                    _.style.flexShrink = '0.0';
-                                                                    _.style.width = 'fit-content';
-                                                                    _.style.textWrap = 'nowrap';
-                                                                    _.style.color = 'hsl(from var(--theme-color) h s 50%)';
-                                                                    _.innerText = new Date(alert.datetime_arrival).toLocaleDateString();
-                                                                }
-                                                            );
-                                                        }
-                                                    );
-
-                                                    _.appendElement(
-                                                        'div',
-                                                        _ =>
-                                                        {
-                                                            _.style.color = 'hsl(from var(--theme-color) h s 70%)';
-                                                            _.style.flexBasis = '100%';
-                                                            _.style.overflow = 'hidden';
-                                                            _.style.textOverflow = 'ellipsis';
-                                                            _.innerText = alert.notification_body;
-                                                        }
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                    );
+                        );
+                    }
+                    else
+                    {
+                        if (tooltip) MegaTips.RegisterSimple(x, tooltip);
+                    }
                 }
                 else
                 {
