@@ -6,7 +6,6 @@ import { PageTitleBar } from "./pagetitlebar.js";
 import { Ripples } from "../ui/ripple.js";
 import { AppEvents } from "../appevents.js";
 import { PanelContent } from "../ui/panel_content.js";
-import { NotificationLog } from "../notificationlog.js";
 
 class PageResizer extends PanelContent
 {
@@ -18,10 +17,11 @@ class PageResizer extends PanelContent
 
 	OnCreateElements(data)
 	{
-		this.e_root = this.e_parent.appendElement(
+		this.e_parent.appendElement(
 			'div',
 			_ =>
 			{
+				this.e_root = _;
 				_.classList.add('page-resizer');
 
 				_.addEventListener(
@@ -291,6 +291,7 @@ export class PageInstance
 		this.state.data.height = frame_rect.height - 16;
 
 		this.DisableBodyTransitions();
+		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
 		this.ApplyFrameState();
 		this.EnableBodyTransitions();
 	}
@@ -298,6 +299,7 @@ export class PageInstance
 	TryDock()
 	{
 		this.state.data.docked = this.page_descriptor.dockable === true;
+		if (this.state.data.docked === true) this.page_resizer.RemoveElements();
 		this.ApplyFrameState();
 	}
 
@@ -362,7 +364,7 @@ export class PageInstance
 		this.page_descriptor.OnOpen(this);
 
 		this.page_resizer = new PageResizer(this.e_body, this);
-		if (this.state.docked !== true) this.page_resizer.CreateElements();
+		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
 
 		this.created = true;
 	}
