@@ -5,7 +5,74 @@ import { PageManager } from "../pagemanager.js";
 import { PageTitleBar } from "./pagetitlebar.js";
 import { Ripples } from "../ui/ripple.js";
 import { AppEvents } from "../appevents.js";
+import { PanelContent } from "../ui/panel_content.js";
+import { NotificationLog } from "../notificationlog.js";
 
+class PageResizer extends PanelContent
+{
+	constructor(e_parent = {}, page = PageInstance.Nothing)
+	{
+		super(e_parent);
+		this.page = page;
+	}
+
+	OnCreateElements(data)
+	{
+		this.e_root = this.e_parent.appendElement(
+			'div',
+			_ =>
+			{
+				_.classList.add('page-resizer');
+
+				_.addEventListener(
+					'mousedown',
+					e =>
+					{
+						if (this.dragging === true) return;
+						this.page.DisableBodyTransitions();
+						this.dragging = true;
+						this.drag_position_start = new DOMPoint(e.clientX, e.clientY);
+						this.drag_start_w = this.page.state.data.width;
+						this.drag_start_h = this.page.state.data.height;
+						const update_drag = e =>
+						{
+							this.drag_position_end = new DOMPoint(e.clientX, e.clientY);
+							this.drag_delta = new DOMPoint(e.clientX - this.drag_position_start.x, e.clientY - this.drag_position_start.y);
+
+							this.page.state.data.width = this.drag_start_w + this.drag_delta.x;
+							this.page.state.data.height = this.drag_start_h + this.drag_delta.y;
+							this.page.ApplyFrameState();
+						};
+
+						window.addEventListener(
+							'mousemove',
+							e =>
+							{
+								if (this.dragging !== true) return;
+								update_drag(e);
+							}
+						);
+
+						window.addEventListener(
+							'mouseup',
+							e =>
+							{
+								if (this.dragging !== true) return;
+								this.dragging = false;
+								update_drag(e);
+								this.page.EnableBodyTransitions();
+							}
+						);
+					}
+				);
+			}
+		);
+	}
+	OnRemoveElements(data)
+	{
+		this.e_root.remove();
+	}
+}
 
 // class handling the state and state data of a page instance 
 export class PageInstanceState extends EventTarget
@@ -73,7 +140,6 @@ export class PageInstance
 
 	CreateBody()
 	{
-
 		this.e_frame = document.createElement('div');
 		this.e_frame.id = 'page-frame-' + this.page_descriptor.title + '[' + this.instance_id + ']';
 		this.e_frame.className = 'page-root-frame';
@@ -295,12 +361,17 @@ export class PageInstance
 		AppEvents.AddListener('page-layout-change', _ => this.UpdatePageContext());
 		this.page_descriptor.OnOpen(this);
 
+		this.page_resizer = new PageResizer(this.e_body, this);
+		if (this.state.docked !== true) this.page_resizer.CreateElements();
+
 		this.created = true;
 	}
 
 	RemoveElements(immediate = false)
 	{
 		if (this.created !== true) return;
+
+		this.page_resizer.RemoveElements();
 
 		AppEvents.RemoveListener('page-layout-change', _ => this.UpdatePageContext());
 		Ripples.SpawnFromElement(this.e_body, 0);

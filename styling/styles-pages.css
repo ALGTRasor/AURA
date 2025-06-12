@@ -198,6 +198,52 @@
 
 
 
+.page-resizer
+{
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 1rem;
+	height: 1rem;
+
+	cursor: nw-resize;
+	z-index: 1000;
+
+	user-select: none;
+
+	border-radius: 0 0 var(--corner-05) 0;
+	opacity: 20%;
+}
+
+.page-resizer:hover
+{
+	opacity: 100%;
+}
+
+.page-resizer::after
+{
+	content: '-';
+
+	pointer-events: none;
+	position: absolute;
+	inset: 0;
+
+	text-decoration: underline;
+	align-content: center;
+	text-align: center;
+
+	rotate: -45deg;
+	translate: -0.5rem -0.5rem;
+	opacity: 50%;
+	scale: 80%;
+}
+
+.page-resizer:hover::after
+{
+	opacity: 100%;
+	scale: 100%;
+}
+
 
 
 .page-title-bar
