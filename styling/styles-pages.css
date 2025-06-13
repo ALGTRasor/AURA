@@ -1076,6 +1076,10 @@
 	min-height: 0;
 }
 
+
+
+
+
 .setting-root-slider
 {
 	flex-basis: 90%;
@@ -1121,6 +1125,26 @@
 {
 	background-color: hsl(from var(--theme-color) h s 30%);
 }
+
+.setting-slider-value
+{
+	pointer-events: none;
+	z-index: 10;
+	position: absolute;
+	right: calc(var(--gap-05) + 0.5rem);
+	top: 50%;
+	opacity: 30%;
+	font-size: 1.5rem;
+	align-content: center;
+	text-align: center;
+	text-anchor: middle;
+	transform: translate(0%, -45%);
+	filter: blur(0.5px);
+}
+
+
+
+
 
 
 

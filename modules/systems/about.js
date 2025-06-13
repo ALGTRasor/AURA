@@ -1,5 +1,5 @@
-import { DebugLog } from "./debuglog.js";
-import { until } from "./utils/until.js";
+import { DebugLog } from "../debuglog.js";
+import { until } from "../utils/until.js";
 
 export class About
 {

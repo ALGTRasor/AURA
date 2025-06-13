@@ -1,22 +1,23 @@
-import { About } from "../../about.js";
-import { Autosave } from "../../autosave.js";
-import { DevMode } from "../../systems/devmode.js";
+import { Modules } from "../../modules.js";
 import { addElement, CreatePagePanel, FadeElement, getTransitionStyle } from "../../utils/domutils.js";
 import { sleep } from "../../utils/asyncutils.js";
 import { clamp } from "../../utils/mathutils.js";
-import { Modules } from "../../modules.js";
-import { PageManager } from "../../pagemanager.js";
-import { GlobalStyling } from "../../ui/global_styling.js";
-import { UserAccountInfo } from "../../useraccount.js";
-import { UserSettings } from "../../usersettings.js";
-import { Hotkeys } from "../../utils/hotkeys.js";
-import { PageDescriptor } from "../pagebase.js";
-import { Help } from "./help.js";
-import { AppInfo } from "../../app_info.js";
-import { Ripples } from "../../ui/ripple.js";
-import { MegaTips } from "../../systems/megatips.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
+import { GlobalStyling } from "../../ui/global_styling.js";
+import { Autosave } from "../../autosave.js";
+import { About } from "../../systems/about.js";
+import { DevMode } from "../../systems/devmode.js";
+import { PageManager } from "../../pagemanager.js";
+import { PageDescriptor } from "../pagebase.js";
+import { Hotkeys } from "../../utils/hotkeys.js";
+import { AppInfo } from "../../app_info.js";
+import { Ripples } from "../../ui/ripple.js";
+import { UserAccountInfo } from "../../useraccount.js";
+import { UserSettings } from "../../usersettings.js";
+import { MegaTips } from "../../systems/megatips.js";
+import { Help } from "./help.js";
+import { NotificationLog } from "../../notificationlog.js";
 
 
 class SettingControl
@@ -73,12 +74,23 @@ class SettingSlider extends SettingControl
 		this.e_fill.className = 'setting-slider-fill';
 		this.e_slider.appendChild(this.e_fill);
 
+		this.e_slider.appendElement(
+			'div',
+			_ =>
+			{
+				_.classList.add('setting-slider-value');
+				_.innerText = Math.round(this.value * 100) + '%';
+				this.e_label_value = _;
+			}
+		);
+
 		this.megatip = MegaTips.Register(this.e_slider, _ => { });
 
 		this.last_value_update_ts = 0;
 		this.UpdateStyling();
 
 		this.parent.appendChild(this.e_slider);
+
 		this.e_slider.addEventListener('mousedown', e => this.DragStart(e));
 
 	}
@@ -87,6 +99,8 @@ class SettingSlider extends SettingControl
 	{
 		if (this.value > 0.0) this.e_slider.classList.add('setting-root-on');
 		else this.e_slider.classList.remove('setting-root-on');
+
+		this.e_label_value.innerHTML = `${Math.round(this.value * 100)}%`;
 
 		this.e_fill.style.width = (this.value * 100) + '%';
 		this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
@@ -98,7 +112,7 @@ class SettingSlider extends SettingControl
 
 	HandleMouse(e, force = false) 
 	{
-		if (!this.dragging) return;
+		if (this.dragging !== true) return;
 
 		this.e_slider.focus();
 
