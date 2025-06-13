@@ -64,6 +64,7 @@ export class DevMode
 		if (DevMode.active) return;
 		Autosave.HookSaveEvent(DevMode.SaveState);
 		DevMode.active = true;
+		window.debug_mode_enabled = true;
 		document.documentElement.setAttribute('devmode', '');
 		AppEvents.Dispatch('debugmode-enabled');
 
@@ -71,8 +72,9 @@ export class DevMode
 	static Deactivate()
 	{
 		if (!DevMode.active) return;
-		document.documentElement.removeAttribute('devmode');
 		Autosave.ReleaseSaveEvent(DevMode.SaveState);
+		document.documentElement.removeAttribute('devmode');
+		window.debug_mode_enabled = false;
 		DevMode.active = false;
 		AppEvents.Dispatch('debugmode-disabled');
 	}

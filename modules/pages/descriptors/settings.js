@@ -7,7 +7,6 @@ import { RunningTimeout } from "../../utils/running_timeout.js";
 import { GlobalStyling } from "../../ui/global_styling.js";
 import { Autosave } from "../../autosave.js";
 import { About } from "../../systems/about.js";
-import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
 import { Hotkeys } from "../../utils/hotkeys.js";
@@ -17,7 +16,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { UserSettings } from "../../usersettings.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { Help } from "./help.js";
-import { NotificationLog } from "../../notificationlog.js";
+import { AppEvents } from "../../appevents.js";
 
 
 class SettingControl
@@ -220,6 +219,20 @@ export class PageSettings extends PageDescriptor
 	title = 'settings';
 	icon = 'settings';
 
+	OnOpen(instance)
+	{
+		instance.refresh = () => { this.RefreshElements(instance); };
+		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.25, false, 150);
+		instance.refresh_soon = () => { instance.content_timeout.ExtendTimer(); };
+		AppEvents.AddListener('debugmode-enabled', instance.refresh_soon);
+		AppEvents.AddListener('debugmode-disabled', instance.refresh_soon);
+	}
+	OnClose(instance)
+	{
+		AppEvents.RemoveListener('debugmode-enabled', instance.refresh_soon);
+		AppEvents.RemoveListener('debugmode-disabled', instance.refresh_soon);
+	}
+
 	OnLayoutChange(instance)
 	{
 		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
@@ -256,48 +269,8 @@ export class PageSettings extends PageDescriptor
 			+ getTransitionStyle('translate', '--trans-dur-off-slow', 'ease')
 		);
 
-		instance.afterModeChange = index => { instance.mode_change_timeout?.ExtendTimer(); };
-		instance.updateModeContent = () =>
-		{
-			let perform_change = async () =>
-			{
-				instance.slide_mode.SetDisabled(true);
-
-				let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
-
-				instance.e_mode_content_root.style.translate = '0 -2rem';
-				instance.e_mode_content_root.pointerEvents = 'none';
-				if (instance.mode_ever_changed === true)
-				{
-					await FadeElement(instance.e_mode_content_root, 100, 0, fade_time);
-				}
-				instance.mode_ever_changed = true;
-				instance.e_mode_content_root.innerHTML = '';
-				instance.e_mode_content_root.style.transitionDuration = '0s';
-				await sleep(30);
-				instance.e_mode_content_root.style.translate = '0 2rem';
-				await sleep(30);
-				instance.e_mode_content_root.style.transitionDuration = 'var(--trans-dur-off-slow)';
-				await sleep(30);
-				instance.e_mode_content_root.style.translate = '0 0';
-				switch (instance.slide_mode.selected_index)
-				{
-					case 0: this.CreateElements_General(instance); break;
-					case 1: this.CreateElements_Theme(instance); break;
-					case 2: this.CreateElements_Hotkeys(instance); break;
-					case 3: this.CreateElements_Permissions(instance); break;
-				}
-				instance.e_mode_content_root.pointerEvents = 'all';
-				await FadeElement(instance.e_mode_content_root, 0, 100, fade_time);
-				instance.slide_mode.SetDisabled(false);
-			};
-			perform_change();
-		};
-		instance.slide_mode.Subscribe(instance.afterModeChange);
-		instance.mode_change_timeout = new RunningTimeout(() => instance.updateModeContent(), 0.25, false, 150);
+		instance.slide_mode.Subscribe(_ => { instance.refresh_soon(); });
 		instance.slide_mode.SelectIndexAfterDelay(0, 333, true);
-
-
 
 		instance.updateColorWarning = (e) =>
 		{
@@ -339,7 +312,7 @@ export class PageSettings extends PageDescriptor
 		};
 
 		// modules section
-		if (DevMode.active === true)
+		if (window.debug_mode_enabled === true)
 		{
 			CreatePagePanel(
 				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
@@ -366,7 +339,7 @@ export class PageSettings extends PageDescriptor
 		}
 
 		// about section
-		if (false && DevMode.active)
+		if (false && window.debug_mode_enabled === true)
 		{
 			CreatePagePanel(
 				instance.e_content, true, true, 'flex-grow:0.0;flex-basis:100%;max-height:1.5rem;min-height:1.5rem;align-content:start;overflow:hidden;',
@@ -401,6 +374,43 @@ export class PageSettings extends PageDescriptor
 				}
 			);
 		}
+	}
+
+	RefreshElements(instance)
+	{
+		let perform_change = async () =>
+		{
+			instance.slide_mode.SetDisabled(true);
+
+			let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
+
+			instance.e_mode_content_root.style.translate = '0 -2rem';
+			instance.e_mode_content_root.pointerEvents = 'none';
+			if (instance.mode_ever_changed === true)
+			{
+				await FadeElement(instance.e_mode_content_root, 100, 0, fade_time);
+			}
+			instance.mode_ever_changed = true;
+			instance.e_mode_content_root.innerHTML = '';
+			instance.e_mode_content_root.style.transitionDuration = '0s';
+			await sleep(30);
+			instance.e_mode_content_root.style.translate = '0 2rem';
+			await sleep(30);
+			instance.e_mode_content_root.style.transitionDuration = 'var(--trans-dur-off-slow)';
+			await sleep(30);
+			instance.e_mode_content_root.style.translate = '0 0';
+			switch (instance.slide_mode.selected_index)
+			{
+				case 0: this.CreateElements_General(instance); break;
+				case 1: this.CreateElements_Theme(instance); break;
+				case 2: this.CreateElements_Hotkeys(instance); break;
+				case 3: this.CreateElements_Permissions(instance); break;
+			}
+			instance.e_mode_content_root.pointerEvents = 'all';
+			await FadeElement(instance.e_mode_content_root, 0, 100, fade_time);
+			instance.slide_mode.SetDisabled(false);
+		};
+		perform_change();
 	}
 
 
@@ -453,7 +463,7 @@ export class PageSettings extends PageDescriptor
 			}
 		);
 
-		if (DevMode.active === true)
+		if (window.debug_mode_enabled === true)
 		{
 			instance.e_toggle_debuglog = new SettingToggle(
 				instance.e_mode_content_root, 'show debug log', 'problem', GlobalStyling.showDebugLog.enabled === true, () => 'Whether or not the debugging log is visible.',
@@ -585,7 +595,7 @@ export class PageSettings extends PageDescriptor
 		{
 			let hotkey = Hotkeys.descriptors[hotkey_id];
 			if ('permission' in hotkey && !UserAccountInfo.HasPermission(hotkey.permission)) continue;
-			if ('dev_only' in hotkey && hotkey.dev_only !== DevMode.active) continue;
+			if ('dev_only' in hotkey && hotkey.dev_only !== window.debug_mode_enabled) continue;
 			let label = 'key_description' in hotkey ? hotkey.key_description : hotkey.key;
 			let tooltip = 'action_description' in hotkey ? hotkey.action_description : hotkey.key;
 			addKey(hotkey.key, label, hotkey.action_description, `(((ACTION))) ${tooltip}<br>(((KEY))) ${label.toUpperCase()}`, hotkey.requires_target !== true);

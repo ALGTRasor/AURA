@@ -215,7 +215,6 @@ export class MSAccountProvider extends UserAccountProvider
 				//NotificationLog.Log('Access Valid', '#0f0');
 				return;
 			}
-			console.warn('token expired!');
 		}
 		else
 		{
@@ -236,7 +235,6 @@ export class MSAccountProvider extends UserAccountProvider
 			].join('&')
 		);
 
-		console.warn('token requested...');
 		const valid_content = () =>
 		{
 			return e_frame.contentWindow.location.toString() !== 'about:blank'
@@ -245,12 +243,11 @@ export class MSAccountProvider extends UserAccountProvider
 		await until(valid_content);
 
 		let frame_location = e_frame.contentWindow.location.toString();
-		console.warn('token response loaded... ' + frame_location);
 		let match_access_token = /\/\#access\_token=([^\&]+)/.exec(frame_location);
 		if (match_access_token) 
 		{
 			this.UpdateAccessToken(match_access_token[1]);
-			console.warn('got access token: ' + match_access_token[1].slice(0, 64));
+			console.warn('renewed access token');
 		}
 		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(frame_location);
 		if (match_expires_in)
