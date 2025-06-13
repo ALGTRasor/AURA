@@ -48,7 +48,7 @@ class PanelUserAllocationGroup extends PanelContent
 		else if (use_percent == 1.0) { use_note = 'task_alt'; use_note_color = '#0ff'; }
 
 		return CreatePagePanel(
-			e_parent, false, false, 'display:flex; padding:var(--gap-025); box-shadow:none;',
+			e_parent, false, false, 'display:flex; box-shadow:none; padding:2px;',
 			_ =>
 			{
 				let label_str = get_row_label(allocation);
@@ -57,7 +57,7 @@ class PanelUserAllocationGroup extends PanelContent
 				{
 					addElement(
 						_, 'div', null,
-						'text-align:right;align-content:center;flex-grow:0.0;flex-shrink:0.0;flex-basis:8rem;padding:var(--gap-05);',
+						'text-align:right;align-content:center;flex-grow:0.0;flex-shrink:0.0;flex-basis:8rem;padding:var(--gap-025);',
 						_ => { _.innerText = label_str; }
 					);
 				}
@@ -94,7 +94,7 @@ class PanelUserAllocationGroup extends PanelContent
 	OnCreateElements()
 	{
 		this.e_root = CreatePagePanel(
-			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-05); gap:var(--gap-05); flex-grow:0.0; flex-shrink:0.0;',
+			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:0.0; flex-shrink:0.0;',
 			_ =>
 			{
 				let summary_max = 0.0;

@@ -2,9 +2,9 @@ import { DebugLog } from "../debuglog.js";
 import { minutesDelta } from "../utils/timeutils.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { AppInfo } from "../app_info.js";
-import { OverlayManager } from "./overlays.js";
-import { ChoiceOverlay } from "./overlays/overlay_choice.js";
-import { AppStats } from "../systems/appstats.js";
+import { OverlayManager } from "../ui/overlays.js";
+import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
+import { AppStats } from "./appstats.js";
 
 export class Welcome
 {

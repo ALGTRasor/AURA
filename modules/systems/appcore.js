@@ -13,7 +13,7 @@ import { addElement } from "../utils/domutils.js";
 import { PageManager } from "../pagemanager.js";
 import { ActionBar } from "../actionbar.js";
 import { AppEvents } from "../appevents.js";
-import { Welcome } from "../ui/welcomes.js";
+import { Welcome } from "./welcomes.js";
 import { Autosave } from "../autosave.js";
 import { DebugLog } from "../debuglog.js";
 import { AppStrap } from "./appstrap.js";
@@ -125,6 +125,7 @@ export class AppCore extends EventTarget
 
 	static NotifyReauthorizeRequest()
 	{
+		OverlayManager.HideAll();
 		DebugLog.Log('<< Authentication Requested >>');
 		ChoiceOverlay.ShowNew(
 			{

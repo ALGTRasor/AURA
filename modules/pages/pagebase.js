@@ -279,6 +279,8 @@ export class PageInstance
 
 	TryUndock()
 	{
+		if (this.state.data.docked !== true) return;
+
 		this.state.data.expanding = false;
 		this.state.data.docked = false;
 
@@ -298,6 +300,7 @@ export class PageInstance
 
 	TryDock()
 	{
+		if (this.state.data.docked === true) return;
 		this.state.data.docked = this.page_descriptor.dockable === true;
 		if (this.state.data.docked === true) this.page_resizer.RemoveElements();
 		this.ApplyFrameState();

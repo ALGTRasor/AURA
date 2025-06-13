@@ -212,6 +212,7 @@ export class MSAccountProvider extends UserAccountProvider
 			if (time_left > 0)
 			{
 				console.warn(getDurationString(time_left) + ' until token expires');
+				//NotificationLog.Log('Access Valid', '#0f0');
 				return;
 			}
 			console.warn('token expired!');
