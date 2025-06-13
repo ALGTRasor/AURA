@@ -965,3 +965,27 @@ input[type="textarea"]:active
 	transition-duration: 0s;
 	outline-color: white;
 }
+
+
+
+
+
+
+
+.auth-frame
+{
+	position: absolute;
+	pointer-events: none;
+	user-select: none;
+	opacity: 0%;
+	z-index: 99999999;
+	left: 1rem;
+	top: 50%;
+	transform: translate(0%, -50%);
+	width: 4rem;
+	height: 4rem;
+	background: #fff2;
+	border-radius: var(--corner-1);
+	border: solid 2px #fff2;
+	overflow: hidden;
+}

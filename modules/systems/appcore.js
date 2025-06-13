@@ -28,6 +28,9 @@ export class AppCore extends EventTarget
 {
 	static async Initialize()
 	{
+		if (window.top !== window.self) // loaded within a container
+			return;
+
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();
 		AppCore.PrepareActionBar();
@@ -134,6 +137,11 @@ export class AppCore extends EventTarget
 		);
 	}
 
+	static OnWindowFocus()
+	{
+		AccountStateManager.tenant.VerifyAccess();
+	}
+
 	static PrepareDocument()
 	{
 		window.onbeforeunload = e => AppCore.BeforeUnload(e);
@@ -142,6 +150,7 @@ export class AppCore extends EventTarget
 		window.loop_detectWindowSizeChange = new AnimJob(200, AppCore.CheckWindowSizeChanged);
 		window.loop_detectWindowSizeChange.Start();
 
+		window.addEventListener('focus', _ => AppCore.OnWindowFocus());
 		document.body.addEventListener('scroll', e => AppCore.RefreshGlobalTooltip(e));
 		document.body.addEventListener('mouseout', e => AppCore.RefreshGlobalTooltip(e));
 		document.body.addEventListener('mousemove', e => AppCore.RefreshGlobalTooltip(e));

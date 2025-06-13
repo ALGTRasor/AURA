@@ -53,19 +53,22 @@ export class ChoiceOverlay extends OverlayDescriptor
                     style_parts + '--theme-color:' + choice.color + '; padding:var(--gap-05);',
                     _ =>
                     {
-                        if (i < 1)
+                        if (overlay.choices.length > 1)
                         {
-                            _.style.borderBottomLeftRadius = '0';
-                            _.style.borderBottomRightRadius = '0';
-                        }
-                        else if (i >= (a.length - 1))
-                        {
-                            _.style.borderTopLeftRadius = '0';
-                            _.style.borderTopRightRadius = '0';
-                        }
-                        else
-                        {
-                            _.style.borderRadius = '0';
+                            if (i < 1)
+                            {
+                                _.style.borderBottomLeftRadius = '0';
+                                _.style.borderBottomRightRadius = '0';
+                            }
+                            else if (i >= (a.length - 1))
+                            {
+                                _.style.borderTopLeftRadius = '0';
+                                _.style.borderTopRightRadius = '0';
+                            }
+                            else
+                            {
+                                _.style.borderRadius = '0';
+                            }
                         }
                         _.innerHTML = choice.label;
                         _.classList.add('panel-button');

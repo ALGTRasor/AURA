@@ -1,7 +1,11 @@
 import { ActionBar } from "../actionbar.js";
 import { DebugLog } from "../debuglog.js";
+import { NotificationLog } from "../notificationlog.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "../remotedata/sharepoint.js";
 import { UserAccountInfo, UserAccountManager } from "../useraccount.js";
+import { sleep } from "../utils/asyncutils.js";
+import { getDurationString } from "../utils/timeutils.js";
+import { until } from "../utils/until.js";
 import { UserAccountProvider } from "./user_account_provider_base.js";
 
 
@@ -11,10 +15,12 @@ const url_mo_oauth = url_mo + 'oauth2/v2.0/authorize';
 const url_mo_token = url_mo + 'oauth2/v2.0/token';
 
 const rgx_access_token = /[\#\&\?]access_token\=([^\&]+)/;
+const rgx_refresh_token = /[\#\&\?]refresh_token\=([^\&]+)/;
 const rgx_id_token = /[\#\&\?]id_token\=([^\&]+)/;
 
 const lskey_id_token = 'o365_id_token_latest';
 const lskey_access_token = 'o365_access_token_latest';
+const lskey_refresh_token = 'o365_refresh_token_latest';
 
 const lskey_user_data = 'o365_user_data';
 const lskey_login_attempts = 'account_login_attempts';
@@ -23,6 +29,7 @@ const lskey_login_forced = 'account_login_forced';
 const CLIENT_ID = "ea723209-ebaa-402a-8ff0-ffe4a49b3282";
 const CLIENT_SCOPES = [
 	'openid',
+	'offline_access',
 	'user.read',
 	'Sites.ReadWrite.All',
 	'Files.Read.All'
@@ -40,7 +47,25 @@ export class MSAccountProvider extends UserAccountProvider
 		{
 			this.access_token = new_value;
 			this.has_access_token = true;
-			if (update_store) localStorage.setItem(lskey_access_token, this.access_token);
+			if (update_store)
+			{
+				localStorage.setItem(lskey_access_token, this.access_token);
+				console.warn('got access token: ' + this.access_token.slice(0, 36) + '...');
+			}
+		}
+	}
+
+	UpdateRefreshToken(new_value, update_store = false)
+	{
+		if (new_value && UserAccountManager.IsValidString(new_value))
+		{
+			this.refresh_token = new_value;
+			this.has_refresh_token = true;
+			if (update_store)
+			{
+				localStorage.setItem(lskey_refresh_token, this.refresh_token);
+				console.warn('got refresh token: ' + this.refresh_token.slice(0, 36) + '...');
+			}
 		}
 	}
 
@@ -50,7 +75,11 @@ export class MSAccountProvider extends UserAccountProvider
 		{
 			this.id_token = new_value;
 			this.has_id_token = true;
-			if (update_store) localStorage.setItem(lskey_id_token, this.id_token);
+			if (update_store)
+			{
+				localStorage.setItem(lskey_id_token, this.id_token);
+				console.warn('got id token: ' + this.id_token.slice(0, 36) + '...');
+			}
 		}
 	}
 
@@ -128,6 +157,12 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async AfterAuthenticationError()
 	{
+		this.InitiateLogin();
+	}
+
+	async VerifyAccess()
+	{
+		await this.TryFetchNewToken();
 	}
 
 
@@ -147,12 +182,12 @@ export class MSAccountProvider extends UserAccountProvider
 		}
 	}
 
-	GetAuthorizationURL()
+	GetAuthorizationURL(response_mode = 'fragment')
 	{
 		let force = localStorage.getItem(lskey_login_forced);
 		let url = url_mo_oauth;
 		url += "?response_type=id_token+token";
-		url += "&response_mode=fragment";
+		url += "&response_mode=" + response_mode;
 		url += "&client_id=" + CLIENT_ID;
 		if (force && force == 1) url += "&prompt=select_account";
 		url += "&redirect_uri=" + UserAccountManager.GetRedirectUri();
@@ -162,6 +197,79 @@ export class MSAccountProvider extends UserAccountProvider
 	}
 
 	InitiateLogin() { window.open(this.GetAuthorizationURL(), "_self"); }
+
+	async TryFetchNewToken()
+	{
+		const lskey_auth_datetime = 'ms-auth-last';
+
+		let lsitem = localStorage.getItem(lskey_auth_datetime);
+		if (lsitem)
+		{
+			let expire_datetime = Number.parseInt(lsitem);
+			let now_ms = new Date().valueOf();
+			const refresh_buffer_ms = 1000 * 60 * 10;
+			let time_left = expire_datetime - now_ms - refresh_buffer_ms;
+			if (time_left > 0)
+			{
+				console.warn(getDurationString(time_left) + ' until token expires');
+				return;
+			}
+			console.warn('token expired!');
+		}
+		else
+		{
+			console.warn('no existing token!');
+		}
+
+		let e_frame = document.getElementById('auth-frame');
+		e_frame.setAttribute(
+			'src',
+			url_mo_oauth + '?' + [
+				`client_id=${CLIENT_ID}`,
+				`scope=${CLIENT_SCOPES}`,
+				`response_type=token`,
+				`response_mode=fragment`,
+				`prompt=none`,
+				`redirect_uri=${UserAccountManager.GetRedirectUri()}`,
+				`nonce=${UserAccountManager.GetNonce()}`,
+			].join('&')
+		);
+
+		console.warn('token requested...');
+		const valid_content = () =>
+		{
+			return e_frame.contentWindow.location.toString() !== 'about:blank'
+				&& e_frame.contentDocument.readyState === 'complete';
+		};
+		await until(valid_content);
+
+		let frame_location = e_frame.contentWindow.location.toString();
+		console.warn('token response loaded... ' + frame_location);
+		let match_access_token = /\/\#access\_token=([^\&]+)/.exec(frame_location);
+		if (match_access_token) 
+		{
+			this.UpdateAccessToken(match_access_token[1]);
+			console.warn('got access token: ' + match_access_token[1].slice(0, 64));
+		}
+		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(frame_location);
+		if (match_expires_in)
+		{
+			let req_parse = typeof match_expires_in[1] === 'string';
+			let expires_seconds = req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
+
+			let duration = getDurationString(expires_seconds * 1000);
+			console.warn('will expire in ' + duration);
+
+			let expire_datetime = new Date();
+			expire_datetime.setSeconds(expire_datetime.getSeconds() + expires_seconds);
+			localStorage.setItem(lskey_auth_datetime, expire_datetime.valueOf());
+		}
+
+		NotificationLog.Log('Access Refreshed', '#0f0');
+
+		await sleep(50);
+		e_frame.setAttribute('src', '');
+	}
 
 	ClearCachedData()
 	{
@@ -187,20 +295,21 @@ export class MSAccountProvider extends UserAccountProvider
 	GatherLocationTokens()
 	{
 		let dirty_location = false;
+		let locationString = window.location.toString();
 
-		let id_token_match = window.location.toString().match(rgx_id_token);
-		if (id_token_match != null)
+		const try_read = (rgx, with_value = _ => { }) =>
 		{
-			this.UpdateIdToken(id_token_match[1], true);
-			dirty_location = true;
-		}
+			let match = locationString.match(rgx);
+			if (match != null)
+			{
+				with_value(match[1]);
+				dirty_location = true;
+			}
+		};
 
-		let access_token_match = window.location.toString().match(rgx_access_token);
-		if (access_token_match != null)
-		{
-			this.UpdateAccessToken(access_token_match[1], true);
-			dirty_location = true;
-		}
+		try_read(rgx_id_token, _ => this.UpdateIdToken(_, true));
+		try_read(rgx_access_token, _ => this.UpdateAccessToken(_, true));
+		try_read(rgx_refresh_token, _ => this.UpdateRefreshToken(_, true));
 
 		return dirty_location;
 	}

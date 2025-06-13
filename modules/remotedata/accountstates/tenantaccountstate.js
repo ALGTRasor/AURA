@@ -10,10 +10,13 @@ export class TenantAccountState extends AccountState
         await UserAccountManager.CheckWindowLocationForCodes();
         await UserAccountManager.AttemptAutoLogin();
         this.logged_in = UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true;
-        if (this.logged_in !== true) NotificationLog.Log('TENANT LOGIN FAILED', '#fa0');
 
         if (this.logged_in === true) AppEvents.Dispatch('account-login');
-        else AppEvents.Dispatch('account-login-failed');
+        else
+        {
+            NotificationLog.Log('TENANT LOGIN FAILED', '#fa0');
+            AppEvents.Dispatch('account-login-failed');
+        }
     }
 
     async OnTryLogOut()
@@ -26,5 +29,10 @@ export class TenantAccountState extends AccountState
     {
         UserAccountManager.account_provider.AttemptReauthorize();
         this.logged_in = UserAccountManager.account_provider.logged_in === true && UserAccountInfo.is_alg_account === true;
+    }
+
+    async OnVerifyAccess()
+    {
+        await UserAccountManager.VerifyAccess();
     }
 }

@@ -50,9 +50,14 @@ export class AccountState extends EventTarget
 
 	async VerifyAccess()
 	{
+		if (this.verifying === true) return;
+
+		this.verifying = true;
 		let result = await this.OnVerifyAccess();
 		if (result) this.#dispatch('afterverify');
 		else this.#dispatch('afterverifyfailed');
+		this.verifying = false;
+
 		return result;
 	}
 

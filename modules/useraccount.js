@@ -38,6 +38,8 @@ export class UserAccountManager
 		UserAccountManager.account_provider.InitiateLogin();
 	}
 
+	static async VerifyAccess() { await UserAccountManager.account_provider.VerifyAccess(); }
+
 	static MaybeAttemptReauthorize(reason = '')
 	{
 		UserAccountManager.account_provider.AttemptReauthorize(reason);
