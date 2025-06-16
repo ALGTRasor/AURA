@@ -25,7 +25,7 @@
 	max-width: 28rem;
 	min-width: 20rem;
 
-	background: hsl(from var(--theme-color) h s 12%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 
 	overflow: hidden;
 
@@ -44,7 +44,7 @@
 
 .page-root:hover .record-viewer-list-root
 {
-	outline: solid 2px hsl(from var(--theme-color) h s 20%);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 
@@ -55,8 +55,8 @@
 	min-height: 3rem;
 	border-radius: var(--corner-05);
 	min-width: 0;
-	background: hsl(from var(--theme-color) h s 14%);
-	outline: solid 2px hsl(from var(--theme-color) h s 10%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l010));
 	margin-bottom: 0.5rem;
 }
 
@@ -69,7 +69,7 @@
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 
-	background: hsl(from var(--theme-color) h s 14%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -78,7 +78,7 @@
 	padding: 0.5rem;
 	border-radius: var(--corner-05);
 
-	outline: solid 2px hsl(from var(--theme-color) h s 10%);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l010));
 
 	justify-items: center;
 }
@@ -161,17 +161,17 @@
 
 .record-viewer-list-item.selected
 {
-	background-color: hsl(from var(--theme-color) h s 30%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
 }
 
 .record-viewer-list-item:hover.selected
 {
-	background-color: hsl(from var(--theme-color) h s 40%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l040));
 }
 
 .record-viewer-list-item:active.selected
 {
-	background-color: hsl(from var(--theme-color) h s 36%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l050));
 }
 
 
@@ -189,7 +189,7 @@
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 
-	background: hsl(from var(--theme-color) h s 12%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -210,7 +210,7 @@
 
 .page-root:hover .record-viewer-view-root
 {
-	outline: solid 2px hsl(from var(--theme-color) h s 20%);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .record-viewer-view-block
@@ -229,7 +229,7 @@
 	padding: 0.75rem;
 	border-radius: var(--corner-05);
 
-	border: solid 2px hsl(from var(--theme-color) h s 15%);
+	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
 
 	box-shadow: -2px 2px 3px rgba(from var(--shadow-color) r g b / 15%);
 }
@@ -237,7 +237,7 @@
 .record-viewer-view-block:hover
 {
 	box-shadow: -2px 2px 4px rgba(from var(--shadow-color) r g b / 50%);
-	background-color: hsl(from var(--theme-color) h s 10%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 .record-viewer-view-block > span
@@ -253,7 +253,7 @@
 
 .record-viewer-view-block:hover > span
 {
-	color: hsl(from var(--theme-color) h s 70%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 }
 
 
@@ -310,7 +310,7 @@
 	padding-left: 0.5rem;
 	padding-right: 0.5rem;
 	color: var(--theme-color-text-70);
-	background-color: hsl(from var(--theme-color) h s 18%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 
 	text-align: right;
 	text-wrap: nowrap;
@@ -324,7 +324,7 @@
 .info-row:hover .info-label
 {
 	color: var(--theme-color-text);
-	background-color: hsl(from var(--theme-color) h s 24%);
+	background-color: hsl(from var(--theme-color) h s calc(2% + var(--theme-l020)));
 }
 
 
@@ -362,15 +362,15 @@
 
 .info-value a
 {
-	color: hsl(from var(--theme-color) h s 55%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
 	border-radius: var(--corner-05);
 }
 
 .info-value a:hover
 {
-	color: hsl(from var(--theme-color) h s 80%);
-	background: hsl(from var(--theme-color) h s 10%);
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 
@@ -378,7 +378,7 @@
 {
 	pointer-events: none;
 	height: 1rem;
-	background: hsl(from var(--theme-color) h s 15%);
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	font-variant: small-caps;
 	align-content: center;
 	font-size: 0.8rem;
@@ -412,5 +412,5 @@
 
 .info-value-button:hover > i
 {
-	color: hsl(from var(--theme-color) h s 5%);
+	color: hsl(from var(--theme-color) h s var(--theme-l005));
 }

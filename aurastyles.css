@@ -5,7 +5,6 @@
 	--info-bar-height: 2rem;
 	--limit-content-width: 1.0;
 
-
 	--spacing-multiplier: 0.0;
 	--gap-1: calc(4px + 0.95rem * var(--spacing-multiplier));
 	--gap-05: calc(3px + 0.45rem * var(--spacing-multiplier));
@@ -18,7 +17,11 @@
 
 	--ease-elastic: cubic-bezier(.4, -0.2, .6, 1.2);
 
-	--theme-color: hsl(197, 100%, 50%);
+	--theme-invert: 0.0;
+	--theme-hue: 180deg;
+	--theme-saturation: 100%;
+	--theme-color: hsl(var(--theme-hue), var(--theme-saturation), calc(50% / var(--theme-invert) + 50%));
+
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);
 	--theme-color-30: rgba(from var(--theme-color) r g b / 0.3);
@@ -29,9 +32,31 @@
 	--theme-color-80: rgba(from var(--theme-color) r g b / 0.8);
 	--theme-color-90: rgba(from var(--theme-color) r g b / 0.9);
 
-	--theme-color-background: hsl(from var(--theme-color) h s 6);
 
-	--theme-color-text: hsl(from var(--theme-color) h s 95%);
+	--theme-l005: calc(5% + 90% * var(--theme-invert));
+	--theme-l010: calc(10% + 80% * var(--theme-invert));
+	--theme-l015: calc(15% + 70% * var(--theme-invert));
+	--theme-l020: calc(20% + 60% * var(--theme-invert));
+	--theme-l025: calc(25% + 50% * var(--theme-invert));
+	--theme-l030: calc(30% + 40% * var(--theme-invert));
+	--theme-l035: calc(35% + 30% * var(--theme-invert));
+	--theme-l040: calc(40% + 20% * var(--theme-invert));
+	--theme-l045: calc(45% + 10% * var(--theme-invert));
+	--theme-l050: 50%;
+	--theme-l055: calc(55% - 10% * var(--theme-invert));
+	--theme-l060: calc(60% - 20% * var(--theme-invert));
+	--theme-l065: calc(65% - 30% * var(--theme-invert));
+	--theme-l070: calc(70% - 40% * var(--theme-invert));
+	--theme-l075: calc(75% - 50% * var(--theme-invert));
+	--theme-l080: calc(80% - 60% * var(--theme-invert));
+	--theme-l085: calc(85% - 70% * var(--theme-invert));
+	--theme-l090: calc(90% - 80% * var(--theme-invert));
+	--theme-l095: calc(95% - 90% * var(--theme-invert));
+	--theme-l100: calc(100% - 100% * var(--theme-invert));
+
+	--theme-color-background: hsl(from var(--theme-color) h s var(--theme-l015));
+
+	--theme-color-text: hsl(from var(--theme-color) h s var(--theme-l100));
 	--theme-color-text-10: rgba(from var(--theme-color-text) r g b / 0.1);
 	--theme-color-text-20: rgba(from var(--theme-color-text) r g b / 0.2);
 	--theme-color-text-30: rgba(from var(--theme-color-text) r g b / 0.3);
@@ -42,11 +67,10 @@
 	--theme-color-text-80: rgba(from var(--theme-color-text) r g b / 0.8);
 	--theme-color-text-90: rgba(from var(--theme-color-text) r g b / 0.9);
 
-	--theme-invert: 0.0;
 	--theme-contrast: 0.5;
 	--theme-brightness: 0.5;
-	--shadow-color: hsl(0deg 0% calc(var(--theme-invert) * 100%));
-	--glow-color: hsl(0deg 0% calc(100% - var(--theme-invert) * 100%));
+	--shadow-color: hsl(0deg 0% 0%);
+	--glow-color: hsl(0deg 0% 100%);
 
 	--sensitive-info-cover: 1.0;
 
@@ -208,8 +232,8 @@ body *[content-loading]::after
 	z-index: 10;
 	inset: 0;
 
-	--back-color-0: rgb(from hsl(from var(--theme-color) h s 10%) r g b / 0.2);
-	--back-color-1: rgb(from hsl(from var(--theme-color) h s 80%) r g b / 0.1);
+	--back-color-0: rgb(from hsl(from var(--theme-color) h s var(--theme-l010)) r g b / 0.2);
+	--back-color-1: rgb(from hsl(from var(--theme-color) h s var(--theme-l080)) r g b / 0.1);
 
 	background-size: 100% 400%;
 	background-image: linear-gradient(0deg, var(--back-color-0) 35%, var(--back-color-1) 50%, var(--back-color-0) 65%);
@@ -263,14 +287,14 @@ body *[content-loading]::after
 
 	box-shadow: 0px 0px 0.25rem var(--shadow-color);
 
-	background-color: hsl(from var(--theme-color) h s 6);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 
 	clip-path: stroke-box;
 }
 
 body *
 {
-	scrollbar-color: hsl(from var(--theme-color) h s 16%) hsl(from var(--theme-color) h s 8%);
+	scrollbar-color: hsl(from var(--theme-color) h s var(--theme-l020)) hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 
@@ -364,7 +388,7 @@ body *
 	pointer-events: none;
 	z-index: 100000;
 	inset: 0;
-	background-image: linear-gradient(to right, hsl(from var(--theme-color) h 0% 20%), hsl(from var(--theme-color) h 100% 20%));
+	background-image: linear-gradient(to right, hsl(from var(--theme-color) h 0% var(--theme-l020)), hsl(from var(--theme-color) h 100% var(--theme-l020)));
 	opacity: 50%;
 }
 
@@ -436,13 +460,13 @@ body *
 	inset: 0;
 	padding: 0;
 	margin: 0;
-	backdrop-filter: invert(var(--theme-invert)) hue-rotate(calc(var(--theme-invert) * 180deg)) brightness(calc(var(--theme-brightness) + 0.5)) contrast(calc(var(--theme-contrast) + 0.5));
+	backdrop-filter: brightness(calc(var(--theme-brightness) + 0.5)) contrast(calc(var(--theme-contrast) + 0.5));
 }
 
 img,
 iframe
 {
-	filter: contrast(calc(1.0 / (var(--theme-contrast) + 0.5))) brightness(calc(1.0 / (var(--theme-brightness) + 0.5))) hue-rotate(calc(180deg * var(--theme-invert))) invert(var(--theme-invert));
+	filter: contrast(calc(1.0 / (var(--theme-contrast) + 0.5))) brightness(calc(1.0 / (var(--theme-brightness) + 0.5)));
 }
 
 
@@ -566,7 +590,7 @@ div[valuechanged]
 .page-root textarea::placeholder
 {
 	font-family: inherit;
-	color: hsl(from var(--theme-color) h s 36%);
+	color: hsl(from var(--theme-color) h s var(--theme-l040));
 	font-style: italic;
 	font-size: 85%;
 	padding-left: 1rem;
@@ -698,35 +722,35 @@ div[disabled]
 	0%
 	{
 		--anim-phase: 0.0;
-		background: hsl(from var(--theme-color) h s 15%);
+		background: hsl(from var(--theme-color) h s var(--theme-l010));
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	25%
 	{
 		--anim-phase: 0.5;
-		background: hsl(from var(--theme-color) h s 60%);
+		background: hsl(from var(--theme-color) h s var(--theme-l060));
 		transform: translate(-50%, -50%) rotate(45deg) scale(50%);
 	}
 
 	50%
 	{
 		--anim-phase: 1.0;
-		background: hsl(from var(--theme-color) h s 60%);
+		background: hsl(from var(--theme-color) h s var(--theme-l060));
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	75%
 	{
 		--anim-phase: 0.5;
-		background: hsl(from var(--theme-color) h s 15%);
+		background: hsl(from var(--theme-color) h s var(--theme-l010));
 		transform: translate(-50%, -50%) rotate(45deg) scale(100%);
 	}
 
 	100%
 	{
 		--anim-phase: 0.0;
-		background: hsl(from var(--theme-color) h s 15%);
+		background: hsl(from var(--theme-color) h s var(--theme-l010));
 		transform: translate(-50%, -50%) rotate(135deg) scale(100%);
 	}
 }
@@ -751,9 +775,9 @@ div[disabled]
 
 	background-blend-mode: multiply;
 	background-size: 100% 100%;
-	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s 35%) r g b / calc(0.5 - 0.25 * var(--anim-phase-mid))), rgba(from hsl(from var(--theme-color) h s calc(10% + 15% * var(--anim-phase-mid))) r g b / 0.5));
+	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s var(--theme-l040)) r g b / calc(0.5 - 0.25 * var(--anim-phase-mid))), rgba(from hsl(from var(--theme-color) h s calc(var(--theme-l010) + 15% * var(--anim-phase-mid))) r g b / 0.5));
 
-	border: solid hsl(from var(--theme-color) h s 40%) 2px;
+	border: solid hsl(from var(--theme-color) h s var(--theme-l040)) 2px;
 
 	overflow: visible;
 
@@ -770,7 +794,7 @@ div[disabled]
 {
 	.megatip
 	{
-		background-image: linear-gradient(var(--anchor-angle) in hsl, hsl(from var(--theme-color) h s 35%), hsl(from var(--theme-color) h s 10%));
+		background-image: linear-gradient(var(--anchor-angle) in hsl, hsl(from var(--theme-color) h s var(--theme-l040)), hsl(from var(--theme-color) h s var(--theme-l010)));
 	}
 }
 
@@ -788,7 +812,7 @@ div[disabled]
 	height: 0.75rem;
 	transform-origin: 50% 50%;
 
-	border: solid hsl(from var(--theme-color) h s 60%) 2px;
+	border: solid hsl(from var(--theme-color) h s var(--theme-l060)) 2px;
 	border-radius: 2px;
 
 	outline: solid 1px rgb(255 255 255 / calc(var(--anim-phase) * var(--anim-phase)));
@@ -874,13 +898,13 @@ input[type="textarea"]
 	padding-left: var(--gap-1);
 	letter-spacing: 1px;
 	font-weight: normal;
-	color: hsl(from var(--theme-color) h s 60%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 }
 
 input[type="text"]::placeholder,
 input[type="textarea"]::placeholder
 {
-	color: hsl(from var(--theme-color) h s 36%);
+	color: hsl(from var(--theme-color) h s var(--theme-l040));
 	font-style: italic;
 	font-size: 85%;
 	padding-left: 1rem;

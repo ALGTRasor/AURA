@@ -135,7 +135,7 @@
 	outline-offset: -2px;
 
 	box-shadow: 0px 0px 5px rgba(from var(--shadow-color) r g b / 0.15);
-	background-color: hsl(from var(--theme-color) h s 18%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 
 	transition-property: rotate, top, left, width, height, background-color, box-shadow, opacity, outline-color, scale;
 	transition-duration: var(--trans-dur-off-slow);
@@ -144,10 +144,10 @@
 
 .page-root:focus-within
 {
-	outline-color: hsl(from var(--theme-color) h s 35%);
+	outline-color: hsl(from var(--theme-color) h s var(--theme-l040));
 	opacity: 100%;
 
-	background-color: hsl(from var(--theme-color) h s 24%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .page-root::after
@@ -160,7 +160,7 @@
 	border-radius: var(--corner-05);
 	inset: 0;
 
-	background: rgba(from hsl(from var(--theme-color) h s 25%) r g b / 0.25);
+	background: rgba(from hsl(from var(--theme-color) h s var(--theme-l020)) r g b / 0.25);
 }
 
 .page-root:hover::after
@@ -172,7 +172,7 @@
 	position: absolute;
 	inset: 0;
 
-	background: rgba(from hsl(from var(--theme-color) h s 25%) r g b / 0.125);
+	background: rgba(from hsl(from var(--theme-color) h s var(--theme-l020)) r g b / 0.125);
 }
 
 .page-root.page-focused::after
@@ -344,7 +344,7 @@
 	height: calc(100% - 8px);
 	aspect-ratio: 1.0;
 	width: auto;
-	background-color: hsl(from var(--theme-color) h s 10%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 
 	border-radius: var(--corner-05);
 
@@ -366,7 +366,7 @@
 {
 	opacity: 100%;
 	scale: 100%;
-	background-color: hsl(from var(--theme-color) h s 15%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	border-color: rgba(from var(--theme-color) r g b / 0.5);
 
 	box-shadow: 0px 0px 6px black;
@@ -413,7 +413,7 @@
 	font-size: 95%;
 	user-select: none;
 
-	background-color: hsl(from var(--theme-color) h s 18%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	box-shadow: -2px 2px 0.5rem rgba(from var(--shadow-color) r g b / 0.2);
 
 	border-radius: var(--corner-05);
@@ -427,19 +427,19 @@
 .page-panel:hover,
 .page-panel:focus-within
 {
-	color: var(--theme-color);
-	background-color: hsl(from var(--theme-color) h s 24%);
+	color: var(--theme-color-text-60);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
 	transition-duration: var(--trans-dur-on-fast);
 }
 
 .page-root:hover .page-panel
 {
-	border-color: hsl(from var(--theme-color) h s 18%);
+	border-color: hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .page-root:hover .page-panel:hover
 {
-	border-color: hsl(from var(--theme-color) h s 30%);
+	border-color: hsl(from var(--theme-color) h s var(--theme-l030));
 }
 
 
@@ -449,7 +449,7 @@
 {
 	border: none;
 	box-shadow: none;
-	background-color: hsl(from var(--theme-color) h s 12%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 .page-panel.inset-box:not(.scroll-y)
@@ -462,10 +462,6 @@
 	position: relative;
 }
 
-.page-panel.inset-box:hover
-{
-	background-color: hsl(from var(--theme-color) h s 10%);
-}
 
 
 
@@ -488,15 +484,15 @@
 
 .page-panel a
 {
-	color: hsl(from var(--theme-color) h s 55%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 	padding: 0.25rem 0.5rem 0.25rem 0.5rem;
 	border-radius: var(--corner-05);
 }
 
 .page-panel a:hover
 {
-	color: hsl(from var(--theme-color) h s 80%);
-	background: hsl(from var(--theme-color) h s 10%);
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 
@@ -529,19 +525,19 @@
 
 .page-panel.panel-button:hover
 {
-	background-color: hsl(from var(--theme-color) h s 16%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .page-panel.panel-button:active
 {
 	scale: 96%;
-	background-color: hsl(from var(--theme-color) h s 16%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .panel-button-selected
 {
-	color: hsl(from var(--theme-color) h s 80%) !important;
-	border-color: hsl(from var(--theme-color) h s 80%) !important;
+	color: hsl(from var(--theme-color) h s var(--theme-l080)) !important;
+	border-color: hsl(from var(--theme-color) h s var(--theme-l080)) !important;
 	background-color: #000f !important;
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
@@ -569,7 +565,6 @@
 	text-align: center;
 	align-content: center;
 
-	color: var(--theme-text-color);
 	rotate: 270deg;
 	opacity: 50%;
 
@@ -732,7 +727,7 @@
 	flex-basis: 0;
 
 	border-radius: var(--corner-025);
-	border: solid 2px hsl(from var(--theme-color) h s 20%);
+	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
 
 	background-color: rgba(from var(--theme-color) r g b / 8%);
 	color: hsl(from var(--theme-color) h s 50%);
@@ -746,14 +741,14 @@
 {
 	background-color: rgba(from var(--theme-color) r g b / 4%);
 	border: solid 2px #fff1;
-	color: hsl(from var(--theme-color) h s 70%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 }
 
 
 
 .page-root:hover .page-title-bar
 {
-	color: hsl(from var(--theme-color) h s 70%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 }
 
 
@@ -775,7 +770,7 @@
 	padding: 0rem;
 	border-radius: var(--corner-05);
 
-	background-color: hsl(from var(--theme-color) h s 12%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 
 .menu-button
@@ -811,7 +806,7 @@
 	text-shadow: -4px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
 
 	color: var(--theme-color-text);
-	background-color: hsl(from var(--theme-color) h s 20%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 
 	transition-duration: var(--trans-dur-off-fast);
 }
@@ -819,7 +814,7 @@
 .menu-button:active
 {
 	color: var(--theme-color-text-60);
-	background-color: hsl(from var(--theme-color) h s 20%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	transition-duration: var(--trans-dur-on-fast);
 }
 
@@ -942,12 +937,12 @@
 	opacity: 100%;
 	text-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.25);
 	box-shadow: 0px 0px 6px rgba(from var(--shadow-color) r g b / 0.2);
-	background-color: rgba(from var(--theme-color) r g b / 0.1);
+	background-color: rgb(from var(--theme-color-background) r g b / 0.15);
 }
 
 .setting-root:active
 {
-	background-color: hsl(from var(--theme-color) h s 25%);
+	background-color: rgb(from hsl(from var(--theme-color) h s var(--theme-l020)) r g b / 0.2);
 }
 
 
@@ -957,7 +952,7 @@
 {
 	pointer-events: none;
 	position: absolute;
-	color: var(--theme-color-60);
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
 	top: 0;
 	height: 70%;
 	align-content: center;
@@ -965,7 +960,6 @@
 	font-variant: normal;
 	font-size: 1.8rem;
 	text-shadow: none;
-	opacity: 50%;
 }
 
 .setting-root-slider > i
@@ -996,7 +990,7 @@
 	font-variant: small-caps;
 	font-size: 1rem;
 
-	color: hsl(from var(--theme-color) h s 65%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 	transform: translate(-50%, 0%);
 
 	transition-property: transform;
@@ -1004,9 +998,46 @@
 	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
+
+
+
+
+.setting-root-on
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l040));
+}
+
+.setting-root-on:hover
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
+}
+
+.setting-root-on:active
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
+}
+
+.setting-root-on > span
+{
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+}
+
+.setting-root-on > i
+{
+	color: var(--text-color);
+	text-shadow: 0px 0px 3px var(--glow-color);
+}
+
+.setting-root-on:hover > span
+{
+	color: var(--text-color);
+}
+
+
 .setting-root:hover > span
 {
-	color: hsl(from var(--theme-color) h s 75%);
+	color: hsl(from var(--theme-color) h s var(--theme-l090));
 
 	transform: translate(-50%, -20%);
 	text-shadow: 0px 4px 2px rgba(from var(--shadow-color) r g b / 0.2);
@@ -1023,43 +1054,6 @@
 {
 	transform: translate(-50%, 30%);
 }
-
-
-
-.setting-root-on
-{
-	background-color: hsl(from var(--theme-color) h s 30%);
-	outline: solid 2px hsl(from var(--theme-color) h s 40%);
-}
-
-.setting-root-on:hover
-{
-	background-color: hsl(from var(--theme-color) h s 20%);
-}
-
-.setting-root-on:active
-{
-	background-color: hsl(from var(--theme-color) h s 15%);
-}
-
-.setting-root-on > span
-{
-	color: hsl(from var(--theme-color) h s 85%);
-}
-
-.setting-root-on > i
-{
-	color: hsl(from var(--glow-color) h s 95%);
-	text-shadow: 0px 0px 3px var(--glow-color);
-}
-
-.setting-root-on:hover > span
-{
-	color: hsl(from var(--glow-color) h s 95%);
-}
-
-
-
 
 
 .setting-root-warning
@@ -1093,7 +1087,7 @@
 
 .setting-root-slider:hover
 {
-	background-color: hsl(from var(--theme-color) h s 20%);
+	background-color: rgb(from hsl(from var(--theme-color) h s var(--theme-l020)) r g b / 0.15);
 }
 
 .setting-slider-fill
@@ -1114,7 +1108,7 @@
 
 	max-width: 100%;
 
-	background-color: hsl(from var(--theme-color) h s 25%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 }
 
 .setting-root-slider:active
@@ -1124,7 +1118,12 @@
 
 .setting-root-slider:hover > .setting-slider-fill
 {
-	background-color: hsl(from var(--theme-color) h s 30%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
+}
+
+.setting-root-slider:active > .setting-slider-fill
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l040));
 }
 
 .setting-slider-value
@@ -1253,11 +1252,11 @@
 {
 	padding: var(--gap-025);
 
-	color: hsl(from var(--theme-color) h s 70%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 	font-weight: bold;
 	font-size: 0.8rem;
 
-	background: hsl(from var(--theme-color) h s 30%);
+	background: hsl(from var(--theme-color) h s var(--theme-l030));
 	border-radius: var(--corner-05);
 }
 
@@ -1288,7 +1287,7 @@
 
 .file-explorer-item:nth-child(even)
 {
-	background: hsl(from var(--theme-color) h s 21%);
+	background: hsl(from var(--theme-color) h s calc(2% + var(--theme-l020)));
 }
 
 
@@ -1320,7 +1319,7 @@
 {
 	z-index: 10;
 
-	background-color: hsl(from var(--theme-color) h s 25%);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
 	box-shadow: 0 0 0.5rem rgba(from var(--shadow-color) r g b / 0.5);
 }
 
@@ -1411,10 +1410,10 @@
 	min-height: 1.25rem;
 
 	border-radius: var(--corner-025);
-	background: hsl(from var(--theme-color) h s 10%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
 	border: solid 2px transparent;
 
-	color: hsl(from var(--theme-color) h s 60%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 	scale: 100%;
 	opacity: 40%;
 
@@ -1482,7 +1481,7 @@
 
 .file-drop-zone
 {
-	outline: dashed 3px hsl(from var(--theme-color) h s 60%);
+	outline: dashed 3px hsl(from var(--theme-color) h s var(--theme-l060));
 	outline-offset: -6px;
 	opacity: 50%;
 }
@@ -1550,7 +1549,7 @@
 	gap: 0;
 
 	outline-offset: -2px;
-	outline: solid 2px hsl(from var(--theme-color) h s 20%);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
 	border-radius: var(--corner-1);
 }
 
@@ -1566,9 +1565,9 @@
 	min-width: 0;
 
 	color: hsl(from var(--theme-color) h s 50%);
-	background: hsl(from var(--theme-color) h s 8%);
-	border: solid 1px hsl(from var(--theme-color) h s 20%);
-	border-color: hsl(from var(--theme-color) h s 10%);
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
+	border: solid 1px hsl(from var(--theme-color) h s var(--theme-l020));
+	border-color: hsl(from var(--theme-color) h s var(--theme-l010));
 	border-width: 1px;
 	text-align: center;
 	box-shadow: none;
@@ -1583,7 +1582,7 @@
 
 .calendar-day[calendar-this-month]
 {
-	border-color: hsl(from var(--theme-color) h s 20%);
+	border-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	border-width: 1px;
 	opacity: 100%;
 }
@@ -1592,16 +1591,16 @@
 {
 	z-index: 2;
 	scale: 105%;
-	color: hsl(from var(--theme-color) h 50% 80%);
-	border-color: hsl(from var(--theme-color) h 50% 80%);
-	background: hsl(from var(--theme-color) h s 15%);
-	border-radius: var(--corner-1);
+	color: hsl(from var(--theme-color) h 50% var(--theme-l080));
+	border-color: hsl(from var(--theme-color) h 50% var(--theme-l080));
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
+	border-radius: var(--corner-05);
 }
 
 .calendar-day:hover
 {
 	opacity: 100%;
-	color: hsl(from var(--theme-color) h s 90%);
-	background: hsl(from var(--theme-color) h s 20%);
+	color: hsl(from var(--theme-color) h s var(--theme-l090));
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	transition-duration: var(--trans-dur-on-fast);
 }

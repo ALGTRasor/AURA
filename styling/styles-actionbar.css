@@ -14,7 +14,7 @@
 	text-align: center;
 	align-content: center;
 
-	background: hsl(from var(--theme-color) h s calc(l * 0.2));
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	box-shadow: 0px 0px 0px transparent;
 
 	transition-property: box-shadow;

@@ -5,6 +5,7 @@ import { AppEvents } from "../appevents.js";
 import { ActionBar } from "../actionbar.js";
 
 const developer_ids = ['t.rasor'];
+const lskey_devmode_state = 'devmodestate';
 
 export class DevMode
 {
@@ -79,7 +80,6 @@ export class DevMode
 
 	static TryLoadState()
 	{
-		const lskey_devmode_state = 'devmodestate';
 		let json = localStorage.getItem(lskey_devmode_state);
 		if (typeof json === 'string' && json.startsWith('{'))
 		{
@@ -91,7 +91,6 @@ export class DevMode
 
 	static SaveState()
 	{
-		const lskey_devmode_state = 'devmodestate';
 		localStorage.setItem(lskey_devmode_state, JSON.stringify({ active: DevMode.active }));
 	}
 

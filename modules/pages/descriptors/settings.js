@@ -56,7 +56,7 @@ class SettingSlider extends SettingControl
 			this.e_icon = document.createElement('i');
 			this.e_icon.className = 'material-symbols icon';
 			this.e_icon.innerText = this.icon;
-			this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
+			this.e_icon.style.color = 'rgb(from var(--theme-color) r g b / ' + (this.value * 0.6 + 0.4) + ')';
 			this.e_icon.style.textShadow = '0px 0px 6px rgba(255,255,255,' + this.value + ')';
 			this.e_slider.appendChild(this.e_icon);
 		}
@@ -102,7 +102,7 @@ class SettingSlider extends SettingControl
 		this.e_label_value.innerHTML = `${Math.round(this.value * 100)}%`;
 
 		this.e_fill.style.width = (this.value * 100) + '%';
-		this.e_icon.style.color = 'rgba(255,255,255,' + (this.value * 0.6 + 0.4) + ')';
+		this.e_icon.style.color = 'rgb(from var(--theme-color) r g b / ' + (this.value * 0.6 + 0.4) + ')';
 		this.e_icon.style.textShadow = '0px 0px 6px rgba(255,255,255,' + this.value + ')';
 
 		if (this.tooltip) this.megatip.prep = _ => { _.innerHTML = MegaTips.FormatHTML(`(((SETTING))) ${this.label.toUpperCase()}<br>(((INFO))) ${this.tooltip()}<br>(((VALUE))) ${Math.round(this.value * 100)}%`); };

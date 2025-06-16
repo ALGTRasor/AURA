@@ -89,7 +89,7 @@
 	padding-right: 0.5rem;
 	border-radius: var(--corner-025);
 
-	color: hsl(from var(--theme-color) h s 70%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 
 	font-size: 90%;
 	font-weight: normal;

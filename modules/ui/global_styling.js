@@ -126,7 +126,8 @@ GlobalStyling.themeColor = GlobalStyling.RegisterAspect(
     {
         let h = Math.round(_.hue * 360);
         let s = Math.round(_.saturation * 100);
-        GlobalStyling.SetRootStyleProperty('--theme-color', `hsl(${h}deg ${s}% 100%)`);
+        GlobalStyling.SetRootStyleProperty('--theme-hue', `${h}deg`);
+        GlobalStyling.SetRootStyleProperty('--theme-saturation', `${s}%`);
         GlobalStyling.TriggerChangeEvents(false);
     },
 );

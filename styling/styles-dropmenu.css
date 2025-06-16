@@ -1,8 +1,8 @@
 .drop-menu
 {
 	z-index: 1000;
-	background: hsl(from var(--theme-color) h s 15%);
-	border: 1px solid hsl(from var(--theme-color) h s 40%);
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
+	border: 1px solid hsl(from var(--theme-color) h s var(--theme-l040));
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 	padding: var(--gap-05);
 	border-radius: var(--corner-05);
@@ -16,5 +16,5 @@
 
 .drop-menu-item:hover
 {
-	background: hsl(from var(--theme-color) h s 25%);
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
 }
