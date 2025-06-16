@@ -9,6 +9,9 @@ const time_units = [
     { unit: 'years', size: 12 },
 ];
 
+const week_days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 export function getDurationString(duration_ms = 1000)
 {
     if (duration_ms < 1000) return Math.ceil(duration_ms) + 'ms';
@@ -65,3 +68,26 @@ export function secondsDelta(x = new Date(), y = new Date())
 
 export function minutesDelta(timestamp = new Date()) { return secondsDelta(timestamp, new Date()) * inv_seconds_per_minute; }
 export function hoursDelta(timestamp = new Date()) { return secondsDelta(timestamp, new Date()) * inv_seconds_per_hour; }
+
+
+
+
+Date.prototype.getDateStart = function ()
+{
+    this.setHours(0, 0, 0, 0);
+    return this;
+};
+
+Date.prototype.getDayName = function () { return week_days[this.getDay()] };
+Date.prototype.getMonthName = function () { return month_names[this.getMonth()] };
+
+
+Date.prototype.toShortDateString = function (pad = true)
+{
+    const fmtnum = n => n.toString().padStart(2, '0');
+    let day = this.getDate();
+    let month = this.getMonth() + 1;
+    let year = this.getFullYear();
+    if (pad === true) return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    else return `${year}-${month}-${day}`;
+};

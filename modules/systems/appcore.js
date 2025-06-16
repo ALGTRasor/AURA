@@ -7,7 +7,7 @@ import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { NotificationLog } from "../notificationlog.js";
 import { GlobalStyling } from "../ui/global_styling.js";
-import { OverlayManager } from "../ui/overlays.js";
+import { OverlayManager } from "../ui/overlay_manager.js";
 import { UserSettings } from "../usersettings.js";
 import { addElement } from "../utils/domutils.js";
 import { PageManager } from "../pagemanager.js";

@@ -222,7 +222,7 @@ export class PageSettings extends PageDescriptor
 	OnOpen(instance)
 	{
 		instance.refresh = () => { this.RefreshElements(instance); };
-		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.25, false, 150);
+		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.333, false, 50);
 		instance.refresh_soon = () => { instance.content_timeout.ExtendTimer(); };
 		AppEvents.AddListener('debugmode-enabled', instance.refresh_soon);
 		AppEvents.AddListener('debugmode-disabled', instance.refresh_soon);
@@ -237,8 +237,7 @@ export class PageSettings extends PageDescriptor
 	{
 		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = 'unset';
-
-		window.setTimeout(() => { instance.slide_mode.ApplySelection(); }, 333);
+		instance.slide_mode.ApplySelectionSoon();
 	}
 
 	OnCreateElements(instance)

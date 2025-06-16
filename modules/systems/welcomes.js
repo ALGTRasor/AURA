@@ -2,7 +2,7 @@ import { DebugLog } from "../debuglog.js";
 import { minutesDelta } from "../utils/timeutils.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { AppInfo } from "../app_info.js";
-import { OverlayManager } from "../ui/overlays.js";
+import { OverlayManager } from "../ui/overlay_manager.js";
 import { ChoiceOverlay } from "../ui/overlays/overlay_choice.js";
 import { AppStats } from "./appstats.js";
 

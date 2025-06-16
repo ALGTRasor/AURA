@@ -1,6 +1,7 @@
 import { MegaTips } from "../../systems/megatips.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
-import { OverlayDescriptor, OverlayManager } from "../overlays.js";
+import { GlobalStyling } from "../global_styling.js";
+import { OverlayDescriptor, OverlayManager } from "../overlay_manager.js";
 
 export class ChoiceOverlay extends OverlayDescriptor
 {
@@ -16,8 +17,7 @@ export class ChoiceOverlay extends OverlayDescriptor
 
     onCreateElements = overlay =>
     {
-        overlay.prompt = overlay.prompt.replaceAll('((', '<span style="color:white;">');
-        overlay.prompt = overlay.prompt.replaceAll('))', '</span>');
+        overlay.prompt = GlobalStyling.ColorText(overlay.prompt);
 
         overlay.e_root.innerHTML = '';
 
@@ -32,7 +32,7 @@ export class ChoiceOverlay extends OverlayDescriptor
         e_body.focus();
         e_body.addEventListener('mousedown', e => { e.stopPropagation(); e_body.focus(); });
 
-        CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
+        CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
 
         let e_choices = CreatePagePanel(e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:2px;');
         overlay.choices.forEach(

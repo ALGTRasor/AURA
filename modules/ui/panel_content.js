@@ -1,4 +1,4 @@
-export class PanelContent
+export class PanelContent extends EventTarget
 {
 	static Nothing = new PanelContent(null);
 
@@ -7,6 +7,7 @@ export class PanelContent
 
 	constructor(e_parent)
 	{
+		super();
 		this.created = false;
 		this.e_parent = e_parent;
 	}

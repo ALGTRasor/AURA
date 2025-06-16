@@ -1524,3 +1524,83 @@
 {
 	max-width: 24rem;
 }
+
+
+
+
+
+
+
+
+
+
+.calendar-root
+{
+	display: flex;
+	overflow: hidden;
+	box-sizing: border-box;
+
+	flex-direction: row;
+	flex-wrap: wrap;
+	flex-grow: 1.0;
+	padding: 0;
+
+	justify-content: flex-start;
+	gap: 0;
+
+	outline-offset: -2px;
+	outline: solid 2px hsl(from var(--theme-color) h s 20%);
+	border-radius: var(--corner-1);
+}
+
+.calendar-day
+{
+	overflow: hidden;
+	box-sizing: border-box;
+
+	flex-basis: 13%;
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
+	padding: var(--gap-1);
+	min-width: 0;
+
+	color: hsl(from var(--theme-color) h s 50%);
+	background: hsl(from var(--theme-color) h s 8%);
+	border: solid 1px hsl(from var(--theme-color) h s 20%);
+	border-color: hsl(from var(--theme-color) h s 10%);
+	border-width: 1px;
+	text-align: center;
+	box-shadow: none;
+
+	z-index: 1;
+	opacity: 40%;
+
+	transition-property: color, background-color, border-radius;
+	transition-duration: var(--trans-dur-off-veryslow);
+	transition-timing-function: ease-in-out;
+}
+
+.calendar-day[calendar-this-month]
+{
+	border-color: hsl(from var(--theme-color) h s 20%);
+	border-width: 1px;
+	opacity: 100%;
+}
+
+.calendar-day[calendar-today]
+{
+	z-index: 2;
+	scale: 105%;
+	color: hsl(from var(--theme-color) h 50% 80%);
+	border-color: hsl(from var(--theme-color) h 50% 80%);
+	background: hsl(from var(--theme-color) h s 15%);
+	border-radius: var(--corner-1);
+}
+
+.calendar-day:hover
+{
+	opacity: 100%;
+	color: hsl(from var(--theme-color) h s 90%);
+	background: hsl(from var(--theme-color) h s 20%);
+	transition-duration: var(--trans-dur-on-fast);
+}

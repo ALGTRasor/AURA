@@ -295,7 +295,6 @@ class PanelUserAllocationList extends PanelContent
 		this.e_root_records.classList.add('scroll-y');
 
 		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:column; gap:var(--gap-1);');
-		MarkElementLoading(this.e_root_records_actual);
 
 		this.e_actions = CreatePagePanel(this.e_root, true, false, 'display:flex; gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
@@ -434,56 +433,53 @@ export class PageUserAllocations extends PageDescriptor
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.Title.toUpperCase(), _ => _.user_id);
-		instance.afterModeChange = index => { this.UpdateMode(instance); };
-		instance.slide_mode.Subscribe(instance.afterModeChange);
-		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
+		instance.panel_list.CreateElements(instance.e_content);
+		instance.panel_list_items_root = instance.panel_list.e_root_records_actual;
+
+		instance.transitionContent = mode_id => { this.TransitionModeContent(instance); };
+		instance.slide_mode.Subscribe(instance.transitionContent);
+		instance.slide_mode.ApplySelectionSoon();
+		instance.slide_mode.SelectIndexAfterDelay(0, 250, true);
 
 		instance.RefreshData = () => this.RefreshData(instance);
 	}
 
 	OnRemoveElements(instance)
 	{
-		instance.slide_mode.Unsubscribe(instance.afterModeChange);
+		instance.slide_mode.Unsubscribe(instance.transitionContent);
 	}
 
-	UpdateMode(instance)
+	TransitionModeContent(instance)
 	{
 		let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
-		const fade_out = () => FadeElement(instance.panel_list.e_root_records_actual, 100, 0, fade_time);
-		const fade_in = () => FadeElement(instance.panel_list.e_root_records_actual, 0, 100, fade_time);
+		const fade_out = () => FadeElement(instance.panel_list_items_root, 100, 0, fade_time);
+		const fade_in = () => FadeElement(instance.panel_list_items_root, 0, 100, fade_time);
 
-		instance.slide_mode.SetDisabled(true);
-
-		MarkElementLoading(instance.panel_list.e_root_records_actual);
-
-		fade_out().then(
-			_ =>
+		const perform = async () =>
+		{
+			instance.slide_mode.SetDisabled(true);
+			MarkElementLoading(instance.panel_list_items_root);
+			await fade_out();
+			instance.panel_list.records = window.SharedData['user allocations'].instance.data;
+			switch (instance.slide_mode.selected_index)
 			{
-				instance.panel_list.records = window.SharedData['user allocations'].instance.data;
-				switch (instance.slide_mode.selected_index)
-				{
-					case 0:
-						instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
-						instance.panel_list.get_record_label = _ => _.user_id;
-						instance.panel_list.group_icon = 'deployed_code';
-						break;
-					case 1:
-						instance.panel_list.get_record_group = _ => _.user_id;
-						instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
-						instance.panel_list.group_icon = 'person';
-						break;
-				}
-				instance.panel_list.RefreshElements();
+				case 0:
+					instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
+					instance.panel_list.get_record_label = _ => _.user_id;
+					instance.panel_list.group_icon = 'deployed_code';
+					break;
+				case 1:
+					instance.panel_list.get_record_group = _ => _.user_id;
+					instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+					instance.panel_list.group_icon = 'person';
+					break;
 			}
-		).then(
-			fade_in
-		).then(
-			() =>
-			{
-				instance.slide_mode.SetDisabled(false);
-				ClearElementLoading(instance.panel_list.e_root_records_actual, 250);
-			}
-		);
+			instance.panel_list.RefreshElements();
+			await fade_in();
+			ClearElementLoading(instance.panel_list_items_root, 250);
+			instance.slide_mode.SetDisabled(false);
+		};
+		perform();
 	}
 
 	UpdateSize(instance)
@@ -500,15 +496,18 @@ export class PageUserAllocations extends PageDescriptor
 			else instance.e_frame.style.maxWidth = '42rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';
+		instance.slide_mode.ApplySelectionSoon();
 	}
 
 	RefreshData(instance)
 	{
-		window.setTimeout(() =>
-		{
-			instance.panel_list.records = window.SharedData['user allocations'].instance.data;
-			instance.panel_list.RefreshElements();
-		}, 50);
+		window.setTimeout(
+			() =>
+			{
+				instance.panel_list.records = window.SharedData['user allocations'].instance.data;
+				instance.panel_list.RefreshElements();
+			}, 150
+		);
 	}
 
 	OnOpen(instance)

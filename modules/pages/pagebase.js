@@ -41,7 +41,6 @@ class PageResizer extends PanelContent
 
 							this.page.state.data.width = this.drag_start_w + this.drag_delta.x;
 							this.page.state.data.height = this.drag_start_h + this.drag_delta.y;
-							this.page.ApplyFrameState();
 						};
 
 						window.addEventListener(
@@ -50,6 +49,7 @@ class PageResizer extends PanelContent
 							{
 								if (this.dragging !== true) return;
 								update_drag(e);
+								this.page.ApplyFrameState(true);
 							}
 						);
 
@@ -61,6 +61,7 @@ class PageResizer extends PanelContent
 								this.dragging = false;
 								update_drag(e);
 								this.page.EnableBodyTransitions();
+								this.page.ApplyFrameState();
 							}
 						);
 					}

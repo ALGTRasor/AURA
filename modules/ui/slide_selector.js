@@ -1,6 +1,7 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { MegaTips } from "../systems/megatips.js";
+import { RunningTimeout } from "../utils/running_timeout.js";
 
 export class SlideSelector extends EventTarget
 {
@@ -9,6 +10,7 @@ export class SlideSelector extends EventTarget
     disabled = false;
     selected_index = -1;
     fixed_widths = true;
+    dirty_timeout = new RunningTimeout(() => this.ApplySelection(), 0.25, false, 70);
 
     constructor()
     {
@@ -112,6 +114,8 @@ export class SlideSelector extends EventTarget
 
     Subscribe(onchange = index => { }) { this.addEventListener('selectionchange', onchange); }
     Unsubscribe(onchange = index => { }) { this.removeEventListener('selectionchange', onchange); }
+
+    ApplySelectionSoon() { this.dirty_timeout.ExtendTimer(); }
 
     ApplySelection()
     {

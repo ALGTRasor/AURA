@@ -1,20 +1,21 @@
 import { Modules } from "../modules.js";
 import { addElement, ClearElementLoading, CreatePagePanel, getTransitionStyle, MarkElementLoading, setSiblingIndex, setTransitionStyle } from "../utils/domutils.js";
-import { DOMHighlight } from "../ui/domhighlight.js";
 import { bytes_mb, get_file_size_group } from "../utils/filesizes.js";
+import { OverlayManager } from "./overlay_manager.js";
+import { DOMHighlight } from "../ui/domhighlight.js";
+import { PanelContent } from "./panel_content.js";
 import { FileTypes } from "../utils/filetypes.js";
+import { MegaTips } from "../systems/megatips.js";
 import { LongOps } from "../systems/longops.js";
-import { OverlayManager } from "./overlays.js";
 
 import { NotificationLog } from "../notificationlog.js";
-import { PanelContent } from "./panel_content.js";
-import { Trench } from "./trench.js";
-import { MegaTips } from "../systems/megatips.js";
-import { SelectionInstance } from "../utils/selections.js";
-import { ChoiceOverlay } from "./overlays/overlay_choice.js";
-import { TextInputOverlay } from "./overlays/overlay_input_text.js";
 import { FileSelectionOverlay } from "./overlays/overlay_selection_files.js";
-
+import { TextInputOverlay } from "./overlays/overlay_input_text.js";
+import { FileUploadInstance } from "../filemgmt/file_upload.js";
+import { ItemDeleteInstance } from "../filemgmt/file_delete.js";
+import { FileSelection } from "../filemgmt/file_selection.js";
+import { ChoiceOverlay } from "./overlays/overlay_choice.js";
+import { Trench } from "./trench.js";
 
 const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff', click_action = e => { }) =>
 {
@@ -36,125 +37,6 @@ const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff
         }
     );
 };
-
-
-export class FileUploadInstance extends EventTarget
-{
-    constructor(file, drive_id = '', relative_path = '')
-    {
-        super();
-
-        this.file = file;
-        this.drive_id = drive_id;
-        this.relative_path = relative_path;
-
-        this.file_name = this.file.name.trim();
-        this.operation_id = 'upload-file' + this.file_name;
-        this.url_content = window.SharePoint.url_api + `/drives/${this.drive_id}/root:/${this.relative_path}/${this.file_name}:/content`;
-
-        this.contents_read = false;
-        this.submitted = false;
-        this.success = false;
-
-        this.file_contents = undefined;
-        this.op_upload = undefined;
-        this.result = undefined;
-    }
-
-    async Process()
-    {
-        this.success = false;
-        this.op_upload = LongOps.Start(this.operation_id, { label: this.file_name, icon: 'upload', verb: 'Uploaded file' });
-        //this.InitWorker();
-        //await until(() => this.contents_read === true);
-        await this.ReadFileContents();
-        await this.SubmitFileContents();
-        LongOps.Stop(this.op_upload);
-
-        this.file = undefined;
-        this.file_contents = undefined;
-    }
-
-    async ReadFileContents()
-    {
-        if (this.contents_read === true) return;
-        this.file_contents = await this.file.arrayBuffer();
-        this.contents_read = true;
-
-        this.dispatchEvent(new CustomEvent('afterread', {}));
-    }
-
-    async SubmitFileContents()
-    {
-        if (typeof this.drive_id !== 'string' || this.drive_id.length < 1) 
-        {
-            console.warn('Invalid Drive ID');
-            return undefined;
-        }
-
-        if (this.submitted === true) return;
-        this.result = await window.SharePoint.SetData(this.url_content, this.file_contents, 'put', 'text/plain');
-        this.submitted = true;
-
-        this.dispatchEvent(new CustomEvent('afterupload', {}));
-    }
-}
-
-
-export class ItemDeleteInstance extends EventTarget
-{
-    constructor(item_info, drive_id = '', relative_path = '')
-    {
-        super();
-
-        this.item_info = item_info;
-        this.drive_id = drive_id;
-        this.relative_path = relative_path;
-
-        this.operation_id = 'delete-item' + this.item_info.id;
-        this.url_content = `${window.SharePoint.url_api}/drives/${this.drive_id}/items/${this.item_info.id}`;
-
-        this.submitted = false;
-
-        this.op = undefined;
-        this.result = undefined;
-    }
-
-    async Process()
-    {
-        if (this.submitted === true) return;
-        this.op = LongOps.Start(this.operation_id, { label: this.item_info.name, icon: 'delete_forever', verb: ('folder' in this.item_info) ? 'Deleted folder' : 'Deleted file' });
-        await this.Submit();
-    }
-
-    async Submit()
-    {
-        if (this.submitted === true) return;
-        if (typeof this.drive_id !== 'string' || this.drive_id.length < 1) 
-        {
-            LongOps.Stop(this.op, 'Invalid Drive ID');
-            return undefined;
-        }
-
-        this.submitted = true;
-        this.result = await window.SharePoint.SetData(this.url_content, null, 'delete');
-
-        switch (this.result.status)
-        {
-            case undefined:
-            case 204:
-                //NotificationLog.Log(`Deleted '${this.item_info.name}'`, '#0f0');
-                LongOps.Stop(this.op);
-                break;
-            case 403: if ('folder' in this.item_info) LongOps.Stop(this.op, '403 Forbidden: Folder must be empty'); else LongOps.Stop(this.op, '403 Forbidden'); break;
-            case 404: LongOps.Stop(this.op, '404 Item Not Found'); break;
-            default: LongOps.Stop(this.op, `STATUS( ${this.result.status} )`); break;
-        }
-
-        this.dispatchEvent(new CustomEvent('completed', { detail: this.result }));
-    }
-}
-
 
 class FileExplorerHeaderRow
 {
@@ -224,7 +106,6 @@ class FileExplorerHeaderRow
         }
     }
 }
-
 
 class FileExplorerItem
 {
@@ -401,7 +282,7 @@ class FileExplorerItem
         OverlayManager.Show(
             TextInputOverlay.host.GetNewInstance(
                 {
-                    prompt: `Renaming ${this.item_type}: '${this.item_info.name}'`,
+                    prompt: `Renaming ${this.item_type}: [[[${this.item_info.name}]]]`,
                     default_value: this.item_info.name,
                     with_input: new_name =>
                     {
@@ -781,7 +662,7 @@ class FileExplorerItem
                     overlay.Dismiss();
                     ChoiceOverlay.ShowNew(
                         {
-                            prompt: 'Are you sure you want to delete the file: ((' + this.item_info.name + '))?',
+                            prompt: 'Are you sure you want to delete the file: (((' + this.item_info.name + ')))?',
                             choices:
                                 [
                                     {
@@ -800,7 +681,7 @@ class FileExplorerItem
                                                 overlay.Dismiss();
                                                 ChoiceOverlay.ShowNew(
                                                     {
-                                                        prompt: 'This file contains ((' + get_file_size_group(this.item_info.size).bytes_label + ')) of data.',
+                                                        prompt: 'This file contains [[[' + get_file_size_group(this.item_info.size).bytes_label + ']]] of data.',
                                                         choices: [
                                                             {
                                                                 label: 'CONFIRM - DELETE FILE',
@@ -842,7 +723,7 @@ class FileExplorerItem
             }
         );
 
-        let overlay_data = { prompt: 'File Options: ((' + this.item_info.name + '))', choices: option_infos };
+        let overlay_data = { prompt: 'File Options: [[[' + this.item_info.name + ']]]', choices: option_infos };
         ChoiceOverlay.ShowNew(overlay_data);
     }
 
@@ -908,7 +789,7 @@ class FileExplorerItem
     ShowFolderOptions()
     {
         let overlay_data = {
-            prompt: 'Folder Options: ((' + this.item_info.name + '))',
+            prompt: 'Folder Options: [[[' + this.item_info.name + ']]]',
             choices:
                 [
                     {
@@ -1005,12 +886,6 @@ class FileExplorerItem
         ChoiceOverlay.ShowNew(overlay_data);
     }
 }
-
-class FileSelection extends SelectionInstance
-{
-    get_item_identifier = item => item.id;
-}
-
 
 export class FileExplorer extends PanelContent
 {
@@ -1702,6 +1577,5 @@ export class FileExplorer extends PanelContent
         }
     }
 }
-
 
 Modules.Report('File Explorers', 'This module adds a reusable remote file explorer.');

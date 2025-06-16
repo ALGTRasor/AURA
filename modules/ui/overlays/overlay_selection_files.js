@@ -1,8 +1,9 @@
 import { SelectionInstance } from "../../utils/selections.js";
 import { SelectionOverlay } from "./overlay_selection.js";
-import { OverlayManager } from "../overlays.js";
+import { OverlayManager } from "../overlay_manager.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { bytes_mb, get_file_size_group } from "../../utils/filesizes.js";
+import { GlobalStyling } from "../global_styling.js";
 
 export class FileSelectionOverlay extends SelectionOverlay
 {
@@ -21,8 +22,12 @@ export class FileSelectionOverlay extends SelectionOverlay
         overlay.selection = new SelectionInstance();
         overlay.selection.get_item_identifier = _ => _.id;
         overlay.e_root.innerHTML = '';
+
+        overlay.prompt = GlobalStyling.ColorText(overlay.prompt);
+        /*
         overlay.prompt = overlay.prompt.replaceAll('((', '<span style="color:white;">');
         overlay.prompt = overlay.prompt.replaceAll('))', '</span>');
+        */
 
         const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
             + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
@@ -35,7 +40,7 @@ export class FileSelectionOverlay extends SelectionOverlay
         e_body.tabIndex = 0;
         e_body.focus();
 
-        overlay.e_prompt = CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
+        overlay.e_prompt = CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
         CreatePagePanel(
             e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
             _ =>

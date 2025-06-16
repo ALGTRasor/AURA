@@ -246,20 +246,20 @@ export class MSAccountProvider extends UserAccountProvider
 		let match_access_token = /\/\#access\_token=([^\&]+)/.exec(frame_location);
 		if (match_access_token) 
 		{
-			this.UpdateAccessToken(match_access_token[1]);
+			this.UpdateAccessToken(match_access_token[1], true);
 			console.warn('renewed access token');
 		}
 		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(frame_location);
 		if (match_expires_in)
 		{
 			let req_parse = typeof match_expires_in[1] === 'string';
-			let expires_seconds = req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
 
+			let expires_seconds = 60 * 50;// req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
 			let duration = getDurationString(expires_seconds * 1000);
 			console.warn('will expire in ' + duration);
 
 			let expire_datetime = new Date();
-			expire_datetime.setSeconds(expire_datetime.getSeconds() + expires_seconds);
+			expire_datetime = new Date(expire_datetime.setSeconds(expire_datetime.getSeconds() + expires_seconds));
 			localStorage.setItem(lskey_auth_datetime, expire_datetime.valueOf());
 		}
 

@@ -1,7 +1,7 @@
 import { Modules } from "./modules.js";
 import { AppInfo } from "./app_info.js";
 import { addElement, CreatePagePanel } from "./utils/domutils.js";
-import { OverlayManager } from "./ui/overlays.js";
+import { OverlayManager } from "./ui/overlay_manager.js";
 import { PageManager } from "./pagemanager.js";
 import { MegaTips } from "./systems/megatips.js";
 import { AccountStateManager } from "./systems/accountstatemanager.js";

@@ -58,12 +58,19 @@ export class GlobalStyling
         GlobalStyling.aspects.push(aspect);
         return aspect;
     }
+
+    static ColorText(text)
+    {
+        if (typeof text !== 'string') return text;
+        text = text.replaceAll('(((', '<span class="megatip-field">');
+        text = text.replaceAll(')))', '</span>');
+        text = text.replaceAll('{{{', '<span class="megatip-value">');
+        text = text.replaceAll('}}}', '</span>');
+        text = text.replaceAll('[[[', '<span class="megatip-warning">');
+        text = text.replaceAll(']]]', '</span>');
+        return text;
+    }
 }
-
-
-
-
-
 
 
 
@@ -103,7 +110,6 @@ GlobalStyling.animationSpeed = GlobalStyling.RegisterAspect(
         GlobalStyling.TriggerChangeEvents(false);
     },
 );
-
 
 GlobalStyling.themeColor = GlobalStyling.RegisterAspect(
     _ =>

@@ -1,5 +1,6 @@
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
-import { OverlayDescriptor, OverlayManager } from "../overlays.js";
+import { OverlayDescriptor, OverlayManager } from "../overlay_manager.js";
+import { GlobalStyling } from "../global_styling.js";
 
 export class TextInputOverlay extends OverlayDescriptor
 {
@@ -16,8 +17,7 @@ export class TextInputOverlay extends OverlayDescriptor
     onCreateElements = overlay =>
     {
         overlay.e_root.innerHTML = '';
-        overlay.prompt = overlay.prompt.replaceAll('((', '<span style="color:white;">');
-        overlay.prompt = overlay.prompt.replaceAll('))', '</span>');
+        overlay.prompt = GlobalStyling.ColorText(overlay.prompt);
 
         const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
             + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
@@ -29,7 +29,7 @@ export class TextInputOverlay extends OverlayDescriptor
         e_body.tabIndex = 0;
         e_body.focus();
 
-        CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; color:orange; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
+        CreatePagePanel(e_body, true, false, style_parts + 'flex-grow:0.0; letter-spacing:0px;', _ => { _.innerHTML = overlay.prompt; });
         CreatePagePanel(
             e_body, true, false, 'flex-grow:1.0; display:flex; flex-direction:column; flex-wrap:nowrap;',
             _ =>

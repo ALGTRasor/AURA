@@ -1,5 +1,5 @@
 import { SelectionInstance } from "../../utils/selections.js";
-import { OverlayDescriptor } from "../overlays.js";
+import { OverlayDescriptor } from "../overlay_manager.js";
 
 export class SelectionOverlay extends OverlayDescriptor
 {

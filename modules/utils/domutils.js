@@ -34,7 +34,6 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 
 
 
-
 HTMLElement.prototype.appendElement =
     async function (tag = 'div', before_append = async _ => { }, after_append = async _ => { })
     {
@@ -196,7 +195,7 @@ export async function FadeElement(target, opacity_from = 0, opacity_to = 100, du
 export function MarkElementLoading(e, delay = -1)
 {
     if (delay > 0) window.setTimeout(() => { MarkElementLoading(e, -1); }, delay);
-    else e?.setAttribute('content-loading', '');
+    else if (e.setAttribute) e.setAttribute('content-loading', '');
 }
 export function ClearElementLoading(e, delay = -1)
 {
