@@ -294,7 +294,6 @@ export class PageInstance
 		this.state.data.height = frame_rect.height - 16;
 
 		this.DisableBodyTransitions();
-		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
 		this.ApplyFrameState();
 		this.EnableBodyTransitions();
 	}
@@ -303,12 +302,14 @@ export class PageInstance
 	{
 		if (this.state.data.docked === true) return;
 		this.state.data.docked = this.page_descriptor.dockable === true;
-		if (this.state.data.docked === true) this.page_resizer.RemoveElements();
 		this.ApplyFrameState();
 	}
 
 	ApplyFrameState(lite = false)
 	{
+		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
+		else this.page_resizer.RemoveElements();
+
 		if (lite === false)
 		{
 			this.CheckFrameParent();
@@ -368,7 +369,6 @@ export class PageInstance
 		this.page_descriptor.OnOpen(this);
 
 		this.page_resizer = new PageResizer(this.e_body, this);
-		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
 
 		this.created = true;
 	}
