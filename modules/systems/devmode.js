@@ -61,8 +61,7 @@ export class DevMode
 
 	static Activate()
 	{
-		if (DevMode.active) return;
-		Autosave.HookSaveEvent(DevMode.SaveState);
+		if (DevMode.active === true) return;
 		DevMode.active = true;
 		window.debug_mode_enabled = true;
 		document.documentElement.setAttribute('devmode', '');
@@ -71,8 +70,7 @@ export class DevMode
 	}
 	static Deactivate()
 	{
-		if (!DevMode.active) return;
-		Autosave.ReleaseSaveEvent(DevMode.SaveState);
+		if (DevMode.active !== true) return;
 		document.documentElement.removeAttribute('devmode');
 		window.debug_mode_enabled = false;
 		DevMode.active = false;
@@ -87,7 +85,7 @@ export class DevMode
 		{
 			let state = JSON.parse(json);
 			if (state.active === true) DevMode.Activate();
-			else if (state.active === false) DevMode.Deactivate();
+			else DevMode.Deactivate();
 		}
 	}
 
@@ -105,3 +103,4 @@ export class DevMode
 }
 
 Modules.Report('Developer Mode', 'This module adds debug functionality, if you have the expected permissions.');
+Autosave.HookSaveEvent(DevMode.SaveState);
