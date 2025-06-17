@@ -26,10 +26,12 @@ import { Fax } from "./fax.js";
 
 export class AppCore extends EventTarget
 {
+	static IsLoadedInFrame = () => window.top !== window.self;
+
 	static async Initialize()
 	{
-		if (window.top !== window.self) // loaded within a container
-			return;
+		// loaded within a container
+		if (AppCore.IsLoadedInFrame() === true) return;
 
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();
@@ -97,6 +99,7 @@ export class AppCore extends EventTarget
 		NotificationLog.Log('Ready', '#097');
 		Welcome.ShowWelcomeMessage();
 
+		Notification.requestPermission();
 	}
 
 	static #AfterTenantAccountLoginFailed()
@@ -104,7 +107,6 @@ export class AppCore extends EventTarget
 		NotificationLog.Log('Login Required', '#ff0');
 		AppCore.SetContentObscured(true, 'Login Required');
 		DebugLog.Log('! Login required');
-		//await AppEvents.onAccountLoginFailed.InvokeAsync();
 	}
 
 
@@ -147,13 +149,13 @@ export class AppCore extends EventTarget
 	static PrepareDocument()
 	{
 		window.onbeforeunload = e => AppCore.BeforeUnload(e);
+		window.addEventListener('focus', _ => AppCore.OnWindowFocus());
 		window.timeout_WindowSizeChange = new RunningTimeout(AppCore.OnWindowSizeChanged, 0.5, true, 250);
 
 		window.loop_detectWindowSizeChange = new AnimJob(200, AppCore.CheckWindowSizeChanged);
 		window.loop_detectWindowSizeChange.Start();
 
-		window.addEventListener('focus', _ => AppCore.OnWindowFocus());
-		document.body.addEventListener('scroll', e => AppCore.RefreshGlobalTooltip(e));
+		document.body.addEventListener('wheel', e => AppCore.RefreshGlobalTooltip(e), { passive: true });
 		document.body.addEventListener('mouseout', e => AppCore.RefreshGlobalTooltip(e));
 		document.body.addEventListener('mousemove', e => AppCore.RefreshGlobalTooltip(e));
 
