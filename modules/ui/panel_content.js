@@ -32,14 +32,14 @@ export class PanelContent extends EventTarget
 
 	RefreshElements(data)
 	{
-		this.CreateElements();
-		if (this.created === false) return;
+		this.CreateElements(data);
+		if (this.created !== true) return;
 		try { this.OnRefreshElements(data); } catch (e) { this.OnError(e); }
 	}
 
 	RemoveElements(data)
 	{
-		if (this.created === false) return;
+		if (this.created !== true) return;
 		try { this.OnRemoveElements(data); } catch (e) { this.OnError(e); }
 		this.created = false;
 	}

@@ -99,7 +99,11 @@ export class PageInstanceState extends EventTarget
 		return any_change;
 	}
 
-	Get(property_name = '', default_value = undefined) { return this.data[property_name] ?? default_value; }
+	Get(property_name = '', default_value = undefined)
+	{
+		if (!(property_name in this.data)) this.data[property_name] = default_value;
+		return this.data[property_name];
+	}
 	Set(property_name = '', value = undefined) { this.data[property_name] = value; }
 }
 
@@ -260,7 +264,7 @@ export class PageInstance
 
 	SetDepth(depth = 10)
 	{
-		this.state.Get('depth') = depth;
+		this.state.depth = depth;
 		if (this.e_body) this.e_body.style.zIndex = this.state.Get('depth');
 	}
 
