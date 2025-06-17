@@ -21,6 +21,7 @@ const rgx_id_token = /[\#\&\?]id_token\=([^\&]+)/;
 const lskey_id_token = 'o365_id_token_latest';
 const lskey_access_token = 'o365_access_token_latest';
 const lskey_refresh_token = 'o365_refresh_token_latest';
+const lskey_auth_datetime = 'ms-auth-last';
 
 const lskey_user_data = 'o365_user_data';
 const lskey_login_attempts = 'account_login_attempts';
@@ -198,27 +199,30 @@ export class MSAccountProvider extends UserAccountProvider
 
 	InitiateLogin() { window.open(this.GetAuthorizationURL(), "_self"); }
 
-	async TryFetchNewToken()
+	GetTokenTimeRemaining()
 	{
-		const lskey_auth_datetime = 'ms-auth-last';
-
 		let lsitem = localStorage.getItem(lskey_auth_datetime);
 		if (lsitem)
 		{
 			let expire_datetime = Number.parseInt(lsitem);
 			let now_ms = new Date().valueOf();
 			const refresh_buffer_ms = 1000 * 60 * 10;
-			let time_left = expire_datetime - now_ms - refresh_buffer_ms;
+			return expire_datetime - now_ms - refresh_buffer_ms;
+		}
+		return 0;
+	}
+
+	async TryFetchNewToken(force_new = false)
+	{
+
+		if (force_new !== true)
+		{
+			let time_left = this.GetTokenTimeRemaining();
 			if (time_left > 0)
 			{
 				console.warn(getDurationString(time_left) + ' until token expires');
-				//NotificationLog.Log('Access Valid', '#0f0');
 				return;
 			}
-		}
-		else
-		{
-			console.warn('no existing token!');
 		}
 
 		let e_frame = document.getElementById('auth-frame');

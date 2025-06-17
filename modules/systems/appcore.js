@@ -45,6 +45,7 @@ export class AppCore extends EventTarget
 		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // auth failure response received from a remote data request
 		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // any shared data table is downloaded
 
+		await AccountStateManager.tenant.VerifyAccess();
 		await AccountStateManager.tenant.TryLogIn();
 		ActionBar.UpdateAccountButton();
 
@@ -92,10 +93,10 @@ export class AppCore extends EventTarget
 
 		Fax.RefreshFact();
 
+		AppCore.SetContentObscured(false);
 		NotificationLog.Log('Ready', '#097');
 		Welcome.ShowWelcomeMessage();
 
-		AppCore.SetContentObscured(false);
 	}
 
 	static #AfterTenantAccountLoginFailed()
@@ -140,7 +141,7 @@ export class AppCore extends EventTarget
 
 	static OnWindowFocus()
 	{
-		AccountStateManager.tenant.VerifyAccess();
+		if (AccountStateManager.tenant.logged_in === true) AccountStateManager.tenant.VerifyAccess();
 	}
 
 	static PrepareDocument()
