@@ -166,7 +166,6 @@ export class MSAccountProvider extends UserAccountProvider
 		await this.TryFetchNewToken();
 	}
 
-
 	AttemptReauthorize(reason = '')
 	{
 		const max_login_attempts = 1;
@@ -214,7 +213,6 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async TryFetchNewToken(force_new = false)
 	{
-
 		if (force_new !== true)
 		{
 			let time_left = this.GetTokenTimeRemaining();
@@ -250,6 +248,7 @@ export class MSAccountProvider extends UserAccountProvider
 
 		const valid_content = () =>
 		{
+			return e_frame.readyState === 'complete';
 			return e_frame_loaded === true;
 			//e_frame.contentWindow.location.toString() !== 'about:blank' && e_frame.contentDocument.readyState === 'complete';
 		};

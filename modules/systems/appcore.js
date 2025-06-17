@@ -32,7 +32,8 @@ export class AppCore extends EventTarget
 	{
 		if (AppCore.IsLoadedInFrame() === true) 
 		{
-			parent.postMessage('AuthFrameInit', '*');
+			console.warn('AuthFrameInit message sent');
+			window.top.postMessage('AuthFrameInit', '*');
 			return;
 		}
 
