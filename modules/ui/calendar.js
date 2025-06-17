@@ -1,6 +1,7 @@
 import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { PanelContent } from "./panel_content.js";
 import { MegaTips } from "../systems/megatips.js";
+import { secondsDelta } from "../utils/timeutils.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:0.0; flex-shrink:0.0;';
 const max_calendar_entries = 7 * 6;
@@ -49,10 +50,17 @@ export class Calendar extends PanelContent
         this.e_view_name = addElement(this.e_parent, 'div', '', style_panel_title);
         this.e_view_name.addEventListener(
             'wheel',
+            e => { this.ShiftView(Math.sign(e.deltaY) * 7 * 4); },
+            { passive: true }
+        );
+
+        this.e_entry_root = CreatePagePanel(this.e_parent, true, false, '', _ => { _.classList.add('calendar-root'); });
+        this.e_entry_root.addEventListener(
+            'wheel',
             e => { this.ShiftView(Math.sign(e.deltaY)); },
             { passive: true }
         );
-        this.e_entry_root = CreatePagePanel(this.e_parent, true, false, '', _ => { _.classList.add('calendar-root'); });
+
         this.OnRefreshElements();
     }
 
@@ -60,7 +68,7 @@ export class Calendar extends PanelContent
     {
         this.ClearDays();
         this.UpdateDateRange();
-        this.e_view_name.innerText = this.date_focus.getMonthName();
+        this.e_view_name.innerText = this.date_focus.getMonthName() + ' ' + this.date_focus.getFullYear();
         for (let date_id in this.dates) this.CreateDayElements(this.dates[date_id]);
     }
 
@@ -69,10 +77,12 @@ export class Calendar extends PanelContent
         this.e_entry_root.remove();
     }
 
-    ShiftView(direction = 1)
+    ShiftView(days = 1)
     {
-        const focus_delta = 1000 * 60 * 60 * 24 * 7; // one week ms
-        this.SetFocusDate(new Date(this.date_focus.setTime(this.date_focus.getTime() + direction * focus_delta)));
+        if (this.last_shift_ts && secondsDelta(this.last_shift_ts, new Date()) < 0.25) return;
+        this.last_shift_ts = new Date();
+        const focus_delta = 1000 * 60 * 60 * 24; // one day ms
+        this.SetFocusDate(new Date(this.date_focus.setTime(this.date_focus.getTime() + days * focus_delta)));
     }
 
     ClearDays()
