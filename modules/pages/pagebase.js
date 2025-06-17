@@ -99,10 +99,7 @@ export class PageInstanceState extends EventTarget
 		return any_change;
 	}
 
-	Get(property_name = '', default_value = undefined)
-	{
-		return this.data[property_name] ?? default_value;
-	}
+	Get(property_name = '', default_value = undefined) { return this.data[property_name] ?? default_value; }
 	Set(property_name = '', value = undefined) { this.data[property_name] = value; }
 }
 
