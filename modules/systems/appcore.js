@@ -30,8 +30,11 @@ export class AppCore extends EventTarget
 
 	static async Initialize()
 	{
-		// loaded within a container
-		if (AppCore.IsLoadedInFrame() === true) return;
+		if (AppCore.IsLoadedInFrame() === true) 
+		{
+			parent.postMessage('AuthFrameInit', '*');
+			return;
+		}
 
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();
@@ -42,10 +45,10 @@ export class AppCore extends EventTarget
 		UserSettings.LoadFromStorage();
 		GlobalStyling.Load();
 
-		AppEvents.AddListener('account-login', AppCore.#AfterTenantAccountLogin); // initial account auth success
-		AppEvents.AddListener('account-login-failed', AppCore.#AfterTenantAccountLoginFailed); // initial account auth failure
-		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // auth failure response received from a remote data request
-		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // any shared data table is downloaded
+		AppEvents.AddListener('account-login', AppCore.#AfterTenantAccountLogin); // after initial auth / login success
+		AppEvents.AddListener('account-login-failed', AppCore.#AfterTenantAccountLoginFailed); // after initial auth / login failure
+		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // after an auth failure is received from a data request
+		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // after any shared data table is downloaded
 
 		await AccountStateManager.tenant.VerifyAccess();
 		await AccountStateManager.tenant.TryLogIn();
@@ -99,7 +102,7 @@ export class AppCore extends EventTarget
 		NotificationLog.Log('Ready', '#097');
 		Welcome.ShowWelcomeMessage();
 
-		Notification.requestPermission();
+		//Notification.requestPermission();
 	}
 
 	static #AfterTenantAccountLoginFailed()

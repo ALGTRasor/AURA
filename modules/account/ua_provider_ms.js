@@ -225,7 +225,16 @@ export class MSAccountProvider extends UserAccountProvider
 			}
 		}
 
+		let e_frame_loaded = false;
 		let e_frame = document.getElementById('auth-frame');
+		e_frame.addEventListener(
+			'message',
+			_ =>
+			{
+				console.warn('MESSAGE FROM IFRAME ' + _.origin);
+				e_frame_loaded = true;
+			}
+		);
 		e_frame.setAttribute(
 			'src',
 			url_mo_oauth + '?' + [
@@ -241,8 +250,8 @@ export class MSAccountProvider extends UserAccountProvider
 
 		const valid_content = () =>
 		{
-			return e_frame.contentWindow.location.toString() !== 'about:blank'
-				&& e_frame.contentDocument.readyState === 'complete';
+			return e_frame_loaded === true;
+			//e_frame.contentWindow.location.toString() !== 'about:blank' && e_frame.contentDocument.readyState === 'complete';
 		};
 		await until(valid_content);
 
