@@ -32,10 +32,24 @@ export class AppCore extends EventTarget
 	{
 		if (AppCore.IsLoadedInFrame() === true) 
 		{
-			console.warn('AuthFrameInit message sent');
-			window.top.postMessage('AuthFrameInit', '*');
+			window.self.addEventListener(
+				'message',
+				e =>
+				{
+					console.warn(' >> AuthFrame Response: ' + e.origin);
+					e.source.postMessage('AuthFrameInit');
+				}
+			);
+			console.warn(' >> AuthFrame Init: ' + window.origin);
 			return;
 		}
+
+		AppCore.#InitializeCore();
+	}
+
+	static async #InitializeCore()
+	{
+		console.warn(' >> AppCore Init: ' + window.origin);
 
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();

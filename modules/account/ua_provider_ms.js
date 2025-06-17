@@ -211,8 +211,27 @@ export class MSAccountProvider extends UserAccountProvider
 		return 0;
 	}
 
+	#HookAuthFrame()
+	{
+		if (this.auth_frame_hooked === true) return;
+		this.auth_frame_hooked = true;
+
+		window.addEventListener(
+			'message',
+			_ =>
+			{
+				console.warn('MESSAGE FROM AUTH FRAME ' + _.origin);
+			},
+			false
+		);
+	}
+
 	async TryFetchNewToken(force_new = false)
 	{
+		let e_frame = document.getElementById('auth-frame');
+		this.#HookAuthFrame();
+		e_frame.contentWindow.postMessage('AuthFrameInitialize');
+
 		if (force_new !== true)
 		{
 			let time_left = this.GetTokenTimeRemaining();
@@ -223,34 +242,24 @@ export class MSAccountProvider extends UserAccountProvider
 			}
 		}
 
-		let e_frame_loaded = false;
-		let e_frame = document.getElementById('auth-frame');
-		e_frame.addEventListener(
-			'message',
-			_ =>
-			{
-				console.warn('MESSAGE FROM IFRAME ' + _.origin);
-				e_frame_loaded = true;
-			}
-		);
+		console.warn('token check');
+
 		e_frame.setAttribute(
 			'src',
 			url_mo_oauth + '?' + [
-				`client_id=${CLIENT_ID}`,
-				`scope=${CLIENT_SCOPES}`,
-				`response_type=token`,
-				`response_mode=fragment`,
-				`prompt=none`,
+				`client_id=${CLIENT_ID}`, `scope=${CLIENT_SCOPES}`,
+				`response_type=token`, `response_mode=fragment`,
 				`redirect_uri=${UserAccountManager.GetRedirectUri()}`,
 				`nonce=${UserAccountManager.GetNonce()}`,
+				`prompt=none`,
 			].join('&')
 		);
 
 		const valid_content = () =>
 		{
-			return e_frame.readyState === 'complete';
-			return e_frame_loaded === true;
-			//e_frame.contentWindow.location.toString() !== 'about:blank' && e_frame.contentDocument.readyState === 'complete';
+			//return e_frame.contentWindow.location.origin;
+			//return e_frame.contentWindow.document.readyState === 'complete';
+			return e_frame.contentWindow.location.toString() !== 'about:blank' && e_frame.contentDocument.readyState === 'complete';
 		};
 		await until(valid_content);
 
@@ -259,13 +268,13 @@ export class MSAccountProvider extends UserAccountProvider
 		if (match_access_token) 
 		{
 			this.UpdateAccessToken(match_access_token[1], true);
+			NotificationLog.Log('Access Refreshed', '#0f0');
 			console.warn('renewed access token');
 		}
 		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(frame_location);
 		if (match_expires_in)
 		{
-			let req_parse = typeof match_expires_in[1] === 'string';
-
+			//let req_parse = typeof match_expires_in[1] === 'string';
 			let expires_seconds = 60 * 50;// req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
 			let duration = getDurationString(expires_seconds * 1000);
 			console.warn('will expire in ' + duration);
@@ -275,9 +284,7 @@ export class MSAccountProvider extends UserAccountProvider
 			localStorage.setItem(lskey_auth_datetime, expire_datetime.valueOf());
 		}
 
-		NotificationLog.Log('Access Refreshed', '#0f0');
-
-		await sleep(50);
+		await sleep(250);
 		e_frame.setAttribute('src', '');
 	}
 
