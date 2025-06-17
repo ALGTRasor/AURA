@@ -680,6 +680,34 @@ div[disabled]
 	initial-value: 0.0;
 }
 
+@property --container-x
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
+@property --container-y
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
+@property --container-w
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
+@property --container-h
+{
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.0;
+}
+
 @keyframes anim-megatip-body
 {
 	0%

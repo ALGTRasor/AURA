@@ -39,8 +39,17 @@ class PageResizer extends PanelContent
 							this.drag_position_end = new DOMPoint(e.clientX, e.clientY);
 							this.drag_delta = new DOMPoint(e.clientX - this.drag_position_start.x, e.clientY - this.drag_position_start.y);
 
-							this.page.state.data.width = this.drag_start_w + this.drag_delta.x;
-							this.page.state.data.height = this.drag_start_h + this.drag_delta.y;
+							let new_w = this.drag_start_w + this.drag_delta.x;
+							let new_h = this.drag_start_h + this.drag_delta.y;
+
+							let doc_rect = document.body.getBoundingClientRect();
+							new_w = Math.min(new_w, doc_rect.width - this.page.state.data.position_x);
+							new_h = Math.min(new_h, doc_rect.height - this.page.state.data.position_y);
+							new_w = Math.max(new_w, 360);
+							new_h = Math.max(new_h, 480);
+
+							this.page.state.data.width = new_w;
+							this.page.state.data.height = new_h;
 						};
 
 						window.addEventListener(
@@ -462,6 +471,11 @@ export class PageInstance
 		this.e_body.style.top = (frame_rect.y - frame_parent_rect.y) + 'px';
 		this.e_body.style.width = frame_rect.width + 'px';
 		this.e_body.style.height = frame_rect.height + 'px';
+
+		this.e_body.style.setProperty('--container-w', frame_rect.width);
+		this.e_body.style.setProperty('--container-h', frame_rect.height);
+		this.e_body.style.setProperty('--container-x', (frame_rect.x - frame_parent_rect.x));
+		this.e_body.style.setProperty('--container-y', (frame_rect.y - frame_parent_rect.y));
 	}
 
 	RequireStateProperty(property_name = '', default_value = undefined)
