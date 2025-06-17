@@ -26,21 +26,26 @@ import { Fax } from "./fax.js";
 
 export class AppCore extends EventTarget
 {
-	static IsLoadedInFrame = () => window.top !== window.self;
+	static IsLoadedInFrame() { return window.top !== window.self; }
 
 	static async Initialize()
 	{
 		if (AppCore.IsLoadedInFrame() === true) 
 		{
+			let location_string = window.self.location.toString();
 			window.self.addEventListener(
 				'message',
 				e =>
 				{
-					console.warn(' >> AuthFrame Response: ' + e.origin);
-					e.source.postMessage('AuthFrameInit');
+					switch (e.data.message)
+					{
+						case 'AuthFrameInit':
+							window.top.postMessage({ message: 'AuthFrameInit', location_string: location_string }, '*');
+							break;
+						default: break;
+					}
 				}
 			);
-			console.warn(' >> AuthFrame Init: ' + window.origin);
 			return;
 		}
 
@@ -49,8 +54,6 @@ export class AppCore extends EventTarget
 
 	static async #InitializeCore()
 	{
-		console.warn(' >> AppCore Init: ' + window.origin);
-
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();
 		AppCore.PrepareActionBar();
@@ -65,7 +68,7 @@ export class AppCore extends EventTarget
 		AppEvents.AddListener('authorization-failure', AppCore.NotifyReauthorizeRequest); // after an auth failure is received from a data request
 		AppEvents.AddListener('data-loaded', UserAccountInfo.UpdateUserSharedData); // after any shared data table is downloaded
 
-		await AccountStateManager.tenant.VerifyAccess();
+		//await AccountStateManager.tenant.VerifyAccess();
 		await AccountStateManager.tenant.TryLogIn();
 		ActionBar.UpdateAccountButton();
 

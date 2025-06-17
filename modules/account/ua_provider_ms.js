@@ -122,6 +122,8 @@ export class MSAccountProvider extends UserAccountProvider
 
 		if (this.has_access_token) // may still be invalid or expired
 		{
+			await this.VerifyAccess();
+
 			let reqs = [
 				new RequestBatchRequest(
 					'get', '/me/',
@@ -216,23 +218,31 @@ export class MSAccountProvider extends UserAccountProvider
 		if (this.auth_frame_hooked === true) return;
 		this.auth_frame_hooked = true;
 
+		this.e_auth_frame = document.getElementById('auth-frame');
 		window.addEventListener(
 			'message',
-			_ =>
-			{
-				console.warn('MESSAGE FROM AUTH FRAME ' + _.origin);
-			},
+			_ => { this.#OnAuthFrameMessage(_); },
 			false
 		);
 	}
 
+	#OnAuthFrameMessage(e)
+	{
+		switch (e.data.message)
+		{
+			case 'AuthFrameInit': this.auth_frame_location = e.data.location_string; break;
+			default: console.warn('From AuthFrame: ' + e.data.message); break;
+		}
+	}
+
 	async TryFetchNewToken(force_new = false)
 	{
-		let e_frame = document.getElementById('auth-frame');
-		this.#HookAuthFrame();
-		e_frame.contentWindow.postMessage('AuthFrameInitialize');
+		let was_hooked = this.auth_frame_hooked === true;
 
-		if (force_new !== true)
+		if (!this.e_auth_frame) this.e_auth_frame = document.getElementById('auth-frame');
+		this.#HookAuthFrame();
+
+		if (was_hooked === true && force_new !== true)
 		{
 			let time_left = this.GetTokenTimeRemaining();
 			if (time_left > 0)
@@ -242,9 +252,9 @@ export class MSAccountProvider extends UserAccountProvider
 			}
 		}
 
-		console.warn('token check');
+		this.e_auth_frame.contentWindow.postMessage({ message: 'AuthFrameInit' }, '*');
 
-		e_frame.setAttribute(
+		this.e_auth_frame.setAttribute(
 			'src',
 			url_mo_oauth + '?' + [
 				`client_id=${CLIENT_ID}`, `scope=${CLIENT_SCOPES}`,
@@ -257,35 +267,32 @@ export class MSAccountProvider extends UserAccountProvider
 
 		const valid_content = () =>
 		{
-			//return e_frame.contentWindow.location.origin;
-			//return e_frame.contentWindow.document.readyState === 'complete';
-			return e_frame.contentWindow.location.toString() !== 'about:blank' && e_frame.contentDocument.readyState === 'complete';
+			return this.auth_frame_location !== 'about:blank' && this.e_auth_frame.contentWindow.document.readyState === 'complete';
 		};
 		await until(valid_content);
 
-		let frame_location = e_frame.contentWindow.location.toString();
-		let match_access_token = /\/\#access\_token=([^\&]+)/.exec(frame_location);
+		let match_access_token = /\/\#access\_token=([^\&]+)/.exec(this.auth_frame_location);
 		if (match_access_token) 
 		{
 			this.UpdateAccessToken(match_access_token[1], true);
 			NotificationLog.Log('Access Refreshed', '#0f0');
 			console.warn('renewed access token');
 		}
-		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(frame_location);
+		let match_expires_in = /\&expires\_in\=([^\&]+)/.exec(this.auth_frame_location);
 		if (match_expires_in)
 		{
 			//let req_parse = typeof match_expires_in[1] === 'string';
-			let expires_seconds = 60 * 50;// req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
-			let duration = getDurationString(expires_seconds * 1000);
+			let expires_minutes = 50;// req_parse ? Number.parseInt(match_expires_in[1]) : match_expires_in[1];
+			let duration = getDurationString(expires_minutes * 60 * 1000);
 			console.warn('will expire in ' + duration);
 
 			let expire_datetime = new Date();
-			expire_datetime = new Date(expire_datetime.setSeconds(expire_datetime.getSeconds() + expires_seconds));
+			expire_datetime = new Date(expire_datetime.setSeconds(expire_datetime.getSeconds() + expires_minutes * 60));
 			localStorage.setItem(lskey_auth_datetime, expire_datetime.valueOf());
 		}
 
-		await sleep(250);
-		e_frame.setAttribute('src', '');
+		//await sleep(250);
+		//this.e_auth_frame.setAttribute('src', '');
 	}
 
 	ClearCachedData()
