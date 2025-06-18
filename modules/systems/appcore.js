@@ -271,11 +271,11 @@ export class AppCore extends EventTarget
 				'home', 'other_houses',
 				_ =>
 				{
-					if (_.shiftKey === true) PageManager.TogglePageByTitle('nav menu');
+					if (_.button === 1 || _.shiftKey === true) PageManager.TogglePageByTitle('nav menu');
 					else PageManager.CloseAll();
 				}
 			);
-			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu. <br> (((Hold [[[SHIFT]]] to only toggle the navigation menu.)))');
+			MegaTips.RegisterSimple(e_btn_home, 'Close all open pages and show the navigation menu. <br> ((([[[SHIFT CLICK]]] or [[[MIDDLE CLICK]]] to keep pages open.)))');
 		}
 	}
 

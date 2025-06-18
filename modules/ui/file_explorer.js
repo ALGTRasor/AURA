@@ -69,7 +69,7 @@ class FileExplorerHeaderRow
                             else this.TrySelectAll(e.shiftKey === true ? 'file' : undefined);
                         }
                     );
-                    MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>(((Hold [[[CTRL]]] to toggle selected)))');
+                    MegaTips.RegisterSimple(this.e_checkbox, 'Select / Deselect All<br>((([[[CTRL CLICK]]] to toggle selected)))');
                 }
 
                 this.e_name = addElement(_, 'span', 'file-explorer-item-title', null, _ => { _.innerText = 'NAME'; });
@@ -511,8 +511,8 @@ class FileExplorerItem
                         if (this.item_type_info)
                         {
                             _.innerText = this.item_type_info.label;
-                            _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) 25%)';
-                            _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) 35%)';
+                            _.style.backgroundColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) var(--theme-l025))';
+                            _.style.borderColor = 'hsl(from ' + this.item_type_info.color + ' h calc(s * 0.5) var(--theme-l035))';
                         }
                         else
                             _.innerText = 'file';

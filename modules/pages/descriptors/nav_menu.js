@@ -1,11 +1,11 @@
+import { AppNotifications } from "../../systems/app_notifications.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
-import { UserAccountInfo } from "../../useraccount.js";
 import { PageDescriptor } from "../pagebase.js";
-import { AppNotifications } from "../../systems/app_notifications.js";
-import { Help } from "./help.js";
 import { until } from "../../utils/until.js";
+import { Help } from "./help.js";
 
 /*
 EXPECTED PAGE ORDER
@@ -111,8 +111,9 @@ export class PageNavMenu extends PageDescriptor
 			button_data.alerts = AppNotifications.GetAll(desc.title);
 
 			button_data.extra_tips = [
-				'(((Hold [[[shift]]] to force a new instance)))',
-				'((([[[Middle click]]] to close other pages)))',
+				'((([[[CLICK]]] to show / hide this page)))',
+				'((([[[SHIFT CLICK]]] to force a new copy of the page)))',
+				'((([[[MIDDLE CLICK]]] to close all other pages)))',
 			];
 
 			button_list.push(button_data);

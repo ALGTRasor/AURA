@@ -1548,7 +1548,7 @@
 	flex-direction: row;
 	flex-wrap: wrap;
 	flex-grow: 1.0;
-	padding: 0;
+	padding: var(--gap-025);
 
 	justify-content: flex-start;
 	align-items: stretch;
@@ -1574,16 +1574,19 @@
 	max-height: 100%;
 	height: calc(100% / 6.0 - var(--gap-025));
 	width: calc(100% / 7.0 - var(--gap-025));
+	flex-grow: 1.0;
+	flex-shrink: 1.0;
 
 	background: hsl(from var(--theme-color) h s var(--theme-l010));
 	border-style: solid;
 	border-color: hsl(from var(--theme-color) h s var(--theme-l005));
 	border-width: 1px;
+	border-radius: var(--corner-05);
 	outline-offset: 0;
 	box-shadow: none;
 
 	color: hsl(from var(--theme-color) h s 50%);
-	font-size: max(0.6rem, min(1rem, calc(0.02 * var(--container-h) * 1px)));
+	font-size: max(0.6rem, min(1rem, calc(0.02px * var(--container-h))));
 	text-align: center;
 
 	transition-property: scale, color, background-color, outline-offset;
@@ -1602,7 +1605,7 @@
 .calendar-day[calendar-today]
 {
 	z-index: 2;
-	padding-top: calc(var(--gap-1) + 0.25rem) !important;
+	padding-top: min(1rem, calc(0.03px * var(--container-h))) !important;
 	scale: 105%;
 	color: hsl(from var(--theme-color) h s var(--theme-l080));
 	border-width: 2px;
@@ -1625,8 +1628,9 @@
 	height: 0.8rem;
 	opacity: 80%;
 	translate: -50% 0%;
+	padding-top: 1px;
 
-	font-size: 60%;
+	font-size: 50%;
 	letter-spacing: 1px;
 	align-content: center;
 	text-align: center;
@@ -1650,7 +1654,7 @@
 	border-color: hsl(from var(--theme-color) h s var(--theme-l050));
 	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	border-radius: var(--corner-05);
-	box-shadow: 0px 0px 0.7rem rgb(from var(--glow-color) r g b / 0.2);
+	box-shadow: 0px 0px 0.7rem rgb(from hsl(from var(--theme-color) h s 50%) r g b / 0.85);
 
 	outline-offset: -4px;
 	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l050));

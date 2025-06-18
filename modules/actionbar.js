@@ -76,7 +76,11 @@ export class ActionBar
 				//if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
 				//_.title = label.toUpperCase();
 
-				if (on_click) _.addEventListener('click', on_click);
+				if (on_click)
+				{
+					_.addEventListener('click', e => { if (e.button === 0) on_click(e); });
+					_.addEventListener('auxclick', e => { if (e.button === 1) on_click(e); });
+				}
 				if (post_prep) post_prep(_);
 			}
 		);

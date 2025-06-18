@@ -43,10 +43,13 @@ class PageResizer extends PanelContent
 							let new_h = this.drag_start_h + this.drag_delta.y;
 
 							let doc_rect = document.body.getBoundingClientRect();
+							let doc_res_min = Math.min(doc_rect.width, doc_rect.height);
 							new_w = Math.min(new_w, doc_rect.width - this.page.state.data.position_x);
 							new_h = Math.min(new_h, doc_rect.height - this.page.state.data.position_y);
 							new_w = Math.max(new_w, 360);
-							new_h = Math.max(new_h, 480);
+							new_h = Math.max(new_h, 360);
+
+							if (Math.abs(new_w - new_h) < (0.05 * doc_res_min)) new_h = new_w;
 
 							this.page.state.data.width = new_w;
 							this.page.state.data.height = new_h;
