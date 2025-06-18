@@ -1467,13 +1467,11 @@ export class FileExplorer extends PanelContent
         {
             let parent_path_parts = this.relative_path_current.split('/');
             parent_path_parts.splice(parent_path_parts.length - 1, 1);
-            let parent_name = parent_path_parts.splice(parent_path_parts.length - 1, 1);
 
             this.e_path_back.style.removeProperty('padding-left');
             this.e_path_back.style.removeProperty('padding-right');
             this.e_path_back.style.maxWidth = '4rem';
             this.e_path_back.style.pointerEvents = 'all';
-            //this.e_path_back.title = 'Navigate back to ' + parent_name;
             this.e_path_back.innerHTML = '← Back';
         }
         else
@@ -1490,7 +1488,6 @@ export class FileExplorer extends PanelContent
     PopulateList(items = [])
     {
         this.RefreshNavigationBar();
-        //this.CreateFolderActionElements();
         this.RefreshActionElements();
 
         if (!items) 
