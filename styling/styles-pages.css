@@ -1552,12 +1552,13 @@
 
 	justify-content: flex-start;
 	align-items: stretch;
-	gap: 0;
+	gap: var(--gap-025);
 }
 
 .calendar-day
 {
 	z-index: 1;
+	display: block;
 	position: relative;
 	overflow: hidden;
 	box-sizing: border-box;
@@ -1571,8 +1572,8 @@
 
 	max-width: 100%;
 	max-height: 100%;
-
-	flex-basis: calc(100% / 7.0);
+	height: calc(100% / 6.0 - var(--gap-025));
+	width: calc(100% / 7.0 - var(--gap-025));
 
 	background: hsl(from var(--theme-color) h s var(--theme-l010));
 	border-style: solid;
@@ -1601,7 +1602,7 @@
 .calendar-day[calendar-today]
 {
 	z-index: 2;
-	padding-top: calc(var(--gap-1) + 0.25rem);
+	padding-top: calc(var(--gap-1) + 0.25rem) !important;
 	scale: 105%;
 	color: hsl(from var(--theme-color) h s var(--theme-l080));
 	border-width: 2px;
@@ -1643,7 +1644,8 @@
 .calendar-day[calendar-selected]
 {
 	z-index: 3;
-	scale: 105%;
+	padding: var(--gap-05);
+	scale: 100%;
 	color: hsl(from var(--theme-color) h s var(--theme-l080));
 	border-color: hsl(from var(--theme-color) h s var(--theme-l050));
 	background: hsl(from var(--theme-color) h s var(--theme-l020));
@@ -1656,7 +1658,7 @@
 
 .calendar-day[calendar-today].calendar-day[calendar-selected]
 {
-	scale: 115%;
+	scale: 110%;
 }
 
 .calendar-day:hover
