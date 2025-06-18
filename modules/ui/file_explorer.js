@@ -830,7 +830,7 @@ class FileExplorerItem
 
                             ChoiceOverlay.ShowNew(
                                 {
-                                    prompt: 'Are you sure you want to delete the folder: ((' + this.item_info.name + '))?',
+                                    prompt: 'Are you sure you want to delete the folder: (((' + this.item_info.name + ')))?',
                                     choices:
                                         [
                                             {
