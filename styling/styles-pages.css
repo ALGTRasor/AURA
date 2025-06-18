@@ -1654,6 +1654,11 @@
 	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l050));
 }
 
+.calendar-day[calendar-today].calendar-day[calendar-selected]
+{
+	scale: 115%;
+}
+
 .calendar-day:hover
 {
 	opacity: 100%;

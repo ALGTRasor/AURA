@@ -3,7 +3,7 @@ import { secondsDelta } from "../utils/timeutils.js";
 import { PanelContent } from "./panel_content.js";
 import { MegaTips } from "../systems/megatips.js";
 
-const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:0.0; flex-shrink:0.0;';
+const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:1.0; flex-shrink:0.0;';
 
 const ms_per_hour = 60 * 60 * 1000;
 const ms_per_day = 24 * ms_per_hour;
@@ -76,17 +76,18 @@ export class Calendar extends PanelContent
         super(e_parent);
         this.entries = [];
         this.CreateDayContent = (date = new Date(), element = new HTMLElement()) => { };
-        this.focus_ready = true;
+        this.can_change_focus = true;
+        this.should_transition = true;
     }
 
     SetFocusDate(date_focus = new Date())
     {
         // if (this.date_focus == date_focus) return;
+        if (this.can_change_focus !== true) return;
+        this.can_change_focus = false;
+        window.setTimeout(() => { this.can_change_focus = true; }, 250);
 
-        if (this.focus_ready !== true) return;
-        this.focus_ready = false;
-        window.setTimeout(() => { this.focus_ready = true; }, 250);
-
+        this.should_transition = !this.date_focus || (this.date_focus !== date_focus && this.date_focus.getMonth() !== date_focus.getMonth());
         this.date_focus = date_focus;
         this.RefreshElements();
     }
@@ -118,14 +119,36 @@ export class Calendar extends PanelContent
 
     OnCreateElements()
     {
-        this.e_view_name = addElement(this.e_parent, 'div', '', style_panel_title);
+        this.e_title_row = addElement(this.e_parent, 'div', '', 'display:flex; flex-direction:row; flex-wrap:0.0; justify-items:center;');
+
+        this.e_bt_prev = CreatePagePanel(
+            this.e_title_row, true, false, 'flex-grow:0.0; width:1.25rem; height:1.25rem;',
+            _ =>
+            {
+                _.classList.add('panel-button');
+                addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'chevron_left'; });
+                _.addEventListener('click', e => { this.ShiftMonths(-1); });
+            }
+        );
+        this.e_view_name = addElement(this.e_title_row, 'div', '', style_panel_title);
+        this.e_bt_next = CreatePagePanel(
+            this.e_title_row, true, false, 'flex-grow:0.0; width:1.25rem; height:1.25rem;',
+            _ =>
+            {
+                _.classList.add('panel-button');
+                addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'chevron_right'; });
+                _.addEventListener('click', e => { this.ShiftMonths(1); });
+            }
+        );
+
         this.e_view_name.addEventListener(
             'wheel',
             e =>
             {
                 let offset = Math.sign(e.deltaY);
-                this.SetFocusDate(new Date(this.date_focus.setMonth(this.date_focus.getMonth() + offset)));
-                //this.ShiftView(offset * 7 * 4 * ms_per_day);
+                let new_date = new Date(this.date_focus.getTime());
+                new_date.setMonth(new_date.getMonth() + offset);
+                this.SetFocusDate(new_date);
             },
             { passive: true }
         );
@@ -155,9 +178,9 @@ export class Calendar extends PanelContent
         const perform = async () =>
         {
             this.transitioning = true;
-            if (this.entries_created === true && this.should_transition === true) await FadeElement(this.e_entry_root, 100, 0, 0.1);
+            if (this.entries_created === true && this.should_transition === true) await FadeElement(this.e_entry_root, 100, 0, 0.05);
             change();
-            if (this.should_transition === true) await FadeElement(this.e_entry_root, 0, 100, 0.1);
+            if (this.should_transition === true) await FadeElement(this.e_entry_root, 0, 100, 0.05);
             this.entries_created = true;
             this.transitioning = false;
         }
@@ -171,10 +194,17 @@ export class Calendar extends PanelContent
         this.e_entry_root.remove();
     }
 
+    ShiftMonths(delta = 1)
+    {
+        let new_date = new Date(this.date_focus.getTime());
+        new_date.setMonth(new_date.getMonth() + delta);
+        this.SetFocusDate(new_date);
+    }
+
     ShiftView(delta = 10000)
     {
         let now = new Date();
-        if (this.last_shift_ts && secondsDelta(this.last_shift_ts, now) < 0.1) return;
+        if (this.last_shift_ts && secondsDelta(this.last_shift_ts, now) < 0.05) return;
         this.last_shift_ts = now;
         this.SetFocusDate(new Date(this.date_focus.setTime(this.date_focus.getTime() + delta)));
     }
