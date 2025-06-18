@@ -1003,8 +1003,8 @@ export class FileExplorer extends PanelContent
         {
             FileSelectionOverlay.ShowNew(
                 {
-                    prompt: 'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
-                        + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
+                    prompt: 'Uploading Files to (((/' + get_last_path_part(this.relative_path_current) + ')))'
+                        + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: (((Uploading multiple large files at the same time can cause your browser to freeze or crash.)))</span>',
                     with_files: files => { this.UploadFilesAtCurrentPath(files); },
                     default_value: event.dataTransfer.files
                 }
@@ -1328,8 +1328,8 @@ export class FileExplorer extends PanelContent
 
         FileSelectionOverlay.ShowNew(
             {
-                prompt: 'Uploading Files to ((/' + get_last_path_part(this.relative_path_current) + '))'
-                    + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: ((Uploading multiple large files at the same time can cause your browser to freeze or crash.))</span>',
+                prompt: 'Uploading Files to (((/' + get_last_path_part(this.relative_path_current) + ')))'
+                    + '<br><span style="font-size:0.65rem; opacity:50%; padding-left:1rem; padding-right:1rem;">WARNING: (((Uploading multiple large files at the same time can cause your browser to freeze or crash.)))</span>',
                 with_files: files => { this.UploadFilesAtCurrentPath(files); }
             }
         );
@@ -1417,7 +1417,7 @@ export class FileExplorer extends PanelContent
     {
         addElement(
             this.e_items_container, 'div', null,
-            'opacity:50%;height:2rem;line-height:2rem;padding:var(--gap-1);',
+            'opacity:50%; height:2rem; line-height:2rem; padding:var(--gap-1);',
             _ => { _.innerText = message; }
         );
     }
