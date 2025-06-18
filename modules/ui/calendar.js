@@ -1,23 +1,88 @@
-import { addElement, CreatePagePanel } from "../utils/domutils.js";
+import { addElement, CreatePagePanel, FadeElement } from "../utils/domutils.js";
+import { secondsDelta } from "../utils/timeutils.js";
 import { PanelContent } from "./panel_content.js";
 import { MegaTips } from "../systems/megatips.js";
-import { secondsDelta } from "../utils/timeutils.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:0.0; flex-shrink:0.0;';
-const max_calendar_entries = 7 * 6;
+
+const ms_per_hour = 60 * 60 * 1000;
+const ms_per_day = 24 * ms_per_hour;
+
+const max_calendar_weeks = 6;
+const max_calendar_entries = 7 * max_calendar_weeks;
+
+export class CalendarEntry extends PanelContent
+{
+    constructor(e_parent, calendar, date = new Date())
+    {
+        super(e_parent);
+        this.calendar = calendar;
+        this.date = date;
+    }
+
+    SetDate(date = new Date())
+    {
+        this.date = date;
+        this.date_month = date.getMonth();
+        this.week_day = date.getDay();
+        this.week_day_name = date.getDayName();
+        this.week_day_name_short = this.week_day_name.slice(0, 2);
+        this.month_day = date.getDate();
+        this.date_string = date.toDateString();
+        this.is_today = this.calendar.date_today_string === this.date_string;
+        this.is_focused = this.calendar.date_focus_string === this.date_string;
+        this.is_same_month = this.calendar.date_focus_month === this.date_month;
+        if (this.created === true) this.OnRefreshElements();
+    }
+
+    OnCreateElements()
+    {
+        this.e_root = addElement(
+            this.e_parent, 'div', 'calendar-day', '',
+            _ =>
+            {
+                this.e_day_name = addElement(_, 'div', '', 'opacity:50%; font-size:70%;', _ => { _.innerHTML = this.week_day_name_short; });
+                this.e_day_num = addElement(_, 'div', '', 'font-size:100%;', _ => { _.innerHTML = this.month_day; });
+                this.e_content = addElement(_, 'div', '', 'font-size:80%;');
+
+                _.addEventListener('click', () => { this.calendar.SetFocusDate(this.date); });
+            }
+        );
+        this.megatip = MegaTips.RegisterSimple(this.e_root, this.date_string);
+        this.OnRefreshElements();
+    }
+
+    OnRefreshElements()
+    {
+        this.e_day_name.innerHTML = this.week_day_name_short;
+        this.e_day_num.innerHTML = this.month_day;
+        this.e_content.innerHTML = '';
+        if (this.calendar.CreateDayContent) this.calendar.CreateDayContent(this.date, this.e_content);
+        this.megatip.prep = _ => { _.innerHTML = this.date_string; };
+
+        if (this.is_today) this.e_root.setAttribute('calendar-today', ''); else this.e_root.removeAttribute('calendar-today');
+        if (this.is_focused) this.e_root.setAttribute('calendar-selected', ''); else this.e_root.removeAttribute('calendar-selected');
+        if (this.is_same_month) this.e_root.setAttribute('calendar-this-month', ''); else this.e_root.removeAttribute('calendar-this-month');
+    }
+}
+
+
+
 
 export class Calendar extends PanelContent
 {
     constructor(e_parent, date_focus = new Date())
     {
         super(e_parent);
-        this.focus_ready = true;
-        this.SetFocusDate(date_focus);
+        this.entries = [];
         this.CreateDayContent = (date = new Date(), element = new HTMLElement()) => { };
+        this.focus_ready = true;
     }
 
     SetFocusDate(date_focus = new Date())
     {
+        // if (this.date_focus == date_focus) return;
+
         if (this.focus_ready !== true) return;
         this.focus_ready = false;
         window.setTimeout(() => { this.focus_ready = true; }, 250);
@@ -28,16 +93,22 @@ export class Calendar extends PanelContent
 
     UpdateDateRange()
     {
-        const ms_per_day = 24 * 60 * 60 * 1000;
-        this.date_focus = this.date_focus.getDateStart();
+        let date_today = new Date();
+        date_today = new Date(date_today.setHours(0));
+        this.date_focus = new Date(this.date_focus.setHours(0));
         this.date_focus_string = this.date_focus.toDateString();
+        this.date_today_string = date_today.toDateString();
+        this.date_focus_day = this.date_focus.getDate();
+        this.date_focus_month = this.date_focus.getMonth();
         this.date_focus_weekday = this.date_focus.getDay();
 
-        let week_delta = (this.date_focus_weekday + 8) * ms_per_day;
-        let week_start = new Date(this.date_focus.getTime() - week_delta);
+        this.date_range_start = new Date(this.date_focus.getTime());
+        this.date_range_start = new Date(this.date_range_start.setDate(0));
+        this.date_range_start = new Date(this.date_range_start.setHours(0));
+        this.date_range_start = new Date(this.date_range_start.getTime() - ms_per_day * (1 + this.date_range_start.getDay()));
 
         this.dates = [];
-        let date_next = week_start;
+        let date_next = this.date_range_start;
         while (this.dates.length < max_calendar_entries)
         {
             this.dates.push(date_next);
@@ -50,69 +121,66 @@ export class Calendar extends PanelContent
         this.e_view_name = addElement(this.e_parent, 'div', '', style_panel_title);
         this.e_view_name.addEventListener(
             'wheel',
-            e => { this.ShiftView(Math.sign(e.deltaY) * 7 * 4); },
+            e =>
+            {
+                let offset = Math.sign(e.deltaY);
+                this.SetFocusDate(new Date(this.date_focus.setMonth(this.date_focus.getMonth() + offset)));
+                //this.ShiftView(offset * 7 * 4 * ms_per_day);
+            },
             { passive: true }
         );
 
-        this.e_entry_root = CreatePagePanel(this.e_parent, true, false, '', _ => { _.classList.add('calendar-root'); });
-        this.e_entry_root.addEventListener(
-            'wheel',
-            e => { this.ShiftView(Math.sign(e.deltaY)); },
-            { passive: true }
-        );
+        this.e_entry_container = CreatePagePanel(this.e_parent, true, false);
 
-        this.OnRefreshElements();
+        this.e_entry_root = addElement(this.e_entry_container, 'div', 'calendar-root');
+
+        this.entries = [];
+        while (this.entries.length < max_calendar_entries) 
+        {
+            let entry = new CalendarEntry(this.e_entry_root, this, undefined);
+            entry.CreateElements();
+            this.entries.push(entry);
+        }
     }
 
     OnRefreshElements()
     {
-        this.ClearDays();
-        this.UpdateDateRange();
-        this.e_view_name.innerText = this.date_focus.getMonthName() + ' ' + this.date_focus.getFullYear();
-        for (let date_id in this.dates) this.CreateDayElements(this.dates[date_id]);
+        const change = () =>
+        {
+            //this.ClearDays();
+            this.UpdateDateRange();
+            this.e_view_name.innerText = this.date_focus.getMonthName() + ' ' + this.date_focus.getFullYear();
+            this.entries.forEach((x, i, a) => { x.SetDate(this.dates[i]); });
+        };
+        const perform = async () =>
+        {
+            this.transitioning = true;
+            if (this.entries_created === true && this.should_transition === true) await FadeElement(this.e_entry_root, 100, 0, 0.1);
+            change();
+            if (this.should_transition === true) await FadeElement(this.e_entry_root, 0, 100, 0.1);
+            this.entries_created = true;
+            this.transitioning = false;
+        }
+        if (this.transitioning !== true) perform();
     }
 
     OnRemoveElements()
     {
+        this.entries.forEach((x, i, a) => { x.remove(); });
+        this.entries = [];
         this.e_entry_root.remove();
     }
 
-    ShiftView(days = 1)
+    ShiftView(delta = 10000)
     {
-        if (this.last_shift_ts && secondsDelta(this.last_shift_ts, new Date()) < 0.25) return;
-        this.last_shift_ts = new Date();
-        const focus_delta = 1000 * 60 * 60 * 24; // one day ms
-        this.SetFocusDate(new Date(this.date_focus.setTime(this.date_focus.getTime() + days * focus_delta)));
+        let now = new Date();
+        if (this.last_shift_ts && secondsDelta(this.last_shift_ts, now) < 0.1) return;
+        this.last_shift_ts = now;
+        this.SetFocusDate(new Date(this.date_focus.setTime(this.date_focus.getTime() + delta)));
     }
 
     ClearDays()
     {
         this.e_entry_root.innerHTML = '';
     }
-
-    CreateDayElements(date = new Date())
-    {
-        let datestring = date.toDateString();
-        let is_focus = this.date_focus_string == datestring;
-        let is_same_month = date.getMonth() === this.date_focus.getMonth();
-
-        let e_day = addElement(
-            this.e_entry_root, 'div', 'calendar-day', '',
-            _ =>
-            {
-                addElement(_, 'div', '', 'opacity:50%; font-size:70%;', _ => { _.innerHTML = date.getDayName().slice(0, 2); });
-                addElement(_, 'div', '', 'font-size:100%;', _ => { _.innerHTML = date.getDate(); });
-
-                if (this.CreateDayContent)
-                {
-                    let e_day_content = addElement(_, 'div', '', 'font-size:80%;');
-                    this.CreateDayContent(date, e_day_content);
-                }
-
-                if (is_focus) _.setAttribute('calendar-today', '');
-                if (is_same_month) _.setAttribute('calendar-this-month', '');
-            }
-        );
-        MegaTips.RegisterSimple(e_day, datestring);
-    };
 }

@@ -1,19 +1,18 @@
 import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../pagebase.js";
-import { UserAccountInfo } from "../../useraccount.js";
+
+import { RunningTimeout } from "../../utils/running_timeout.js";
+import { SlideSelector } from "../../ui/slide_selector.js";
+import { PanelContent } from "../../ui/panel_content.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { FillBar } from "../../ui/fillbar.js";
-import { SlideSelector } from "../../ui/slide_selector.js";
+
 import { ChoiceOverlay } from "../../ui/overlays/overlay_choice.js";
-import { RunningTimeout } from "../../utils/running_timeout.js";
-import { PanelContent } from "../../ui/panel_content.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { Calendar } from "../../ui/calendar.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:0.0; flex-shrink:0.0;';
-
-const week_days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 class TKAllocations extends PanelContent
 {
@@ -39,10 +38,7 @@ class TKAllocations extends PanelContent
 		this.Populate();
 	}
 
-	OnRemoveElements()
-	{
-		this.e_root.remove();
-	}
+	OnRemoveElements() { this.e_root.remove(); }
 
 	Populate()
 	{
@@ -102,8 +98,8 @@ class TKAllocations extends PanelContent
 						{
 							label_alt: `${x.allocation_max - sum_used} hours available`,
 							from_hue_deg: 35.0, to_hue_deg: 65.0,
-							style_full: _ => { _.style.border = 'solid 1px cyan'; },
-							style_overfull: _ => { _.style.border = 'solid 2px orange'; },
+							style_full: _ => { _.style.border = 'solid 1px hsl(from cyan h s var(--theme-l050))'; },
+							style_overfull: _ => { _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))'; },
 							check_color: (c, fill) =>
 							{
 								if (fill > 1.0) c = '#f003';
@@ -152,30 +148,28 @@ class TKCalendar extends PanelContent
 			let relevant_usages = all_uses.filter(_ => _.date === date.toShortDateString());
 			let sum_hours = 0;
 			relevant_usages.forEach((x, i, a) => sum_hours += x.hours);
-			addElement(
-				element, 'div', '', '',
-				_ =>
-				{
-					if (sum_hours > 0)
+			if (sum_hours > 0)
+			{
+				addElement(
+					element, 'div', '', 'min-height:0;',
+					_ =>
 					{
 						addElement(
-							_, 'span', '', 'color:orange;',
+							_, 'span', '', 'color:hsl(from orange h s var(--theme-l050));',
 							_ =>
 							{
 								_.innerText = `${sum_hours} hr`;
 							}
 						);
 					}
-				}
-			);
+				);
+			}
 		};
 		this.calendar.CreateElements();
+		this.calendar.SetFocusDate(new Date());
 	}
 
-	OnRemoveElements()
-	{
-		this.e_root.remove();
-	}
+	OnRemoveElements() { this.e_root.remove(); }
 }
 
 export class PageTimekeep extends PageDescriptor

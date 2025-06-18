@@ -30,6 +30,7 @@
 
 .info-bar-clock
 {
+	display: none;
 	user-select: none;
 	text-align: center;
 	align-content: center;
@@ -41,11 +42,11 @@
 }
 
 
-@media not (display-mode: fullscreen)
+@media (device-width: 100vw) and (device-height: 100vh)
 {
 	.info-bar-clock
 	{
-		display: none;
+		display: block;
 	}
 }
 

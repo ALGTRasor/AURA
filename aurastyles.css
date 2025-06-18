@@ -874,7 +874,7 @@ div[disabled]
 .megatip-warning
 {
 	display: inline;
-	color: orange;
+	color: hsl(from orange h s var(--theme-l060));
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
@@ -992,7 +992,7 @@ input[type="textarea"]:active
 .overlay-root > .page-panel:focus,
 .overlay-root > .page-panel:focus-within
 {
-	outline: solid 2px orange;
+	outline: solid 2px hsl(from orange h s var(--theme-l060));
 	outline-offset: 4px;
 	scale: 100%;
 }

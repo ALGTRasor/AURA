@@ -281,31 +281,31 @@ export class PageSettings extends PageDescriptor
 			if ((hue < 0.43 || hue > 0.95) && sat > 0.25)
 			{
 				e.innerText = 'COLOR MIGHT CONFLICT WITH COLOR CODING';
-				e.style.color = '#fa0';
+				e.style.color = 'hsl(from #fa0 h s var(--theme-l070))';
 				e.style.display = 'block';
 			}
 			else if (((hue > 0.55 && hue < 0.75) || (hue < 0.1 || hue > 0.9)) && sat > 0.75)
 			{
 				e.innerText = 'COLOR MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
-				e.style.color = '#fa0';
+				e.style.color = 'hsl(from #fa0 h s var(--theme-l070))';
 				e.style.display = 'block';
 			}
 			else if (contrast < 0.15 || contrast > 0.85)
 			{
 				e.innerText = 'CONTRAST MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
-				e.style.color = '#fa0';
+				e.style.color = 'hsl(from #fa0 h s var(--theme-l070))';
 				e.style.display = 'block';
 			}
 			else if (brightness < 0.15 || (brightness > 0.75 && contrast > 0.75))
 			{
 				e.innerText = 'BRIGHTNESS MIGHT MAKE SOME TEXT OR ICONS DIFFICULT TO READ';
-				e.style.color = '#fa0';
+				e.style.color = 'hsl(from #fa0 h s var(--theme-l070))';
 				e.style.display = 'block';
 			}
 			else 
 			{
 				e.innerText = 'looks fine to me ¯\\(ツ)/¯';
-				e.style.color = '#0f08';
+				e.style.color = 'hsl(from #0f0 h s var(--theme-l070))';
 				e.style.display = 'block';
 			}
 		};

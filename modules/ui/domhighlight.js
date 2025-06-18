@@ -10,7 +10,7 @@ class DOMElementHighlight
 			document.body, 'div', '',
 			'pointer-events:none;'
 			+ 'position:absolute; box-sizing:border-box; z-index:150000; margin:0px; padding:0px; opacity:0%;'
-			+ 'outline:solid 3px orange; outline-offset:5px; border-radius:' + border_radius + ';'
+			+ 'outline:solid 3px hsl(from orange h s var(--theme-l050)); outline-offset:5px; border-radius:' + border_radius + ';'
 			+ getTransitionStyle('opacity', '--trans-dur-off-fast', 'ease-in-out', 0)
 		);
 		this.SetPosition(rect.x, rect.y);

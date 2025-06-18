@@ -155,10 +155,10 @@ export class QuickMenu
                                         _.style.padding = 'var(--gap-05)';
                                         _.style.margin = 'var(--gap-05)';
                                         _.style.borderRadius = 'var(--corner-05)';
-                                        _.style.border = 'solid 2px orange';
-                                        _.style.backgroundColor = 'rgb(from orange r g b / 0.1)';
+                                        _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))';
+                                        _.style.backgroundColor = 'rgb(from hsl(from orange h s var(--theme-l050)) r g b / 0.1)';
                                         _.style.textAlign = 'left';
-                                        _.style.color = 'orange';
+                                        _.style.color = 'hsl(from orange h s var(--theme-l050))';
 
                                         button_data.alerts.forEach(
                                             alert =>

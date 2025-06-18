@@ -16,7 +16,7 @@ export class TitleBarButtonDescriptor
 		'close',
 		(e, data) => { if ('page' in data) data.page.CloseInstance(); },
 		(data) => 'Close this page',
-		_ => { _.color = '#f00'; _.sort_order = -10000; }
+		_ => { _.color = 'hsl(from red h s var(--theme-l050))'; _.sort_order = -10000; }
 	);
 
 	static PageMoveL = new TitleBarButtonDescriptor(
@@ -77,7 +77,7 @@ export class TitleBarButtonDescriptor
 		{
 			_.sort_order = 0;
 			const is_page_docked = p => 'docked' in p.state.data && p.state.data.docked === true;
-			_.get_color = data => is_page_docked(data.page) ? '' : 'cyan';
+			_.get_color = data => is_page_docked(data.page) ? '' : 'hsl(from cyan h s var(--theme-l050))';
 		}
 	);
 
@@ -115,7 +115,7 @@ export class TitleBarButtonDescriptor
 		{
 			const is_page_expanding = p => 'expanding' in p.state.data && p.state.data.expanding === true;
 			_.sort_order = -10;
-			_.get_color = data => is_page_expanding(data.page) ? 'cyan' : '';
+			_.get_color = data => is_page_expanding(data.page) ? 'hsl(from cyan h s var(--theme-l050))' : '';
 		}
 	);
 

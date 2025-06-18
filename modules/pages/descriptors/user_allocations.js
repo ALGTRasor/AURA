@@ -70,8 +70,8 @@ class PanelUserAllocationGroup extends PanelContent
 						label_alt: `${allocation.allocation_max - hoursUsed} / ${allocation.allocation_max} left`,//`${Math.round(hoursUsed / allocation.allocation_max * 100)}% used of ${allocation.allocation_max}`,
 						from_hue_deg: 35.0,
 						to_hue_deg: 65.0,
-						style_full: _ => { _.style.border = 'solid 1px cyan'; },
-						style_overfull: _ => { _.style.border = 'solid 2px orange'; },
+						style_full: _ => { _.style.border = 'solid 1px hsl(from cyan h s var(--theme-l050))'; },
+						style_overfull: _ => { _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))'; },
 						check_color: (c, fill) =>
 						{
 							if (fill > 1.0) c = '#f003';
@@ -145,8 +145,8 @@ class PanelUserAllocationGroup extends PanelContent
 								label_alt: `${summary_max - summary_used} / ${summary_max} left`,//`${Math.round(summary_used / summary_max * 100)}% used of ${summary_max}`,
 								from_hue_deg: 35.0,
 								to_hue_deg: 65.0,
-								style_full: _ => { _.style.border = 'solid 1px cyan'; },
-								style_overfull: _ => { _.style.border = 'solid 2px orange'; },
+								style_full: _ => { _.style.border = 'solid 1px hsl(from cyan h s var(--theme-l050))'; },
+								style_overfull: _ => { _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))'; },
 								check_color: (c, fill) =>
 								{
 									if (fill > 1.0) c = '#f003';

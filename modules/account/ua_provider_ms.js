@@ -3,7 +3,7 @@ import { DebugLog } from "../debuglog.js";
 import { NotificationLog } from "../notificationlog.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "../remotedata/sharepoint.js";
 import { UserAccountInfo, UserAccountManager } from "../useraccount.js";
-import { sleep } from "../utils/asyncutils.js";
+import { addElement } from "../utils/domutils.js";
 import { getDurationString } from "../utils/timeutils.js";
 import { until } from "../utils/until.js";
 import { UserAccountProvider } from "./user_account_provider_base.js";
@@ -237,9 +237,15 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async TryFetchNewToken(force_new = false)
 	{
+		return;
 		let was_hooked = this.auth_frame_hooked === true;
 
 		if (!this.e_auth_frame) this.e_auth_frame = document.getElementById('auth-frame');
+		if (!this.e_auth_frame)
+		{
+			//<iframe id='auth-frame' class='auth-frame' title='auth-frame'></iframe>
+			this.e_auth_frame = addElement(document.body, 'iframe', 'auth-frame', '', _ => { _.title = 'auth-frame'; _.id = 'auth-frame'; });
+		}
 		this.#HookAuthFrame();
 
 		if (was_hooked === true && force_new !== true)

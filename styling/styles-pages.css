@@ -916,16 +916,18 @@
 	min-height: 4rem;
 	margin: 0;
 
-	background-color: transparent;
 	border-radius: var(--corner-05);
+
+	outline: solid 2px rgba(from var(--theme-color) r g b / 0.1);
+	outline-offset: -2px;
+
 	text-align: center;
 	align-content: center;
 	font-size: 0.85rem;
 	font-variant: small-caps;
-	outline: solid 2px rgba(from var(--theme-color) r g b / 0.1);
-	outline-offset: -2px;
 
 	opacity: 90%;
+	background-color: transparent;
 
 	transition-property: opacity, background-color, box-shadow;
 	transition-duration: var(--trans-dur-off-fast);
@@ -1064,7 +1066,7 @@
 	text-align: center;
 	min-width: 100%;
 	font-size: 70%;
-	color: orange;
+	color: hsl(from orange h s var(--theme-l060));
 	padding: 0;
 	letter-spacing: 0px;
 	font-weight: bold;
@@ -1507,7 +1509,7 @@
 	transform: translate(0%, -50%);
 	max-width: 12rem;
 
-	outline: solid 2px orange;
+	outline: solid 2px hsl(from orange h s var(--theme-l060));
 	box-shadow: 0px 0px 1rem black;
 
 	min-width: 2rem;
@@ -1536,6 +1538,9 @@
 
 .calendar-root
 {
+	position: absolute;
+	inset: 0;
+
 	display: flex;
 	overflow: hidden;
 	box-sizing: border-box;
@@ -1546,45 +1551,48 @@
 	padding: 0;
 
 	justify-content: flex-start;
+	align-items: stretch;
 	gap: 0;
-
-	outline-offset: -2px;
-	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l020));
-	border-radius: var(--corner-1);
 }
 
 .calendar-day
 {
+	z-index: 1;
+	position: relative;
 	overflow: hidden;
 	box-sizing: border-box;
+	cursor: pointer;
 
-	flex-grow: 1.0;
-	flex-shrink: 1.0;
-	flex-basis: 13%;
-	padding: var(--gap-1);
+	opacity: 40%;
+	padding: var(--gap-025);
+
 	min-width: 0;
 	min-height: 0;
 
+	max-width: 100%;
+	max-height: 100%;
+
+	flex-basis: calc(100% / 7.0);
+
 	background: hsl(from var(--theme-color) h s var(--theme-l010));
-	border: solid 1px hsl(from var(--theme-color) h s var(--theme-l020));
-	border-color: hsl(from var(--theme-color) h s var(--theme-l010));
+	border-style: solid;
+	border-color: hsl(from var(--theme-color) h s var(--theme-l005));
 	border-width: 1px;
+	outline-offset: 0;
 	box-shadow: none;
 
 	color: hsl(from var(--theme-color) h s 50%);
 	font-size: max(0.6rem, min(1rem, calc(0.02 * var(--container-h) * 1px)));
 	text-align: center;
 
-	z-index: 1;
-	opacity: 40%;
-
-	transition-property: color, background-color, border-radius;
-	transition-duration: var(--trans-dur-off-veryslow);
+	transition-property: scale, color, background-color, outline-offset;
+	transition-duration: var(--trans-dur-off-slow);
 	transition-timing-function: ease-in-out;
 }
 
 .calendar-day[calendar-this-month]
 {
+	background: hsl(from var(--theme-color) h s var(--theme-l015));
 	border-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	border-width: 1px;
 	opacity: 100%;
@@ -1593,11 +1601,57 @@
 .calendar-day[calendar-today]
 {
 	z-index: 2;
+	padding-top: calc(var(--gap-1) + 0.25rem);
 	scale: 105%;
-	color: hsl(from var(--theme-color) h 50% var(--theme-l080));
-	border-color: hsl(from var(--theme-color) h 50% var(--theme-l080));
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	border-width: 2px;
+	border-color: hsl(from var(--theme-color) h s var(--theme-l030));
+	background: hsl(from var(--theme-color) h s var(--theme-l020));
+	border-radius: var(--corner-1) !important;
+	box-shadow: 0px 0px 0.7rem rgb(from var(--shadow-color) r g b / 0.5);
+}
+
+.calendar-day[calendar-today]::after
+{
+	z-index: 2;
+	content: 'TODAY';
+	box-sizing: border-box;
+
+	position: absolute;
+	top: 0%;
+	left: 50%;
+	width: max(6rem, 60%);
+	height: 0.8rem;
+	opacity: 80%;
+	translate: -50% 0%;
+
+	font-size: 60%;
+	letter-spacing: 1px;
+	align-content: center;
+	text-align: center;
+	font-weight: bold;
+	color: hsl(from orange h s var(--theme-l060));
+
+	border-radius: 0 0 var(--corner-05) var(--corner-05);
+	border-style: solid;
+	border-width: 0px 2px 2px 2px;
+	border-color: hsl(from var(--theme-color) h s var(--theme-l030));
+
+	background: hsl(from var(--theme-color) h s var(--theme-l010));
+}
+
+.calendar-day[calendar-selected]
+{
+	z-index: 3;
+	scale: 105%;
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	border-color: hsl(from var(--theme-color) h s var(--theme-l050));
 	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	border-radius: var(--corner-05);
+	box-shadow: 0px 0px 0.7rem rgb(from var(--glow-color) r g b / 0.2);
+
+	outline-offset: -4px;
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l050));
 }
 
 .calendar-day:hover

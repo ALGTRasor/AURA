@@ -15,8 +15,8 @@ export class FillBar
 		params = {
 			from_hue_deg: 35.0,
 			to_hue_deg: 65.0,
-			style_full: _ => { _.style.backgroundColor = 'cyan'; _.style.border = 'solid 1px cyan'; },
-			style_overfull: _ => { _.style.backgroundColor = 'red'; _.style.border = 'solid 2px orange'; },
+			style_full: _ => { _.style.backgroundColor = 'cyan'; _.style.border = 'solid 1px hsl(from cyan h s var(--theme-l050))'; },
+			style_overfull: _ => { _.style.backgroundColor = 'red'; _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))'; },
 			check_color: (color, fill) => color
 		}
 	)
