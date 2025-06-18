@@ -126,7 +126,7 @@ export class Calendar extends PanelContent
             _ =>
             {
                 _.classList.add('panel-button');
-                addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'chevron_left'; });
+                addElement(_, 'i', 'material-symbols icon', 'color:var(--theme-color-text-30);', _ => { _.innerText = 'chevron_left'; });
                 _.addEventListener('click', e => { this.ShiftMonths(-1); });
             }
         );
@@ -136,10 +136,13 @@ export class Calendar extends PanelContent
             _ =>
             {
                 _.classList.add('panel-button');
-                addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'chevron_right'; });
+                addElement(_, 'i', 'material-symbols icon', 'color:var(--theme-color-text-30);', _ => { _.innerText = 'chevron_right'; });
                 _.addEventListener('click', e => { this.ShiftMonths(1); });
             }
         );
+
+        MegaTips.RegisterSimple(this.e_bt_prev, 'View Previous Month');
+        MegaTips.RegisterSimple(this.e_bt_next, 'View Next Month');
 
         this.e_view_name.addEventListener(
             'wheel',
