@@ -214,6 +214,11 @@ export class LongOpsUI
 	created = false;
 	visible = false;
 
+	constructor()
+	{
+		this.op_entries = [];
+	}
+
 	CreateElements()
 	{
 		if (this.created === true) return;
@@ -271,7 +276,7 @@ export class LongOpsUI
 		this.e_ops_list.innerHTML = '';
 		if (this.created !== true) return;
 
-		for (let eid in this.op_entries) this.op_entries[eid].RemoveElements();
+		(this.op_entries ?? []).forEach(_ => { _.RemoveElements(); });
 
 		LongOpsHistory.CheckLoaded();
 

@@ -38,8 +38,8 @@ export class GlobalStyling
 
     static aspects = [];
 
-    static Load() { for (let aid in GlobalStyling.aspects) GlobalStyling.aspects[aid].Load(); }
-    static Save() { for (let aid in GlobalStyling.aspects) GlobalStyling.aspects[aid].Save(); }
+    static Load() { GlobalStyling.aspects.forEach(_ => _.Load()); }
+    static Save() { GlobalStyling.aspects.forEach(_ => _.Save()); }
     static Apply(save = false)
     {
         for (let aid in GlobalStyling.aspects) GlobalStyling.aspects[aid].Apply();
@@ -231,7 +231,3 @@ GlobalStyling.limitContentWidth = GlobalStyling.RegisterAspect(
         GlobalStyling.TriggerChangeEvents(true);
     },
 );
-
-
-
-GlobalStyling.Load();

@@ -1,3 +1,4 @@
+import "../utils/datastates.js";
 import { DebugLog } from "../debuglog.js";
 import { addElement, fadeAppendChild, fadeRemoveElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
@@ -6,118 +7,13 @@ import { PageTitleBar } from "./pagetitlebar.js";
 import { Ripples } from "../ui/ripple.js";
 import { AppEvents } from "../appevents.js";
 import { PanelContent } from "../ui/panel_content.js";
+import { DataState } from "../utils/datastates.js";
+import { PageResizer } from "./pageresizer.js";
 
-class PageResizer extends PanelContent
-{
-	constructor(e_parent = {}, page = PageInstance.Nothing)
-	{
-		super(e_parent);
-		this.page = page;
-	}
-
-	OnCreateElements(data)
-	{
-		this.e_parent.appendElement(
-			'div',
-			_ =>
-			{
-				this.e_root = _;
-				_.classList.add('page-resizer');
-
-				_.addEventListener(
-					'mousedown',
-					e =>
-					{
-						if (this.dragging === true) return;
-						this.page.DisableBodyTransitions();
-						this.dragging = true;
-						this.drag_position_start = new DOMPoint(e.clientX, e.clientY);
-						this.drag_start_w = this.page.state.data.width;
-						this.drag_start_h = this.page.state.data.height;
-						const update_drag = e =>
-						{
-							this.drag_position_end = new DOMPoint(e.clientX, e.clientY);
-							this.drag_delta = new DOMPoint(e.clientX - this.drag_position_start.x, e.clientY - this.drag_position_start.y);
-
-							let new_w = this.drag_start_w + this.drag_delta.x;
-							let new_h = this.drag_start_h + this.drag_delta.y;
-
-							let doc_rect = document.body.getBoundingClientRect();
-							let doc_res_min = Math.min(doc_rect.width, doc_rect.height);
-							new_w = Math.min(new_w, doc_rect.width - this.page.state.data.position_x);
-							new_h = Math.min(new_h, doc_rect.height - this.page.state.data.position_y);
-							new_w = Math.max(new_w, 360);
-							new_h = Math.max(new_h, 360);
-
-							if (Math.abs(new_w - new_h) < (0.05 * doc_res_min)) new_h = new_w;
-
-							this.page.state.data.width = new_w;
-							this.page.state.data.height = new_h;
-						};
-
-						window.addEventListener(
-							'mousemove',
-							e =>
-							{
-								if (this.dragging !== true) return;
-								update_drag(e);
-								this.page.ApplyFrameState(true);
-							}
-						);
-
-						window.addEventListener(
-							'mouseup',
-							e =>
-							{
-								if (this.dragging !== true) return;
-								this.dragging = false;
-								update_drag(e);
-								this.page.EnableBodyTransitions();
-								this.page.ApplyFrameState();
-							}
-						);
-					}
-				);
-			}
-		);
-	}
-	OnRemoveElements(data)
-	{
-		this.e_root.remove();
-	}
-}
-
-// class handling the state and state data of a page instance 
-export class PageInstanceState extends EventTarget
-{
-	constructor(page_instance, data = {})
-	{
-		super();
-		this.page_instance = page_instance;
-		this.data = {};
-		this.SetData(data);
-	}
-
-	SetData(data = {}, skip_equal_values = true)
-	{
-		let any_change = false;
-		for (let prop_id in data)
-		{
-			if (skip_equal_values === true && this.data[prop_id] === data[prop_id]) continue;
-			this.data[prop_id] = data[prop_id];
-			any_change = true;
-		}
-		this.dispatchEvent(new CustomEvent('datachange', { detail: data }));
-		return any_change;
-	}
-
-	Get(property_name = '', default_value = undefined) { return this.data[property_name] ?? default_value; }
-	Set(property_name = '', value = undefined) { this.data[property_name] = value; }
-}
 
 
 // an instance of a page constructed from a PageDescriptor and predetermined state data
-export class PageInstance
+export class PageInstance 
 {
 	static Nothing = new PageInstance();
 
@@ -136,7 +32,7 @@ export class PageInstance
 
 		this.created = false;
 
-		this.state = new PageInstanceState(this, state_data);
+		this.state = DataState.Conjure(this, state_data);
 	}
 
 	RequireSharedDataTable(datatable)
@@ -203,7 +99,8 @@ export class PageInstance
 
 	TogglePinned()
 	{
-		this.state.Set('pinned', this.state.Get('pinned') !== true);
+		this.state.SetValue('pinned', this.state.GetValue('pinned', false) !== true);
+		//this.state.Set('pinned', this.GetStateValue('pinned') !== true);
 		PageManager.NotifyLayoutChange();
 	}
 
@@ -226,8 +123,8 @@ export class PageInstance
 		const loose_root = 'content-page-frames-loose';
 		const docked_root = 'content-page-frames-root';
 		const pinned_root = 'content-page-frames-pinned';
-		if (this.state.Get('pinned') === true) return document.getElementById(pinned_root);
-		if (this.state.Get('docked') === true) return document.getElementById(docked_root);
+		if (this.state.data.pinned === true) return document.getElementById(pinned_root);
+		if (this.state.data.docked === true) return document.getElementById(docked_root);
 		return document.getElementById(loose_root);
 	}
 
@@ -254,7 +151,7 @@ export class PageInstance
 	{
 		const loose_root = 'content-pages-loose';
 		const docked_root = 'content-pages-root';
-		if (this.state.Get('docked') === true) return document.getElementById(docked_root);
+		if (this.GetStateValue('docked', false) === true) return document.getElementById(docked_root);
 		return document.getElementById(loose_root);
 	}
 
@@ -267,12 +164,12 @@ export class PageInstance
 	DetermineFrameClassList()
 	{
 		this.e_body.classList.remove('page-loose');
-		if (this.state.Get('docked') !== true) this.e_body.classList.add('page-loose');
+		if (this.GetStateValue('docked') !== true) this.e_body.classList.add('page-loose');
 	}
 
 	SetDepth(depth = 10)
 	{
-		this.state.Set('depth', depth);
+		this.SetStateValue('depth', depth);
 		if (this.e_body) this.e_body.style.zIndex = this.state.depth;
 	}
 
@@ -332,7 +229,6 @@ export class PageInstance
 		PageManager.NotifyLayoutChange();
 	}
 
-	// called from titlebar drag event
 	SetLoosePosition(new_x = 0, new_y = 0)
 	{
 		this.state.data.position_x = Math.round(new_x);
@@ -481,9 +377,10 @@ export class PageInstance
 		this.e_body.style.setProperty('--container-y', (frame_rect.y - frame_parent_rect.y));
 	}
 
+	// only sets the value if the property does not exist
 	RequireStateProperty(property_name = '', default_value = undefined)
 	{
-		if (!(property_name in this.state.data)) this.state.data[property_name] = default_value;
+		if (!this.state.HasValue(property_name)) this.state.SetValue(property_name, default_value);
 	}
 
 	ValidateStateData()
@@ -508,7 +405,7 @@ export class PageInstance
 
 	UpdateStateData(state_data = undefined)
 	{
-		if (this.state.SetData(state_data)) this.page_descriptor.OnStateChange(this);
+		if (this.state.SetValues(state_data)) this.page_descriptor.OnStateChange(this);
 	}
 
 	ApplyStateData()

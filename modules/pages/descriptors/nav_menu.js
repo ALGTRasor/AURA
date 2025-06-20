@@ -198,7 +198,7 @@ export class PageNavMenu extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state.Get('docked') === true && instance.state.Get('expanding') === false) instance.e_frame.style.maxWidth = '20rem';
+		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '20rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 	}
 

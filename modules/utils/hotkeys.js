@@ -89,6 +89,7 @@ export class Hotkeys
 
     static Register(descriptor = HotkeyDescriptor.Nothing) { Hotkeys.descriptors.push(descriptor); }
     static SetDisabled(disabled = true) { Hotkeys.disabled = disabled === true; }
+
     static EvaluateKeyEvent(event)
     {
         if (Hotkeys.disabled === true)

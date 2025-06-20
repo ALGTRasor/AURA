@@ -1,4 +1,5 @@
 import "../useraccount.js";
+import "../utils/datastates.js";
 
 import { UserAccountInfo } from "../useraccount.js";
 import { AccountStateManager } from "./accountstatemanager.js";
@@ -23,6 +24,7 @@ import { LongOps } from "./longops.js";
 import { MegaTips } from "./megatips.js";
 import { AppStats } from "./appstats.js";
 import { Fax } from "./fax.js";
+import { AppInput } from "./appinput.js";
 
 export class AppCore extends EventTarget
 {
@@ -57,7 +59,6 @@ export class AppCore extends EventTarget
 		AppCore.CheckWindowArgs();
 		AppCore.PrepareDocument();
 		AppCore.PrepareActionBar();
-		AppCore.CheckSpoofing();
 
 		NotificationLog.Create();
 		UserSettings.LoadFromStorage();
@@ -105,7 +106,8 @@ export class AppCore extends EventTarget
 
 		AppCore.PopulateActionBarButtons();
 		AppCore.RegisterHotkeys();
-		window.addEventListener('keyup', AppCore.HandleKeyUp);
+		window.addEventListener('keydown', AppInput.HandleKeyDown);
+		window.addEventListener('keyup', AppInput.HandleKeyUp);
 
 		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
 		if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
@@ -284,9 +286,16 @@ export class AppCore extends EventTarget
 	static CheckWindowArgs()
 	{
 		window.args = {};
-		let q = window.location.search.substring(1).split('&');
-		for (let x in q)
+		let q = window.location.search.length > 0 ? window.location.search.substring(1).split('&') : [];
+		if (typeof q !== 'Array' || q.length < 1) return;
+
+		let ii = 0;
+		while (ii < q.length)
 		{
+			let x = q[ii];
+			ii++;
+
+			console.warn('arg: ' + x + '\n' + q[x]);
 			let str = q[x];
 			let id_eq = str.indexOf('=');
 			let k = str.substring(0, id_eq);
@@ -295,38 +304,11 @@ export class AppCore extends EventTarget
 		}
 	}
 
-	static CheckSpoofing()
-	{
-		const sdanger = { user_id: 's.danger', display_name: 'Stranger Danger', mail: 's.danger@evil.corp' };
-		window.spoof_data = {};
-		if ('spoof-id' in window.args)
-		{
-			let spoof_id = window.args['spoof-id'];
-			if (spoof_id === 's.danger') window.spoof_data = sdanger;
-			else window.spoof_data.user_id = spoof_id;
-		}
-		if ('spoof-name' in window.args) window.spoof_data.display_name = window.args['spoof-name'];
-		if ('spoof-mail' in window.args) window.spoof_data.mail = window.args['spoof-mail'];
-		//window.spoof_data = sdanger;
-	}
-
 	static async CheckIdentity()
 	{
 		DevMode.ValidateDeveloperId(UserAccountInfo.account_info.user_id);
 		if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');
 		else DebugLog.SubmitGroup();
-	}
-
-	static HandleKeyUp(e)
-	{
-		if (OverlayManager.visible && OverlayManager.overlays.length > 0)
-		{
-			let o = OverlayManager.overlays[OverlayManager.overlays.length - 1];
-			if (o && o.HandleHotkeys) o.HandleHotkeys(e);
-			return;
-		}
-
-		Hotkeys.EvaluateKeyEvent(e);
 	}
 
 	static CreateSpotlightWalls()
