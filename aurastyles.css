@@ -132,8 +132,8 @@ body
 	letter-spacing: calc(0.15 * var(--font-size));
 
 	transition-property: opacity;
-	transition-duration: 0.5s;
-	transition-timing-function: ease-in-out;
+	transition-duration: 1s;
+	transition-timing-function: ease;
 }
 
 html[devmode]::after

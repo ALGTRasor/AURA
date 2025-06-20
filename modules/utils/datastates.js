@@ -19,9 +19,11 @@ export class DataState
         return default_value;
     };
 
-    SetValue(property_key = '', new_value = undefined)  
+    SetValue(property_key = '', new_value = undefined, skip_equal_values = true)  
     {
+        if (skip_equal_values === true && this.data[property_key] === new_value) return;
         this.data[property_key] = new_value;
+        if (this.host.dispatchEvent) this.host.dispatchEvent(new CustomEvent('datachange', { detail: this.data }));
     };
 
     SetValues(data = {}, skip_equal_values = true)  
@@ -33,7 +35,7 @@ export class DataState
             this.data[property_key] = data[property_key];
             any_change = true;
         }
-        if (any_change === true && 'dispatchEvent' in this.host)
+        if (any_change === true && this.host.dispatchEvent)
             this.host.dispatchEvent(new CustomEvent('datachange', { detail: this.data }));
     };
 

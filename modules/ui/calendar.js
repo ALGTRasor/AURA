@@ -45,7 +45,14 @@ export class CalendarEntry extends PanelContent
                 this.e_day_num = addElement(_, 'div', '', 'font-size:100%;', _ => { _.innerHTML = this.month_day; });
                 this.e_content = addElement(_, 'div', '', 'font-size:80%;');
 
-                _.addEventListener('click', () => { this.calendar.SetFocusDate(this.date); });
+                _.addEventListener(
+                    'click',
+                    () =>
+                    {
+                        if (this.is_focused) this.calendar.ShowDetails(this.date);
+                        this.calendar.SetFocusDate(this.date);
+                    }
+                );
             }
         );
         this.megatip = MegaTips.RegisterSimple(this.e_root, this.date_string);
@@ -76,8 +83,70 @@ export class Calendar extends PanelContent
         super(e_parent);
         this.entries = [];
         this.CreateDayContent = (date = new Date(), element = new HTMLElement()) => { };
+        this.CreateDayDetailsContent = (date = new Date(), element = new HTMLElement()) => { };
         this.can_change_focus = true;
         this.should_transition = true;
+    }
+
+    ShowDetails(date)
+    {
+        addElement(
+            this.e_entry_container, 'div', '', 'z-index:998; position:absolute; inset:0; background:#0005; backdrop-filter:blur(3px);',
+            _ =>
+            {
+                _.style.padding = 'var(--gap-025)';
+                _.style.gap = 'var(--gap-025)';
+                _.addEventListener('click', e => _.remove());
+
+                CreatePagePanel(
+                    _, false, false, 'z-index:999; position:absolute; top:50%; left:50%; translate:-50% -50%;',
+                    _ =>
+                    {
+                        _.addEventListener('click', e => e.stopPropagation());
+                        _.style.display = 'flex';
+                        _.style.flexDirection = 'column';
+                        _.style.minWidth = '6rem';
+                        _.style.minHeight = '6rem';
+                        _.style.maxWidth = 'calc(100% - var(--gap-1))';
+                        _.style.maxHeight = 'calc(100% - var(--gap-1))';
+                        _.style.padding = 'var(--gap-025)';
+                        _.style.gap = 'var(--gap-025)';
+
+                        addElement(
+                            _, 'div', '', '',
+                            _ =>
+                            {
+                                _.style.fontSize = '75%';
+                                _.style.textAlign = 'center';
+                                _.innerText = date.getDayName();
+                            }
+                        );
+
+                        addElement(
+                            _, 'div', '', '',
+                            _ =>
+                            {
+                                _.style.padding = '0 var(--gap-025) var(--gap-025) var(--gap-025)';
+                                _.style.fontSize = '110%';
+                                _.style.textAlign = 'center';
+                                _.innerText = date.toFancyDateString();
+                            }
+                        );
+
+                        CreatePagePanel(
+                            _, true, false, 'display:flex; flex-direction:column; gap:var(--gap-025); flex-basis: 1.0; flex-grow:1.0;',
+                            _ =>
+                            {
+                                _.style.padding = 'var(--gap-05)';
+                                this.CreateDayDetailsContent(date, _);
+                            }
+                        );
+
+                        FadeElement(_, 0, 100, 0.2);
+                    }
+                );
+            }
+        );
     }
 
     SetFocusDate(date_focus = new Date())

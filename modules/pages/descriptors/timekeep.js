@@ -165,6 +165,28 @@ class TKCalendar extends PanelContent
 				);
 			}
 		};
+		this.calendar.CreateDayDetailsContent = (date, element) =>
+		{
+			let relevant_usages = all_uses.filter(_ => _.date === date.toShortDateString());
+			let sum_used = 0;
+			relevant_usages.forEach((x, i, a) => sum_used += x.hours);
+			addElement(
+				element, 'div', '', 'display:flex; flex-direction:column; gap:var(--gap-025);',
+				_ => { _.innerText = `${sum_used} Hours Used In ${relevant_usages.length} Parts`; }
+			);
+			let ii = 0;
+			while (ii < relevant_usages.length)
+			{
+				CreatePagePanel(
+					element, false, false, '',
+					_ =>
+					{
+						_.innerText = `${relevant_usages[ii].date}: ${relevant_usages[ii].hours} hrs`;
+					}
+				);
+				ii++;
+			}
+		};
 		this.calendar.CreateElements();
 		this.calendar.SetFocusDate(new Date());
 	}
@@ -191,16 +213,22 @@ export class PageTimekeep extends PageDescriptor
 		];
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
-		instance.e_mode_content = addElement(instance.e_content, 'div', '', 'display:flex; flex-direction:column; gap:var(--gap-05); overflow:hidden; flex-basis:100%;');
+		instance.e_mode_content_container = addElement(instance.e_content, 'div', '', 'border-radius:inherit; position:relative; flex-basis:100%;');
+		instance.e_mode_content = addElement(instance.e_mode_content_container, 'div', '', 'border-radius:inherit; display:flex; flex-direction:column; gap:var(--gap-05); overflow:hidden; top:0; left:0; width:100%; height:100%; padding:0; margin:0;');
+		instance.e_mode_content.id = 'e_mode_content';
 		instance.mode_allocations = new TKAllocations(instance.e_mode_content);
 		instance.mode_calendar = new TKCalendar(instance.e_mode_content);
 		instance.content_current = undefined;
 
 		instance.content_timeout = new RunningTimeout(() => { this.UpdateModeContent(instance); }, 0.25, false, 150);
-		instance.RefreshContentSoon = () => { instance.content_timeout.ExtendTimer(); };
+		instance.RefreshContentSoon = () =>
+		{
+			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
+			instance.content_timeout.ExtendTimer();
+		};
 
 		instance.slide_mode.Subscribe(instance.RefreshContentSoon);
-		instance.slide_mode.SelectIndexAfterDelay(0, 150, true);
+		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 	}
 
 	UpdateModeContent(instance)

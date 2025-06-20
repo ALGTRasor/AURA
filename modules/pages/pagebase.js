@@ -1,19 +1,19 @@
 import "../utils/datastates.js";
-import { DebugLog } from "../debuglog.js";
-import { addElement, fadeAppendChild, fadeRemoveElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
-import { PageManager } from "../pagemanager.js";
-import { PageTitleBar } from "./pagetitlebar.js";
-import { Ripples } from "../ui/ripple.js";
-import { AppEvents } from "../appevents.js";
-import { PanelContent } from "../ui/panel_content.js";
+import { addElement, fadeAppendChild, fadeRemoveElement, getSiblingIndex, setSiblingIndex } from "../utils/domutils.js";
 import { DataState } from "../utils/datastates.js";
+import { PageTitleBar } from "./pagetitlebar.js";
+import { PageManager } from "../pagemanager.js";
 import { PageResizer } from "./pageresizer.js";
+import { AppEvents } from "../appevents.js";
+import { Ripples } from "../ui/ripple.js";
+import { Autosave } from "../autosave.js";
+import { DebugLog } from "../debuglog.js";
 
 
 
 // an instance of a page constructed from a PageDescriptor and predetermined state data
-export class PageInstance 
+export class PageInstance extends EventTarget
 {
 	static Nothing = new PageInstance();
 
@@ -21,6 +21,7 @@ export class PageInstance
 
 	constructor(page_descriptor = {}, state_data = undefined)
 	{
+		super();
 		this.page_descriptor = page_descriptor;
 		this.instance_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
 
@@ -33,6 +34,14 @@ export class PageInstance
 		this.created = false;
 
 		this.state = DataState.Conjure(this, state_data);
+		this.addEventListener(
+			'datachange',
+			() =>
+			{
+				this.page_descriptor.OnStateChange(this);
+				Autosave.InvokeSoon();
+			}
+		);
 	}
 
 	RequireSharedDataTable(datatable)
@@ -99,8 +108,7 @@ export class PageInstance
 
 	TogglePinned()
 	{
-		this.state.SetValue('pinned', this.state.GetValue('pinned', false) !== true);
-		//this.state.Set('pinned', this.GetStateValue('pinned') !== true);
+		this.state.SetValue('pinned', this.state.data.pinned !== true);
 		PageManager.NotifyLayoutChange();
 	}
 
@@ -170,13 +178,12 @@ export class PageInstance
 	SetDepth(depth = 10)
 	{
 		this.SetStateValue('depth', depth);
-		if (this.e_body) this.e_body.style.zIndex = this.state.depth;
+		if (this.e_body) this.e_body.style.zIndex = this.state.data.depth;
 	}
 
 	ModifyDepth(depth_delta = 0)
 	{
-		if ('depth' in this.state.data) this.state.data.depth += depth_delta;
-		else this.state.data.depth = depth_delta;
+		this.state.SetValue('depth', (this.state.data.depth ?? 0) + depth_delta);
 
 		if (this.e_body) this.e_body.style.zIndex = this.state.data.depth;
 	}
@@ -191,8 +198,8 @@ export class PageInstance
 	{
 		if (this.state.data.docked !== true) return;
 
-		this.state.data.expanding = false;
-		this.state.data.docked = false;
+		this.state.SetValue('expanding', false);
+		this.state.SetValue('docked', false);
 
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
@@ -210,7 +217,7 @@ export class PageInstance
 	TryDock()
 	{
 		if (this.state.data.docked === true) return;
-		this.state.data.docked = this.page_descriptor.dockable === true;
+		this.state.SetValue('docked', this.page_descriptor.dockable === true);
 		this.ApplyFrameState();
 	}
 
@@ -231,14 +238,14 @@ export class PageInstance
 
 	SetLoosePosition(new_x = 0, new_y = 0)
 	{
-		this.state.data.position_x = Math.round(new_x);
-		this.state.data.position_y = Math.round(new_y);
+		this.state.SetValue('position_x', Math.round(new_x));
+		this.state.SetValue('position_y', Math.round(new_y));
 		this.ApplyFrameState(true);
 	}
 
 	ToggleExpanding()
 	{
-		this.state.data.expanding = this.state.data.expanding !== true;
+		this.state.SetValue('expanding', this.state.data.expanding !== true);
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 		this.UpdateBodyTransform();
 		this.ApplyFrameState(true);
@@ -332,8 +339,8 @@ export class PageInstance
 	{
 		if (!this.e_frame || !this.e_frame.parentElement) return;
 
-		this.state.data.position_x = Math.round(this.state.data.position_x);
-		this.state.data.position_y = Math.round(this.state.data.position_y);
+		this.state.SetValue('position_x', Math.round(this.state.data.position_x));
+		this.state.SetValue('position_y', Math.round(this.state.data.position_y));
 
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();

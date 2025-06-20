@@ -91,3 +91,13 @@ Date.prototype.toShortDateString = function (pad = true)
     if (pad === true) return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     else return `${year}-${month}-${day}`;
 };
+
+Date.prototype.toFancyDateString = function ()
+{
+    let dayName = this.getDayName();
+    let monthName = this.getMonthName();
+
+    let day = this.getDate();
+    let year = this.getFullYear();
+    return `${monthName} ${day}, ${year}`;
+};

@@ -31,7 +31,7 @@ export class Autosave
 
 		Autosave.last_invoke_ts = new Date();
 
-		NotificationLog.Log('Saved', '#0f0');
+		//NotificationLog.Log('Saved', '#0f0');
 
 		Autosave.StartPulseAnimation();
 

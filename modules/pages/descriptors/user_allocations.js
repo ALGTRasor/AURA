@@ -439,7 +439,7 @@ export class PageUserAllocations extends PageDescriptor
 		instance.transitionContent = mode_id => { this.TransitionModeContent(instance); };
 		instance.slide_mode.Subscribe(instance.transitionContent);
 		instance.slide_mode.ApplySelectionSoon();
-		instance.slide_mode.SelectIndexAfterDelay(0, 250, true);
+		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 
 		instance.RefreshData = () => this.RefreshData(instance);
 	}
@@ -457,6 +457,7 @@ export class PageUserAllocations extends PageDescriptor
 
 		const perform = async () =>
 		{
+			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
 			instance.slide_mode.SetDisabled(true);
 			MarkElementLoading(instance.panel_list_items_root);
 			await fade_out();

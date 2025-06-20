@@ -223,7 +223,11 @@ export class PageSettings extends PageDescriptor
 	{
 		instance.refresh = () => { this.RefreshElements(instance); };
 		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.333, false, 50);
-		instance.refresh_soon = () => { instance.content_timeout.ExtendTimer(); };
+		instance.refresh_soon = () =>
+		{
+			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
+			instance.content_timeout.ExtendTimer();
+		};
 		AppEvents.AddListener('debugmode-enabled', instance.refresh_soon);
 		AppEvents.AddListener('debugmode-disabled', instance.refresh_soon);
 	}
@@ -269,7 +273,7 @@ export class PageSettings extends PageDescriptor
 		);
 
 		instance.slide_mode.Subscribe(_ => { instance.refresh_soon(); });
-		instance.slide_mode.SelectIndexAfterDelay(0, 333, true);
+		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 
 		instance.updateColorWarning = (e) =>
 		{

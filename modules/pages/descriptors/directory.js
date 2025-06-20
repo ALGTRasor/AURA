@@ -138,11 +138,12 @@ export class PageDirectory extends PageDescriptor
 
 		instance.afterDirChange = () => { this.OnDirectoryChange(instance); };
 		instance.slide_directory.Subscribe(instance.afterDirChange);
-		instance.slide_directory.SelectIndexAfterDelay(0, 150, true);
+		instance.slide_directory.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 	}
 
 	OnDirectoryChange(instance)
 	{
+		instance.state.SetValue('view_mode', instance.slide_directory.selected_index);
 		switch (instance.slide_directory.selected_index)
 		{
 			case 0:

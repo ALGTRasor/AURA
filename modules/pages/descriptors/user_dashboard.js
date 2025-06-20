@@ -156,32 +156,27 @@ export class PageMyData extends PageDescriptor
 		const _afterModeChange = () => { this.AfterModeChange(instance); };
 		mode_slider.Subscribe(_afterModeChange);
 
-		mode_slider.SelectIndexAfterDelay(0, 333, true);
+		mode_slider.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 	}
 
 	AfterModeChange(instance)
 	{
 		instance.mode_slider.SetDisabled(true);
+		instance.state.SetValue('view_mode', instance.mode_slider.selected_index);
 
-		let selected_index = -1;
-		selected_index = instance.mode_slider.selected_index;
-		if (typeof selected_index !== 'number') selected_index = Number.parseInt(selected_index);
-
-		if (selected_index < 0)
+		if (instance.state.data.view_mode < 0)
 		{
 			instance.mode_slider.SetDisabled(false);
 			return;
 		}
 
 		instance.content_previous = instance.content_current;
-		switch (selected_index)
+		switch (instance.state.data.view_mode)
 		{
 			case 0: instance.content_current = instance.content_info; break;
 			case 1: instance.content_current = instance.content_docs; break;
 			case 2: instance.content_current = instance.content_hr; break;
 		}
-
-
 
 		instance.mode_slider.SetDisabled(false);
 

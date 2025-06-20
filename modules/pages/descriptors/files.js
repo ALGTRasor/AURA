@@ -46,10 +46,9 @@ export class PageFiles extends PageDescriptor
 
 		const OnRootChange = () =>
 		{
-			if (instance.explorer_mode && instance.explorer_mode > -1 && instance.explorer_mode === instance.root_selector.selected_index) return;
-			instance.explorer_mode = instance.root_selector.selected_index;
+			instance.state.SetValue('view_mode', instance.root_selector.selected_index);
 
-			switch (instance.explorer_mode)
+			switch (instance.state.data.view_mode)
 			{
 				case 1:
 					instance.explorer.base_relative_path = 'Clients';
@@ -72,7 +71,7 @@ export class PageFiles extends PageDescriptor
 			instance.explorer.Navigate();
 		};
 		instance.root_selector.Subscribe(OnRootChange);
-		instance.root_selector.SelectIndexAfterDelay(0, 250, true);
+		instance.root_selector.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 	}
 
 
