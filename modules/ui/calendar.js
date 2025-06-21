@@ -2,6 +2,7 @@ import { addElement, CreatePagePanel, FadeElement } from "../utils/domutils.js";
 import { secondsDelta } from "../utils/timeutils.js";
 import { PanelContent } from "./panel_content.js";
 import { MegaTips } from "../systems/megatips.js";
+import { sleep } from "../utils/asyncutils.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:1.0; flex-shrink:0.0;';
 
@@ -250,9 +251,17 @@ export class Calendar extends PanelContent
         const perform = async () =>
         {
             this.transitioning = true;
-            if (this.entries_created === true && this.should_transition === true) await FadeElement(this.e_entry_root, 100, 0, 0.05);
+            if (this.entries_created === true && this.should_transition === true) 
+            {
+                this.entries.forEach(_ => { window.setTimeout(() => { FadeElement(_.e_root, 100, 0, 0.1); }, Math.random() * 100) });
+                await sleep(200);
+            }
             change();
-            if (this.should_transition === true) await FadeElement(this.e_entry_root, 0, 100, 0.05);
+            if (this.should_transition === true)
+            {
+                this.entries.forEach(_ => { window.setTimeout(() => { FadeElement(_.e_root, 0, 100, 0.1); }, Math.random() * 100) });
+                await sleep(200);
+            }
             this.entries_created = true;
             this.transitioning = false;
         }

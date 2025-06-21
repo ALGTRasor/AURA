@@ -379,6 +379,7 @@ class FileExplorerItem
                             color: '#0f0',
                             on_click: overlay =>
                             {
+                                this.explorer.OnStartLoading();
                                 const longop = LongOps.Start('driveitem-copy-' + this.item_info.id, { label: this.item_info.name, icon: 'content_copy', verb: 'Duplicated item' });
                                 let body =
                                 {

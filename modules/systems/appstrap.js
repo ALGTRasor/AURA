@@ -24,6 +24,7 @@ export class AppStrap
 		const page_names = [
 			'nav_menu',
 			'settings',
+			'ops_history',
 			'user_dashboard',
 			'help',
 			'problems',

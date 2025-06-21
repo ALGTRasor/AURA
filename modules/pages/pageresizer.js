@@ -24,6 +24,10 @@ export class PageResizer extends PanelContent
                     e =>
                     {
                         if (this.dragging === true) return;
+
+                        e.preventDefault();
+                        e.stopPropagation();
+
                         this.page.DisableBodyTransitions();
                         this.dragging = true;
                         this.drag_position_start = new DOMPoint(e.clientX, e.clientY);
@@ -62,6 +66,9 @@ export class PageResizer extends PanelContent
                                 if (this.dragging !== true) return;
                                 update_drag(e);
                                 this.page.ApplyFrameState(true);
+
+                                e.preventDefault();
+                                e.stopPropagation();
                             }
                         );
 
@@ -74,6 +81,9 @@ export class PageResizer extends PanelContent
                                 update_drag(e);
                                 this.page.EnableBodyTransitions();
                                 this.page.ApplyFrameState();
+
+                                e.preventDefault();
+                                e.stopPropagation();
                             }
                         );
                     }

@@ -147,10 +147,12 @@ export class PageManager
 
 	static GetPageIndexFromTitle(pages = [], title = '')
 	{
-		for (let pid in pages)
+		let ii = 0;
+		while (ii < pages.length)
 		{
-			let p = pages[pid];
-			if (p.page_descriptor.title.toLowerCase().trim() === title) return pid;
+			let p = pages[ii];
+			if (p.page_descriptor.title === title) return ii;
+			ii++;
 		}
 		return -1;
 	}

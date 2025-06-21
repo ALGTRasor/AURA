@@ -499,6 +499,8 @@ export class PageDescriptor
 	{
 		instance.e_content.innerText = 'content :: ' + this.title;
 	}
+
+	OnRemoveElements(instance) { }
 }
 
 Modules.Report("Page Descriptors", "This module adds support for page type descriptors, which are used to create instances of available pages");

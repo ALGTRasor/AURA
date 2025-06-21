@@ -4,6 +4,7 @@ import { ActionBar } from "../actionbar.js";
 import { Trench } from "../ui/trench.js";
 import { MegaTips } from "./megatips.js";
 import { getDurationString } from "../utils/timeutils.js";
+import { PageManager } from "../pagemanager.js";
 
 const lskey_history = 'longops-history';
 
@@ -90,7 +91,7 @@ export class LongOpsHistory
 	{
 		LongOpsHistory.CheckLoaded();
 		LongOpsHistory.ops.push(op);
-		if (LongOpsHistory.ops.length > 20) LongOpsHistory.ops = LongOpsHistory.ops.slice(LongOpsHistory.ops.length - 20, LongOpsHistory.ops.length);
+		if (LongOpsHistory.ops.length > 100) LongOpsHistory.ops = LongOpsHistory.ops.slice(LongOpsHistory.ops.length - 100, LongOpsHistory.ops.length);
 		LongOpsHistory.Save();
 	}
 
@@ -338,12 +339,12 @@ export class LongOps extends EventTarget
 
 	static AddEventListener(event = 'opchange', action = op => { })
 	{
-		instance.addEventListener(event, action);
+		LongOps.instance.addEventListener(event, action);
 	}
 
 	static RemoveEventListener(event = 'opchange', action = op => { })
 	{
-		instance.removeEventListener(event, action);
+		LongOps.instance.removeEventListener(event, action);
 	}
 
 	static Start(id = 'long.operation.xyz', data = { label: 'A Long Operation' })
@@ -354,8 +355,9 @@ export class LongOps extends EventTarget
 
 		LongOps.instance.dispatchEvent(new CustomEvent("startop", { detail: { op: op } }));
 		LongOps.instance.dispatchEvent(new CustomEvent("opchange", { detail: { op: op } }));
+		LongOps.RefreshIconStyle();
 
-		if (data.silent !== true || LongOpsUI.instance.visible === true) LongOpsUI.instance.SetVisible(true);
+		//if (data.silent !== true || LongOpsUI.instance.visible === true) LongOpsUI.instance.SetVisible(true);
 
 		//LongOps.toggle_info.e_icon.style.opacity = '80%';
 		//LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');
@@ -367,9 +369,11 @@ export class LongOps extends EventTarget
 	static Dismiss(op = LongOpInstance.Nothing)
 	{
 		let existing_id = LongOpsHistory.ops.indexOf(op);
-		if (existing_id < 0) return undefined;
+		if (existing_id < 0) return;
 		LongOpsHistory.ops.splice(existing_id, 1);
-		if (LongOpsHistory.ops.length < 1 && LongOps.active.length < 1) LongOps.ToggleVisibility();
+		LongOps.instance.dispatchEvent(new CustomEvent("opchange", { detail: { op: op } }));
+		LongOps.RefreshIconStyle();
+		//if (LongOpsHistory.ops.length < 1 && LongOps.active.length < 1) LongOps.ToggleVisibility();
 	}
 
 	static Stop(op = LongOpInstance.Nothing, error = undefined)
@@ -395,22 +399,26 @@ export class LongOps extends EventTarget
 		LongOps.toggle_info.e_icon.style.opacity = '50%';
 	}
 
-	static ToggleVisibility()
+	static RefreshIconStyle()
 	{
-		//FlashElement(LongOps.toggle_info.e_btn, 1.0, 3.0, 'gold');
-		LongOpsUI.instance.ToggleVisible();
-
-		if (LongOpsUI.instance.visible)
+		let page_index = PageManager.GetPageIndexFromTitle(PageManager.page_instances, 'ops history');
+		if (page_index > -1)
 		{
 			LongOps.toggle_info.e_icon.style.opacity = '80%';
-			LongOps.toggle_info.e_btn.style.setProperty('--theme-color', '#ff0');
-			FlashElement(LongOps.toggle_info.e_btn, 1.0, 1.0, 'black');
+			LongOps.toggle_info.e_btn.style.setProperty('--theme-color', 'hsl(from green h s 50%)');
 		}
 		else
 		{
 			LongOps.toggle_info.e_icon.style.opacity = '50%';
 			LongOps.toggle_info.e_btn.style.removeProperty('--theme-color');
-			FlashElement(LongOps.toggle_info.e_btn, 1.0, 1.0, 'black');
 		}
+	}
+
+	static ToggleVisibility()
+	{
+		//FlashElement(LongOps.toggle_info.e_btn, 1.0, 3.0, 'gold');
+		//LongOpsUI.instance.ToggleVisible();
+		PageManager.TogglePageByTitle('ops history');
+		LongOps.RefreshIconStyle();
 	}
 }

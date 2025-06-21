@@ -570,8 +570,8 @@
 
 	transition-property: rotate, opacity;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: var(--trans-dur-off-veryslow);
-	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
+	transition-delay: 5s;
+	transition-timing-function: ease;
 }
 
 .page-panel.expanding-panel:hover::after
@@ -585,8 +585,8 @@
 {
 	transition-property: max-height;
 	transition-duration: var(--trans-dur-off-veryslow);
-	transition-delay: var(--trans-dur-off-veryslow);
-	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
+	transition-delay: 5s;
+	transition-timing-function: ease;
 }
 
 .page-panel.expanding-panel:hover,
@@ -1589,9 +1589,9 @@
 	font-size: max(0.6rem, min(1rem, calc(0.02px * var(--container-h))));
 	text-align: center;
 
-	transition-property: scale, color, background-color, outline-offset;
+	transition-property: scale, color, background-color, outline-offset, padding-top, border-width;
 	transition-duration: var(--trans-dur-off-slow);
-	transition-timing-function: ease-in-out;
+	transition-timing-function: ease;
 }
 
 .calendar-day[calendar-this-month]
@@ -1670,5 +1670,5 @@
 	opacity: 100%;
 	color: hsl(from var(--theme-color) h s var(--theme-l090));
 	background: hsl(from var(--theme-color) h s var(--theme-l020));
-	transition-duration: var(--trans-dur-on-fast);
+	transition-duration: var(--trans-dur-off-slow);
 }

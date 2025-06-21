@@ -222,7 +222,7 @@ export class PageSettings extends PageDescriptor
 	OnOpen(instance)
 	{
 		instance.refresh = () => { this.RefreshElements(instance); };
-		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.333, false, 50);
+		instance.content_timeout = new RunningTimeout(() => { instance.refresh(); }, 0.2, false, 50);
 		instance.refresh_soon = () =>
 		{
 			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
@@ -237,9 +237,15 @@ export class PageSettings extends PageDescriptor
 		AppEvents.RemoveListener('debugmode-disabled', instance.refresh_soon);
 	}
 
+	UpdateSize(instance)
+	{
+		instance.UpdateBodyTransform();
+		this.OnLayoutChange(instance);
+	}
+
 	OnLayoutChange(instance)
 	{
-		if (instance.state.data.docked === true) instance.e_frame.style.maxWidth = '32rem';
+		if (instance.state.data.docked === true && instance.state.data.expanding !== true) instance.e_frame.style.maxWidth = '32rem';
 		else instance.e_frame.style.maxWidth = 'unset';
 		instance.slide_mode.ApplySelectionSoon();
 	}
