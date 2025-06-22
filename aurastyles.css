@@ -55,6 +55,7 @@
 	--theme-l100: calc(100% - 100% * var(--theme-invert));
 
 	--theme-color-background: hsl(from var(--theme-color) h s var(--theme-l015));
+	--theme-color-highlight: hsl(from orange h s 50%);
 
 	--theme-color-text: hsl(from var(--theme-color) h s var(--theme-l100));
 	--theme-color-text-10: rgba(from var(--theme-color-text) r g b / 0.1);
@@ -239,8 +240,8 @@ body *[content-loading]::after
 	background-image: linear-gradient(0deg, var(--back-color-0) 35%, var(--back-color-1) 50%, var(--back-color-0) 65%);
 	backdrop-filter: blur(1px);
 
-	animation: anim-loading-overlay linear 2s infinite;
-	animation-delay: -1s;
+	animation: anim-loading-overlay linear calc(2s * var(--trans-dur-mult) + 0.5s) infinite;
+	animation-delay: calc(-1s * var(--trans-dur-mult) - 0.25s);
 }
 
 
@@ -494,7 +495,7 @@ iframe
 	transition-property: opacity, left, top, right, bottom, width, height;
 	transition-timing-function: ease-in-out;
 	transition-duration: var(--trans-dur-off-fast);
-	transition-delay: 1s;
+	transition-delay: 0.1s;
 
 	mix-blend-mode: multiply;
 }
@@ -787,7 +788,7 @@ div[disabled]
 {
 	position: absolute;
 	box-sizing: border-box;
-	z-index: 555000;
+	z-index: 10000005;
 
 	pointer-events: none;
 	user-select: none;
@@ -874,7 +875,7 @@ div[disabled]
 .megatip-warning
 {
 	display: inline;
-	color: hsl(from orange h s var(--theme-l060));
+	color: var(--theme-color-highlight);
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
@@ -992,7 +993,7 @@ input[type="textarea"]:active
 .overlay-root > .page-panel:focus,
 .overlay-root > .page-panel:focus-within
 {
-	outline: solid 2px hsl(from orange h s var(--theme-l060));
+	outline: solid 2px var(--theme-color-highlight);
 	outline-offset: 4px;
 	scale: 100%;
 }

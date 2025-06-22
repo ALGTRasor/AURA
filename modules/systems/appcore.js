@@ -25,6 +25,7 @@ import { MegaTips } from "./megatips.js";
 import { AppStats } from "./appstats.js";
 import { Fax } from "./fax.js";
 import { AppInput } from "./appinput.js";
+import { Spotlight } from "../ui/spotlight.js";
 
 export class AppCore extends EventTarget
 {
@@ -62,6 +63,9 @@ export class AppCore extends EventTarget
 
 		NotificationLog.Create();
 		UserSettings.LoadFromStorage();
+
+		window.TryGetGlobalStylingAspect = (name = '') => { return GlobalStyling[name]; };
+		window.TryGetGlobalStylingValue = (name = '') => { return GlobalStyling[name]?.value; };
 		GlobalStyling.Load();
 
 		AppEvents.AddListener('account-login', AppCore.#AfterTenantAccountLogin); // after initial auth / login success
@@ -151,6 +155,7 @@ export class AppCore extends EventTarget
 
 	static NotifyReauthorizeRequest()
 	{
+		UserAccountInfo.SuspendAppAccess();
 		OverlayManager.HideAll();
 		DebugLog.Log('<< Authentication Requested >>');
 		ChoiceOverlay.ShowNew(
@@ -178,17 +183,14 @@ export class AppCore extends EventTarget
 		window.loop_detectWindowSizeChange = new AnimJob(200, AppCore.CheckWindowSizeChanged);
 		window.loop_detectWindowSizeChange.Start();
 
-		document.body.addEventListener('wheel', e => AppCore.RefreshGlobalTooltip(e), { passive: true });
-		document.body.addEventListener('mouseout', e => AppCore.RefreshGlobalTooltip(e));
-		document.body.addEventListener('mousemove', e => AppCore.RefreshGlobalTooltip(e));
+		//AppInput.AddBodyEventListeners();
 
 		window.loop_updateClock = new AnimJob(33333, AppCore.UpdateClock);
 		window.loop_updateClock.Start();
 		AppCore.UpdateClock();
 
-		AppCore.CreateSpotlightWalls();
-
 		MegaTips.CreateElements();
+		Spotlight.Initialize();
 
 		window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
 		window.e_content_root = document.getElementById('content-body');
@@ -310,101 +312,6 @@ export class AppCore extends EventTarget
 		if (DevMode.active === true) DebugLog.SubmitGroup('#f0f3');
 		else DebugLog.SubmitGroup();
 	}
-
-	static CreateSpotlightWalls()
-	{
-		let e_spotlight = document.getElementById('spotlight');
-
-		addElement(
-			e_spotlight, 'div', 'spotlight-wall', '',
-			_ =>
-			{
-				_.style.top = '50%';
-				_.style.right = '100%';
-				_.style.width = '100vw';
-				_.style.height = '200vh';
-				_.style.transform = 'translate(0%, -50%)';
-			}
-		);
-		addElement(
-			e_spotlight, 'div', 'spotlight-wall', '',
-			_ =>
-			{
-				_.style.top = '50%';
-				_.style.left = '100%';
-				_.style.width = '100vw';
-				_.style.height = '200vh';
-				_.style.transform = 'translate(0%, -50%)';
-			}
-		);
-
-		addElement(
-			e_spotlight, 'div', 'spotlight-wall', '',
-			_ =>
-			{
-				_.style.top = '100%';
-				_.style.left = '50%';
-				_.style.width = '200vw';
-				_.style.height = '100vh';
-				_.style.transform = 'translate(-50%, 0%)';
-			}
-		);
-
-		addElement(
-			e_spotlight, 'div', 'spotlight-wall', '',
-			_ =>
-			{
-				_.style.bottom = '100%';
-				_.style.left = '50%';
-				_.style.width = '200vw';
-				_.style.height = '100vh';
-				_.style.transform = 'translate(-50%, 0%)';
-			}
-		);
-	}
-
-	static SpotlightElement(e_target)
-	{
-		if (!e_target) return;
-
-		let e_body_rect = document.body.getBoundingClientRect();
-		let e_target_rect = e_target.getBoundingClientRect();
-
-		const e_spotlight = document.getElementById('spotlight');
-		e_spotlight.style.left = ((e_target_rect.x - e_body_rect.x) - 12) + 'px';
-		e_spotlight.style.top = ((e_target_rect.y - e_body_rect.y) - 12) + 'px';
-		e_spotlight.style.width = (e_target_rect.width + 24) + 'px';
-		e_spotlight.style.height = (e_target_rect.height + 24) + 'px';
-	}
-
-	static RefreshGlobalTooltip(e)
-	{
-		const e_spotlight = document.getElementById('spotlight');
-		let info_label = document.getElementById('info-bar-marquee');
-		let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
-		if (mouse_element && mouse_element.title && mouse_element.title.length > 0)
-		{
-			window.active_tooltip = mouse_element.title;
-			info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
-			if (GlobalStyling.spotlight.enabled === true) 
-			{
-				AppCore.SpotlightElement(mouse_element);
-				e_spotlight.style.transitionDelay = '0s';
-				e_spotlight.style.opacity = '40%';
-			}
-		}
-		else
-		{
-			window.active_tooltip = '';
-			info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
-			if (GlobalStyling.spotlight.enabled === true) 
-			{
-				e_spotlight.style.transitionDelay = '0.5s';
-				e_spotlight.style.opacity = '0%';
-			}
-		}
-	}
-
 
 	static ToggleDebugLog()
 	{

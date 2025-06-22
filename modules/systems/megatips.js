@@ -1,6 +1,7 @@
-import { addElement, FadeElement } from "../utils/domutils.js";
 import { sleep } from "../utils/asyncutils.js";
+import { addElement, FadeElement } from "../utils/domutils.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
+import { Spotlight } from "../ui/spotlight.js";
 
 export class MegaTipInstance
 {
@@ -54,12 +55,21 @@ export class MegaTips
                     if ('prep' in tip) tip.prep(MegaTips.e_root);
                     await sleep(10);
                     MegaTips.AdjustTo(tip);
+                    Spotlight.Element(tip.element);
 
                     MegaTips.fading_in = true;
                     await FadeElement(MegaTips.e_root, 0, 100, fade_time);
                     MegaTips.fading_in = this.fading_in;
                     MegaTips.showing = true;
                 }
+                else
+                {
+                    Spotlight.None();
+                }
+            }
+            else
+            {
+                Spotlight.None();
             }
         };
 
@@ -80,7 +90,6 @@ export class MegaTips
 
     static AdjustTo(tip = MegaTipInstance.Nothing)
     {
-
         let tip_rect = MegaTips.e_root.getBoundingClientRect();
 
         let body_rect = document.body.getBoundingClientRect();

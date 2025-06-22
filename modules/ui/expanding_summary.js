@@ -1,5 +1,6 @@
-import { addElement } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
+import { addElement } from "../utils/domutils.js";
+import { MegaTips } from "../systems/megatips.js";
 
 export class ExpandingSummary
 {
@@ -55,14 +56,14 @@ export class ExpandingSummary
     {
         if (this.created === true) return;
         this.e_root = addElement(
-            parent, 'div', 'page-panel panel-button',
+            parent, 'div', 'page-panel',
             'flex-basis:0; flex-grow:1.0; flex-shrink:0.0; align-content:start; padding-left:0.5rem;',
             _ =>
             {
                 _.innerText = this.title;
-                _.title = this.title;
             }
         );
+        MegaTips.RegisterSimple(this.e_root, this.title);
         this.e_root.style.transitionProperty = 'min-height';
         this.e_root.style.transitionDuration = 'var(--trans-dur-off-fast)';
         this.e_root.style.transitionTimingFunction = 'ease-in-out';

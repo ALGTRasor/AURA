@@ -44,12 +44,6 @@ export class PageInstance extends EventTarget
 		);
 	}
 
-	RequireSharedDataTable(datatable)
-	{
-		datatable.instance.addEventListener('datachange', this.Refresh);
-		this.relations = datatable.AddNeeder();
-	}
-
 	SetContentBodyLabel(text)
 	{
 		if (!this.e_content) return;
@@ -221,6 +215,11 @@ export class PageInstance extends EventTarget
 		this.ApplyFrameState();
 	}
 
+	SetMaxFrameWidth(maxWidth = 'unset')
+	{
+		this.e_frame.style.maxWidth = maxWidth;
+	}
+
 	ApplyFrameState(lite = false)
 	{
 		if (this.state.data.docked !== true) this.page_resizer.CreateElements();
@@ -241,6 +240,15 @@ export class PageInstance extends EventTarget
 		this.state.SetValue('position_x', Math.round(new_x));
 		this.state.SetValue('position_y', Math.round(new_y));
 		this.ApplyFrameState(true);
+	}
+
+	SetExpanding(expanding = true)
+	{
+		this.state.SetValue('expanding', expanding);
+		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
+		this.UpdateBodyTransform();
+		this.ApplyFrameState(true);
+		Ripples.SpawnFromElement(this.e_body, 0);
 	}
 
 	ToggleExpanding()

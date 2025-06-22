@@ -1,5 +1,8 @@
+import { GlobalStyling } from "../ui/global_styling.js";
 import { OverlayManager } from "../ui/overlay_manager.js";
+import { Spotlight } from "../ui/spotlight.js";
 import { Hotkeys } from "../utils/hotkeys.js";
+import { Fax } from "./fax.js";
 
 export class AppInput
 {
@@ -36,5 +39,41 @@ export class AppInput
         }
 
         Hotkeys.EvaluateKeyEvent(e);
+    }
+
+
+    static AddBodyEventListeners()
+    {
+        document.body.addEventListener('wheel', e => AppInput.RefreshGlobalTooltip(e), { passive: true });
+        document.body.addEventListener('mouseout', e => AppInput.RefreshGlobalTooltip(e));
+        document.body.addEventListener('mousemove', e => AppInput.RefreshGlobalTooltip(e));
+    }
+
+    static RefreshGlobalTooltip(e)
+    {
+        const e_spotlight = document.getElementById('spotlight');
+        let info_label = document.getElementById('info-bar-marquee');
+        let mouse_element = document.elementFromPoint(e.pageX, e.pageY);
+        if (mouse_element && mouse_element.title && mouse_element.title.length > 0)
+        {
+            window.active_tooltip = mouse_element.title;
+            info_label.innerHTML = '<div>' + window.active_tooltip + '</div>';
+            if (GlobalStyling.spotlight.enabled === true) 
+            {
+                Spotlight.Element(mouse_element);
+                e_spotlight.style.transitionDelay = '0s';
+                e_spotlight.style.opacity = '40%';
+            }
+        }
+        else
+        {
+            window.active_tooltip = '';
+            info_label.innerHTML = '<div>' + Fax.current_fact + '</div>';
+            if (GlobalStyling.spotlight.enabled === true) 
+            {
+                e_spotlight.style.transitionDelay = '0.5s';
+                e_spotlight.style.opacity = '0%';
+            }
+        }
     }
 }

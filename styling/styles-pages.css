@@ -1066,7 +1066,7 @@
 	text-align: center;
 	min-width: 100%;
 	font-size: 70%;
-	color: hsl(from orange h s var(--theme-l060));
+	color: var(--theme-color-highlight);
 	padding: 0;
 	letter-spacing: 0px;
 	font-weight: bold;
@@ -1509,7 +1509,7 @@
 	transform: translate(0%, -50%);
 	max-width: 12rem;
 
-	outline: solid 2px hsl(from orange h s var(--theme-l060));
+	outline: solid 2px var(--theme-color-highlight);
 	box-shadow: 0px 0px 1rem black;
 
 	min-width: 2rem;
@@ -1635,7 +1635,7 @@
 	align-content: center;
 	text-align: center;
 	font-weight: bold;
-	color: hsl(from orange h s var(--theme-l060));
+	color: var(--theme-color-highlight);
 
 	border-radius: 0 0 var(--corner-05) var(--corner-05);
 	border-style: solid;

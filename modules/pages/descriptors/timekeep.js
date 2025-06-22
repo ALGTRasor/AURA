@@ -99,7 +99,7 @@ class TKAllocations extends PanelContent
 							label_alt: `${x.allocation_max - sum_used} hours available`,
 							from_hue_deg: 35.0, to_hue_deg: 65.0,
 							style_full: _ => { _.style.border = 'solid 1px hsl(from cyan h s var(--theme-l050))'; },
-							style_overfull: _ => { _.style.border = 'solid 2px hsl(from orange h s var(--theme-l050))'; },
+							style_overfull: _ => { _.style.border = 'solid 2px var(--theme-color-highlight)'; },
 							check_color: (c, fill) =>
 							{
 								if (fill > 1.0) c = '#f003';
@@ -155,7 +155,7 @@ class TKCalendar extends PanelContent
 					_ =>
 					{
 						addElement(
-							_, 'span', '', 'color:hsl(from orange h s var(--theme-l050));',
+							_, 'span', '', 'color:var(--theme-color-highlight);',
 							_ =>
 							{
 								_.innerText = `${sum_hours} hr`;
@@ -203,6 +203,7 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (!instance) return;
 
+		instance.e_frame.style.minWidth = '20rem';
 		instance.e_content.style.flexDirection = 'column';
 		instance.e_content.style.gap = 'var(--gap-05)';
 
@@ -383,8 +384,8 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '64rem';
-			else instance.e_frame.style.maxWidth = '32rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
+			else instance.e_frame.style.maxWidth = '100vh';
 		}
 		else
 		{

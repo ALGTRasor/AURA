@@ -105,6 +105,7 @@ export class UserAccountInfo
 		return -1;
 	}
 
+	static SuspendAppAccess() { UserAccountInfo.app_access = false; }
 	static HasAppAccess() { return UserAccountInfo.app_access === true; }
 
 	static HasPermission(permission_id = '')

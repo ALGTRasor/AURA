@@ -1,6 +1,8 @@
+import { FadeElement } from "../utils/domutils.js";
+
 export class PanelContent extends EventTarget
 {
-	static Nothing = new PanelContent(null);
+	static Nothing = new PanelContent(undefined);
 
 	created = false;
 	e_parent = undefined;
@@ -50,4 +52,34 @@ export class PanelContent extends EventTarget
 	OnRemoveElements(data) { throw new Error('Panel Content Remove Not Implemented'); }
 
 	OnError(error = new Error('UNDEFINED ERROR')) { console.error(error.stack); }
+
+	TransitionElements(
+		before = async () => { },
+		during = async () => { },
+		after = async () => { },
+		options = {
+			fade_target: this.e_parent,
+			fade_duration: 0.1,
+			skip_fade_out: false,
+			skip_fade_in: false
+		}
+	)
+	{
+		const perform_transition = async () =>
+		{
+			const fade_duration = options.fade_duration ?? 0.05;
+			const will_fade = () => { return options.fade_target() && 'style' in options.fade_target() && fade_duration > 0.0 };
+
+			await before();
+			this.transitioning = true;
+			if (will_fade() === true && options.skip_fade_out !== true)
+				await FadeElement(options.fade_target(), 100, 0, fade_duration);
+			await during();
+			if (will_fade() === true && options.skip_fade_in !== true)
+				await FadeElement(options.fade_target(), 0, 100, fade_duration);
+			this.transitioning = false;
+			await after();
+		};
+		if (this.transitioning !== true) perform_transition();
+	}
 }

@@ -78,7 +78,7 @@ export class Welcome
         }
         else
         {
-            if (UserAccountInfo.app_access) Welcome.welcome_default();
+            if (UserAccountInfo.HasAppAccess()) Welcome.welcome_default();
             else if (UserAccountInfo.is_alg_account) Welcome.welcome_default(); // onboarding user
         }
     }

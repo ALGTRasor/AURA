@@ -1,8 +1,8 @@
+import { clamp } from "../utils/mathutils.js";
 import { Autosave } from "../autosave.js";
 import { DebugLog } from "../debuglog.js";
 import { PageManager } from "../pagemanager.js";
 import { UserSettings } from "../usersettings.js";
-import { clamp } from "../utils/mathutils.js";
 
 export class GlobalStylingAspect
 {
