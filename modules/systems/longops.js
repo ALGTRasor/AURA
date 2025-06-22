@@ -1,6 +1,6 @@
 import { addElement, CreatePagePanel, FlashElement, getTransitionStyle } from "../utils/domutils.js";
 import { NotificationLog } from "../notificationlog.js";
-import { ActionBar } from "../actionbar.js";
+import { ActionBar } from "../ui/actionbar.js";
 import { Trench } from "../ui/trench.js";
 import { MegaTips } from "./megatips.js";
 import { getDurationString } from "../utils/timeutils.js";

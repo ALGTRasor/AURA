@@ -1,4 +1,4 @@
-import { ActionBar } from "../actionbar.js";
+import { ActionBar } from "../ui/actionbar.js";
 import { DBLayer } from "../remotedata/dblayer.js";
 import { UserAccountInfo } from "../useraccount.js";
 import { MegaTips } from "./megatips.js";

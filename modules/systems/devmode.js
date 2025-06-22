@@ -2,7 +2,7 @@ import { Autosave } from "../autosave.js";
 import { FlashElement } from "../utils/domutils.js";
 import { Modules } from "../modules.js";
 import { AppEvents } from "../appevents.js";
-import { ActionBar } from "../actionbar.js";
+import { ActionBar } from "../ui/actionbar.js";
 
 const developer_ids = ['t.rasor'];
 const lskey_devmode_state = 'devmodestate';

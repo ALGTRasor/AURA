@@ -12,7 +12,7 @@ import { OverlayManager } from "../ui/overlay_manager.js";
 import { UserSettings } from "../usersettings.js";
 import { addElement } from "../utils/domutils.js";
 import { PageManager } from "../pagemanager.js";
-import { ActionBar } from "../actionbar.js";
+import { ActionBar } from "../ui/actionbar.js";
 import { AppEvents } from "../appevents.js";
 import { Welcome } from "./welcomes.js";
 import { Autosave } from "../autosave.js";

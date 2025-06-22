@@ -1,4 +1,4 @@
-import { ActionBar } from "../actionbar.js";
+import { ActionBar } from "../ui/actionbar.js";
 import { DebugLog } from "../debuglog.js";
 import { NotificationLog } from "../notificationlog.js";
 import { RequestBatch, RequestBatchRequest, SharePoint } from "../remotedata/sharepoint.js";
