@@ -133,9 +133,9 @@ class TKCalendar extends PanelContent
 {
 	OnCreateElements()
 	{
-		let records = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
-		let all_uses = [];
-		records.forEach(_ => { all_uses = all_uses.concat(_.use_history); });
+		this.records = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
+		this.all_uses = [];
+		this.records.forEach(_ => { this.all_uses = this.all_uses.concat(_.use_history); });
 
 		this.e_root = CreatePagePanel(
 			this.e_parent, true, true, 'flex-direction:column; overflow:visible;',
@@ -143,55 +143,73 @@ class TKCalendar extends PanelContent
 		);
 
 		this.calendar = new Calendar(this.e_root_list, new Date());
-		this.calendar.CreateDayContent = (date, element) =>
-		{
-			let relevant_usages = all_uses.filter(_ => _.date === date.toShortDateString());
-			let sum_hours = 0;
-			relevant_usages.forEach((x, i, a) => sum_hours += x.hours);
-			if (sum_hours > 0)
-			{
-				addElement(
-					element, 'div', '', 'min-height:0;',
-					_ =>
-					{
-						addElement(
-							_, 'span', '', 'color:var(--theme-color-highlight);',
-							_ =>
-							{
-								_.innerText = `${sum_hours} hr`;
-							}
-						);
-					}
-				);
-			}
-		};
-		this.calendar.CreateDayDetailsContent = (date, element) =>
-		{
-			let relevant_usages = all_uses.filter(_ => _.date === date.toShortDateString());
-			let sum_used = 0;
-			relevant_usages.forEach((x, i, a) => sum_used += x.hours);
-			addElement(
-				element, 'div', '', 'display:flex; flex-direction:column; gap:var(--gap-025);',
-				_ => { _.innerText = `${sum_used} Hours Used In ${relevant_usages.length} Parts`; }
-			);
-			let ii = 0;
-			while (ii < relevant_usages.length)
-			{
-				CreatePagePanel(
-					element, false, false, '',
-					_ =>
-					{
-						_.innerText = `${relevant_usages[ii].date}: ${relevant_usages[ii].hours} hrs`;
-					}
-				);
-				ii++;
-			}
-		};
+		this.calendar.CreateDayContent = (date, element) => this.CreateDayContent(date, element);
+		this.calendar.CreateDayDetailsContent = (date, element) => this.CreateDayDetailsContent(date, element);
 		this.calendar.CreateElements();
 		this.calendar.SetFocusDate(new Date());
 	}
 
 	OnRemoveElements() { this.e_root.remove(); }
+
+
+
+	CreateDayContent(date, element) 
+	{
+		let relevant_usages = this.all_uses.filter(_ => _.date === date.toShortDateString());
+		let sum_hours = 0;
+		relevant_usages.forEach((x, i, a) => sum_hours += x.hours);
+		if (sum_hours > 0)
+		{
+			addElement(
+				element, 'div', '', 'min-height:0;',
+				_ =>
+				{
+					addElement(
+						_, 'span', '', 'color:var(--theme-color-highlight);',
+						_ =>
+						{
+							_.innerText = `${sum_hours} hr`;
+						}
+					);
+				}
+			);
+		}
+	}
+
+	CreateDayDetailsContent(date, element) 
+	{
+		let relevant_usages = this.all_uses.filter(_ => _.date === date.toShortDateString());
+		let sum_used = 0;
+		relevant_usages.forEach((x, i, a) => sum_used += x.hours);
+		addElement(
+			element, 'div', '', 'padding:var(--gap-025);',
+			_ =>
+			{
+				if (relevant_usages.length > 1)
+					_.innerText = `${sum_used} Billable Hours in ${relevant_usages.length} spans`;
+				else
+					_.innerText = `${sum_used} Billable Hours`;
+			}
+		);
+		let ii = 0;
+		while (ii < relevant_usages.length)
+		{
+			CreatePagePanel(
+				element, false, false, '',
+				_ =>
+				{
+					let usage = relevant_usages[ii];
+					addElement(
+						_, 'div', '',
+						'padding:var(--gap-025);',
+						_ => { _.innerHTML = `<span style='color:var(--theme-color-highlight);'>${usage.hours}</span> hrs`; }
+					);
+					CreatePagePanel(_, true, false, 'padding:var(--gap-05);', _ => { _.innerText = usage.desc; });
+				}
+			);
+			ii++;
+		}
+	}
 }
 
 export class PageTimekeep extends PageDescriptor
@@ -262,105 +280,6 @@ export class PageTimekeep extends PageDescriptor
 		if ('RemoveElements' in content_next) PerformTransition();
 		else console.warn('invalid next content');
 	}
-
-	/*
-	RefreshContent(instance, delay = -1)
-	{
-		MarkElementLoading(instance.e_root_list);
-
-		if (delay > 0)
-		{
-			window.setTimeout(() => { this.RefreshContent(instance); }, delay);
-			return;
-		}
-
-		instance.e_used_root.innerHTML = '';
-		instance.e_unused_root.innerHTML = '';
-
-		let records = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
-		let records_used = records.filter(_ => _.use_total >= _.allocation_max);
-		let records_unused = records.filter(_ => _.use_total < _.allocation_max);
-
-		const create_in = (x, e_parent) =>
-		{
-			const style_smol = 'font-size:80%; padding-left:var(--gap-1);';
-			let sum_used = x.use_total;// x.use_history.reduce((sum, record) => sum + record.hours, 0);
-
-			instance.e_item = CreatePagePanel(
-				e_parent, false, false, 'display:flex; flex-direction:column; border-radius:var(--corner-05); flex-basis:fit-content; flex-grow:0.0; flex-shrink:0.0; padding:var(--gap-05);',
-				_ =>
-				{
-					addElement(
-						_, 'div', null, 'display:flex; flex-direction:row; flex-grow:0.0;',
-						_ =>
-						{
-							addElement(_, 'div', undefined, 'align-content:center; flex-basis:100%;', x.Title.toUpperCase());
-							instance.e_btn_add_usage = CreatePagePanel(
-								_, false, false, 'width:1.5rem; height:1.5rem; flex-shrink:0.0; flex-grow:0.0;',
-								_ =>
-								{
-									_.classList.add('panel-button');
-									_.addEventListener(
-										'click',
-										e =>
-										{
-											ChoiceOverlay.ShowNew({ prompt: 'Meaningless Message', choices: [{ label: 'ok', on_click: overlay => { overlay.Dismiss(); } }] });
-										}
-									);
-
-									_.appendElement(
-										'i',
-										_ =>
-										{
-											_.classList.add('material-symbols');
-											_.style = 'position:absolute; inset:0; text-align:center; align-content:center;'
-												+ 'font-size:1rem;';
-											_.innerHTML = 'more_time';
-										}
-									);
-								}
-							);
-						}
-					);
-
-					instance.fillbar = FillBar.Create(
-						_,
-						`${Math.round(sum_used / x.allocation_max * 100)}% used`,
-						sum_used / x.allocation_max,
-						{
-							label_alt: `${x.allocation_max - sum_used} hours available`,
-							from_hue_deg: 35.0, to_hue_deg: 65.0,
-							style_full: _ => { _.style.border = 'solid 1px cyan'; },
-							style_overfull: _ => { _.style.border = 'solid 2px orange'; },
-							check_color: (c, fill) =>
-							{
-								if (fill > 1.0) c = '#f003';
-								else if (fill == 1.0) c = '#0ff3'
-								else if (fill > 0.9) c = '#0f03';
-								return c;
-							}
-						}
-					);
-				}
-			);
-
-			MegaTips.RegisterSimple(instance.e_btn_add_usage, 'Add a new billable usage to this allocation.');
-
-			MegaTips.RegisterSimple(
-				instance.e_item,
-				[
-					x.Title.toUpperCase(),
-					`(((${sum_used}))) / (((${x.allocation_max}))) hours used`,
-					`[[[${x.allocation_max - sum_used}]]] hours available`,
-				].join('<br>')
-			);
-		};
-
-		records_used.forEach((x, i, a) => { create_in(x, instance.e_used_root) });
-		records_unused.forEach((x, i, a) => { create_in(x, instance.e_unused_root) });
-		ClearElementLoading(instance.e_root_list, 250);
-	}
-	*/
 
 	OnOpen(instance)
 	{

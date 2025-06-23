@@ -382,10 +382,14 @@ export class PageDirectory extends PageDescriptor
 		instance.e_frame.style.minWidth = '20rem';
 		instance.content = new DirectoryPageContent(instance.e_content, instance);
 		instance.content.CreateElements();
+		window.SharedData.Subscribe('users', instance.UpdateList);
+		window.SharedData.Subscribe('contacts', instance.UpdateList);
 	}
 
 	OnRemoveElements(instance)
 	{
+		window.SharedData.Unsubscribe('users', instance.UpdateList);
+		window.SharedData.Unsubscribe('contacts', instance.UpdateList);
 		instance.content.RemoveElements();
 	}
 

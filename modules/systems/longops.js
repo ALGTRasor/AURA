@@ -91,7 +91,15 @@ export class LongOpsHistory
 	{
 		LongOpsHistory.CheckLoaded();
 		LongOpsHistory.ops.push(op);
-		if (LongOpsHistory.ops.length > 100) LongOpsHistory.ops = LongOpsHistory.ops.slice(LongOpsHistory.ops.length - 100, LongOpsHistory.ops.length);
+		LongOpsHistory.ops.sort(
+			(x, y) =>
+			{
+				if (x.ts_start > y.ts_start) return -1;
+				if (x.ts_start < y.ts_start) return 1;
+				return 0;
+			}
+		);
+		if (LongOpsHistory.ops.length > 100) LongOpsHistory.ops = LongOpsHistory.ops.slice(0, 100);
 		LongOpsHistory.Save();
 	}
 

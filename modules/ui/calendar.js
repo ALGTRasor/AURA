@@ -91,8 +91,9 @@ export class Calendar extends PanelContent
 
     ShowDetails(date)
     {
-        addElement(
-            this.e_entry_container, 'div', '', 'z-index:998; position:absolute; inset:0; background:#0005; backdrop-filter:blur(3px);',
+        let e_details = addElement(
+            this.e_entry_container, 'div', '',
+            'z-index:998; position:absolute; inset:0; background:#0005; backdrop-filter:blur(3px);',
             _ =>
             {
                 _.style.padding = 'var(--gap-025)';
@@ -148,6 +149,7 @@ export class Calendar extends PanelContent
                 );
             }
         );
+        MegaTips.RegisterSimple(e_details, 'Click to hide details');
     }
 
     SetFocusDate(date_focus = new Date())

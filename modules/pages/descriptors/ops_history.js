@@ -46,18 +46,18 @@ export class PageLongOpsHistory extends PageDescriptor
 					addElement(_, 'div', '', 'padding:var(--gap-025); font-size:110%; opacity:100%; color:var(--theme-color-text-80); text-align:center;', _ => { _.innerText = group_key; });
 					let e_ops = CreatePagePanel(_, true, true, 'flex-direction:column; flex-wrap:nowrap; flex-basis:1.0; gap:0; padding:0;');
 
-					let ii = op_group.length - 1;
-					while (ii > -1)
+					let ii = 0;
+					while (ii < op_group.length)
 					{
 						let op = op_group[ii];
 						let id = op_group.length - ii;
-						ii--;
+						ii++;
 						let e_op = addElement(e_ops, 'div', '', 'display:flex;flex-direction:row; padding:4px;');
 						e_op.style.backgroundColor = 'hsl(from ' + (op.error ? 'red' : 'green') + ' h s 50% / 0.1)';
 						e_op.addEventListener('click', e => { LongOps.Dismiss(op); });
 						MegaTips.RegisterSimple(e_op, 'Click to dismiss');
-						addElement(e_op, 'div', '', 'min-width:2rem;flex-grow:0.0;flex-shrink:0.0;font-size:80%;padding-right:1rem;text-align:right;', _ => { _.innerText = (ii + 2).toString(); });
-						addElement(e_op, 'div', '', 'min-width:3rem;flex-grow:0.0;flex-shrink:0.0;font-size:80%;padding-right:1rem;', _ => { _.innerText = new Date(op.ts_start).toLocaleTimeString().replaceAll(' ', ''); });
+						addElement(e_op, 'div', '', 'min-width:2rem;flex-grow:0.0;flex-shrink:0.0;font-size:80%;padding-right:1rem;text-align:right;', _ => { _.innerText = id.toString(); });
+						addElement(e_op, 'div', '', 'min-width:5rem;flex-grow:0.0;flex-shrink:0.0;font-size:80%;padding-right:1rem;', _ => { _.innerText = new Date(op.ts_start).toLocaleTimeString().replaceAll(' ', ''); });
 						addElement(e_op, 'div', '', 'min-width:3rem;flex-grow:0.0;flex-shrink:0.0;font-size:80%;text-align:right;padding-right:1rem;text-wrap:nowrap;', _ => { _.innerText = getDurationString(op.duration); });
 						addElement(
 							e_op, 'div', '', 'min-width:6rem;flex-shrink:0.0;flex-grow:0.0;text-overflow:ellipsis;overflow:hidden;font-size:90%; padding-right:1rem;text-wrap:nowrap;',
@@ -68,7 +68,7 @@ export class PageLongOpsHistory extends PageDescriptor
 							}
 						);
 						addElement(
-							e_op, 'div', '', 'flex-shrink:1.0;flex-grow:1.0;text-overflow:ellipsis;overflow:hidden;text-wrap:nowrap;',
+							e_op, 'div', '', 'flex-shrink:1.0;flex-grow:1.0;text-overflow:ellipsis;overflow:hidden;text-wrap:nowrap; text-align:right;',
 							_ =>
 							{
 								_.innerText = op.label;
