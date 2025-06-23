@@ -233,8 +233,10 @@ export class SharePoint
 		let resp = await fetch(url, { method: 'get', headers: req_headers });
 		if (resp.status == 200) return await resp.json();
 		// unauthorized to perform batch
-		if (resp.status >= 401 && resp.status <= 403)
+		if (resp.status == 401)
 		{
+			let error = (await resp.json()).error;
+			console.warn(`GetData Error\n${error.code}\n${error.message}`);
 			AppEvents.Dispatch('authorization-failure');
 		}
 		return resp;

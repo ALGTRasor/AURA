@@ -166,7 +166,6 @@ export class DirectoryListPageContent extends PanelContent
 
 		this.list_update_timeout = new RunningTimeout(() => { this.UpdateList(); }, 0.25, false, 70);
 		this.slide_mode.Subscribe(() => { this.OnModeChange(); });
-
 		this.slide_mode.SelectIndexAfterDelay(this.page.state.data.view_mode ?? 0, 150, true);
 	}
 

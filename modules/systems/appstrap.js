@@ -32,6 +32,7 @@ export class AppStrap
 			'pdf_view',
 			'directory',
 			'project_hub',
+			'project_builder',
 			'task_hub',
 			'contact_logs',
 			'scratchpad',
