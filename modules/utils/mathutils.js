@@ -9,22 +9,24 @@ export function lerp(x = 0, y = 1, t = 0.5, clamped = true)
 export function get_random_id(length = 5)
 {
     let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = '0123456789abcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++)
     {
         let letterPos = parseInt(crypto.getRandomValues(new Uint8Array(1))[0] / 255 * (charactersLength - 1), 10);
         result += characters[letterPos];
     }
-    return result.toUpperCase();
+    return result;
 }
 
-export function get_guid(segment_length = 5, segment_count = 5)
+export function get_guid(segments = [8, 4, 4, 4, 12])
 {
     let ids = [];
-    while (ids.length < segment_count)
+    let segment_index = 0;
+    while (segment_index < segments.length)
     {
-        ids.push(get_random_id(segment_length));
+        ids.push(get_random_id(segments[segment_index]));
+        segment_index++;
     }
     return ids.join('-');
 

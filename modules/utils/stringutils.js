@@ -13,3 +13,10 @@ String.prototype.insertFromEnd = function (index, string)
 	return this.substring(0, index) + string + this.substring(index, this.length);
 };
 
+
+String.prototype.or = function (other)
+{
+	if (this.length < 1) return other;
+	return this;
+};
+

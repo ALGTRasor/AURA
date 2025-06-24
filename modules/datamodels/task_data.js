@@ -1,24 +1,27 @@
-import { DataFieldDesc } from "./datafield_desc.js";
+import { TaskData } from "../systems/tasks.js";
 import { DataTableDesc } from "./datatable_desc.js";
 
-export class TaskData
+export class Task
 {
 	static data_model = DataTableDesc.Build(
 		[
-			{ key: 'id', label: 'id', exclude: true },
-			{ key: 'Title', label: 'task id' },
-			{ key: 'task_title', label: 'task name' },
-			{ key: 'task_desc', label: 'description', multiline: true },
-			{ key: 'task_comments', label: 'comments', format: 'list' },
-			{ key: 'subtask_ids', label: 'subtasks', format: 'list' },
-
-			{ key: 'task_date_due', label: 'due date', format: 'date' },
-			{ key: 'task_date_completed', label: 'completed date', format: 'date' },
-
-			{ key: 'owner_user_id', label: 'owner', format: 'user' },
-			{ key: 'assigned_user_ids', label: 'assigned users', format: 'list' },
-			{ key: 'task_project_id', label: 'project', format: 'project' },
-		]
+			{ key: 'id', label: 'table index', exclude: true },
+			{ key: 'Title', label: 'task guid' },
+			{ key: 'task_title', label: 'task title' },
+			{ key: 'task_data', label: 'task data', multiline: true },
+		],
+		Task.Expander
 	);
+
+	static Expander(record = {})
+	{
+		let data = {
+			table_index: record.id,
+			guid: record.Title,
+			title: record.task_title
+		};
+		if (record.task_data && typeof record.task_data === 'string' && record.task_data.length > 1)
+			data = JSON.parse(record.task_data) ?? {};
+		return new TaskData(data);
+	}
 }
-TaskData.data_model.field_descs['task_comments'].list_separator = '}:|:{';

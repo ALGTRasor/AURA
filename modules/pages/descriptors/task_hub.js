@@ -1,10 +1,110 @@
-import { TaskData } from "../../datamodels/task_data.js";
-import { SharedData } from "../../remotedata/datashared.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
+import { RunningTimeout } from "../../utils/running_timeout.js";
+import { PanelContent } from "../../ui/panel_content.js";
 import { PageManager } from "../../pagemanager.js";
-import { RecordFormUtils } from "../../ui/recordform.js";
-import { RecordViewer } from "../../ui/recordviewer.js";
 import { PageDescriptor } from "../pagebase.js";
+import { MegaTips } from "../../systems/megatips.js";
+import "../../utils/stringutils.js";
+import { TaskData, Tasks } from "../../systems/tasks.js";
+import { get_guid } from "../../utils/mathutils.js";
+
+class TaskTrackerContent extends PanelContent
+{
+	constructor(e_parent, page)
+	{
+		super(e_parent);
+		this.page = page;
+
+		this.content_timeout = new RunningTimeout(() => { this.RefreshElements(); }, 0.25, false, 70);
+		this.refresh_soon = () => { this.content_timeout.ExtendTimer(); };
+	}
+
+	OnCreateElements()
+	{
+		this.e_root = addElement(
+			this.e_parent, 'div', undefined,
+			'position:absolute; inset:0; display:flex; flex-direction:column; flex-wrap:nowrap;'
+			+ 'gap:var(--gap-025); padding:var(--gap-05);'
+		);
+
+		this.e_tasks = CreatePagePanel(
+			this.e_root, true, false,
+			'display:flex; flex-direction:column;'
+			+ 'flex-wrap:nowrap; gap:var(--gap-025); padding:var(--gap-05);'
+			+ 'overflow: hidden auto;'
+		);
+
+		let e_btn_new = CreatePagePanel(this.e_root, false, false);
+		e_btn_new.addEventListener(
+			'click',
+			e =>
+			{
+				const sort_rand = (x, y) => (Math.round(Math.random()) * 2 - 1);
+				const scramble = 'new randomly generated test task temporary';
+				let desc = 'A ' + scramble.split(' ').sort(sort_rand).join(' ') + '.';
+				Tasks.CreateNew(
+					new TaskData(
+						{
+							guid: get_guid(),
+							title: 'Test Task ' + (Math.round(Math.random() * 8999) + 1000),
+							description: desc
+						}
+					)
+				);
+			}
+		);
+
+		this.refresh_soon();
+	}
+
+	OnRefreshElements()
+	{
+		this.TransitionElements(
+			() => { this.e_tasks.style.pointerEvents = 'none'; },
+			() =>
+			{
+				this.e_tasks.innerHTML = '';
+				let ii = 0;
+				while (ii < SharedData['tasks'].instance.data.length)
+				{
+					let task = SharedData['tasks'].instance.data[ii];
+					let e_task = CreatePagePanel(
+						this.e_tasks, false, false,
+						'flex-grow:0.0; flex-shrink:0.0; display:flex; flex-direction:row; padding-left:var(--gap-05);'
+					);
+					const style_info = 'text-overflow:ellipsis; overflow:hidden; align-content:center;';
+					addElement(e_task, 'div', '', style_info + 'flex-grow:1.0;flex-shrink:0.0;text-wrap:nowrap;', _ => { _.innerHTML = task.title; });
+					addElement(e_task, 'div', '', style_info + 'flex-grow:0.0;flex-shrink:1.0;font-size:70%; text-align:right;', _ => { _.innerHTML = task.description.or('NO DESCRIPTION'); });
+					let e_btn_view = CreatePagePanel(e_task, true, false, 'width:1.5rem; height:1.5rem; flex-grow:0.0; flex-shrink:0.0;');
+					addElement(e_btn_view, 'i', 'material-symbols icon-button', '', _ => { _.innerText = 'open_in_new'; });
+					MegaTips.RegisterSimple(
+						e_task,
+						[
+							`{{{TASK}}} ${task.guid}`,
+							`{{{TITLE}}} ${task.title}`,
+							`{{{DESCRIPTION}}} ${task.description.or('[[[NO DESCRIPTION]]]')}`,
+							`{{{OWNER}}} ${task.owner_id.or('[[[NO OWNER]]]')}`,
+						].join('<br>')
+					);
+					MegaTips.RegisterSimple(e_btn_view, 'Click to view this task.');
+					ii++;
+				}
+			},
+			() => { this.e_tasks.style.pointerEvents = 'all'; },
+			{
+				fade_target: () => this.e_tasks,
+				fade_duration: 0.125,
+				skip_fade_out: false,
+				skip_fade_in: false
+			}
+		);
+	}
+
+	OnRemoveElements()
+	{
+		this.e_root.remove();
+	}
+}
 
 export class PageTaskHub extends PageDescriptor
 {
@@ -13,41 +113,35 @@ export class PageTaskHub extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		if (!instance) return;
-
 		instance.e_frame.style.minWidth = '32rem';
+		instance.e_content.style.display = 'flex';
+		instance.e_content.style.gap = 'var(--gap-025)';
 
-		instance.viewer = new RecordViewer();
-		instance.viewer.SetData(SharedData.tasks.data);
-		const sort = (x, y) =>
-		{
-			if (x.task_title < y.task_title) return -1;
-			if (x.task_title > y.task_title) return 1;
-			return 0;
-		};
-		instance.viewer.SetListItemSorter(sort);
-		instance.viewer.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].task_title }); });
-		instance.viewer.SetViewBuilder(records => this.BuildRecordView(instance, records));
-		instance.viewer.CreateElements(instance.e_content);
+		instance.content = new TaskTrackerContent(instance.e_content, instance);
+		instance.content.CreateElements();
+
+		instance.relate_tasks = window.SharedData['tasks'].AddNeeder();
+		window.SharedData.Subscribe('tasks', instance.refresh_soon);
 	}
 
-	BuildRecordView(instance, records)
+	OnRemoveElements(instance)
 	{
-		if (!records || records.length < 1) return;
+		window.SharedData.Unsubscribe('tasks', instance.refresh_soon);
+		window.SharedData['tasks'].RemoveNeeder(instance.relate_tasks);
+		instance.content.RemoveElements();
+	}
 
-		for (let id in records)
-		{
-			let record = records[id];
-			let e_info_root = CreatePagePanel(instance.viewer.e_view_root, false, false, 'min-width:20vw;', e => { });
-			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.task_title; });
-			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
-			RecordFormUtils.CreateRecordInfoList(e_info_body, record, TaskData.data_model.field_descs);
-		}
+	UpdateSize(instance)
+	{
+		instance.UpdateBodyTransform();
+		this.OnLayoutChange(instance);
 	}
 
 	OnLayoutChange(instance)
 	{
-		instance.viewer.RefreshElementVisibility();
+		let use_fixed_width = instance.state.data.docked === true && instance.state.data.expanding === false;
+		if (use_fixed_width === true) instance.SetMaxFrameWidth('24rem');
+		else instance.SetMaxFrameWidth('unset');
 	}
 }
 

@@ -7,7 +7,7 @@ import { Permission } from "../datamodels/user_permission.js";
 import { InternalUser } from "../datamodels/internal_user.js";
 import { Role } from "../datamodels/role.js";
 import { Team } from "../datamodels/team.js";
-import { TaskData } from "../datamodels/task_data.js";
+import { Task } from "../datamodels/task_data.js";
 import { ProjectCoreData } from "../datamodels/project_data_core.js";
 import { HrRequest } from "../datamodels/hr_request.js";
 import { TimekeepEvent, TimekeepStatus } from "../datamodels/timekeep.js";
@@ -192,7 +192,7 @@ DataSourceDescriptor.Teams = new DataSourceDescriptor('ALGTeams', Team.data_mode
 DataSourceDescriptor.Roles = new DataSourceDescriptor('ALGRoles', Role.data_model, 'role_name', 'role_name');
 DataSourceDescriptor.Permissions = new DataSourceDescriptor('ALGPerms', Permission.data_model);
 DataSourceDescriptor.Users = new DataSourceDescriptor('ALGUsers', InternalUser.data_model, 'display_name_full', 'display_name_full');
-DataSourceDescriptor.Tasks = new DataSourceDescriptor('ALGTasks', TaskData.data_model, 'task_title', 'task_title');
+DataSourceDescriptor.Tasks = new DataSourceDescriptor('ALGTasks', Task.data_model, 'task_title', 'task_title');
 DataSourceDescriptor.Contacts = new DataSourceDescriptor('ALGContacts', ExternalContact.data_model, 'contact_name', 'contact_name');
 DataSourceDescriptor.Projects = new DataSourceDescriptor('ALGProjects', ProjectCoreData.data_model, 'project_name', 'project_name');
 DataSourceDescriptor.HrRequests = new DataSourceDescriptor('ALGHRRequests', HrRequest.data_model, 'request_name', 'request_name');

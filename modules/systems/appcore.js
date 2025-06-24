@@ -180,6 +180,8 @@ export class AppCore extends EventTarget
 		window.addEventListener('focus', _ => AppCore.OnWindowFocus());
 		window.timeout_WindowSizeChange = new RunningTimeout(AppCore.OnWindowSizeChanged, 0.5, true, 250);
 
+		window.fontSizePixels = parseInt(getComputedStyle(document.documentElement).fontSize);
+
 		window.loop_detectWindowSizeChange = new AnimJob(200, AppCore.CheckWindowSizeChanged);
 		window.loop_detectWindowSizeChange.Start();
 
