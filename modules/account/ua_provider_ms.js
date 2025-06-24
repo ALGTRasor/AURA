@@ -33,7 +33,8 @@ const CLIENT_SCOPES = [
 	'offline_access',
 	'user.read',
 	'Sites.ReadWrite.All',
-	'Files.Read.All'
+	//'Mail.ReadWrite',
+	'Files.Read.All',
 ].join(' ');
 
 

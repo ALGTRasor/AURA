@@ -26,6 +26,7 @@ export class AppStrap
 			'settings',
 			'ops_history',
 			'user_dashboard',
+			'mail',
 			'help',
 			'problems',
 			'files',
