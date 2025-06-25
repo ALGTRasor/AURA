@@ -208,7 +208,7 @@ export class PageTitleBar
 
 
 		if (hasSiblingL) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageMoveL);
-		this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageRefresh);
+		if (this.page.page_descriptor.OnDataRefresh) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageRefresh);
 
 		if (this.page.page_descriptor.title !== 'nav menu' || PageManager.page_instances.length > 1)
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
