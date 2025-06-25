@@ -5,7 +5,7 @@ export class Task
 {
 	static data_model = DataTableDesc.Build(
 		[
-			{ key: 'id', label: 'table index', exclude: true },
+			{ key: 'id', label: 'table index' },
 			{ key: 'Title', label: 'task guid' },
 			{ key: 'task_title', label: 'task title' },
 			{ key: 'task_data', label: 'task data', multiline: true },
@@ -15,13 +15,13 @@ export class Task
 
 	static Expander(record = {})
 	{
-		let data = {
-			table_index: record.id,
-			guid: record.Title,
-			title: record.task_title
-		};
+		let data = {};
 		if (record.task_data && typeof record.task_data === 'string' && record.task_data.length > 1)
 			data = JSON.parse(record.task_data) ?? {};
+
+		data.table_index = record.id;
+		data.guid = record.Title;
+		data.title = record.task_title;
 		return new TaskData(data);
 	}
 }

@@ -53,6 +53,7 @@ export class Welcome
 
     static ShowWelcomeMessage()
     {
+        if (UserAccountInfo.HasAppAccess() !== true) return;
         Welcome.GetWelcomeInfo();
         if (window.found_tokens === true) Welcome.OnFoundTokens();
         else Welcome.OnNoTokens();

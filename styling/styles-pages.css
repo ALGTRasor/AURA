@@ -98,8 +98,8 @@
 	flex-shrink: 1.0;
 	flex-grow: 1.0;
 	flex-basis: 0;
-	min-width: 13rem;
-	min-height: 13rem;
+	min-width: min(100vw, 13rem);
+	min-height: min(100vh, 13rem);
 }
 
 .page-root-frame::after

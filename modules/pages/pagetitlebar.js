@@ -204,15 +204,18 @@ export class PageTitleBar
 		let hasSiblingL = showMoveButtons && this.page.e_frame.previousElementSibling != null;
 		let hasSiblingR = showMoveButtons && this.page.e_frame.nextElementSibling != null;
 
+		let mobile_layout = window.mobile_mode_enabled === true;
+
 
 		if (hasSiblingL) this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageMoveL);
+		this.AddButtonFromDescriptor(this.e_buttons_left, TitleBarButtonDescriptor.PageRefresh);
 
 		if (this.page.page_descriptor.title !== 'nav menu' || PageManager.page_instances.length > 1)
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageClose);
 
-		this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
+		if (mobile_layout !== true) this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleDocked);
 
-		if (this.page.page_descriptor.UpdateSize || this.page.state.data.docked === false)
+		if (mobile_layout !== true && this.page.page_descriptor.UpdateSize || this.page.state.data.docked === false)
 			this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageToggleExpanding);
 
 		//this.AddButtonFromDescriptor(this.e_buttons_right, TitleBarButtonDescriptor.PageTogglePin);

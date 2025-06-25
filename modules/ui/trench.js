@@ -10,6 +10,7 @@ export class Trench
 		this.e_root = CreatePagePanel(
 			e_parent, this.inset, false,
 			'display:flex; flex-direction:row; justify-content:center; flex-wrap:nowrap; flex-shrink:0.0; flex-grow:0.0; font-size:' + this.fontSize + ';'
+			+ 'gap:var(--gap-025);'
 		);
 	}
 
@@ -22,7 +23,11 @@ export class Trench
 				_.classList.add('panel-button');
 				if (on_click) _.addEventListener('click', on_click);
 				if (color && color.length > 0) _.style.setProperty('--theme-color', color);
-				addElement(_, 'i', 'material-symbols', 'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';', _ => { _.innerText = icon; });
+				addElement(
+					_, 'i', 'material-symbols',
+					'position:absolute; inset:0; font-weight:normal; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';',
+					_ => { _.innerText = icon; }
+				);
 			}
 		);
 		if (tooltip) MegaTips.RegisterSimple(e, tooltip);
@@ -31,7 +36,10 @@ export class Trench
 
 	AddLabel(text = '', tooltip = '')
 	{
-		let e = addElement(this.e_root, 'div', '', 'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';');
+		let e = addElement(
+			this.e_root, 'div', '',
+			'flex-grow:1.0; font-weight:bold; align-content:center; text-align:center; opacity:60%; font-size:' + this.fontSize + ';'
+		);
 		e.innerHTML = text;
 		if (tooltip) MegaTips.RegisterSimple(e, tooltip);
 		return e;

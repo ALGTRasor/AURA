@@ -26,6 +26,7 @@ export class DBConfig
 	async GetRecordById(source, record_id) { }
 	async UpdateRecord(source, record_id, record_data) { }
 	async CreateRecord(source, record_data) { }
+	async DeleteRecord(source, record_id) { }
 
 	// methods for handling remotely stored files in a folder / file structure
 	async CreateItem(path, data) { }

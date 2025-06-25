@@ -47,7 +47,7 @@ export class MegaTips
 
         const try_show_tip = async () =>
         {
-            if (MegaTips.active.length > 0)
+            if (MegaTips.active.length > 0 && window.mobile_mode_enabled !== true)
             {
                 let tip = MegaTips.active[MegaTips.active.length - 1];
                 if (tip)

@@ -84,8 +84,7 @@ export class PageNavMenu extends PageDescriptor
 			const button_order_id = ('order_index' in desc) ? desc.order_index : 0;
 			const button_action = e =>
 			{
-				if (e.button === 2) return; // right click / context menu
-				if (e.button === 1) // middle click
+				if (window.mobile_mode_enabled === true || e.button === 1) // middle click
 				{
 					PageManager.CloseAll();
 					until(
@@ -94,7 +93,7 @@ export class PageNavMenu extends PageDescriptor
 						() => { PageManager.TogglePageByTitle(id); }
 					);
 				}
-				if (e.button === 0) // left click
+				else if (e.button === 0) // left click
 				{
 					if (e.shiftKey === true) PageManager.OpenPageFromDescriptor(desc, undefined, true);
 					else PageManager.TogglePageByTitle(id);

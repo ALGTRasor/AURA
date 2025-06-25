@@ -40,10 +40,17 @@ export class Fax
 
 	static async RefreshFact()
 	{
-		let fact = await Fax.GetOne();
-		Fax.current_fact = fact;
-		Fax.e_marquee.innerHTML = `<div>${fact}</div>`;
-		DebugLog.Log('refreshed fact');
+		if (window.mobile_mode_enabled === true)
+		{
+			Fax.e_marquee.style.visibility = 'hidden';
+		}
+		else
+		{
+			let fact = await Fax.GetOne();
+			Fax.current_fact = fact;
+			Fax.e_marquee.innerHTML = `<div>${fact}</div>`;
+			DebugLog.Log('refreshed fact');
+		}
 	}
 }
 

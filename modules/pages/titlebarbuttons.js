@@ -19,6 +19,13 @@ export class TitleBarButtonDescriptor
 		_ => { _.color = 'hsl(from red h s var(--theme-l050))'; _.sort_order = -10000; }
 	);
 
+	static PageRefresh = new TitleBarButtonDescriptor(
+		'refresh',
+		(e, data) => { if ('page' in data && 'OnDataRefresh' in data.page.page_descriptor) data.page.page_descriptor.OnDataRefresh(data.page); },
+		(data) => 'Refresh this page',
+		_ => { _.sort_order = 1000; }
+	);
+
 	static PageMoveL = new TitleBarButtonDescriptor(
 		'chevron_left',
 		(e, data) => { if ('page' in data) data.page.MoveLeft(e.shiftKey); },

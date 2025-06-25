@@ -26,6 +26,7 @@ import { AppStats } from "./appstats.js";
 import { Fax } from "./fax.js";
 import { AppInput } from "./appinput.js";
 import { Spotlight } from "../ui/spotlight.js";
+import { MobileMode } from "./mobile_mode.js";
 
 export class AppCore extends EventTarget
 {
@@ -33,25 +34,6 @@ export class AppCore extends EventTarget
 
 	static async Initialize()
 	{
-		if (AppCore.IsLoadedInFrame() === true) 
-		{
-			let location_string = window.self.location.toString();
-			window.self.addEventListener(
-				'message',
-				e =>
-				{
-					switch (e.data.message)
-					{
-						case 'AuthFrameInit':
-							window.top.postMessage({ message: 'AuthFrameInit', location_string: location_string }, '*');
-							break;
-						default: break;
-					}
-				}
-			);
-			return;
-		}
-
 		AppCore.#InitializeCore();
 	}
 
@@ -187,14 +169,16 @@ export class AppCore extends EventTarget
 
 		//AppInput.AddBodyEventListeners();
 
-		window.loop_updateClock = new AnimJob(33333, AppCore.UpdateClock);
+		const clock_refresh_delay_s = 29;
+		const clock_refresh_delay_ms = clock_refresh_delay_s * 1000;
+		window.loop_updateClock = new AnimJob(clock_refresh_delay_ms, AppCore.UpdateClock);
 		window.loop_updateClock.Start();
 		AppCore.UpdateClock();
 
 		MegaTips.CreateElements();
 		Spotlight.Initialize();
 
-		window.use_mobile_layout = window.visualViewport.width < window.visualViewport.height;
+		MobileMode.Check();
 		window.e_content_root = document.getElementById('content-body');
 
 		window.SetContentFaded = (enabled = true) =>

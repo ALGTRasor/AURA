@@ -331,6 +331,14 @@ export class SharePoint
 		return result;
 	}
 
+	static async DeleteListItem(datasource_descriptor = DataSourceDescriptor.Nothing, id = '')
+	{
+		let url = SharePoint.GetListUrl(datasource_descriptor.site_name, datasource_descriptor.list_title) + '/items/' + id;
+		let result = await SharePoint.SetData(url, undefined, 'DELETE');
+		DebugLog.Log('Patch sharepoint delete item result: ' + result);
+		return result;
+	}
+
 	static async PatchListItem(datasource_descriptor = DataSourceDescriptor.Nothing, item_id = '', data = {})
 	{
 		let url = SharePoint.GetListUrl(datasource_descriptor.site_name, datasource_descriptor.list_title) + '/items/' + item_id + '/fields';
@@ -404,6 +412,7 @@ export class DB_SharePoint extends DBConfig
 	async GetRecordById(source, record_id) { }
 	async UpdateRecord(source, record_id, record_data) { return await SharePoint.PatchListItem(source, record_id, record_data); }
 	async CreateRecord(source, record_data) { return await SharePoint.CreateListItem(source, record_data); }
+	async DeleteRecord(source, record_id) { return await SharePoint.DeleteListItem(source, record_id); }
 
 	// methods for handling remotely stored items in a folder / file structure
 	async CreateItem(path, data) { }

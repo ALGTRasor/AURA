@@ -5,19 +5,20 @@ export class TaskData
 {
     guid = ''; // the generated Task ID for the task
     title = ''; // the title for the task
+    owner_id = ''; // the User ID of the current owner
     description = ''; // the description for the task
-    to_do_items = []; // an array of To-Do items and their status
-    comments = []; // an array of comments and their details
 
     date_assigned = null; // the date this task was first assigned
     date_due = null; // the date this task is due
     date_completed = null; // the date this task was completed
 
-    owner_id = ''; // the User ID of the current owner
     participant_ids = []; // an array of relevant User IDs
 
     project_ids = []; // an array of relevant Project IDs
     subtask_ids = []; // an array of relevant Tasks IDs
+
+    to_do_items = []; // an array of To-Do items and their status
+    comments = []; // an array of comments and their details
 
     static Nothing = new TaskData();
     static Default = new TaskData(
@@ -90,6 +91,20 @@ export class Tasks
         return await DBLayer.CreateRecord(
             window.SharedData['tasks'].instance.descriptor,
             { fields: task_data.GetCompact() }
+        );
+    }
+
+    static async DeleteExisting(task_id = '')
+    {
+        if (typeof task_id !== 'string' || task_id.length < 1) 
+        {
+            console.warn('Failed to delete task: task_id invalid');
+            return;
+        }
+
+        return await DBLayer.DeleteRecord(
+            window.SharedData['tasks'].instance.descriptor,
+            task_id
         );
     }
 }

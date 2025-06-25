@@ -18,10 +18,12 @@ export class SharedDataTable
 	{
 		this.key = key;
 		this.instance = new DataSourceInstance(datasource_descriptor, this);
-		if (typeof this.key === 'string' && this.key.length > 0)
-			this.instance.addEventListener('datachange', () => SharedData.InvokeChangeEvent(this.key));
+
+		if (typeof this.key !== 'string' || this.key.length < 1) return;
+		this.instance.addEventListener('datachange', () => this.InvokeChangeEvent());
 	}
 
+	InvokeChangeEvent() { SharedData.InvokeChangeEvent(this.key); }
 	async Download() { await this.instance.TryLoad(true); }
 
 	AddNeeder() { return this.instance.AddNeeder(); }

@@ -252,6 +252,8 @@ export class PageManager
 			&& UserAccountInfo.HasPermission(page_desc.permission) === false
 		) return false;
 
+		if (window.mobile_mode_enabled === true && page_desc.hide_on_mobile === true) return;
+
 		if (page_desc.debug_page === true && DevMode.active === false) return false;
 
 		return true;

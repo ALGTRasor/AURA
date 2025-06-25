@@ -23,6 +23,7 @@ export class DBLayer
 	static async GetRecordById(source, record_id) { return await DBLayer.config.GetRecordById(source, record_id); }
 	static async UpdateRecord(source, record_id, record_data) { return await DBLayer.config.UpdateRecord(source, record_id, record_data); }
 	static async CreateRecord(source, record_data) { return await DBLayer.config.CreateRecord(source, record_data); }
+	static async DeleteRecord(source, record_id) { return await DBLayer.config.DeleteRecord(source, record_id); }
 
 	static async CreateItem(path, data) { return await DBLayer.config.CreateItem(path, data); }
 	static async DownloadItem(path) { return await DBLayer.config.DownloadItem(path); }

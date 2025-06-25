@@ -215,9 +215,14 @@ export class PageInstance extends EventTarget
 		this.ApplyFrameState();
 	}
 
-	SetMaxFrameWidth(maxWidth = 'unset')
+	ClearMaxFrameWidth()
 	{
-		this.e_frame.style.maxWidth = maxWidth;
+		this.e_frame.style.maxWidth = 'calc(100vw - 3 * var(--gap-1))';
+	}
+
+	SetMaxFrameWidth(maxWidth = '32rem')
+	{
+		this.e_frame.style.maxWidth = `min(100vw, ${maxWidth})`;
 	}
 
 	ApplyFrameState(lite = false)
@@ -292,6 +297,12 @@ export class PageInstance extends EventTarget
 		this.page_descriptor.OnOpen(this);
 
 		this.page_resizer = new PageResizer(this.e_body, this);
+
+		if (window.mobile_mode_enabled === true)
+		{
+			this.state.SetValue('expanding', true);
+			this.ClearMaxFrameWidth();
+		}
 
 		this.created = true;
 	}

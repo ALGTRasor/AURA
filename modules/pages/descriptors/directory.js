@@ -402,7 +402,7 @@ export class PageDirectory extends PageDescriptor
 	{
 		let use_fixed_width = instance.state.data.docked === true && instance.state.data.expanding === false;
 		if (use_fixed_width === true) instance.SetMaxFrameWidth('24rem');
-		else instance.SetMaxFrameWidth('unset');
+		else instance.ClearMaxFrameWidth();
 
 		window.setTimeout(() => instance.content.OnPageLayoutChange(), 150);
 	}
