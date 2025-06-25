@@ -186,7 +186,7 @@ export class PageManager
 	}
 
 
-	static CloseAll()
+	static CloseAll(after = () => { })
 	{
 		const close_first = () =>
 		{
@@ -195,6 +195,7 @@ export class PageManager
 				PageManager.closingAll = false;
 				PageManager.pauseLayoutChange = false;
 				PageManager.AfterPageClosed();
+				if (after) after();
 				return;
 			}
 			PageManager.page_instances[0].CloseInstance();

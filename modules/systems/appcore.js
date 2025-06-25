@@ -251,7 +251,11 @@ export class AppCore extends EventTarget
 	{
 		let e_btn_settings = ActionBar.AddMenuButton(
 			'settings', 'settings',
-			_ => PageManager.OpenPageByTitle('settings')
+			_ =>
+			{
+				if (window.mobile_mode_enabled === true)
+					PageManager.CloseAll(() => { PageManager.OpenPageByTitle('settings'); });
+			}
 		);
 		MegaTips.RegisterSimple(e_btn_settings, 'Open the settings page. <br> (((You can view and manage your settings <br> and find useful information like hotkeys and permissions.)))');
 

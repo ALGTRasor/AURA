@@ -29,7 +29,7 @@ export class ActionBar
 			}
 		);
 
-		ActionBar.e_root.addEventListener('mouseenter', _ => { if (PageManager.pages_being_dragged < 1) window.SetContentFaded(true); });
+		ActionBar.e_root.addEventListener('mouseenter', _ => { if (PageManager.pages_being_dragged < 1 && window.mobile_mode_enabled !== true) window.SetContentFaded(true); });
 		ActionBar.e_root.addEventListener('mouseleave', _ => { window.SetContentFaded(false); });
 
 		ActionBar.initialized = true;
