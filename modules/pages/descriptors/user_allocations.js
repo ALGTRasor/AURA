@@ -6,6 +6,7 @@ import { MegaTips } from "../../systems/megatips.js";
 import { FillBar } from "../../ui/fillbar.js";
 import { GlobalStyling } from "../../ui/global_styling.js";
 import { PanelContent } from "../../ui/panel_content.js";
+import { PieChart } from "../../ui/pie_chart.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { Trench } from "../../ui/trench.js";
 import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
@@ -94,7 +95,7 @@ class PanelUserAllocationGroup extends PanelContent
 	OnCreateElements()
 	{
 		this.e_root = CreatePagePanel(
-			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:0.0; flex-shrink:0.0;',
+			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:1.0; flex-shrink:0.0;',
 			_ =>
 			{
 				let summary_max = 0.0;
@@ -110,6 +111,70 @@ class PanelUserAllocationGroup extends PanelContent
 						summary_history.push(use);
 					}
 				}
+
+				let phase_used = summary_used / summary_max;
+				let degrees_used = phase_used * 360;
+				let percent_used = (100 * phase_used);
+				let percent_left = (100 - percent_used);
+
+				let e_pie = new PieChart(
+					_, '12rem',
+					[
+						{ phase: percent_used + '%', color: 'hsl(from #0af h s var(--theme-l040))' },
+						{ phase: percent_left + '%', offset: degrees_used + 'deg', color: 'hsl(from orange h s var(--theme-l040))' },
+					]
+				);
+				e_pie.CreateElements();
+				e_pie.e_root.style.alignSelf = 'center';
+				e_pie.SetInfo(
+					_ =>
+					{
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; translate:-50% 0%; top:var(--gap-025); height:1rem; text-wrap:nowrap; overflow:visible;'
+							+ 'font-weight:bold; border-radius:var(--corner-05);'
+							+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							+ 'text-align:center; align-content:center; padding:var(--gap-05);',
+							_ => { _.innerText = this.group_id; }
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% 0%; text-align:center; align-content:center;'
+							+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8); padding:var(--gap-05); border-radius:var(--corner-05);',
+							_ =>
+							{
+								addElement(
+									_, 'span', '',
+									'align-content:center; padding:var(--gap-05); color:hsl(from orange h s 50%);'
+									+ 'font-size:130%; font-weight:bold;'
+									+ 'text-shadow:0 2px 0.125rem hsl(from var(--shadow-color) h s l / 0.5);',
+									_ => { _.innerHTML = summary_max - summary_used; }
+								);
+								addElement(_, 'span', '', 'align-content:center; text-wrap:nowrap; font-size:80%;', _ => { _.innerHTML = 'hours left'; });
+							}
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; top:50%; translate:-50% -50%; text-align:center; align-content:center;'
+							+ 'font-size:250%; font-weight:bold;'
+							+ 'text-shadow:0 0.25rem 0.125rem hsl(from var(--shadow-color) h s l / 0.2);'
+							//+ 'background:hsl(from var(--theme-color-background) h s l / 0.5);'
+							+ 'padding:var(--gap-025); border-radius:var(--corner-05);',
+							_ => { _.innerHTML = Math.round(percent_used) + '%<br><span style="display:block;font-size:40%;">used</span>'; }
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; right:var(--gap-025); translate:0% -50%; top:50%; width:1.5rem; height:1.5rem;'
+							+ 'border-radius:var(--corner-05); background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							+ 'text-align:center; align-content:center;',
+							_ => { addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'person'; }); }
+						);
+					}
+				);
+				return;
 
 				addElement(
 					_, 'div', null, 'display:flex; flex-direction:row; flex-basis:0.0; padding:var(--gap-025); gap:var(--gap-025);',
@@ -294,7 +359,7 @@ class PanelUserAllocationList extends PanelContent
 		this.e_root_records = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:column; gap:var(--gap-1); padding:var(--gap-05);');
 		this.e_root_records.classList.add('scroll-y');
 
-		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:column; gap:var(--gap-1);');
+		this.e_root_records_actual = addElement(this.e_root_records, 'div', null, 'display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--gap-05);');
 
 		this.e_actions = CreatePagePanel(this.e_root, true, false, 'display:flex; gap:var(--gap-025); flex-basis:2.5rem; flex-grow:0.0; flex-shrink:0.0; justify-content:space-around;');
 		this.e_btn_create_new = CreatePagePanel(
@@ -417,12 +482,14 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_frame.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
 
 		instance.e_content.style.overflow = 'hidden';
 		instance.e_content.style.display = 'flex';
 		instance.e_content.style.gap = 'var(--gap-025)';
 		instance.e_content.style.flexDirection = 'column';
+
+		instance.content_timeout = new RunningTimeout(() => { this.RefreshData(instance); }, 0.25, 70);
 
 		instance.slide_mode = new SlideSelector();
 		const modes = [
@@ -432,21 +499,28 @@ export class PageUserAllocations extends PageDescriptor
 
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
-		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.Title.toUpperCase(), _ => _.user_id);
+		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.guid.toUpperCase(), _ => _.user_id);
 		instance.panel_list.CreateElements(instance.e_content);
 		instance.panel_list_items_root = instance.panel_list.e_root_records_actual;
 
 		instance.transitionContent = mode_id => { this.TransitionModeContent(instance); };
 		instance.slide_mode.Subscribe(instance.transitionContent);
-		instance.slide_mode.ApplySelectionSoon();
+		//instance.slide_mode.ApplySelectionSoon();
 		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 
 		instance.RefreshData = () => this.RefreshData(instance);
+		instance.RefreshDataSoon = () => instance.content_timeout.ExtendTimer();
 	}
 
 	OnRemoveElements(instance)
 	{
 		instance.slide_mode.Unsubscribe(instance.transitionContent);
+	}
+
+	OnDataRefresh(instance)
+	{
+		MarkElementLoading(instance.panel_list_items_root);
+		window.SharedData['user allocations'].Download();
 	}
 
 	TransitionModeContent(instance)
@@ -465,13 +539,13 @@ export class PageUserAllocations extends PageDescriptor
 			switch (instance.slide_mode.selected_index)
 			{
 				case 0:
-					instance.panel_list.get_record_group = _ => _.Title.toUpperCase();
+					instance.panel_list.get_record_group = _ => _.guid.toUpperCase();
 					instance.panel_list.get_record_label = _ => _.user_id;
 					instance.panel_list.group_icon = 'deployed_code';
 					break;
 				case 1:
 					instance.panel_list.get_record_group = _ => _.user_id;
-					instance.panel_list.get_record_label = _ => _.Title.toUpperCase();
+					instance.panel_list.get_record_label = _ => _.guid.toUpperCase();
 					instance.panel_list.group_icon = 'person';
 					break;
 			}
@@ -502,24 +576,20 @@ export class PageUserAllocations extends PageDescriptor
 
 	RefreshData(instance)
 	{
-		window.setTimeout(
-			() =>
-			{
-				instance.panel_list.records = window.SharedData['user allocations'].instance.data;
-				instance.panel_list.RefreshElements();
-			}, 150
-		);
+		instance.panel_list.records = Array.from(window.SharedData['user allocations'].instance.data);
+		instance.panel_list.RefreshElements();
+		ClearElementLoading(instance.panel_list_items_root);
 	}
 
 	OnOpen(instance)
 	{
-		window.SharedData.Subscribe(window.SharedData['user allocations'].key, instance.RefreshData);
+		window.SharedData.Subscribe(window.SharedData['user allocations'].key, instance.RefreshDataSoon);
 		instance.relate_UserAllocations = window.SharedData['user allocations'].AddNeeder();
 	}
 
 	OnClose(instance)
 	{
-		window.SharedData.Unsubscribe(window.SharedData['user allocations'].key, instance.RefreshData);
+		window.SharedData.Unsubscribe(window.SharedData['user allocations'].key, instance.RefreshDataSoon);
 		window.SharedData['user allocations'].RemoveNeeder(instance.relate_UserAllocations);
 	}
 }

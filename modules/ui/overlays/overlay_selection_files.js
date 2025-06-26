@@ -30,7 +30,7 @@ export class FileSelectionOverlay extends SelectionOverlay
         */
 
         const style_overlay_root = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);'
-            + 'min-height:3rem; min-width:28rem; max-width:calc(100% - 1rem);'
+            + 'min-height:3rem; min-width:min(100% - 5 * var(--gap-1), 28rem); max-width:calc(100% - 5 * var(--gap-1));'
             + 'display:flex; flex-direction:column; flex-wrap:nowrap;';
         const style_parts = 'flex-grow:1.0; align-content:center; text-align:center; font-size:0.85rem; letter-spacing:2px; padding:var(--gap-1); line-height:1.5rem;';
 

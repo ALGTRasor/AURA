@@ -254,7 +254,7 @@ export class PageSettings extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '18rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 18rem)';
 		instance.e_frame.style.maxWidth = '32rem';
 		instance.e_frame.style.flexBasis = '12rem';
 		instance.e_frame.style.flexGrow = '1.0';

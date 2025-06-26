@@ -62,7 +62,7 @@ class TKAllocations extends PanelContent
 						_, 'div', null, 'display:flex; flex-direction:row; flex-grow:0.0;',
 						_ =>
 						{
-							addElement(_, 'div', undefined, 'align-content:center; flex-basis:100%;', x.Title.toUpperCase());
+							addElement(_, 'div', undefined, 'align-content:center; flex-basis:100%;', x.guid.toUpperCase());
 							this.e_btn_add_usage = CreatePagePanel(
 								_, false, false, 'width:1.5rem; height:1.5rem; flex-shrink:0.0; flex-grow:0.0;',
 								_ =>
@@ -117,7 +117,7 @@ class TKAllocations extends PanelContent
 			MegaTips.RegisterSimple(
 				e_item,
 				[
-					x.Title.toUpperCase(),
+					x.guid.toUpperCase(),
 					`(((${sum_used}))) / (((${x.allocation_max}))) hours used`,
 					`[[[${x.allocation_max - sum_used}]]] hours available`,
 				].join('<br>')
@@ -221,7 +221,7 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.e_content.style.flexDirection = 'column';
 		instance.e_content.style.gap = 'var(--gap-05)';
 

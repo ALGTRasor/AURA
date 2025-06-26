@@ -1,4 +1,4 @@
-import { TaskData } from "../systems/tasks.js";
+import { TaskData } from "../systems/operation/tasks.js";
 import { DataTableDesc } from "./datatable_desc.js";
 
 export class Task
@@ -16,6 +16,7 @@ export class Task
 	static Expander(record = {})
 	{
 		let data = {};
+
 		if (record.task_data && typeof record.task_data === 'string' && record.task_data.length > 1)
 			data = JSON.parse(record.task_data) ?? {};
 

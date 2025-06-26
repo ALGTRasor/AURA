@@ -65,10 +65,10 @@ export class PageHelp extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '48rem';
-			else instance.e_frame.style.maxWidth = '24rem';
+			if (instance.state.data.expanding === true) instance.SetMaxFrameWidth('48rem');
+			else instance.SetMaxFrameWidth('24rem');
 		}
-		else instance.e_frame.style.maxWidth = 'unset';
+		else instance.ClearMaxFrameWidth();
 	}
 }
 

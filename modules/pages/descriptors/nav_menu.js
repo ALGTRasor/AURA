@@ -36,7 +36,7 @@ export class PageNavMenu extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.e_content.style.justifyContent = 'center';
 		instance.e_content.style.gap = 'var(--gap-05)';
 

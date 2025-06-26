@@ -71,7 +71,7 @@ export class ActionBar
 			_ =>
 			{
 				addElement(_, 'span', '', 'position:absolute; inset:0; align-content:center; text-align:center;', _ => { _.innerHTML = label.toUpperCase(); });
-				if (icon && icon.length && icon.length > 0) addElement(_, 'i', 'material-icons icon', '', _ => { _.innerText = icon; });
+				if (icon && icon.length && icon.length > 0) addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = icon; });
 				//_.innerHTML = label.toUpperCase();
 				//if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
 				//_.title = label.toUpperCase();

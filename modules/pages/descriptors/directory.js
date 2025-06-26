@@ -378,7 +378,7 @@ export class PageDirectory extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.content = new DirectoryPageContent(instance.e_content, instance);
 		instance.content.CreateElements();
 		window.SharedData.Subscribe('users', instance.UpdateList);

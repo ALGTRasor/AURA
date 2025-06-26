@@ -472,6 +472,7 @@ iframe
 .material-symbols
 {
 	pointer-events: none;
+	font-variation-settings: 'FILL' 1.0;
 }
 
 

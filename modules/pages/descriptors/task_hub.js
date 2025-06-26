@@ -4,7 +4,7 @@ import { addElement, CreatePagePanel, ClearElementLoading, MarkElementLoading } 
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { NotificationLog } from "../../notificationlog.js";
 import { PanelContent } from "../../ui/panel_content.js";
-import { TaskData, Tasks } from "../../systems/tasks.js";
+import { TaskData, Tasks } from "../../systems/operation/tasks.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { PageManager } from "../../pagemanager.js";
@@ -183,7 +183,7 @@ export class PageTaskHub extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_frame.style.minWidth = 'min(100vw - 3 * var(--gap-1), 36rem)';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 36rem)';
 		instance.e_content.style.display = 'flex';
 		instance.e_content.style.gap = 'var(--gap-025)';
 

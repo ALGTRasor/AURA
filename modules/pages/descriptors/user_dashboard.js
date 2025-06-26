@@ -132,7 +132,7 @@ export class PageMyData extends PageDescriptor
 
 		instance.sub_SharedDataRefresh = {};
 
-		instance.e_frame.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
 
 		let mode_slider = new SlideSelector();
 		instance.mode_slider = mode_slider;

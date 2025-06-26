@@ -15,7 +15,7 @@ export class PageFiles extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
 		instance.e_content.style.overflow = 'hidden';
 		instance.e_content.style.display = 'flex';
 		instance.e_content.style.flexDirection = 'column';
@@ -94,8 +94,9 @@ export class PageFiles extends PageDescriptor
 			instance.e_frame.style.maxWidth = 'unset';
 		}
 
-		instance.explorer.RefreshElements(instance.state.data.expanding);
-		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 333);
+		let frame_rect = instance.e_frame.getBoundingClientRect();
+		instance.explorer.RefreshElements(frame_rect.width > 800);
+		window.setTimeout(() => { instance.root_selector.ApplySelection(); }, 150);
 	}
 }
 

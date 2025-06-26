@@ -1,11 +1,12 @@
 import { DebugLog } from "../debuglog.js";
+import { UserAllocationData } from "../systems/operation/allocations.js";
 import { DataTableDesc } from "./datatable_desc.js";
 
 export class UserAllocation
 {
 	static data_model = DataTableDesc.Build(
 		[
-			{ key: 'id', label: 'table index', exclude: true },
+			{ key: 'id', label: 'table index' },
 			{ key: 'Title', label: 'allocation id' },
 			{ key: 'user_id', label: 'user id', format: 'user' },
 			{ key: 'allocation_max', label: 'allocated hours' },
@@ -20,11 +21,18 @@ export class UserAllocation
 
 	static Expander(record = {}) 
 	{
-		record.allocation_max = Math.max(record.allocation_max ?? 1, 0.1);
-		record.use_history = UserAllocation.ExpandHistory(record.use_history);
-		record.use_total = record.use_history.reduce((sum, _) => sum + _.hours, 0);
-		record.use_percent = record.use_total / record.allocation_max;
-		return record;
+		let data = {};
+
+		data.table_index = record.id;
+		data.user_id = record.user_id;
+		data.guid = record.Title;
+
+		data.allocation_max = Math.max(record.allocation_max ?? 1, 0.1);
+		data.use_history = UserAllocation.ExpandHistory(record.use_history);
+		data.use_total = data.use_history.reduce((sum, _) => sum + _.hours, 0);
+		data.use_percent = data.use_total / data.allocation_max;
+
+		return new UserAllocationData(data);
 	};
 
 	static ExpandHistory(value)

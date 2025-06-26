@@ -16,8 +16,8 @@ export class PageExternalLinks extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.maxWidth = '30rem';
-		instance.e_frame.style.minWidth = '24rem';
+		instance.SetMaxFrameWidth('30rem');
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 24rem)';
 
 		instance.e_body_root = CreatePagePanel(
 			instance.e_content, true, true, null,

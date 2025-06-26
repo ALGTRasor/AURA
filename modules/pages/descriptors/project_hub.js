@@ -98,7 +98,7 @@ export class PageProjectHub extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_frame.style.minWidth = '32rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
 		instance.e_content.style.display = 'flex';
 		instance.e_content.style.gap = 'var(--gap-025)';
 

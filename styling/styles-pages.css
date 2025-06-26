@@ -1672,3 +1672,98 @@
 	background: hsl(from var(--theme-color) h s var(--theme-l020));
 	transition-duration: var(--trans-dur-off-slow);
 }
+
+
+
+
+
+
+
+
+
+@property --pie-phase
+{
+	syntax: '<percentage>';
+	inherits: false;
+	initial-value: 0%;
+}
+
+@property --pie-phase-offset
+{
+	syntax: '<angle>';
+	inherits: false;
+	initial-value: 0deg;
+}
+
+@property --pie-layer-color
+{
+	syntax: '<color>';
+	inherits: false;
+	initial-value: #fff;
+}
+
+
+.pie-chart-root
+{
+	position: relative;
+	overflow: hidden;
+}
+
+.pie-chart-layer-root
+{
+	position: absolute;
+	inset: var(--gap-05);
+	border-radius: 100%;
+	overflow: hidden;
+	scale: 90%;
+
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l015));
+
+	box-shadow: 0 0.5rem 0.5rem rgb(from var(--shadow-color) r g b / 0.25), inset 0 0.5rem 0.2rem rgb(from var(--shadow-color) r g b / 0.2);
+
+	transition-property: scale;
+	transition-duration: var(--trans-dur-off-fast);
+	transition-timing-function: ease;
+}
+div:hover > .pie-chart-root .pie-chart-layer-root
+{
+	scale: 95%;
+}
+
+.pie-chart-layer
+{
+	--pie-phase-offset: 0%;
+	--pie-layer-color: transparent;
+	--pie-phase: 0%;
+
+	pointer-events: none;
+	position: absolute;
+	inset: 0;
+	background: conic-gradient(from var(--pie-phase-offset), var(--pie-layer-color) var(--pie-phase), transparent var(--pie-phase));
+	border-radius: 100%;
+	opacity: 70%;
+
+	filter: blur(1.5px);
+
+	transition-property: --pie-phase-offset, --pie-phase, --pie-layer-color;
+	transition-duration: var(--trans-dur-off-veryslow);
+	transition-timing-function: ease-in-out;
+}
+
+.pie-chart-info
+{
+	pointer-events: none;
+	z-index: 100;
+	opacity: 90%;
+	font-size: 0.8rem;
+
+	transition-property: opacity, font-size;
+	transition-duration: var(--trans-dur-off-fast);
+	transition-timing-function: ease-in-out;
+}
+
+div:hover > .pie-chart-root .pie-chart-info
+{
+	font-size: 1rem;
+	opacity: 100%;
+}

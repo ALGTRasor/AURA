@@ -14,7 +14,7 @@ export class PageScratchPad extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
-		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 
 		instance.graph = new NodeGraph(instance.e_content);
 		instance.graph.root.style.flexBasis = '100%';

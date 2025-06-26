@@ -18,7 +18,7 @@ export class PageLongOpsHistory extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = '20rem';
+		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.e_content.style.overflow = 'hidden';
 
 		instance.e_ops_root = CreatePagePanel(instance.e_content, true, true, 'flex-direction:column; flex-wrap:nowrap; flex-basis:1.0;');
