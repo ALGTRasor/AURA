@@ -23,6 +23,7 @@ class PanelUserAllocationGroup extends PanelContent
 		this.group_id = group_id;
 		this.records = records;
 		this.group_icon = group_icon;
+		this.record_kind = 'allocations';
 		this.get_row_label = get_row_label;
 	}
 
@@ -95,7 +96,9 @@ class PanelUserAllocationGroup extends PanelContent
 	OnCreateElements()
 	{
 		this.e_root = CreatePagePanel(
-			this.e_parent, false, false, 'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:1.0; flex-shrink:0.0;',
+			this.e_parent, false, false,
+			'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:1.0; flex-shrink:0.0;'
+			+ 'cursor:pointer;',
 			_ =>
 			{
 				let summary_max = 0.0;
@@ -133,7 +136,8 @@ class PanelUserAllocationGroup extends PanelContent
 							_, 'div', '',
 							'position:absolute; left:50%; translate:-50% 0%; top:var(--gap-025); height:1rem; text-wrap:nowrap; overflow:visible;'
 							+ 'font-weight:bold; border-radius:var(--corner-05);'
-							+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							//+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							//+ 'backdrop-filter:blur(8px);'
 							+ 'text-align:center; align-content:center; padding:var(--gap-05);',
 							_ => { _.innerText = this.group_id; }
 						);
@@ -141,7 +145,9 @@ class PanelUserAllocationGroup extends PanelContent
 						addElement(
 							_, 'div', '',
 							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% 0%; text-align:center; align-content:center;'
-							+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8); padding:var(--gap-05); border-radius:var(--corner-05);',
+							//+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							//+ 'backdrop-filter:blur(8px);'
+							+ 'padding:var(--gap-05); border-radius:var(--corner-05);',
 							_ =>
 							{
 								addElement(
@@ -167,13 +173,24 @@ class PanelUserAllocationGroup extends PanelContent
 
 						addElement(
 							_, 'div', '',
-							'position:absolute; right:var(--gap-025); translate:0% -50%; top:50%; width:1.5rem; height:1.5rem;'
-							+ 'border-radius:var(--corner-05); background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
-							+ 'text-align:center; align-content:center;',
-							_ => { addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = 'person'; }); }
+							'position:absolute; right:var(--gap-05); translate:0% -50%; top:50%; width:2rem; height:2rem;'
+							+ 'text-align:center; align-content:center; pointer-events:all;',
+							_ =>
+							{
+								addElement(
+									_, 'div', '',
+									'position:absolute; top:50%; left:50%; translate:-50% -50%; z-index:15;'
+									+ 'text-shadow:0 3px 1px hsl(from var(--shadow-color) h s l / 0.2);'
+									+ 'font-size:120%; font-weight:bold;',
+									_ => { _.innerText = this.records.length; }
+								);
+
+								addElement(_, 'i', 'material-symbols icon', 'position:absolute;bottom:0%;translate:0% 60%; color:inherit; opacity:50%;', _ => { _.innerText = this.group_icon; });
+							}
 						);
 					}
 				);
+				if (this.record_kind) MegaTips.RegisterSimple(e_pie.e_root, this.record_kind);
 				return;
 
 				addElement(
@@ -541,12 +558,14 @@ export class PageUserAllocations extends PageDescriptor
 				case 0:
 					instance.panel_list.get_record_group = _ => _.guid.toUpperCase();
 					instance.panel_list.get_record_label = _ => _.user_id;
-					instance.panel_list.group_icon = 'deployed_code';
+					instance.panel_list.group_icon = 'person';
+					instance.panel_list.record_kind = 'uses';
 					break;
 				case 1:
 					instance.panel_list.get_record_group = _ => _.user_id;
 					instance.panel_list.get_record_label = _ => _.guid.toUpperCase();
-					instance.panel_list.group_icon = 'person';
+					instance.panel_list.group_icon = 'calendar_clock';
+					instance.panel_list.record_kind = 'users';
 					break;
 			}
 			instance.panel_list.RefreshElements();
@@ -567,7 +586,7 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = '84rem';
+			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
 			else instance.e_frame.style.maxWidth = '42rem';
 		}
 		else instance.e_frame.style.maxWidth = 'unset';

@@ -1706,7 +1706,7 @@
 .pie-chart-root
 {
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .pie-chart-layer-root
@@ -1754,16 +1754,20 @@ div:hover > .pie-chart-root .pie-chart-layer-root
 {
 	pointer-events: none;
 	z-index: 100;
-	opacity: 90%;
+	position: absolute;
+	inset: 0;
+	border-radius: 100%;
+
 	font-size: 0.8rem;
 
-	transition-property: opacity, font-size;
+	transition-property: background-color, font-size;
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
 
 div:hover > .pie-chart-root .pie-chart-info
 {
-	font-size: 1rem;
-	opacity: 100%;
+	font-size: 0.9rem;
+	color: var(--theme-color-text);
+	background-color: #0002;
 }
