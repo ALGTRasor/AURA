@@ -34,16 +34,16 @@ export function addElement(parent = {}, tag = 'div', className = '', style = '',
 
 
 
-HTMLElement.prototype.appendElement =
-    async function (tag = 'div', before_append = async _ => { }, after_append = async _ => { })
-    {
-        let e = document.createElement(tag);
-        if (before_append) await before_append(e);
-        if (this && 'appendChild' in this) this.appendChild(e);
-        if (after_append) await after_append(e);
-        return e;
-    };
+HTMLElement.prototype.appendElement = async function (tag = 'div', before_append = async _ => { }, after_append = async _ => { })
+{
+    let e = document.createElement(tag);
+    if (before_append) await before_append(e);
+    if (this && 'appendChild' in this) this.appendChild(e);
+    if (after_append) await after_append(e);
+    return e;
+};
 
+// override default Element.remove() to fire remove related events
 Element.prototype.removeSilently = Element.prototype.remove;
 Element.prototype.remove = function ()
 {
