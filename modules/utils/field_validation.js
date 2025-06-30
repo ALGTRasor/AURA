@@ -1,10 +1,19 @@
+import { Get12HourTimeString, Get24HourTimeString } from "./timeutils.js";
+
 const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
 
 export class FieldValidation
 {
     static registered = [
+        { format_code: 'percentage', validator: _ => Math.round((Number.parseFloat(_) ?? 0) * 100) + '%' },
+        { format_code: 'percentage1', validator: _ => (Math.round((Number.parseFloat(_) ?? 0) * 1000) * 0.1) + '%' },
+        { format_code: 'percentage2', validator: _ => (Math.round((Number.parseFloat(_) ?? 0) * 10000) * 0.01) + '%' },
+        { format_code: 'timestamp', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get12HourTimeString(d) } },
+        { format_code: 'timestamp24', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get24HourTimeString(d) } },
         { format_code: 'upper', validator: _ => _.toUpperCase() },
+        { format_code: 'uppercase', validator: _ => _.toUpperCase() },
         { format_code: 'lower', validator: _ => _.toLowerCase() },
+        { format_code: 'lowercase', validator: _ => _.toLowerCase() },
         { format_code: 'url', validator: FieldValidation.CheckUrl },
         { format_code: 'phone', validator: FieldValidation.CheckPhone },
         { format_code: 'email', validator: FieldValidation.CheckEmail },

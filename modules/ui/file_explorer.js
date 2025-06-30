@@ -32,7 +32,7 @@ const add_button = (e_parent, label = '', tooltip = '', icon = '', color = '#fff
             _.style.textAlign = 'center';
             _.style.alignContent = 'center';
             _.classList.add('panel-button');
-            if (typeof icon === 'string' && icon.length > 0) addElement(_, 'i', 'material-icons', 'font-size:1rem; line-height:1rem; opacity:40%; align-content:center; text-align:center;', _ => { _.innerText = icon; });
+            if (typeof icon === 'string' && icon.length > 0) addElement(_, 'i', 'material-symbols', 'font-size:1rem; line-height:1rem; opacity:40%; align-content:center; text-align:center;', _ => { _.innerText = icon; });
             if (typeof label === 'string' && label.length > 0) addElement(_, 'div', undefined, 'height:100%; align-content:center; text-align:center;', _ => { _.innerText = label; });
         }
     );

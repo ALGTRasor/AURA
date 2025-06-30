@@ -1,11 +1,11 @@
-import { Modules } from "../modules.js";
-import { AppInfo } from "../app_info.js";
-import { addElement, CreatePagePanel } from "../utils/domutils.js";
-import { OverlayManager } from "./overlay_manager.js";
-import { PageManager } from "../pagemanager.js";
-import { MegaTips } from "../systems/megatips.js";
 import { AccountStateManager } from "../systems/accountstatemanager.js";
+import { addElement, CreatePagePanel } from "../utils/domutils.js";
 import { ChoiceOverlay } from "./overlays/overlay_choice.js";
+import { OverlayManager } from "./overlay_manager.js";
+import { MegaTips } from "../systems/megatips.js";
+import { PageManager } from "../pagemanager.js";
+import { AppInfo } from "../app_info.js";
+import { Modules } from "../modules.js";
 
 export class ActionBar
 {
@@ -47,7 +47,6 @@ export class ActionBar
 					_ =>
 					{
 						_.addEventListener('click', on_click);
-						//_.title = tooltip;
 						_.classList.add('panel-button');
 						icon_info.e_icon = addElement(
 							_, 'i', 'material-symbols',
@@ -72,9 +71,6 @@ export class ActionBar
 			{
 				addElement(_, 'span', '', 'position:absolute; inset:0; align-content:center; text-align:center;', _ => { _.innerHTML = label.toUpperCase(); });
 				if (icon && icon.length && icon.length > 0) addElement(_, 'i', 'material-symbols icon', '', _ => { _.innerText = icon; });
-				//_.innerHTML = label.toUpperCase();
-				//if (icon && icon.length && icon.length > 0) _.innerHTML += `<i class='material-icons icon'>${icon}</i>`;
-				//_.title = label.toUpperCase();
 
 				if (on_click)
 				{

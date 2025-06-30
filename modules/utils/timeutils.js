@@ -51,6 +51,14 @@ export function Get12HourTimeString(d = new Date())
     return fmt_str(hr % 12) + ':' + fmt_str(min) + suffix;
 }
 
+export function Get24HourTimeString(d = new Date())
+{
+    const fmt_str = s => s.toString().padStart(2, '0');
+    let hr = d.getHours();
+    let min = d.getMinutes();
+    return fmt_str(hr) + ':' + fmt_str(min);
+}
+
 
 const seconds_per_minute = 60.0;
 const inv_seconds_per_minute = 1.0 / seconds_per_minute;

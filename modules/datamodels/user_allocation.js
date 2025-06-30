@@ -26,6 +26,10 @@ export class UserAllocation
 		data.table_index = record.id;
 		data.user_id = record.user_id;
 		data.guid = record.Title;
+		data.created = record.Created;
+		data.createdBy = record.Author;
+		data.modified = record.Modified;
+		data.modifiedBy = record.Editor;
 
 		data.allocation_max = Math.max(record.allocation_max ?? 1, 0.1);
 		data.use_history = UserAllocation.ExpandHistory(record.use_history);

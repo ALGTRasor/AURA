@@ -95,41 +95,45 @@ class PanelUserAllocationGroup extends PanelContent
 
 	OnCreateElements()
 	{
+		let summary_max = 0.0;
+		let summary_used = 0.0;
+		let summary_history = [];
+		for (let rid in this.records)
+		{
+			summary_max += this.records[rid].allocation_max;
+			for (let hid in this.records[rid].use_history) 
+			{
+				let use = this.records[rid].use_history[hid];
+				summary_used += use.hours;
+				summary_history.push(use);
+			}
+		}
+
+		let phase_used = summary_used / summary_max;
+		let degrees_used = phase_used * 360;
+		let percent_used = (100 * phase_used);
+		let percent_left = (100 - percent_used);
+
+
+
 		this.e_root = CreatePagePanel(
 			this.e_parent, false, false,
 			'display:flex; flex-direction:column; padding:var(--gap-025); gap:var(--gap-025); flex-grow:1.0; flex-shrink:0.0;'
 			+ 'cursor:pointer;',
 			_ =>
 			{
-				let summary_max = 0.0;
-				let summary_used = 0.0;
-				let summary_history = [];
-				for (let rid in this.records)
-				{
-					summary_max += this.records[rid].allocation_max;
-					for (let hid in this.records[rid].use_history) 
-					{
-						let use = this.records[rid].use_history[hid];
-						summary_used += use.hours;
-						summary_history.push(use);
-					}
-				}
 
-				let phase_used = summary_used / summary_max;
-				let degrees_used = phase_used * 360;
-				let percent_used = (100 * phase_used);
-				let percent_left = (100 - percent_used);
 
-				let e_pie = new PieChart(
+				this.e_pie = new PieChart(
 					_, '12rem',
 					[
 						{ phase: percent_used + '%', color: 'hsl(from #0af h s var(--theme-l040))' },
 						{ phase: percent_left + '%', offset: degrees_used + 'deg', color: 'hsl(from orange h s var(--theme-l040))' },
 					]
 				);
-				e_pie.CreateElements();
-				e_pie.e_root.style.alignSelf = 'center';
-				e_pie.SetInfo(
+				this.e_pie.CreateElements();
+				this.e_pie.e_root.style.alignSelf = 'center';
+				this.e_pie.SetInfo(
 					_ =>
 					{
 						addElement(
@@ -179,18 +183,17 @@ class PanelUserAllocationGroup extends PanelContent
 							{
 								addElement(
 									_, 'div', '',
-									'position:absolute; top:50%; left:50%; translate:-50% -50%; z-index:15;'
+									'position:absolute; top:50%; left:50%; translate:-50% 0%; z-index:15;'
 									+ 'text-shadow:0 3px 1px hsl(from var(--shadow-color) h s l / 0.2);'
 									+ 'font-size:120%; font-weight:bold;',
 									_ => { _.innerText = this.records.length; }
 								);
 
-								addElement(_, 'i', 'material-symbols icon', 'position:absolute;bottom:0%;translate:0% 60%; color:inherit; opacity:50%;', _ => { _.innerText = this.group_icon; });
+								addElement(_, 'i', 'material-symbols icon', 'font-size:180%; position:absolute;bottom:0%;translate:0% -30%; color:inherit; opacity:70%;', _ => { _.innerText = this.group_icon; });
 							}
 						);
 					}
 				);
-				if (this.record_kind) MegaTips.RegisterSimple(e_pie.e_root, this.record_kind);
 				return;
 
 				addElement(
@@ -331,6 +334,22 @@ class PanelUserAllocationGroup extends PanelContent
 				);
 			}
 		);
+
+
+
+		if (this.record_kind)
+		{
+			MegaTips.RegisterSimple(
+				this.e_root,
+				[
+					`(((ALLOCATED))) ${Math.round(summary_max)} hours`,
+					`(((AVAILABLE))) ${Math.round(summary_max - summary_used)} hours (${Math.round(percent_left)}%)`,
+					`(((USED))) ${Math.round(summary_used)} hours (${Math.round(percent_used)}%)`,
+					`((( ${this.record_kind.toUpperCase()} ))) ${this.records.length}`,
+					'[[[Click to view details]]]',
+				].join('<br>')
+			);
+		}
 	}
 
 	OnRefreshElements()
@@ -467,15 +486,15 @@ class PanelUserAllocationList extends PanelContent
 			}
 
 			if (filter_match !== true) continue;
-			this.record_panels.push(
-				new PanelUserAllocationGroup(
-					this.e_root_records_actual,
-					group.label,
-					group.records,
-					this.get_record_label,
-					this.group_icon
-				)
-			);
+			let groupui = new PanelUserAllocationGroup(
+				this.e_root_records_actual,
+				group.label,
+				group.records,
+				this.get_record_label,
+				this.group_icon
+			)
+			groupui.record_kind = this.record_kind;
+			this.record_panels.push(groupui);
 		}
 		for (let record_id in this.record_panels) this.record_panels[record_id].CreateElements();
 	}
@@ -559,13 +578,13 @@ export class PageUserAllocations extends PageDescriptor
 					instance.panel_list.get_record_group = _ => _.guid.toUpperCase();
 					instance.panel_list.get_record_label = _ => _.user_id;
 					instance.panel_list.group_icon = 'person';
-					instance.panel_list.record_kind = 'uses';
+					instance.panel_list.record_kind = 'users';
 					break;
 				case 1:
 					instance.panel_list.get_record_group = _ => _.user_id;
 					instance.panel_list.get_record_label = _ => _.guid.toUpperCase();
 					instance.panel_list.group_icon = 'calendar_clock';
-					instance.panel_list.record_kind = 'users';
+					instance.panel_list.record_kind = 'uses';
 					break;
 			}
 			instance.panel_list.RefreshElements();
