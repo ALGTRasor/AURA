@@ -334,10 +334,13 @@ export class TableView extends PanelContent
 						_.type = 'text';
 						if (col.search)
 						{
+							_.style.pointerEvents = 'all';
+							_.style.visibility = 'visible';
 							_.placeholder = '...';
 						}
 						else
 						{
+							_.style.visibility = 'hidden';
 							_.style.pointerEvents = 'none';
 							_.style.userSelect = 'none';
 						}

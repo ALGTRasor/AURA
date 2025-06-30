@@ -1947,6 +1947,11 @@ div:hover > .pie-chart-root .pie-chart-info
 	font-weight: bold;
 }
 
+.tableview-filters .tableview-cell
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l005));
+}
+
 
 
 .tableview-cell-button

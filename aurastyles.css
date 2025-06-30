@@ -910,9 +910,9 @@ div[disabled]
 .page-root input[valuechanged],
 .page-root input[valuechanged]:hover
 {
-	color: yellow !important;
-	outline-color: yellow !important;
-	background-color: rgb(56, 56, 0) !important;
+	color: var(--theme-color-highlight) !important;
+	outline-color: var(--theme-color-highlight) !important;
+	background-color: hsl(from var(--theme-color-highlight) h s var(--theme-l015)) !important;
 }
 
 input[type="text"],
@@ -952,8 +952,8 @@ input[type="textarea"]:not([disabled]):hover,
 input[type="textarea"]:focus,
 input[type="textarea"]:active
 {
-	color: white;
-	outline: solid white 1px !important;
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	outline: solid hsl(from var(--theme-color) h s var(--theme-l080)) 1px !important;
 	outline-offset: -1px;
 
 	border-radius: inherit;
