@@ -217,7 +217,7 @@ export class PageInstance extends EventTarget
 
 	ClearMaxFrameWidth()
 	{
-		this.e_frame.style.maxWidth = 'calc(100vw - 3 * var(--gap-1))';
+		this.e_frame.style.maxWidth = '100vw';
 	}
 
 	SetMaxFrameWidth(maxWidth = '32rem')

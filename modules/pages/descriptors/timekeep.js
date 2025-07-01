@@ -51,27 +51,27 @@ const ALLOCATION_TABLE_COLUMNS =
 		{
 			key: 'created', label: 'DATE ADDED', label_long: 'DATE ADDED',
 			desc: 'The date this allocation was created.',
-			flexBasis: '7rem', flexGrow: '0.25', format: 'date',
+			flexBasis: '7rem', flexGrow: '0.0', format: 'date',
 			calc_theme_color: (record, val) => SampleArray(date_gradient, hoursDelta(new Date(record.created)) / (24.0 * 60.0)),
 			sorter: sort_created, search: search_by_created,
 		},
 		{
 			key: 'guid', label: 'ALLOCATION', label_long: 'ALLOCATION GROUP',
 			desc: 'The name or ID of the allocation group.',
-			flexBasis: '11rem', flexGrow: '0.5', format: 'uppercase',
+			flexBasis: '11rem', flexGrow: '1.0', format: 'uppercase',
 			sorter: sort_guid, search: search_by_guid,
 			hidden: true,
 		},
 		{
 			key: 'allocation_max', label: 'TOTAL', label_long: 'TOTAL ALLOCATED TIME',
 			desc: 'The total amount of time originally made available in this allocation.',
-			flexBasis: '8rem', flexGrow: '0.0',
+			flexBasis: '5rem', flexGrow: '0.0',
 			sorter: sort_max,
 		},
 		{
 			key: 'use_total', label: 'USED', label_long: 'USED TIME',
 			desc: 'The amount of time that has been used from this allocation.',
-			flexBasis: '8rem', flexGrow: '0.0',
+			flexBasis: '5rem', flexGrow: '0.0',
 			calc_theme_color: (record, val) => SampleArray(available_time_gradient, 1.0 - record.use_total / record.allocation_max),
 			sorter: sort_used,
 		},
@@ -100,13 +100,15 @@ class TKAllocations extends PanelContent
 			_ =>
 			{
 				let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
-				this.e_tableview = new TableView(_, data);
+				this.e_tableview = new TableView(_, undefined);
 				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
 				this.e_tableview.group_by_property = 'guid';
 
 				this.e_tableview.columns.Reset();
 				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.columns.Register(_.key, _));
 				this.e_tableview.AddAction('chronic', _ => { }, 'hsl(from #0ff h s var(--theme-l030))');
+
+				this.e_tableview.data.SetRecords(data, false);
 			}
 		);
 

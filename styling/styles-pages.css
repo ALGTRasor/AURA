@@ -1869,7 +1869,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	padding-right: var(--gap-025);
 	gap: var(--gap-025);
 
-	background-color: hsl(from var(--theme-color) h s 50% / 0.025);
+	background-color: hsl(from var(--theme-color) h s 50% / 0.05);
 
 	transition-property: background-color;
 	transition-duration: var(--trans-dur-off-fast);
@@ -1877,14 +1877,11 @@ div:hover > .pie-chart-root .pie-chart-info
 }
 .tableview-row:nth-child(even)
 {
-	background-color: hsl(from var(--theme-color) h s 50% / 0.125);
+	background-color: hsl(from var(--theme-color) h s 50% / 0.1);
 }
 .tableview-row:hover
 {
 	background-color: hsl(from var(--theme-color) h s 50% / 0.25);
-
-	outline: solid 1px hsl(from var(--theme-color) h s 50% / 0.5);
-	outline-offset: -1px;
 }
 
 
@@ -1956,7 +1953,7 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	display: flex;
 	flex-direction: column;
-	padding: var(--gap-05) 0 var(--gap-05) 0;
+	padding: var(--gap-1) 0 var(--gap-1) 0;
 	background-color: hsl(from var(--theme-color) h s var(--theme-l030) / 0.025);
 
 	border-radius: var(--corner-1);
@@ -1965,13 +1962,15 @@ div:hover > .pie-chart-root .pie-chart-info
 .tableview-row-group:hover
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l025) / 0.25);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l040) / 0.7);
+	outline-offset: -2px;
 }
 
 .tableview-row-group-title
 {
 	padding-bottom: var(--gap-025);
-	padding-left: calc(0.5rem + var(--gap-1));
-	font-size: 0.8rem;
+	padding-left: calc(1rem + var(--gap-1));
+	font-size: 0.9rem;
 	font-weight: bold;
 	color: hsl(from var(--theme-color) h s var(--theme-l040) / 0.7);
 }

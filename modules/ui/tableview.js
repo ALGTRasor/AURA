@@ -114,7 +114,7 @@ class TableViewData
 		this.records_view = [];
 	}
 
-	SetRecords(records = [], append = true)
+	SetRecords(records = [], append = true, refresh = true)
 	{
 		if (records.length < 1)
 		{
@@ -124,7 +124,8 @@ class TableViewData
 
 		if (append !== true) this.records_base = [];
 		records.forEach(_ => this.records_base.push(_));
-		this.RefreshViewRecords();
+
+		if (refresh === true) this.RefreshViewRecords();
 	}
 
 	RefreshViewRecords()
@@ -369,7 +370,7 @@ export class TableView extends PanelContent
 		this.actions = [];
 		this.columns = new TableViewColumns(this);
 		this.data = new TableViewData(this);
-		this.data.SetRecords(records, false);
+		this.data.SetRecords(records, false, false);
 	}
 
 	AddAction(icon = 'help', action = record => { }, color = undefined) { this.actions.push({ icon: icon, action: action, color: color }) };
