@@ -65,6 +65,12 @@ class TableViewEntry extends PanelContent
 						_.innerText = value_string;
 					}
 				);
+
+				if (column.coming_soon === true) 
+				{
+					e_prop.style.backgroundColor = 'black';
+					e_prop.style.color = '#333';
+				}
 				this.e_props.push(e_prop);
 			};
 			this.table_view.columns.forEach(add_prop);
@@ -76,7 +82,7 @@ class TableViewEntry extends PanelContent
 					this.e_root, 'div', 'tableview-action', '',
 					_ =>
 					{
-						_.style.setProperty('--theme-color', `hsl(from ${action_data.color} h s var(--theme-l090))`);
+						_.style.setProperty('--theme-color', action_data.color);
 						addElement(
 							_, 'i', 'material-symbols icon-button tableview-action-icon', '',
 							_ =>
@@ -489,18 +495,21 @@ export class TableView extends PanelContent
 							col.collapsed = false;
 							this.RefreshColumns();
 						}
-						if (e.shiftKey === true)
+						if (col.sorter)
 						{
-							col.ToggleSorting();
+							if (e.shiftKey === true)
+							{
+								col.ToggleSorting();
+							}
+							else
+							{
+								let was_sorting = col.sorting;
+								let was_sorting_reverse = col.sorting_reverse;
+								this.columns.forEach(_ => { _.SetSorting(false); });
+								col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
+							}
+							this.RefreshSoon();
 						}
-						else
-						{
-							let was_sorting = col.sorting;
-							let was_sorting_reverse = col.sorting_reverse;
-							this.columns.forEach(_ => { _.SetSorting(false); });
-							col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
-						}
-						this.RefreshSoon();
 					}
 					else if (e.button === 1)
 					{
@@ -515,6 +524,30 @@ export class TableView extends PanelContent
 					_ =>
 					{
 						_.innerText = col.label;
+						if (col.format_label && col.format_label.length > 0)
+						{
+							let e_format = addElement(_, 'div', '', '', _ => { _.innerText = col.format_label; });
+							e_format.style.fontSize = '70%';
+							e_format.style.opacity = '60%';
+						}
+						else if (col.coming_soon === true)
+						{
+							let e_format = addElement(_, 'div', '', '', _ => { _.innerText = 'WIP'; });
+							e_format.style.fontSize = '70%';
+							e_format.style.opacity = '60%';
+						}
+
+						if (col.coming_soon === true) 
+						{
+							_.style.setProperty('--theme-color', '#333');
+							_.style.backgroundColor = '#000';
+							_.style.opacity = '50%';
+						}
+
+						_.classList.add('tableview-cell-button');
+						_.addEventListener('click', handle_sorter_click);
+						_.addEventListener('auxclick', handle_sorter_click);
+
 						if (col.sorter)
 						{
 							col.e_sort_icon = addElement(
@@ -525,24 +558,22 @@ export class TableView extends PanelContent
 									_.style.rotate = col.sort_icon_angle;
 								}
 							);
-							_.classList.add('tableview-cell-button');
-
-							_.addEventListener('click', handle_sorter_click);
-							_.addEventListener('auxclick', handle_sorter_click);
-							MegaTips.RegisterSimple(
-								_,
-								[
-									col.label_long ?? col.label,
-									col.desc ? `(((${col.desc})))` : undefined,
-									'<br>',
-									'[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))',
-									'[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))',
-									'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
-									'(((Sorting multiple columns will apply from left to right.)))',
-									'(((Sorting columns cannot be collapsed.)))',
-								].filter(_ => _ != undefined).join('<br>')
-							);
 						}
+						MegaTips.RegisterSimple(
+							_,
+							[
+								col.coming_soon ? '<<<THIS COLUMN CONTAINS INCOMPLETE OR INVALID DATA.>>><br>' : undefined,
+								col.label_long ?? col.label,
+								col.desc ? `(((${col.desc})))` : undefined,
+								'<div style="height:var(--gap-025);padding:0;margin:0;"></div>',
+								col.sorter ? '[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))' : undefined,
+								col.sorter ? '[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))' : undefined,
+								'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
+								'<div style="height:var(--gap-05);padding:0;margin:0;"></div>',
+								col.sorter ? '(((Sorting multiple columns will apply from left to right.)))' : undefined,
+								col.sorter ? '(((Sorting columns cannot be collapsed.)))' : undefined,
+							].filter(_ => _ != undefined).join('<br>')
+						);
 					}
 				);
 				col.ApplyStyling(col.e_label, false);
@@ -565,6 +596,7 @@ export class TableView extends PanelContent
 						);
 						_.addEventListener('keyup', e =>
 						{
+							if (col.filter_value === _.value) return;
 							e.stopPropagation();
 							col.filter_value = _.value;
 							this.EmitViewChange();

@@ -1,9 +1,9 @@
 import { AppNotifications } from "../../systems/app_notifications.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
-import { PageDescriptor } from "../page_descriptor.js";
 import { until } from "../../utils/until.js";
 import { Help } from "./help.js";
 
@@ -13,16 +13,17 @@ EXPECTED PAGE ORDER
 project hub
 task tracker
 contact logs
-field notes
+field notes / scratchpad
 time keeper
 directory
 files
 user dashboard
-----
-hr
-reports
 external links
 help
+----
+hr
+user allocations
+reports
 ----
 */
 
@@ -36,7 +37,6 @@ export class PageNavMenu extends PageDescriptor
 	{
 		if (!instance) return;
 
-		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.e_content.style.justifyContent = 'center';
 		instance.e_content.style.gap = 'var(--gap-05)';
 

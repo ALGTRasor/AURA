@@ -25,10 +25,9 @@ export class PageFiles extends PageDescriptor
 		instance.root_selector.CreateElements(
 			instance.e_content,
 			[
+				{ label: 'FAVORITES' },
 				{ label: 'ALL' },
-				{ label: 'ACTIVE' },
-				{ label: 'ARCHIVE' },
-				{ label: 'USER' }
+				{ label: 'USER FILES' }
 			]
 		);
 
@@ -50,6 +49,7 @@ export class PageFiles extends PageDescriptor
 
 			switch (instance.state.data.view_mode)
 			{
+				/*
 				case 1:
 					instance.explorer.base_relative_path = 'Clients';
 					instance.explorer.show_folder_actions = false;
@@ -58,7 +58,8 @@ export class PageFiles extends PageDescriptor
 					instance.explorer.base_relative_path = 'ClientsArchive';
 					instance.explorer.show_folder_actions = false;
 					break;
-				case 3:
+				*/
+				case 2:
 					instance.explorer.base_relative_path = window.DBLayer.config.path_user_files + UserAccountInfo.account_info.user_id;
 					instance.explorer.show_folder_actions = true;
 					break;

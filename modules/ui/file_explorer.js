@@ -207,7 +207,7 @@ class FileExplorerItem
         }
 
         this.AddTimestampTooltip('createdBy', 'createdDateTime', 'CREATED');
-        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'MODIFIED');
+        this.AddTimestampTooltip('lastModifiedBy', 'lastModifiedDateTime', 'LAST MODIFIED');
 
         switch (this.item_type)
         {

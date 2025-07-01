@@ -1731,6 +1731,7 @@
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
 }
+
 div:hover > .pie-chart-root .pie-chart-layer-root
 {
 	scale: 95%;
@@ -1765,6 +1766,7 @@ div:hover > .pie-chart-root .pie-chart-layer-root
 	border-radius: 100%;
 
 	font-size: 0.8rem;
+	color: var(--theme-color-text-70);
 
 	transition-property: background-color, font-size;
 	transition-duration: var(--trans-dur-off-fast);
@@ -1789,6 +1791,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	padding: var(--gap-025);
 	gap: 0;
 }
+
 .tableview-columns
 {
 	border-radius: var(--corner-05) var(--corner-05) 0 0;
@@ -1808,6 +1811,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	border: solid 2px hsl(from var(--theme-color) h s 50% / 0.25);
 	border-bottom: none;
 }
+
 .tableview-filters
 {
 	padding-top: calc(1rem);
@@ -1815,10 +1819,12 @@ div:hover > .pie-chart-root .pie-chart-info
 	margin-bottom: var(--gap-025);
 	border: solid 2px hsl(from var(--theme-color) h s 50% / 0.25);
 }
+
 .tableview-filters:hover
 {
 	background-color: hsl(from var(--theme-color) h s 50% / 0.05);
 }
+
 .tableview-filters::before
 {
 	pointer-events: none;
@@ -1835,6 +1841,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	text-align: center;
 	align-content: center;
 }
+
 .tableview-filters:hover::before
 {
 	opacity: 90%;
@@ -1854,6 +1861,7 @@ div:hover > .pie-chart-root .pie-chart-info
 
 	overflow: hidden auto;
 }
+
 .tableview-row
 {
 	position: relative;
@@ -1875,10 +1883,12 @@ div:hover > .pie-chart-root .pie-chart-info
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease;
 }
+
 .tableview-row:nth-child(even)
 {
 	background-color: hsl(from var(--theme-color) h s 50% / 0.1);
 }
+
 .tableview-row:hover
 {
 	background-color: hsl(from var(--theme-color) h s 50% / 0.25);
@@ -1916,6 +1926,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
+
 .tableview-cell:hover
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l020) / 0.85);
@@ -1959,6 +1970,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	border-radius: var(--corner-1);
 	box-shadow: 0 0 6px #000f;
 }
+
 .tableview-row-group:hover
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l025) / 0.25);
@@ -1974,6 +1986,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	font-weight: bold;
 	color: hsl(from var(--theme-color) h s var(--theme-l040) / 0.7);
 }
+
 .tableview-row-group:hover .tableview-row-group-title
 {
 	color: hsl(from var(--theme-color) h s var(--theme-l070) / 1.0);
@@ -1993,6 +2006,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	scale: 70%;
 	border: solid 2px transparent;
 }
+
 .tableview-action:hover
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
@@ -2000,6 +2014,7 @@ div:hover > .pie-chart-root .pie-chart-info
 	scale: 85%;
 	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l080));
 }
+
 .tableview-action:active
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l015));

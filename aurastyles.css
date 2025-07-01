@@ -880,6 +880,18 @@ div[disabled]
 	padding-top: 0.25rem;
 }
 
+.megatip-alert
+{
+	display: inline;
+	color: hsl(from red h s var(--theme-l060));
+	min-width: 4rem;
+	text-align: right;
+	font-weight: bold;
+	font-size: 0.7rem;
+	text-align: right;
+	padding-top: 0.25rem;
+}
+
 
 
 

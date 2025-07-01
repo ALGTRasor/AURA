@@ -1,19 +1,36 @@
 import { Get12HourTimeString, Get24HourTimeString } from "./timeutils.js";
 
 const url_maps = 'https://www.google.com/maps/search/?api=1&basemap=satellite&t=k&query=';
+const non_nan = (x, scale = 1.0, round = false) =>
+{
+    if (typeof x !== 'number') x = Number.parseFloat(x);
+    x = Number.isNaN(x) ? 0 : (x ?? 0);
+    if (scale) x = x * scale;
+    if (round === true) x = Math.round(x);
+    return x;
+};
 
 export class FieldValidation
 {
     static registered = [
-        { format_code: 'percentage', validator: _ => Math.round((Number.parseFloat(_) ?? 0) * 100) + '%' },
-        { format_code: 'percentage1', validator: _ => (Math.round((Number.parseFloat(_) ?? 0) * 1000) * 0.1) + '%' },
-        { format_code: 'percentage2', validator: _ => (Math.round((Number.parseFloat(_) ?? 0) * 10000) * 0.01) + '%' },
+        { format_code: 'dollars', validator: _ => '$' + _ },
+
+        { format_code: 'billable_days', validator: _ => non_nan(_, 0.125, false) },
+        { format_code: 'billable_hours', validator: _ => non_nan(_, 4.0, true) * 0.25 },
+        { format_code: 'billable_time', validator: _ => `${non_nan(_, 4.0, true) * 0.25} / ${non_nan(_, 0.125, false)}` },
+
+        { format_code: 'percentage', validator: _ => non_nan(_, 100, true) + '%' },
+        { format_code: 'percentage1', validator: _ => non_nan(_, 1000, true) + '%' },
+        { format_code: 'percentage2', validator: _ => non_nan(_, 10000, true) + '%' },
+
         { format_code: 'timestamp', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get12HourTimeString(d) } },
         { format_code: 'timestamp24', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get24HourTimeString(d) } },
+
         { format_code: 'upper', validator: _ => _.toUpperCase() },
         { format_code: 'uppercase', validator: _ => _.toUpperCase() },
         { format_code: 'lower', validator: _ => _.toLowerCase() },
         { format_code: 'lowercase', validator: _ => _.toLowerCase() },
+
         { format_code: 'url', validator: FieldValidation.CheckUrl },
         { format_code: 'phone', validator: FieldValidation.CheckPhone },
         { format_code: 'email', validator: FieldValidation.CheckEmail },

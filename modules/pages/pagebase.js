@@ -285,6 +285,8 @@ export class PageInstance extends EventTarget
 			return;
 		}
 
+		if (this.page_descriptor.BeforeOpen) this.page_descriptor.BeforeOpen(this);
+
 		this.CreateBody();
 		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);

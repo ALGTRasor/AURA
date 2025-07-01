@@ -127,8 +127,8 @@ class PanelUserAllocationGroup extends PanelContent
 				this.e_pie = new PieChart(
 					_, '12rem',
 					[
-						{ phase: percent_used + '%', color: 'hsl(from #0af h s var(--theme-l040))' },
-						{ phase: percent_left + '%', offset: degrees_used + 'deg', color: 'hsl(from orange h s var(--theme-l040))' },
+						{ phase: percent_used + '%', color: 'hsl(from var(--theme-color) h s var(--theme-l055))' },
+						{ phase: percent_left + '%', offset: degrees_used + 'deg', color: 'hsl(from var(--theme-color) h s var(--theme-l005))' },
 					]
 				);
 				this.e_pie.CreateElements();
@@ -143,25 +143,54 @@ class PanelUserAllocationGroup extends PanelContent
 							//+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
 							//+ 'backdrop-filter:blur(8px);'
 							+ 'text-align:center; align-content:center; padding:var(--gap-05);',
+							_ => { _.innerText = 'ETC'; }
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; translate:-50% 55%; top:var(--gap-025); height:1rem; text-wrap:nowrap; overflow:visible;'
+							+ 'font-weight:bold; border-radius:var(--corner-05);'
+							//+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
+							//+ 'backdrop-filter:blur(8px);'
+							+ 'text-align:center; align-content:center; padding:var(--gap-05);',
 							_ => { _.innerText = this.group_id; }
 						);
 
 						addElement(
 							_, 'div', '',
-							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% 0%; text-align:center; align-content:center;'
-							//+ 'background:hsl(from var(--theme-color) h s var(--theme-l030) / 0.8);'
-							//+ 'backdrop-filter:blur(8px);'
+							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% -80%; text-align:center; align-content:center;'
 							+ 'padding:var(--gap-05); border-radius:var(--corner-05);',
 							_ =>
 							{
-								addElement(
-									_, 'span', '',
-									'align-content:center; padding:var(--gap-05); color:hsl(from orange h s 50%);'
-									+ 'font-size:130%; font-weight:bold;'
-									+ 'text-shadow:0 2px 0.125rem hsl(from var(--shadow-color) h s l / 0.5);',
-									_ => { _.innerHTML = summary_max - summary_used; }
-								);
-								addElement(_, 'span', '', 'align-content:center; text-wrap:nowrap; font-size:80%;', _ => { _.innerHTML = 'hours left'; });
+								addElement(_, 'span', '', 'align-content:center; text-wrap:nowrap; font-size:80%;', _ => { _.innerHTML = 'REMAINING:'; });
+							}
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% -20%; text-align:center; align-content:center;'
+							+ 'padding:var(--gap-05); border-radius:var(--corner-05);',
+							_ =>
+							{
+								const style_time_rem = 'align-content:center; padding:var(--gap-05); color:hsl(from orange h s 50%); scale:90%;'
+									+ 'font-size:110%; font-weight:bold; text-shadow:0 2px 0.125rem hsl(from var(--shadow-color) h s l / 0.5);'
+
+								addElement(_, 'span', '', style_time_rem, _ => { _.innerHTML = (summary_max - summary_used); });
+								addElement(_, 'span', '', 'align-content:center; text-wrap:nowrap; font-size:80%;', _ => { _.innerHTML = 'HOURS'; });
+							}
+						);
+
+						addElement(
+							_, 'div', '',
+							'position:absolute; left:50%; bottom:var(--gap-025); translate:-50% 30%; text-align:center; align-content:center; scale:90%;'
+							+ 'padding:var(--gap-05); border-radius:var(--corner-05);',
+							_ =>
+							{
+								const style_time_rem = 'align-content:center; padding:var(--gap-05); color:hsl(from orange h s 50%);'
+									+ 'font-size:110%; font-weight:bold; text-shadow:0 2px 0.125rem hsl(from var(--shadow-color) h s l / 0.5);'
+
+								addElement(_, 'span', '', style_time_rem, _ => { _.innerHTML = Math.round((summary_max - summary_used)) * 0.125; });
+								addElement(_, 'span', '', 'align-content:center; text-wrap:nowrap; font-size:80%;', _ => { _.innerHTML = 'DAYS'; });
 							}
 						);
 
@@ -514,13 +543,13 @@ const view_modes = [
 	{ label: 'BY USER', on_click: _ => { }, tooltip: 'Allocations by User' }
 ];
 const view_formats = [
-	{ label: 'PIES', on_click: _ => { }, tooltip: 'View as Pie Charts' },
+	{ label: 'CHARTS', on_click: _ => { }, tooltip: 'View as Pie Charts' },
 	{ label: 'TABLE', on_click: _ => { }, tooltip: 'View as a Table' }
 ];
 
 export class PageUserAllocations extends PageDescriptor
 {
-	title = 'user allocations';
+	title = 'billing hub';
 	icon = 'help';
 	order_index = 10;
 	extra_page = true;
@@ -646,9 +675,9 @@ export class PageUserAllocations extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageUserAllocations('user allocations', 'projects.create', 'people', 'View and manage billable time allocations.'));
+PageManager.RegisterPage(new PageUserAllocations('billing hub', 'projects.create', 'people', 'View and manage billable time allocations.'));
 Help.Register(
-	'pages.user allocations', 'User Allocations',
+	'pages.user allocations', 'Billing Hub',
 	'The User Allocations page allows you to view and manage hours allocated to Users.'
 	+ '\nYou can see the share of allocations that has been used, grouped either by Allocation ID or by User, create new allocations, and adjust existing ones.'
 );

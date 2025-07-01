@@ -1,3 +1,4 @@
+import '../utils/timeutils.js';
 import { DebugLog } from "../debuglog.js";
 import { UserAllocationData } from "../systems/operation/allocations.js";
 import { DataTableDesc } from "./datatable_desc.js";
@@ -27,6 +28,7 @@ export class UserAllocation
 		data.user_id = record.user_id;
 		data.guid = record.Title;
 		data.created = record.Created;
+		data.created_date = new Date(record.Created).toShortDateString();
 		data.createdBy = record.Author;
 		data.modified = record.Modified;
 		data.modifiedBy = record.Editor;

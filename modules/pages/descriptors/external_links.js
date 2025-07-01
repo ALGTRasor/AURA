@@ -10,8 +10,8 @@ export class PageExternalLinks extends PageDescriptor
 {
 	pinnable = true;
 	order_index = 98;
+	title = 'useful links';
 
-	GetTitle() { return 'external links'; }
 	OnCreateElements(instance)
 	{
 		if (!instance) return;
@@ -142,9 +142,9 @@ export class PageExternalLinks extends PageDescriptor
 	}
 }
 
-PageManager.RegisterPage(new PageExternalLinks('external links', UserAccountInfo.app_access_permission, '', 'A curated list of external sites which might be useful.'), 'l', 'External Links');
+PageManager.RegisterPage(new PageExternalLinks('useful links', UserAccountInfo.app_access_permission, '', 'A curated list of external sites which might be useful.'), 'l', 'Useful Links');
 Help.Register(
-	'pages.external links', 'External Links',
+	'pages.external links', 'Useful Links',
 	'The External Links page provides a list of websites Users might find useful.'
 	+ '\nThe links were collected from individuals across the company who take advantage of the services or tools the site provides on a regular basis.'
 );

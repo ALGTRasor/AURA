@@ -176,6 +176,8 @@ export class MegaTips
         tooltip = tooltip.replaceAll('}}}', '</span>');
         tooltip = tooltip.replaceAll('[[[', '<span class="megatip-warning">');
         tooltip = tooltip.replaceAll(']]]', '</span>');
+        tooltip = tooltip.replaceAll('<<<', '<span class="megatip-alert">');
+        tooltip = tooltip.replaceAll('>>>', '</span>');
         return tooltip;
     }
 

@@ -3,6 +3,8 @@ import { secondsDelta } from "../utils/timeutils.js";
 import { PanelContent } from "./panel_content.js";
 import { MegaTips } from "../systems/megatips.js";
 import { sleep } from "../utils/asyncutils.js";
+import { lerp } from "../utils/mathutils.js";
+import { GlobalStyling } from "./global_styling.js";
 
 const style_panel_title = 'text-align:center; height:1.25rem; line-height:1.25rem; font-size:0.9rem; flex-grow:1.0; flex-shrink:0.0;';
 
@@ -243,6 +245,10 @@ export class Calendar extends PanelContent
 
     OnRefreshElements()
     {
+        let skip_animation = GlobalStyling.animationSpeed.value >= 1.0;
+
+        let anim_delay = Math.round(lerp(8, 4, GlobalStyling.animationSpeed.value));
+        let fade_duration = Math.round(lerp(0.25, 0.1, GlobalStyling.animationSpeed.value));
         const change = () =>
         {
             //this.ClearDays();
@@ -253,17 +259,19 @@ export class Calendar extends PanelContent
         const perform = async () =>
         {
             this.transitioning = true;
-            if (this.entries_created === true && this.should_transition === true) 
+            if (skip_animation !== true && this.entries_created === true && this.should_transition === true) 
             {
-                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 100, 0, 0.25); }, 5 + i * 5) });
-                await sleep(this.entries.length * 5 + 270);
+                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 100, 0, fade_duration); }, 5 + i * anim_delay) });
+                await sleep(this.entries.length * anim_delay + fade_duration * 1000);
             }
+            await sleep(50);
             change();
-            if (this.should_transition === true)
+            if (skip_animation !== true && this.should_transition === true)
             {
-                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 0, 100, 0.25); }, 5 + i * 5) });
-                await sleep(this.entries.length * 5 + 270);
+                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 0, 100, fade_duration); }, 5 + i * anim_delay) });
+                await sleep(this.entries.length * anim_delay + fade_duration * 1000);
             }
+            await sleep(50);
             this.entries_created = true;
             this.transitioning = false;
         }
