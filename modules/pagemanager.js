@@ -2,7 +2,7 @@ import { Autosave } from "./autosave.js";
 import { DebugLog } from "./debuglog.js";
 import { setSiblingIndex } from "./utils/domutils.js";
 import { Modules } from "./modules.js";
-import { PageDescriptor } from "./pages/pagebase.js";
+import { PageDescriptor } from "./pages/page_descriptor.js";
 import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./systems/devmode.js";
 import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";

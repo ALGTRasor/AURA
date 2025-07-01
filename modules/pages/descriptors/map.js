@@ -3,7 +3,7 @@ import { PageManager } from "../../pagemanager.js";
 import { FieldValuePanel } from "../../ui/panel_field_value.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageMap extends PageDescriptor
 {

@@ -36,6 +36,13 @@ export class GlobalStyling
 {
     static SetRootStyleProperty(property, value) { document.documentElement.style.setProperty(property, value); }
 
+    static GetThemeColor(lightness = 50, highlight = false)
+    {
+        let color_base = highlight === true ? '--theme-color-highlight' : '--theme-color';
+        lightness = Math.round(lightness).toString().padStart(3, '0');
+        return `hsl(from var(${color_base}) h s var(--theme-l${lightness}))`;
+    }
+
     static aspects = [];
 
     static Load() { GlobalStyling.aspects.forEach(_ => _.Load()); }

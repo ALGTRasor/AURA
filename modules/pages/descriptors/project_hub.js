@@ -3,7 +3,7 @@ import { RunningTimeout } from "../../utils/running_timeout.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { ProjectData } from "../../datamodels/project_data.js";
 import { MegaTips } from "../../systems/megatips.js";
 

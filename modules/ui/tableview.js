@@ -1,7 +1,8 @@
 import { MegaTips } from "../systems/megatips.js";
-import { addElement, ClearElementLoading, MarkElementLoading } from "../utils/domutils.js";
+import { addElement, ClearElementLoading, CreatePagePanel, MarkElementLoading } from "../utils/domutils.js";
 import { FieldValidation } from "../utils/field_validation.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
+import { GlobalStyling } from "./global_styling.js";
 import { PanelContent } from "./panel_content.js";
 
 class TableViewEntry extends PanelContent
@@ -26,21 +27,30 @@ class TableViewEntry extends PanelContent
 
 	RefreshColumns()
 	{
-		if (this.table_view.view_columns && this.table_view.view_columns.length > 0)
-		{
-			this.table_view.view_columns.forEach((x, i) => { x.ApplyStyling(this.e_props[i]); });
-		}
+		this.table_view.columns.forEach(
+			(x, i) =>
+			{
+				if (x.hidden !== true) x.ApplyStyling(this.e_props[i]);
+			}
+		);
 	}
 
 	OnRefreshElements()
 	{
-		if (this.table_view.view_columns && this.table_view.view_columns.length > 0)
+		if (this.table_view.columns.all && this.table_view.columns.all.length > 0)
 		{
 			this.e_props = [];
 			const add_prop = column =>
 			{
+				if (column.hidden === true)
+				{
+					this.e_props.push(undefined);
+					return;
+				}
+
 				let value_string = '';
 				value_string = column.GetValueString(this.record);
+				if (column.value_suffix) value_string = value_string + column.value_suffix;
 				if (column.format) 
 				{
 					let validator = FieldValidation.GetValidator(column.format);
@@ -51,12 +61,34 @@ class TableViewEntry extends PanelContent
 					_ =>
 					{
 						column.ApplyStyling(_);
+						if (column.calc_theme_color) _.style.setProperty('--theme-color', column.calc_theme_color(this.record, this.record[column.key]));
 						_.innerText = value_string;
 					}
 				);
 				this.e_props.push(e_prop);
 			};
-			this.table_view.view_columns.forEach(add_prop);
+			this.table_view.columns.forEach(add_prop);
+
+			this.e_actions = [];
+			const add_action = action_data =>
+			{
+				let e_btn_action = addElement(
+					this.e_root, 'div', 'tableview-action', '',
+					_ =>
+					{
+						_.style.setProperty('--theme-color', `hsl(from ${action_data.color} h s var(--theme-l090))`);
+						addElement(
+							_, 'i', 'material-symbols icon-button tableview-action-icon', '',
+							_ =>
+							{
+								_.innerText = action_data.icon;
+							}
+						);
+					}
+				);
+				this.e_actions.push(e_btn_action);
+			}
+			this.table_view.actions.forEach(add_action);
 		}
 		else
 		{
@@ -114,14 +146,14 @@ class TableViewData
 	ApplySorters() { this.sorters.forEach(s => this.records_view.sort(s)); }
 }
 
-export class TableViewColumn
+class TableViewColumn
 {
 	static Nothing = new TableViewColumn();
 
-	constructor(key = '', label = '', data = {})
+	constructor(table_view, key = '', data = {})
 	{
+		this.table_view = table_view;
 		this.key = key;
-		this.label = label;
 
 		for (let prop_key in data)
 		{
@@ -135,11 +167,39 @@ export class TableViewColumn
 		this.collapsed = false;
 	}
 
+	GetState()
+	{
+		return {
+			key: this.key,
+			sorting: this.sorting,
+			sorting_reverse: this.sorting_reverse,
+			collapsed: this.collapsed,
+			filter_value: this.filter_value ?? '',
+		};
+	}
+
+	SetState(data)
+	{
+		if (!data) return;
+
+		this.sorting = data.sorting ?? false;
+		this.sorting_reverse = data.sorting_reverse ?? false;
+		this.collapsed = data.collapsed ?? false;
+		this.filter_value = data.filter_value ?? '';
+
+		if (this.e_txt_filter) this.e_txt_filter.value = this.filter_value;
+
+		this.SetSorting(this.sorting, this.sorting_reverse);
+	}
+
 	GetValueString(record, no_value_string = '---') { return (record[this.key] ?? this.no_value_string) ?? no_value_string; }
 
-	ApplyStyling(element)
+	ApplyStyling(element, is_search_field = false, is_action = false)
 	{
+		if (!element) return;
 		element.style.opacity = '0.7';
+
+		element.style.minWidth = this.table_view.column_width_min ?? '2rem';
 
 		if (this.flexGrow) element.style.flexGrow = this.flexGrow;
 		if (this.flexBasis) element.style.flexBasis = this.flexBasis;
@@ -148,10 +208,29 @@ export class TableViewColumn
 
 		if (this.collapsed === true) 
 		{
-			element.style.flexBasis = '2rem';
+			element.style.flexBasis = this.table_view.column_width_min ?? '2rem';
 			element.style.flexGrow = '0.0';
 			element.style.opacity = '0.35';
 		}
+
+		if (is_search_field === true)
+		{
+			if (this.search)
+			{
+				element.style.pointerEvents = 'all';
+				element.style.visibility = 'visible';
+				if ('placeholder' in element) element.placeholder = '...';
+			}
+			else
+			{
+				element.style.visibility = 'hidden';
+				element.style.pointerEvents = 'none';
+				element.style.userSelect = 'none';
+			}
+		}
+
+		if (is_action === true)
+			element.style.visibility = 'hidden';
 	}
 
 	ToggleSorting()
@@ -178,6 +257,94 @@ export class TableViewColumn
 			this.sort_icon = 'arrow_upward';
 			this.sort_icon_angle = '0deg';
 		}
+		this.RefreshSortingStyling();
+	}
+
+	SetSorting(sorting = true, reverse = false)
+	{
+		this.sorting = sorting;
+		this.sorting_reverse = sorting && reverse;
+
+		if (this.sorting === true) 
+		{
+			if (this.sorting_reverse === true)
+			{
+				this.sort_icon = 'arrow_upward';
+				this.sort_icon_angle = '180deg';
+			}
+			else
+			{
+				this.sort_icon = 'arrow_upward';
+				this.sort_icon_angle = '0deg';
+			}
+		}
+		else
+		{
+			this.sort_icon = undefined;
+		}
+		this.RefreshSortingStyling();
+	}
+
+	RefreshSortingStyling()
+	{
+		if (this.sort_icon)
+		{
+			if (this.e_sort_icon)
+			{
+				this.e_sort_icon.innerText = this.sort_icon;
+				this.e_sort_icon.style.rotate = this.sort_icon_angle;
+				this.e_sort_icon.style.opacity = '100%';
+			}
+			if (this.e_label)
+			{
+				this.e_label.style.color = GlobalStyling.GetThemeColor(60, true);
+				this.e_label.style.paddingLeft = 'calc(var(--gap-05) * 2)';
+				this.e_label.style.paddingRight = '0';
+			}
+		}
+		else 
+		{
+			if (this.e_sort_icon)
+			{
+				this.e_sort_icon.style.rotate = '90deg';
+				this.e_sort_icon.style.opacity = '0%';
+			}
+			if (this.e_label)
+			{
+				this.e_label.style.removeProperty('color');
+				this.e_label.style.removeProperty('padding-left');
+				this.e_label.style.removeProperty('padding-right');
+			}
+		}
+	}
+}
+
+class TableViewColumns
+{
+	constructor(table_view)
+	{
+		this.table_view = table_view;
+		this.all = [];
+	}
+
+	GetState() { return { columns: this.all.map(_ => _.GetState()) }; }
+	SetState(data = {}) { this.all.forEach((_, i) => _.SetState(data.columns[i])); }
+
+	forEach = (action = (x, i, a) => { }) => this.all.forEach(action);
+
+	IndexOf(key = '') { return this.all.findIndex(x => x.key === key); }
+	Register(key, options)
+	{
+		let column = new TableViewColumn(this.table_view, key, options);
+		if (this.IndexOf(column.key) > -1) return;
+		this.all.push(column);
+		this.table_view?.RefreshSoon();
+	}
+
+	Reset()
+	{
+		this.all = [];
+		this.table_view?.RefreshSoon();
 	}
 }
 
@@ -186,12 +353,29 @@ export class TableView extends PanelContent
 	constructor(e_parent, records = [])
 	{
 		super(e_parent);
-		this.change_timeout = new RunningTimeout(() => this.RefreshElements(), 0.25, false, 70);
+		this.dirty = false;
+		this.change_timeout = new RunningTimeout(
+			() =>
+			{
+				this.dirty = false;
+				this.RefreshElements();
+			},
+			0.5, false, 70
+		);
+		this.column_width_min = '2rem';
 
-		this.view_columns = [];
+		this.group_by_property = '';
+
+		this.actions = [];
+		this.columns = new TableViewColumns(this);
 		this.data = new TableViewData(this);
 		this.data.SetRecords(records, false);
 	}
+
+	AddAction(icon = 'help', action = record => { }, color = undefined) { this.actions.push({ icon: icon, action: action, color: color }) };
+
+	GetState() { return this.columns.GetState(); }
+	SetState(data) { this.columns.SetState(data); }
 
 	OnCreateElements()
 	{
@@ -201,7 +385,6 @@ export class TableView extends PanelContent
 		this.e_records = addElement(this.e_root, 'div', 'tableview-rows', '');
 		this.record_entries = [];
 		this.RecreateColumns();
-		this.RefreshSoon();
 	}
 
 	OnRemoveElements()
@@ -214,16 +397,49 @@ export class TableView extends PanelContent
 	OnRefreshElements()
 	{
 		this.data.RefreshViewRecords();
-		this.TransitionElements(
-			() =>
+
+		const before = () =>
+		{
+			MarkElementLoading(this.e_records);
+			this.e_records.style.pointerEvents = 'none';
+		};
+
+		const after = () =>
+		{
+			ClearElementLoading(this.e_records, 250);
+			this.e_records.style.pointerEvents = 'all';
+		};
+
+		const during = () =>
+		{
+			this.e_records.innerHTML = '';
+			this.RefreshColumns();
+			if (this.group_by_property && this.group_by_property.length > 0)
 			{
-				MarkElementLoading(this.e_records);
-				this.e_records.style.pointerEvents = 'none';
-			},
-			() =>
+				this.e_records.style.paddingTop = 'var(--gap-025)';
+				this.e_records.style.paddingBottom = 'var(--gap-025)';
+				this.e_records.style.gap = 'var(--gap-025)';
+				let groups = Object.groupBy(this.data.records_view, _ => _[this.group_by_property]);
+				for (let key in groups)
+				{
+					let records = groups[key];
+					let e_group = addElement(
+						this.e_records, 'div', 'tableview-row-group', '',
+						_ => { addElement(_, 'div', 'tableview-row-group-title', '', _ => { _.innerText = key.toUpperCase(); }); }
+					);
+					records.forEach(
+						_ =>
+						{
+							let entry = new TableViewEntry(this, _);
+							entry.e_parent = e_group;
+							entry.CreateElements();
+							this.record_entries.push(entry);
+						}
+					);
+				}
+			}
+			else
 			{
-				this.e_records.innerHTML = '';
-				this.RefreshColumns();
 				this.data.records_view.forEach(
 					_ =>
 					{
@@ -232,12 +448,11 @@ export class TableView extends PanelContent
 						this.record_entries.push(entry);
 					}
 				);
-			},
-			() =>
-			{
-				ClearElementLoading(this.e_records);
-				this.e_records.style.pointerEvents = 'all';
-			},
+			}
+		};
+
+		this.TransitionElements(
+			before, during, after,
 			{
 				fade_target: () => this.e_records,
 				fade_duration: 0.125,
@@ -247,7 +462,11 @@ export class TableView extends PanelContent
 		);
 	}
 
-	RefreshSoon() { this.change_timeout.ExtendTimer(); }
+	RefreshSoon()
+	{
+		this.dirty = true;
+		this.change_timeout.ExtendTimer();
+	}
 
 	RecreateColumns()
 	{
@@ -255,18 +474,49 @@ export class TableView extends PanelContent
 		this.e_search_row.innerHTML = '';
 		this.data.ClearSorters();
 		this.data.ClearFilters();
-		this.view_columns.forEach(
+		this.columns.forEach(
 			col =>
 			{
+				if (col.hidden === true) return;
+
+				const handle_sorter_click = e =>
+				{
+					if (e.button === 0)
+					{
+						if (col.collapsed === true)
+						{
+							col.collapsed = false;
+							this.RefreshColumns();
+						}
+						if (e.shiftKey === true)
+						{
+							col.ToggleSorting();
+						}
+						else
+						{
+							let was_sorting = col.sorting;
+							let was_sorting_reverse = col.sorting_reverse;
+							this.columns.forEach(_ => { _.SetSorting(false); });
+							col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
+						}
+						this.RefreshSoon();
+					}
+					else if (e.button === 1)
+					{
+						col.collapsed = col.collapsed !== true;
+						this.RefreshColumns();
+					}
+					this.EmitViewChange();
+				};
+
 				col.e_label = addElement(
 					this.e_column_row, 'div', 'tableview-cell', '',
 					_ =>
 					{
 						_.innerText = col.label;
-						col.ApplyStyling(_);
 						if (col.sorter)
 						{
-							let e_col_sort_icon = addElement(
+							col.e_sort_icon = addElement(
 								_, 'div', 'tableview-column-icon', '',
 								_ =>
 								{
@@ -275,75 +525,35 @@ export class TableView extends PanelContent
 								}
 							);
 							_.classList.add('tableview-cell-button');
-							const handle_click = e =>
-							{
-								if (e.button === 0)
-								{
-									if (col.collapsed === true)
-									{
-										col.collapsed = false;
-										this.RefreshColumns();
-									}
-									else
-									{
-										col.ToggleSorting();
 
-										if (col.sort_icon)
-										{
-											e_col_sort_icon.innerText = col.sort_icon;
-											e_col_sort_icon.style.rotate = col.sort_icon_angle;
-											e_col_sort_icon.style.opacity = '100%';
-										}
-										else 
-										{
-											e_col_sort_icon.style.rotate = '90deg';
-											e_col_sort_icon.style.opacity = '0%';
-										}
-										this.RefreshSoon();
-									}
-								}
-								else if (e.button === 1)
-								{
-									if (col.sorting !== true)
-									{
-										col.collapsed = col.collapsed !== true;
-										this.RefreshColumns();
-									}
-								}
-							};
-							_.addEventListener('click', handle_click);
-							_.addEventListener('auxclick', handle_click);
+							_.addEventListener('click', handle_sorter_click);
+							_.addEventListener('auxclick', handle_sorter_click);
 							MegaTips.RegisterSimple(
 								_,
 								[
-									col.label,
-									'[[[CLICK]]] (((to sort by this column)))',
-									'[[[MIDDLE CLICK]]] (((to collapse / expand this column)))',
-								].join('<br>')
+									col.label_long ?? col.label,
+									col.desc ? `(((${col.desc})))` : undefined,
+									'<br>',
+									'[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))',
+									'[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))',
+									'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
+									'(((Sorting multiple columns will apply from left to right.)))',
+									'(((Sorting columns cannot be collapsed.)))',
+								].filter(_ => _ != undefined).join('<br>')
 							);
 						}
 					}
 				);
+				col.ApplyStyling(col.e_label, false);
+
 
 				col.e_txt_filter = addElement(
 					this.e_search_row, 'input', 'tableview-cell', 'min-width:0;',
 					_ =>
 					{
-						col.ApplyStyling(_);
-
 						_.type = 'text';
-						if (col.search)
-						{
-							_.style.pointerEvents = 'all';
-							_.style.visibility = 'visible';
-							_.placeholder = '...';
-						}
-						else
-						{
-							_.style.visibility = 'hidden';
-							_.style.pointerEvents = 'none';
-							_.style.userSelect = 'none';
-						}
+						_.value = this.filter_value ?? '';
+
 						_.addEventListener(
 							'click',
 							e =>
@@ -352,13 +562,22 @@ export class TableView extends PanelContent
 								this.RefreshColumns();
 							}
 						);
-						_.addEventListener('keyup', e => { e.stopPropagation(); this.RefreshSoon(); });
+						_.addEventListener('keyup', e =>
+						{
+							e.stopPropagation();
+							col.filter_value = _.value;
+							this.EmitViewChange();
+							this.RefreshSoon();
+						});
 					}
 				);
+				col.ApplyStyling(col.e_txt_filter, true);
+
 				MegaTips.RegisterSimple(
 					col.e_txt_filter,
 					[
-						'[[[CLICK]]] (((to filter by))) ' + col.label,
+						'(((Filter by))) ' + col.label,
+						'(((Start with an exclamation mark))) [[[!]]] (((to negate the results.)))',
 					].join('<br>')
 				);
 
@@ -379,32 +598,29 @@ export class TableView extends PanelContent
 				this.data.AddSorter(col.column_sorter);
 			}
 		);
+
+		this.actions.forEach(
+			action_data =>
+			{
+				addElement(this.e_column_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
+				addElement(this.e_search_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
+			}
+		);
 	}
 
 	RefreshColumns()
 	{
-		this.view_columns.forEach(
+		this.columns.forEach(
 			col =>
 			{
+				if (col.hidden === true) return;
+				col.e_txt_filter.value = col.filter_value ?? '';
 				col.ApplyStyling(col.e_label);
 				col.ApplyStyling(col.e_txt_filter);
 			}
 		);
-
 		this.record_entries.forEach(_ => _.RefreshColumns());
 	}
 
-	IndexOfColumn(key = '') { return this.view_columns.findIndex(x => x.key === key); }
-	RegisterColumn(column = TableViewColumn.Nothing)
-	{
-		if (this.IndexOfColumn(column.key) > -1) return;
-		this.view_columns.push(column);
-		this.RefreshSoon();
-	}
-
-	ResetColumns()
-	{
-		this.view_columns = [];
-		this.RefreshSoon();
-	}
+	EmitViewChange() { this.dispatchEvent(new CustomEvent('viewchange')); }
 }

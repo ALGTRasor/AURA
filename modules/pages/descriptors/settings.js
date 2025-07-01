@@ -8,7 +8,7 @@ import { GlobalStyling } from "../../ui/global_styling.js";
 import { Autosave } from "../../autosave.js";
 import { About } from "../../systems/about.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Hotkeys } from "../../utils/hotkeys.js";
 import { AppInfo } from "../../app_info.js";
 import { Ripples } from "../../ui/ripple.js";

@@ -142,6 +142,12 @@
 	transition-timing-function: cubic-bezier(.4, -0.2, .6, 1.2);
 }
 
+.page-root[maximized]
+{
+	outline: solid 3px transparent;
+	outline-color: hsl(from var(--theme-color-highlight) h s var(--theme-l040));
+}
+
 .page-root:focus-within
 {
 	outline-color: hsl(from var(--theme-color) h s var(--theme-l040));
@@ -454,7 +460,7 @@
 
 .page-panel.inset-box:not(.scroll-y)
 {
-	box-shadow: inset 0px 0px 0.5rem #0008;
+	box-shadow: inset 0px 0px 0.25rem #0008;
 }
 
 .page-panel.inset-box:where(.scroll-y)
@@ -1877,9 +1883,11 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	background-color: hsl(from var(--theme-color) h s 50% / 0.25);
 
-	outline: solid 1px hsl(from var(--theme-color) h s 50%);
-	outline-offset: 1px;
+	outline: solid 1px hsl(from var(--theme-color) h s 50% / 0.5);
+	outline-offset: -1px;
 }
+
+
 .tableview-cell
 {
 	position: relative;
@@ -1903,17 +1911,19 @@ div:hover > .pie-chart-root .pie-chart-info
 	align-content: center;
 
 	border-radius: 0 var(--corner-05) var(--corner-05) 0;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010) / 0.5);
 
 	font-size: 80%;
 
-	transition-property: background-color, flex-basis, flex-grow;
-	transition-duration: var(--trans-dur-off-slow);
+	transition-property: padding-left, padding-right, color, background-color, flex-basis, flex-grow;
+	transition-duration: var(--trans-dur-off-fast);
 	transition-timing-function: ease-in-out;
 }
 .tableview-cell:hover
 {
-	background-color: hsl(from var(--theme-color) h s 50% / 0.25);
-	color: var(--theme-color-text);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020) / 0.85);
+	color: hsl(from var(--theme-color) h s var(--theme-l095) / 1.0);
+	text-shadow: -1px 1px 2px #0008;
 }
 
 
@@ -1930,13 +1940,85 @@ div:hover > .pie-chart-root .pie-chart-info
 	text-align: center;
 	align-content: center;
 
-	color: var(--theme-color-highlight);
+	color: hsl(from var(--theme-color-highlight) h s var(--theme-l060));
 	font-size: 120%;
 	opacity: 0%;
 
+	text-shadow: 0 0 6px var(--glow-color), 0 2px 1px black;
+
 	transition-property: rotate, opacity;
-	transition-duration: var(--trans-dur-off-slow);
+	transition-duration: var(--trans-dur-on-slow);
 	transition-timing-function: ease-in-out;
+}
+
+
+.tableview-row-group
+{
+	display: flex;
+	flex-direction: column;
+	padding: var(--gap-05) 0 var(--gap-05) 0;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030) / 0.025);
+
+	border-radius: var(--corner-1);
+	box-shadow: 0 0 6px #000f;
+}
+.tableview-row-group:hover
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l025) / 0.25);
+}
+
+.tableview-row-group-title
+{
+	padding-bottom: var(--gap-025);
+	padding-left: calc(0.5rem + var(--gap-1));
+	font-size: 0.8rem;
+	font-weight: bold;
+	color: hsl(from var(--theme-color) h s var(--theme-l040) / 0.7);
+}
+.tableview-row-group:hover .tableview-row-group-title
+{
+	color: hsl(from var(--theme-color) h s var(--theme-l070) / 1.0);
+}
+
+.tableview-action
+{
+	margin: 0;
+	position: relative;
+	padding: var(--gap-05);
+	flex-basis: 1.5rem;
+	flex-shrink: 0.0;
+	flex-grow: 0.0;
+
+	border-radius: var(--corner-05);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020) / 0.25);
+	scale: 70%;
+	border: solid 2px transparent;
+}
+.tableview-action:hover
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
+	box-shadow: -2px 2px 4px hsl(from var(--shadow-color) h s l / 0.3);
+	scale: 85%;
+	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l080));
+}
+.tableview-action:active
+{
+	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+	box-shadow: -1px 1px 2px hsl(from var(--shadow-color) h s l / 0.5);
+	scale: 75%;
+}
+
+.tableview-action-icon
+{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100%;
+	width: 100%;
+	translate: -50% -50%;
+	align-content: center;
+	text-align: center;
+	font-size: 1.35rem;
 }
 
 .tableview-columns .tableview-cell
@@ -1952,6 +2034,11 @@ div:hover > .pie-chart-root .pie-chart-info
 	background-color: hsl(from var(--theme-color) h s var(--theme-l005));
 }
 
+.tableview-filters .tableview-cell:hover,
+.tableview-filters .tableview-cell:active
+{
+	border-color: var(--theme-color-highlight);
+}
 
 
 .tableview-cell-button

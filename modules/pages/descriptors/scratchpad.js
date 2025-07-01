@@ -2,7 +2,7 @@
 import { Autosave } from "../../autosave.js";
 import { PageManager } from "../../pagemanager.js";
 import { NodeGraph } from "../../ui/nodegraph.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageScratchPad extends PageDescriptor
 {

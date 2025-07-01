@@ -1,6 +1,6 @@
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Help } from "./help.js";
 import { LongOps, LongOpsHistory } from "../../systems/longops.js";
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";

@@ -4,7 +4,7 @@ import { ExternalContactList } from "../../ui/panel_external_contact_list.js";
 import { InternalUserList } from "../../ui/panel_internal_user_list.js";
 import { ProjectList } from "../../ui/panel_project_list.js";
 import { UserAccountInfo } from "../../useraccount.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageDemoPanel extends PageDescriptor
 {

@@ -34,6 +34,7 @@ export class UserAllocation
 		data.allocation_max = Math.max(record.allocation_max ?? 1, 0.1);
 		data.use_history = UserAllocation.ExpandHistory(record.use_history);
 		data.use_total = data.use_history.reduce((sum, _) => sum + _.hours, 0);
+		data.remaining_total = data.allocation_max - data.use_total;
 		data.use_percent = data.use_total / data.allocation_max;
 
 		return new UserAllocationData(data);

@@ -1,5 +1,3 @@
-import { PageManager } from '../pagemanager.js';
-
 export class AppStrap
 {
 	static async ImportDataModules()
@@ -46,10 +44,14 @@ export class AppStrap
 			'user_allocations'
 		];
 
-		let import_results = await Promise.allSettled(page_names.map(_ => import(`../pages/descriptors/${_}.js`)));
+		const get_page = page => import(`../pages/descriptors/${page}.js`);
+
+		let import_results = await Promise.allSettled(page_names.map(get_page));
 		import_results = import_results.map((_, i) => { return { name: page_names[i], result: _ }; });
 		console.info(' >>> IMPORT Page Modules');
-		let errors = import_results.filter(_ => _.result.status !== 'fulfilled').map(_ => `Failed to import '${_.name}': ${_.result.reason}`);
-		if (errors.length > 0) console.error('Pages:\n' + errors.join('\n'));
+
+		const err_msg = _ => { return ` ! PAGE '${_.name}'\n ! ${_.result.reason}`; };
+		let errors = import_results.filter(_ => _.result.status !== 'fulfilled').map(err_msg);
+		if (errors.length > 0) console.warn([' ! IMPORT ERRORS:'].concat(errors).join('\n'));
 	}
 }

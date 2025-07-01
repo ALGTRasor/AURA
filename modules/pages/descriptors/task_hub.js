@@ -8,7 +8,7 @@ import { TaskData, Tasks } from "../../systems/operation/tasks.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { MegaTips } from "../../systems/megatips.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Trench } from "../../ui/trench.js";
 
 

@@ -364,6 +364,7 @@ export class PageInstance extends EventTarget
 		let frame_rect = this.e_frame.getBoundingClientRect();
 		let frame_parent_rect = this.e_frame.parentElement.getBoundingClientRect();
 
+		this.e_body.removeAttribute('maximized');
 		if (this.state.data.docked === true || this.state.data.pinned === true)
 		{
 			this.e_frame.style.position = 'relative';
@@ -377,6 +378,7 @@ export class PageInstance extends EventTarget
 			this.e_frame.style.position = 'absolute';
 			if (this.state.data.expanding === true)
 			{
+				this.e_body.setAttribute('maximized', '');
 				this.e_frame.style.left = 0;
 				this.e_frame.style.top = 0;
 				this.e_frame.style.width = frame_parent_rect.width + 'px';
@@ -431,7 +433,13 @@ export class PageInstance extends EventTarget
 
 	UpdateStateData(state_data = undefined)
 	{
-		if (this.state.SetValues(state_data)) this.page_descriptor.OnStateChange(this);
+		if (this.state.SetValues(state_data)) this.TriggerStateDataChange();
+	}
+
+	TriggerStateDataChange()
+	{
+		this.dispatchEvent(new CustomEvent('datachange'));
+		this.page_descriptor.OnStateChange(this);
 	}
 
 	ApplyStateData()
@@ -453,73 +461,4 @@ export class PageInstance extends EventTarget
 
 
 
-
-export class PageDescriptor
-{
-	static Nothing = new PageDescriptor(null);
-	instances = [];
-
-	dockable = true;
-	order_index = 0;
-
-	constructor(title = '', permission = '', icon = '', description = '')
-	{
-		this.icon = icon;
-		this.title = title;
-		this.description = description;
-		this.permission = permission;
-		this.descriptor_id = Math.round(Math.random() * 8_999_999 + 1_000_000);
-	}
-
-	instances = [];
-
-	GetInstance()
-	{
-		if (this.instances.length > 0) return this.instances[0];
-		return null;
-	}
-
-	GetOrCreateInstance(forceCreate = false, state_data = undefined)
-	{
-		if (forceCreate !== true && this.instances.length > 0) return this.instances[0];
-		return this.CreateInstance(state_data);
-	}
-
-	CreateInstance(state_data = undefined)
-	{
-		let pinst = new PageInstance(this, state_data);
-		this.instances.push(pinst);
-		return pinst;
-	}
-
-	CloseInstance(instance)
-	{
-		let instance_index = this.instances.indexOf(instance);
-		if (instance_index > -1) this.instances.splice(instance_index, 1);
-		else DebugLog.Log('! instance_index invalid', '#ff0');
-
-		if (PageManager.page_instance_hovered === instance) PageManager.page_instance_hovered = undefined;
-		if (PageManager.page_instance_focused === instance) PageManager.page_instance_focused = undefined;
-
-		if (instance.RemoveElements) instance.RemoveElements();
-
-		let piid = PageManager.page_instances.indexOf(instance);
-		if (piid > -1) PageManager.page_instances.splice(piid, 1);
-
-		window.setTimeout(PageManager.AfterPageClosed, 100);
-	}
-
-	OnOpen(instance) { }
-	OnClose(instance) { }
-	OnLayoutChange(instance) { }
-	OnStateChange(instance) { }
-
-	OnCreateElements(instance)
-	{
-		instance.e_content.innerText = 'content :: ' + this.title;
-	}
-
-	OnRemoveElements(instance) { }
-}
-
-Modules.Report("Page Descriptors", "This module adds support for page type descriptors, which are used to create instances of available pages");
+Modules.Report("Pages", "This module adds core support for pages.");

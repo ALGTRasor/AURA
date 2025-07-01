@@ -1,7 +1,7 @@
 import { addElement, ClearElementLoading, CreatePagePanel, MarkElementLoading } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Help } from "./help.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { until } from "../../utils/until.js";

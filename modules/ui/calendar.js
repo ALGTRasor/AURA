@@ -255,14 +255,14 @@ export class Calendar extends PanelContent
             this.transitioning = true;
             if (this.entries_created === true && this.should_transition === true) 
             {
-                this.entries.forEach(_ => { window.setTimeout(() => { FadeElement(_.e_root, 100, 0, 0.1); }, Math.random() * 100) });
-                await sleep(200);
+                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 100, 0, 0.25); }, 5 + i * 5) });
+                await sleep(this.entries.length * 5 + 270);
             }
             change();
             if (this.should_transition === true)
             {
-                this.entries.forEach(_ => { window.setTimeout(() => { FadeElement(_.e_root, 0, 100, 0.1); }, Math.random() * 100) });
-                await sleep(200);
+                this.entries.forEach((_, i) => { window.setTimeout(() => { FadeElement(_.e_root, 0, 100, 0.25); }, 5 + i * 5) });
+                await sleep(this.entries.length * 5 + 270);
             }
             this.entries_created = true;
             this.transitioning = false;

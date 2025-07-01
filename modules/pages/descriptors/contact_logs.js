@@ -1,6 +1,6 @@
 
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageContactLogs extends PageDescriptor
 {

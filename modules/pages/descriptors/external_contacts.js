@@ -4,7 +4,7 @@ import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
 import { RecordFormUtils } from "../../ui/recordform.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageExternalContacts extends PageDescriptor
 {

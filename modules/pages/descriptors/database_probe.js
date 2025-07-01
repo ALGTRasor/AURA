@@ -1,6 +1,6 @@
 import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { RecordViewer } from "../../ui/recordviewer.js";
 import { RecordFormUtils } from "../../ui/recordform.js";
 import { AppEvents } from "../../appevents.js";

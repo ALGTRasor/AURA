@@ -41,7 +41,7 @@ export class Autosave
 		Autosave.e_lastsaved.style.setProperty('--theme-color', '#0f0');
 
 		if (!Autosave.e_megatip) Autosave.e_megatip = MegaTips.Register(Autosave.e_lastsaved, _ => { });
-		Autosave.e_megatip.prep = _ => { _.innerHTML = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString(); };
+		Autosave.e_megatip.prep = _ => { _.innerHTML = MegaTips.FormatHTML('[[[Saved local data at]]] ' + Autosave.last_invoke_ts.toLocaleTimeString()); };
 		//Autosave.e_lastsaved.title = 'Saved user settings at ' + Autosave.last_invoke_ts.toLocaleTimeString();
 		Autosave.e_lastsaved.innerHTML = '';
 		let e_title_icon = document.createElement('i');

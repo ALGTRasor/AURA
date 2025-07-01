@@ -3,7 +3,7 @@ import { FileExplorer } from "../../ui/file_explorer.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Help } from "./help.js";
 
 export class PageFiles extends PageDescriptor

@@ -1,5 +1,4 @@
 
-import { AppEvents } from "../../appevents.js";
 import { NotificationLog } from "../../notificationlog.js";
 import { PageManager } from "../../pagemanager.js";
 import { MegaTips } from "../../systems/megatips.js";
@@ -10,8 +9,9 @@ import { PieChart } from "../../ui/pie_chart.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { Trench } from "../../ui/trench.js";
 import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
+import { lerp } from "../../utils/mathutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Help } from "./help.js";
 
 
@@ -342,11 +342,12 @@ class PanelUserAllocationGroup extends PanelContent
 			MegaTips.RegisterSimple(
 				this.e_root,
 				[
+					this.group_id,
 					`(((ALLOCATED))) ${Math.round(summary_max)} hours`,
 					`(((AVAILABLE))) ${Math.round(summary_max - summary_used)} hours (${Math.round(percent_left)}%)`,
 					`(((USED))) ${Math.round(summary_used)} hours (${Math.round(percent_used)}%)`,
 					`((( ${this.record_kind.toUpperCase()} ))) ${this.records.length}`,
-					'[[[Click to view details]]]',
+					'[[[CLICK]]] (((to view details)))',
 				].join('<br>')
 			);
 		}
@@ -508,6 +509,14 @@ class PanelUserAllocationList extends PanelContent
 
 
 
+const view_modes = [
+	{ label: 'BY GROUP', on_click: _ => { }, tooltip: 'Allocations by Group ID' },
+	{ label: 'BY USER', on_click: _ => { }, tooltip: 'Allocations by User' }
+];
+const view_formats = [
+	{ label: 'PIES', on_click: _ => { }, tooltip: 'View as Pie Charts' },
+	{ label: 'TABLE', on_click: _ => { }, tooltip: 'View as a Table' }
+];
 
 export class PageUserAllocations extends PageDescriptor
 {
@@ -518,39 +527,39 @@ export class PageUserAllocations extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
-		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
-
 		instance.e_content.style.overflow = 'hidden';
 		instance.e_content.style.display = 'flex';
 		instance.e_content.style.gap = 'var(--gap-025)';
 		instance.e_content.style.flexDirection = 'column';
 
-		instance.content_timeout = new RunningTimeout(() => { this.RefreshData(instance); }, 0.25, 70);
+		instance.data_timeout = new RunningTimeout(() => { instance.RefreshDataNow(); }, 0.25, 70);
+		instance.view_timeout = new RunningTimeout(() => { instance.RefreshViewNow(); }, 0.25, 70);
+		instance.RefreshViewNow = () => this.TransitionModeContent(instance);
+		instance.RefreshDataNow = () => this.RefreshData(instance);
+		instance.RefreshViewSoon = () => instance.view_timeout.ExtendTimer();
+		instance.RefreshDataSoon = () => instance.data_timeout.ExtendTimer();
+
+		instance.slide_format = new SlideSelector();
+		instance.slide_format.CreateElements(instance.e_content, view_formats);
 
 		instance.slide_mode = new SlideSelector();
-		const modes = [
-			{ label: 'BY GROUP', on_click: _ => { }, tooltip: 'Allocations by Group ID' },
-			{ label: 'BY USER', on_click: _ => { }, tooltip: 'Allocations by User' }
-		];
-
-		instance.slide_mode.CreateElements(instance.e_content, modes);
+		instance.slide_mode.CreateElements(instance.e_content, view_modes);
 
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.guid.toUpperCase(), _ => _.user_id);
 		instance.panel_list.CreateElements(instance.e_content);
 		instance.panel_list_items_root = instance.panel_list.e_root_records_actual;
 
-		instance.transitionContent = mode_id => { this.TransitionModeContent(instance); };
-		instance.slide_mode.Subscribe(instance.transitionContent);
-		//instance.slide_mode.ApplySelectionSoon();
-		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
+		instance.slide_mode.Subscribe(instance.RefreshViewSoon);
+		instance.slide_format.Subscribe(instance.RefreshViewSoon);
 
-		instance.RefreshData = () => this.RefreshData(instance);
-		instance.RefreshDataSoon = () => instance.content_timeout.ExtendTimer();
+		instance.slide_mode.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
+		instance.slide_format.SelectIndexAfterDelay(instance.state.data.view_format ?? 0, 150, true);
 	}
 
 	OnRemoveElements(instance)
 	{
-		instance.slide_mode.Unsubscribe(instance.transitionContent);
+		instance.slide_format.RemoveElements();
+		instance.slide_mode.RemoveElements();
 	}
 
 	OnDataRefresh(instance)
@@ -561,14 +570,16 @@ export class PageUserAllocations extends PageDescriptor
 
 	TransitionModeContent(instance)
 	{
-		let fade_time = (1.01 - GlobalStyling.animationSpeed.value) * 0.15;
+		let fade_time = lerp(0.25, 0.05, GlobalStyling.animationSpeed.value);
 		const fade_out = () => FadeElement(instance.panel_list_items_root, 100, 0, fade_time);
 		const fade_in = () => FadeElement(instance.panel_list_items_root, 0, 100, fade_time);
 
 		const perform = async () =>
 		{
 			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
+			instance.state.SetValue('view_format', instance.slide_format.selected_index);
 			instance.slide_mode.SetDisabled(true);
+			instance.slide_format.SetDisabled(true);
 			MarkElementLoading(instance.panel_list_items_root);
 			await fade_out();
 			instance.panel_list.records = window.SharedData['user allocations'].instance.data;
@@ -591,6 +602,7 @@ export class PageUserAllocations extends PageDescriptor
 			await fade_in();
 			ClearElementLoading(instance.panel_list_items_root, 250);
 			instance.slide_mode.SetDisabled(false);
+			instance.slide_format.SetDisabled(false);
 		};
 		perform();
 	}
@@ -605,11 +617,13 @@ export class PageUserAllocations extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
-			else instance.e_frame.style.maxWidth = '42rem';
+			if (instance.state.data.expanding === true) instance.ClearMaxFrameWidth();
+			else instance.SetMaxFrameWidth('60vh');
 		}
-		else instance.e_frame.style.maxWidth = 'unset';
+		else instance.ClearMaxFrameWidth();
+
 		instance.slide_mode.ApplySelectionSoon();
+		instance.slide_format.ApplySelectionSoon();
 	}
 
 	RefreshData(instance)

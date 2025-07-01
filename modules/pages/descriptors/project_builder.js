@@ -1,5 +1,5 @@
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { Help } from "./help.js";
 
 export class PageProjectBuilder extends PageDescriptor

@@ -1,4 +1,5 @@
 import { FadeElement } from "../utils/domutils.js";
+import { until } from "../utils/until.js";
 
 export class PanelContent extends EventTarget
 {
@@ -67,19 +68,38 @@ export class PanelContent extends EventTarget
 	{
 		const perform_transition = async () =>
 		{
+			const cancel_transition = () =>
+			{
+				console.warn('cancelled transition');
+				this.transitioning = false;
+				this.interrupt_transition = false;
+			};
+
 			const fade_duration = options.fade_duration ?? 0.05;
 			const will_fade = () => { return options.fade_target() && 'style' in options.fade_target() && fade_duration > 0.0 };
 
+			if (this.transitioning === true)
+			{
+				this.interrupt_transition = true;
+				await until(() => this.transitioning !== true);
+			}
+
 			await before();
+			if (this.interrupt_transition === true) { cancel_transition(); return; }
+
 			this.transitioning = true;
-			if (will_fade() === true && options.skip_fade_out !== true)
-				await FadeElement(options.fade_target(), 100, 0, fade_duration);
+			if (will_fade() === true && options.skip_fade_out !== true) await FadeElement(options.fade_target(), 100, 0, fade_duration);
+			if (this.interrupt_transition === true) { cancel_transition(); return; }
+
 			await during();
-			if (will_fade() === true && options.skip_fade_in !== true)
-				await FadeElement(options.fade_target(), 0, 100, fade_duration);
+			if (this.interrupt_transition === true) { cancel_transition(); return; }
+
+			if (will_fade() === true && options.skip_fade_in !== true) await FadeElement(options.fade_target(), 0, 100, fade_duration);
+			if (this.interrupt_transition === true) { cancel_transition(); return; }
+
 			this.transitioning = false;
 			await after();
 		};
-		if (this.transitioning !== true) perform_transition();
+		perform_transition();
 	}
 }

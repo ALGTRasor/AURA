@@ -3,7 +3,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { DevMode } from "../../systems/devmode.js";
 import { PageManager } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { until } from "../../utils/until.js";
 import { Help } from "./help.js";
 

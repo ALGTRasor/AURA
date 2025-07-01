@@ -1,6 +1,6 @@
 import { AppInfo } from "../../app_info.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { TopicExplorer } from "../../ui/topic_explorer.js";
 
 export class Help

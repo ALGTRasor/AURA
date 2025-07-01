@@ -1,17 +1,98 @@
 import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
+import { SampleArray } from "../../utils/arrayutils.js";
 import { PanelContent } from "../../ui/panel_content.js";
 
-import { TableView, TableViewColumn } from "../../ui/tableview.js";
+import { TableView } from "../../ui/tableview.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { Calendar } from "../../ui/calendar.js";
 
 import { UserAccountInfo } from "../../useraccount.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
+import { hoursDelta } from "../../utils/timeutils.js";
+
+
+
+
+
+const sort_by = (x, y, prop = 'guid') =>
+{
+	if (x[prop] < y[prop]) return -1;
+	if (x[prop] > y[prop]) return 1;
+	return 0;
+};
+const sort_guid = (x, y) => { return sort_by(x, y, 'guid'); };
+const sort_max = (x, y) => { return sort_by(x, y, 'allocation_max'); };
+const sort_remaining = (x, y) => { return sort_by(x, y, 'remaining_total'); };
+const sort_used = (x, y) => { return sort_by(x, y, 'use_total'); };
+const sort_created = (x, y) => { return sort_by(x, y, 'created'); };
+
+
+const search_by = (x, prop, term) =>
+{
+	let invert = term.startsWith('!');
+	if (invert) term = term.replaceAll('!', '');
+	let search_value = term.trim().toLowerCase();
+	let record_value_string = x[prop].toString().trim().toLowerCase();
+	let includes = !search_value || search_value.length < 1 || record_value_string.indexOf(search_value) > -1;
+
+	if (invert) return !includes;
+	return includes;
+}
+const search_by_guid = (x, term) => { return search_by(x, 'guid', term); };
+const search_by_created = (x, term) => { return search_by(x, 'created', term); };
+
+const date_gradient = ['#0ff2', '#0f02', '#ffe1', '#f502'];
+const available_time_gradient = ['#f002', '#ff01', '#ff01', '#0f02', '#0f02', '#0ff2'];
+
+const ALLOCATION_TABLE_COLUMNS =
+	[
+		{
+			key: 'created', label: 'DATE ADDED', label_long: 'DATE ADDED',
+			desc: 'The date this allocation was created.',
+			flexBasis: '7rem', flexGrow: '0.25', format: 'date',
+			calc_theme_color: (record, val) => SampleArray(date_gradient, hoursDelta(new Date(record.created)) / (24.0 * 60.0)),
+			sorter: sort_created, search: search_by_created,
+		},
+		{
+			key: 'guid', label: 'ALLOCATION', label_long: 'ALLOCATION GROUP',
+			desc: 'The name or ID of the allocation group.',
+			flexBasis: '11rem', flexGrow: '0.5', format: 'uppercase',
+			sorter: sort_guid, search: search_by_guid,
+			hidden: true,
+		},
+		{
+			key: 'allocation_max', label: 'TOTAL', label_long: 'TOTAL ALLOCATED TIME',
+			desc: 'The total amount of time originally made available in this allocation.',
+			flexBasis: '8rem', flexGrow: '0.0',
+			sorter: sort_max,
+		},
+		{
+			key: 'use_total', label: 'USED', label_long: 'USED TIME',
+			desc: 'The amount of time that has been used from this allocation.',
+			flexBasis: '8rem', flexGrow: '0.0',
+			calc_theme_color: (record, val) => SampleArray(available_time_gradient, 1.0 - record.use_total / record.allocation_max),
+			sorter: sort_used,
+		},
+		{
+			key: 'remaining_total', label: 'AVAILABLE', label_long: 'AVAILABLE TIME',
+			desc: 'The amount of time that has not been used from this allocation.',
+			flexBasis: '8rem', flexGrow: '0.0',
+			calc_theme_color: (record, val) => SampleArray(available_time_gradient, record.remaining_total / record.allocation_max),
+			sorter: sort_remaining,
+		},
+	];
+
 
 class TKAllocations extends PanelContent
 {
+	constructor(page)
+	{
+		super(page.e_mode_content);
+		this.page = page;
+	}
+
 	OnCreateElements()
 	{
 		this.e_root = CreatePagePanel(
@@ -20,41 +101,12 @@ class TKAllocations extends PanelContent
 			{
 				let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
 				this.e_tableview = new TableView(_, data);
+				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
+				this.e_tableview.group_by_property = 'guid';
 
-				const sort_by = (x, y, prop = 'guid') =>
-				{
-					if (x[prop] < y[prop]) return -1;
-					if (x[prop] > y[prop]) return 1;
-					return 0;
-				};
-				const sort_guid = (x, y) => { return sort_by(x, y, 'guid'); };
-				const sort_max = (x, y) => { return sort_by(x, y, 'allocation_max'); };
-				const sort_used = (x, y) => { return sort_by(x, y, 'use_total'); };
-				const sort_used_share = (x, y) => { return sort_by(x, y, 'use_percent'); };
-				const sort_created = (x, y) => { return sort_by(x, y, 'created'); };
-
-
-				const search_by = (x, prop, term) =>
-				{
-					let search_value = term.trim().toLowerCase();
-					let record_value_string = x[prop].toString().trim().toLowerCase();
-					return !search_value || search_value.length < 1 || record_value_string.indexOf(search_value) > -1;
-				}
-				const search_by_guid = (x, term) => { return search_by(x, 'guid', term); };
-				const search_by_created = (x, term) => { return search_by(x, 'created', term); };
-
-				const columns = [
-					new TableViewColumn('guid', 'ALLOCATION', { sorter: sort_guid, search: search_by_guid, flexBasis: '15rem', flexGrow: '0.25', format: 'uppercase' }),
-					new TableViewColumn('use_total', 'USED HRS', { sorter: sort_used, flexBasis: '8rem', flexGrow: '0.0', textAlign: 'center' }),
-					new TableViewColumn('allocation_max', 'TOTAL HRS', { sorter: sort_max, flexBasis: '8rem', flexGrow: '0.0', textAlign: 'center' }),
-					new TableViewColumn('use_percent', 'USED %', { sorter: sort_used_share, flexBasis: '8rem', flexGrow: '0.0', format: 'percentage1' }),
-					new TableViewColumn('created', 'CREATED', { sorter: sort_created, search: search_by_created, flexBasis: '11rem', flexGrow: '0.0', format: 'timestamp' }),
-				];
-
-				this.e_tableview.ResetColumns();
-				columns.forEach(_ => this.e_tableview.RegisterColumn(_));
-				this.e_tableview.CreateElements();
-
+				this.e_tableview.columns.Reset();
+				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.columns.Register(_.key, _));
+				this.e_tableview.AddAction('chronic', _ => { }, 'hsl(from #0ff h s var(--theme-l030))');
 			}
 		);
 
@@ -67,10 +119,31 @@ class TKAllocations extends PanelContent
 	{
 		this.e_tableview.RefreshElements();
 	}
+
+	StoreState(page_instance)
+	{
+		let data = this.e_tableview.GetState();
+		page_instance.SetStateValue('allocation_table_state', data);
+	}
+
+	RestoreState(page_instance)
+	{
+		if (page_instance.state.HasValue('allocation_table_state'))
+		{
+			let data = page_instance.GetStateValue('allocation_table_state');
+			this.e_tableview.SetState(data);
+		}
+	}
 }
 
 class TKCalendar extends PanelContent
 {
+	constructor(page)
+	{
+		super(page.e_mode_content);
+		this.page = page;
+	}
+
 	OnCreateElements()
 	{
 		this.records = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
@@ -154,33 +227,34 @@ export class PageTimekeep extends PageDescriptor
 {
 	order_index = -1;
 	title = 'time keeper';
+	icon = 'chronic';
 
 	OnCreateElements(instance)
 	{
-		if (!instance) return;
-
 		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 20rem)';
 		instance.e_content.style.flexDirection = 'column';
 		instance.e_content.style.gap = 'var(--gap-05)';
 
 		instance.slide_mode = new SlideSelector();
 		const modes = [
-			{ label: 'ALLOCATIONS', on_click: _ => { }, tooltip: 'Your billable time by allocation.' },
-			{ label: 'CALENDAR', on_click: _ => { }, tooltip: 'Your billable time by calendar period.' }
+			{ label: 'ALLOCATIONS', on_click: _ => { }, tooltip: 'Billable time by allocation.' },
+			{ label: 'CALENDAR', on_click: _ => { }, tooltip: 'Billable time by calendar period.' }
 		];
 		instance.slide_mode.CreateElements(instance.e_content, modes);
 
 		instance.e_mode_content_container = addElement(instance.e_content, 'div', '', 'border-radius:inherit; position:relative; flex-basis:100%;');
 		instance.e_mode_content = addElement(instance.e_mode_content_container, 'div', '', 'border-radius:inherit; display:flex; flex-direction:column; gap:var(--gap-05); overflow:hidden; top:0; left:0; width:100%; height:100%; padding:0; margin:0;');
 		instance.e_mode_content.id = 'e_mode_content';
-		instance.mode_allocations = new TKAllocations(instance.e_mode_content);
-		instance.mode_calendar = new TKCalendar(instance.e_mode_content);
+
+		instance.mode_allocations = new TKAllocations(instance);
+		instance.mode_calendar = new TKCalendar(instance);
+
 		instance.content_current = undefined;
 
-		instance.content_timeout = new RunningTimeout(() => { this.UpdateModeContent(instance); }, 0.25, false, 70);
+		instance.content_timeout = new RunningTimeout(() => { this.UpdateModeContent(instance); }, 0.5, false, 70);
 		instance.RefreshContentSoon = () =>
 		{
-			instance.state.SetValue('view_mode', instance.slide_mode.selected_index);
+			instance.SetStateValue('view_mode', instance.slide_mode.selected_index);
 			instance.content_timeout.ExtendTimer();
 		};
 
@@ -205,17 +279,21 @@ export class PageTimekeep extends PageDescriptor
 			MarkElementLoading(instance.e_mode_content);
 			if (instance.content_current && instance.content_current.e_root)
 			{
+				if (instance.content_current.StoreState) instance.content_current.StoreState(instance);
 				await FadeElement(instance.content_current.e_root, 100, 0, 0.125);
 				instance.content_current.RemoveElements();
 			}
+
 			instance.content_current = content_next;
 			instance.content_current.CreateElements();
+
 			instance.slide_mode.SetDisabled(false);
+			if (instance.content_current && instance.content_current.RestoreState) instance.content_current.RestoreState(instance);
 			await FadeElement(instance.content_current.e_root, 0, 100, 0.125);
 			ClearElementLoading(instance.e_mode_content, 250);
 		};
 
-		if ('RemoveElements' in content_next) PerformTransition();
+		if (content_next) PerformTransition();
 		else console.warn('invalid next content');
 	}
 
@@ -241,12 +319,12 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.e_frame.style.maxWidth = 'unset';
-			else instance.e_frame.style.maxWidth = '100vh';
+			if (instance.state.data.expanding === true) instance.SetMaxFrameWidth('100vh');
+			else instance.SetMaxFrameWidth('60vh');
 		}
 		else
 		{
-			instance.e_frame.style.maxWidth = 'unset';
+			instance.ClearMaxFrameWidth();
 		}
 		instance.slide_mode.ApplySelectionSoon();
 	}

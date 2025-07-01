@@ -2,7 +2,7 @@ import { PageManager } from "../../pagemanager.js";
 import { PdfContent } from "../../ui/pdf_content.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PagePdfView extends PageDescriptor
 {

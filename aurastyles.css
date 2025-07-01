@@ -129,8 +129,9 @@ body
 	border-radius: var(--corner-05);
 
 	font-family: AtkinsonHyperlegible;
+	text-rendering: optimizeLegibility;
 	font-size: var(--font-size);
-	letter-spacing: calc(0.15 * var(--font-size));
+	letter-spacing: max(1px, 0.15 * var(--font-size));
 
 	transition-property: opacity;
 	transition-duration: 1s;
@@ -233,8 +234,8 @@ body *[content-loading]::after
 	z-index: 10;
 	inset: 0;
 
-	--back-color-0: rgb(from hsl(from var(--theme-color) h s var(--theme-l010)) r g b / 0.2);
-	--back-color-1: rgb(from hsl(from var(--theme-color) h s var(--theme-l080)) r g b / 0.1);
+	--back-color-0: hsl(from var(--theme-color) h s var(--theme-l060) / 0.0);
+	--back-color-1: hsl(from var(--theme-color) h s var(--theme-l060) / 0.2);
 
 	background-size: 100% 400%;
 	background-image: linear-gradient(0deg, var(--back-color-0) 35%, var(--back-color-1) 50%, var(--back-color-0) 65%);
@@ -713,21 +714,18 @@ div[disabled]
 	{
 		--anim-phase: 0.0;
 		--anim-phase-mid: 1.0;
-		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
 	}
 
 	25%
 	{
 		--anim-phase: 0.25;
 		--anim-phase-mid: 0.0;
-		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
 	}
 
 	25%
 	{
 		--anim-phase: 0.25;
 		--anim-phase-mid: 0.0;
-		box-shadow: 0px 0px 8px rgba(from var(--glow-color) r g b / 0.6);
 	}
 
 	50%
@@ -740,7 +738,6 @@ div[disabled]
 	{
 		--anim-phase: 1.0;
 		--anim-phase-mid: 1.0;
-		box-shadow: 0px 0px 0px rgba(from var(--glow-color) r g b / 0.0);
 	}
 }
 
@@ -798,19 +795,20 @@ div[disabled]
 	border-radius: var(--corner-05);
 
 	font-size: 0.75rem;
-	letter-spacing: 0.5px;
+	letter-spacing: 1px;
+	font-weight: bold;
 
 	background-blend-mode: multiply;
 	background-size: 100% 100%;
-	background-image: linear-gradient(var(--anchor-angle) in hsl, rgba(from hsl(from var(--theme-color) h s var(--theme-l040)) r g b / calc(0.5 - 0.25 * var(--anim-phase-mid))), rgba(from hsl(from var(--theme-color) h s calc(var(--theme-l010) + 15% * var(--anim-phase-mid))) r g b / 0.5));
+	background-image: linear-gradient(var(--anchor-angle) in hsl, hsl(from var(--theme-color) h s calc(var(--theme-l015) + 5%) / 0.6), hsl(from var(--theme-color) h s calc(var(--theme-l015) - 5%) / 0.6));
 
 	border: solid hsl(from var(--theme-color) h s var(--theme-l040)) 2px;
 
 	overflow: visible;
 
-	backdrop-filter: blur(8px);
+	backdrop-filter: blur(9px);
 
-	box-shadow: 0px 0px 4px rgba(from var(--glow-color) r g b / 0.25);
+	box-shadow: 0px 0px 0.5rem hsl(from var(--theme-color) h s 50% / 0.5);
 
 	animation: calc(0.5s + 1s * var(--trans-dur-mult)) ease-in-out anim-megatip-body infinite;
 }
@@ -854,7 +852,7 @@ div[disabled]
 .megatip-field
 {
 	display: inline;
-	color: hsl(from var(--theme-color) h s 50%);
+	color: hsl(from var(--theme-color) h s var(--theme-l060));
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
@@ -864,7 +862,7 @@ div[disabled]
 .megatip-value
 {
 	display: inline;
-	color: hsl(from var(--theme-color) h s 50%);
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
 	text-align: right;
 	font-weight: bold;
 	font-size: 0.8rem;
@@ -873,7 +871,7 @@ div[disabled]
 .megatip-warning
 {
 	display: inline;
-	color: var(--theme-color-highlight);
+	color: hsl(from var(--theme-color-highlight) h s var(--theme-l060));
 	min-width: 4rem;
 	text-align: right;
 	font-weight: bold;
@@ -899,8 +897,6 @@ div[disabled]
 	color: white;
 	outline: solid white 1px !important;
 	outline-offset: -1px;
-
-	border-radius: inherit;
 }
 
 
@@ -955,8 +951,6 @@ input[type="textarea"]:active
 	color: hsl(from var(--theme-color) h s var(--theme-l080));
 	outline: solid hsl(from var(--theme-color) h s var(--theme-l080)) 1px !important;
 	outline-offset: -1px;
-
-	border-radius: inherit;
 }
 
 

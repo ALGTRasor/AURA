@@ -2,7 +2,7 @@ import { addElement, ClearElementLoading, CreatePagePanel, MarkElementLoading } 
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 import { ExpandingSummary } from "../../ui/expanding_summary.js";
 import { SharedData } from "../../remotedata/datashared.js";
 import { SlideSelector } from "../../ui/slide_selector.js";

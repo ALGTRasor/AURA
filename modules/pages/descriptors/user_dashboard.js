@@ -1,7 +1,7 @@
 import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
 import { DebugLog } from "../../debuglog.js";
 import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";

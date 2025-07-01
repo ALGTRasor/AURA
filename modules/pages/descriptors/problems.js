@@ -1,7 +1,7 @@
 import { PageManager } from "../../pagemanager.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { CreatePagePanel } from "../../utils/domutils.js";
-import { PageDescriptor } from "../pagebase.js";
+import { PageDescriptor } from "../page_descriptor.js";
 
 export class PageProblems extends PageDescriptor
 {
