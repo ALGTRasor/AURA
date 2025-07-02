@@ -8,7 +8,6 @@ import { AppEvents } from "../../appevents.js";
 import { SlideSelector } from "../../ui/slide_selector.js";
 
 
-
 const USERS_TABLE_COLUMNS = [
 	{
 		key: 'user_id', label: 'USER ID', label_long: 'USER ID',
@@ -274,6 +273,9 @@ export class PageHR extends PageDescriptor
 	OnCreateElements(instance)
 	{
 		instance.e_content.style.gap = 'var(--gap-025)';
+
+		instance.content = new HRContent(this);
+		instance.content.CreateElements();
 
 		const modes = [
 			{ label: 'USERS', on_click: _ => { } },
