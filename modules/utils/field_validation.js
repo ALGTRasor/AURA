@@ -37,10 +37,10 @@ export class FieldValidation
         { format_code: 'timestamp', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get12HourTimeString(d) } },
         { format_code: 'timestamp24', validator: _ => { let d = new Date(_); return d.toShortDateString() + ' ' + Get24HourTimeString(d) } },
 
-        { format_code: 'upper', validator: _ => _.toUpperCase() },
-        { format_code: 'uppercase', validator: _ => _.toUpperCase() },
-        { format_code: 'lower', validator: _ => _.toLowerCase() },
-        { format_code: 'lowercase', validator: _ => _.toLowerCase() },
+        { format_code: 'upper', validator: _ => _.toString().toUpperCase() },
+        { format_code: 'uppercase', validator: _ => _.toString().toUpperCase() },
+        { format_code: 'lower', validator: _ => _.toString().toLowerCase() },
+        { format_code: 'lowercase', validator: _ => _.toString().toLowerCase() },
 
         { format_code: 'url', validator: FieldValidation.CheckUrl },
         { format_code: 'phone', validator: FieldValidation.CheckPhone },
@@ -74,11 +74,10 @@ export class FieldValidation
 
     static CheckList(value)
     {
-        //if (typeof value === 'string') value = JSON.parse(value);
-
+        if (typeof value !== 'object') return 'INVALID';
         let prop_count = 0;
         for (let propid in value) prop_count++;
-        return `List with ${prop_count} items`;
+        return (prop_count > 0) ? prop_count.toString() : 'No';
     }
 
     static CheckAddress(value)

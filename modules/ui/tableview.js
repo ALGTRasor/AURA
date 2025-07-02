@@ -50,12 +50,12 @@ class TableViewEntry extends PanelContent
 
 				let value_string = '';
 				value_string = column.GetValueString(this.record);
-				if (column.value_suffix) value_string = value_string + column.value_suffix;
 				if (column.format) 
 				{
 					let validator = FieldValidation.GetValidator(column.format);
 					if (validator) value_string = validator(value_string);
 				}
+				if (column.value_suffix) value_string = value_string + column.value_suffix;
 				let e_prop = addElement(
 					this.e_root, 'div', 'tableview-cell', 'display:flex;flex-direction:row;',
 					_ =>
@@ -357,7 +357,6 @@ class TableViewColumns
 	}
 }
 
-
 export class TableViewConfiguration
 {
 	constructor(table_view)
@@ -390,7 +389,14 @@ export class TableViewConfiguration
 
 				const handle_sorter_click = e =>
 				{
-					if (e.button === 0)
+					if (e.ctrlKey)
+					{
+						e.stopPropagation();
+						e.preventDefault();
+						col.collapsed = col.collapsed !== true;
+						this.RefreshColumns();
+					}
+					else if (e.button === 0)
 					{
 						if (col.collapsed === true)
 						{
@@ -411,11 +417,8 @@ export class TableViewConfiguration
 						}
 						this.RefreshSoon();
 					}
-					else if (e.button === 1)
-					{
-						col.collapsed = col.collapsed !== true;
-						this.RefreshColumns();
-					}
+
+
 					this.table_view.EmitViewChange();
 				};
 
@@ -466,7 +469,7 @@ export class TableViewConfiguration
 								'<div style="height:var(--gap-025);padding:0;margin:0;"></div>',
 								col.sorter ? '[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))' : undefined,
 								col.sorter ? '[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))' : undefined,
-								'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
+								'[[[CTRL CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
 								'<div style="height:var(--gap-05);padding:0;margin:0;"></div>',
 								col.sorter ? '(((Sorting multiple columns will apply from left to right.)))' : undefined,
 								col.sorter ? '(((Sorting columns cannot be collapsed.)))' : undefined,

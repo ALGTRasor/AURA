@@ -11,6 +11,51 @@ import { AppEvents } from "../../appevents.js";
 
 
 
+const USERS_TABLE_COLUMNS = [
+	{
+		key: 'user_id', label: 'USER ID', label_long: 'USER ID',
+		desc: 'The ID assigned to this user. This should be the first segment of their company email address.',
+		flexBasis: '6rem', flexGrow: '0.25',
+	},
+	{
+		key: 'display_name_full', label: 'NAME', label_long: 'DISPLAY NAME',
+		desc: 'The chosen full name for this user.',
+		flexBasis: '6rem', flexGrow: '0.5',
+	},
+	{
+		key: 'role', label: 'ROLE(S)', label_long: 'ROLE(S)',
+		desc: 'The role or roles assigned to this user.',
+		flexBasis: '6rem', flexGrow: '0.0',
+		format: 'upper',
+	},
+	{
+		key: 'standing', label: 'STANDING', label_long: 'STANDING',
+		desc: 'The company standing for this user.',
+		flexBasis: '6rem', flexGrow: '0.0',
+		format: 'upper',
+	},
+	{
+		key: 'active_requests', label: 'ACTIVE REQUESTS', label_long: 'STANDING',
+		desc: 'The company standing for this user.',
+		flexBasis: '8rem', flexGrow: '0.25',
+		format: 'list', value_suffix: ' requests',
+	},
+	{
+		key: 'docs_status', label: 'DOCS STATUS', label_long: 'DOCUMENTS STATUS',
+		desc: 'The documents status for this user.',
+		flexBasis: '8rem', flexGrow: '0.0',
+		format: 'upper',
+		calc_theme_color: (record, val) =>
+		{
+			switch (val)
+			{
+				case 'compliant': return '#0ff';
+				case 'incompliant': return '#fc0';
+			}
+		},
+	},
+];
+
 const REQS_TABLE_COLUMNS = [
 	{
 		key: 'created', label: 'REQUESTED', label_long: 'DATE REQUESTED',
@@ -69,6 +114,57 @@ const REQS_TABLE_COLUMNS = [
 ];
 
 
+class HRUsersContent extends PanelContent
+{
+	constructor(page)
+	{
+		super(page.e_content);
+		this.page = page;
+	}
+
+	OnCreateElements()
+	{
+		this.e_root = CreatePagePanel(this.e_parent, true, false, 'overflow:hidden;');
+
+		this.table_view = new TableView(this.e_root, undefined);
+		this.table_view.title = 'ALL USERS';
+		this.table_view.description = 'This table shows the compliancy status of all users.';
+		this.table_view.placeholder_data = true;
+
+		this.table_view.configuration_active.columns.Reset();
+		USERS_TABLE_COLUMNS.forEach(_ => this.table_view.configuration_active.columns.Register(_.key, _));
+		this.table_view.configuration_active.AddAction('person', _ => { }, 'hsl(from #0fd h s var(--theme-l050))');
+
+		const data = [
+			{
+				user_id: 't.rasor',
+				display_name_full: 'Thomas Rasor',
+				role: 'dba',
+				standing: 'active',
+				active_requests: [{}, {}, {}],
+				docs_status: 'compliant',
+			},
+			{
+				user_id: 't.wink',
+				display_name_full: 'Todd Wink',
+				role: 'hr',
+				standing: 'active',
+				active_requests: [],
+				docs_status: 'incompliant',
+			},
+		];
+		this.table_view.data.SetRecords(data, false);
+	}
+
+	OnRefreshElements()
+	{
+	}
+
+	OnRemoveElements() { this.e_root.remove(); }
+}
+
+
+
 class HRRequestsContent extends PanelContent
 {
 	constructor(page)
@@ -79,18 +175,18 @@ class HRRequestsContent extends PanelContent
 
 	OnCreateElements()
 	{
-		this.e_root = CreatePagePanel(this.e_parent, true, false);
+		this.e_root = CreatePagePanel(this.e_parent, true, false, 'overflow:hidden;');
 
 		this.table_view = new TableView(this.e_root, undefined);
 		this.table_view.title = 'HR REQUESTS';
-		this.table_view.description = 'This table shows the history of active or completed HR Requests.';
+		this.table_view.description = 'This table shows the history of HR Requests.';
 		this.table_view.placeholder_data = true;
 
 		this.table_view.configuration_active.columns.Reset();
 		REQS_TABLE_COLUMNS.forEach(_ => this.table_view.configuration_active.columns.Register(_.key, _));
 		this.table_view.configuration_active.AddAction('upload', _ => { }, 'hsl(from #0fd h s var(--theme-l050))');
 
-		const data = [
+		const data_reqs = [
 			{
 				created: '2025-05-21',
 				requester_id: 't.wink',
@@ -127,7 +223,7 @@ class HRRequestsContent extends PanelContent
 				status: 'required',
 			}
 		];
-		this.table_view.data.SetRecords(data, false);
+		this.table_view.data.SetRecords(data_reqs, false);
 	}
 
 	OnRefreshElements()
@@ -146,11 +242,17 @@ export class PageHR extends PageDescriptor
 	GetTitle() { return 'hr'; }
 	OnCreateElements(instance)
 	{
-		if (!instance) return;
-		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
-		instance.content = new HRRequestsContent(instance);
-		instance.content.CreateElements();
-		instance.refresh = instance.content.RefreshElements();
+		instance.content_users = new HRUsersContent(instance);
+		instance.content_users.CreateElements();
+
+		instance.content_reqs = new HRRequestsContent(instance);
+		instance.content_reqs.CreateElements();
+
+		instance.refresh = () =>
+		{
+			instance.content_users.RefreshElements();
+			instance.content_reqs.RefreshElements();
+		}
 	}
 
 	OnOpen(instance)
