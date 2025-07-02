@@ -51,6 +51,10 @@ const available_time_gradient = ['#f002', '#f601', '#f601', '#0f02', '#0f02', '#
 // per diem : nights_stay
 // mileage : road
 // expenses : receipt
+let hours_days_prefix = '<span style="display:inline-block;position:relative; box-sizing:border-box; flex-basis:0.0;flex-grow:1.0;'
+	+ 'flex-shrink:1.0; padding-left:var(--gap-025); border-left:solid 2px hsl(0deg 0% var(--theme-l090) / 0.1);">';
+let hours_days_suffix = '</span>';
+const hours_days_subcolumn_string = `${hours_days_prefix}HOURS${hours_days_suffix}${hours_days_prefix}DAYS${hours_days_suffix}`;
 
 const ALLOCATION_TABLE_COLUMNS =
 	[
@@ -73,7 +77,7 @@ const ALLOCATION_TABLE_COLUMNS =
 		{
 			key: 'guid', label: 'PROJECT NAME', label_long: 'ALLOCATION GROUP',
 			desc: 'The name or ID of the allocation group.',
-			flexBasis: '11rem', flexGrow: '1.0', format: 'uppercase',
+			flexBasis: '11rem', flexGrow: '0.5', format: 'uppercase',
 			sorter: sort_guid, search: search_by_guid,
 			//hidden: true,
 		},
@@ -86,14 +90,14 @@ const ALLOCATION_TABLE_COLUMNS =
 			sorter: sort_remaining,
 		},
 		{
-			key: 'allocation_max', label: 'TOTAL', label_long: 'TOTAL ALLOCATED TIME', format_label: 'HOURS / DAYS',
+			key: 'allocation_max', label: 'TOTAL', label_long: 'TOTAL ALLOCATED TIME', format_label: hours_days_subcolumn_string,
 			desc: 'The total amount of time originally made available in this allocation.',
 			flexBasis: '10rem', flexGrow: '0.0',
 			format: 'billable_days',
 			sorter: sort_max,
 		},
 		{
-			key: 'use_total', label: 'USED', label_long: 'USED TIME', format_label: 'HOURS / DAYS',
+			key: 'use_total', label: 'USED', label_long: 'USED TIME', format_label: hours_days_subcolumn_string,
 			desc: 'The amount of time that has been used from this allocation.',
 			flexBasis: '8rem', flexGrow: '0.0',
 			calc_theme_color: (record, val) => SampleArray(available_time_gradient, 1.0 - record.use_total / record.allocation_max),
@@ -101,7 +105,7 @@ const ALLOCATION_TABLE_COLUMNS =
 			sorter: sort_used,
 		},
 		{
-			key: 'remaining_total', label: 'FREE', label_long: 'FREE / AVAILABLE TIME', format_label: 'HOURS / DAYS',
+			key: 'remaining_total', label: 'FREE', label_long: 'FREE / AVAILABLE TIME', format_label: hours_days_subcolumn_string,
 			desc: 'The amount of time that has not been used from this allocation.',
 			flexBasis: '8rem', flexGrow: '0.0',
 			calc_theme_color: (record, val) => SampleArray(available_time_gradient, record.remaining_total / record.allocation_max),
@@ -141,7 +145,7 @@ const HISTORY_TABLE_COLUMNS =
 			desc: 'Time billed per diem.',
 			flexBasis: '6rem', flexGrow: '1.0',
 			sorter: sort_guid, search: search_by_guid,
-			format: 'dollars', format_label: '$',
+			format: 'dollars', format_label: '$USD',
 			//hidden: true,
 		},
 		{
@@ -149,7 +153,7 @@ const HISTORY_TABLE_COLUMNS =
 			desc: 'Time billed per diem.',
 			flexBasis: '6rem', flexGrow: '1.0',
 			sorter: sort_guid, search: search_by_guid,
-			format: 'dollars', format_label: '$',
+			format: 'dollars', format_label: '$USD',
 			//hidden: true,
 		},
 		{
@@ -157,7 +161,7 @@ const HISTORY_TABLE_COLUMNS =
 			desc: 'Extra billable expenses.',
 			flexBasis: '6rem', flexGrow: '1.0',
 			sorter: sort_guid, search: search_by_guid,
-			format: 'dollars', format_label: '$',
+			format: 'dollars', format_label: '$USD',
 			//hidden: true,
 		},
 		{
@@ -216,14 +220,17 @@ class TKAllocations extends PanelContent
 				let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
 				this.e_tableview = new TableView(_, undefined);
 				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
+
 				//this.e_tableview.group_by_property = 'guid';
+				this.e_tableview.title = 'TIME PER PROJECT';
+				this.e_tableview.description = 'This table shows your billable time usage per project.';
 
 				this.e_tableview.columns.Reset();
 				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.columns.Register(_.key, _));
 				this.e_tableview.columns.all[4].format = 'billable_time';
 				this.e_tableview.columns.all[5].format = 'billable_time';
 				this.e_tableview.columns.all[6].format = 'billable_time';
-				this.e_tableview.AddAction('more_time', _ => { }, 'var(--theme-color)');
+				this.e_tableview.AddAction('more_time', _ => { }, 'white');
 
 				this.e_tableview.data.SetRecords(data, false);
 			}
@@ -550,14 +557,14 @@ export class PageTimekeep extends PageDescriptor
 	{
 		if (instance.state.data.docked === true)
 		{
-			if (instance.state.data.expanding === true) instance.SetMaxFrameWidth('100vh');
-			else instance.SetMaxFrameWidth('60vh');
+			if (instance.state.data.expanding === true) instance.ClearMaxFrameWidth();
+			else instance.SetMaxFrameWidth('100vh');
 		}
 		else
 		{
 			instance.ClearMaxFrameWidth();
 		}
-		instance.content.RefreshContentSoon();
+		//instance.content.RefreshContentSoon();
 	}
 }
 

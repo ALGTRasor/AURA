@@ -17,7 +17,15 @@ export class FieldValidation
 
         { format_code: 'billable_days', validator: _ => non_nan(_, 0.125, false) },
         { format_code: 'billable_hours', validator: _ => non_nan(_, 4.0, true) * 0.25 },
-        { format_code: 'billable_time', validator: _ => `${non_nan(_, 4.0, true) * 0.25} / ${non_nan(_, 0.125, false)}` },
+        {
+            format_code: 'billable_time', validator: _ => 
+            {
+                let prefix = '<span style="display:inline-block;position:relative; box-sizing:border-box; flex-basis:0.0;flex-grow:1.0;'
+                    + 'flex-shrink:1.0; padding-left:var(--gap-025); border-left:solid 2px hsl(0deg 0% var(--theme-l090) / 0.1);">';
+                let suffix = '</span>';
+                return `${prefix}${non_nan(_, 4.0, true) * 0.25}${suffix}${prefix}${non_nan(_, 0.125, false)}${suffix}`;
+            }
+        },
 
         { format_code: 'percentage', validator: _ => non_nan(_, 100, true) + '%' },
         { format_code: 'percentage1', validator: _ => non_nan(_, 1000, true) + '%' },

@@ -275,7 +275,7 @@ body *[content-loading]::after
 	position: absolute;
 	inset: 0;
 	width: 100%;
-	max-width: calc(193vh * var(--limit-content-width) + 100vw * calc(1.0 - var(--limit-content-width)));
+	max-width: calc(180vh * var(--limit-content-width) + 100vw * calc(1.0 - var(--limit-content-width)));
 
 	display: flex;
 	flex-direction: row;

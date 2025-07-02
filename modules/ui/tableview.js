@@ -57,12 +57,12 @@ class TableViewEntry extends PanelContent
 					if (validator) value_string = validator(value_string);
 				}
 				let e_prop = addElement(
-					this.e_root, 'div', 'tableview-cell', '',
+					this.e_root, 'div', 'tableview-cell', 'display:flex;flex-direction:row;',
 					_ =>
 					{
 						column.ApplyStyling(_);
 						if (column.calc_theme_color) _.style.setProperty('--theme-color', column.calc_theme_color(this.record, this.record[column.key]));
-						_.innerText = value_string;
+						_.innerHTML = value_string;
 					}
 				);
 
@@ -304,9 +304,10 @@ class TableViewColumn
 			}
 			if (this.e_label)
 			{
+				this.e_label.style.textDecoration = 'underline';
 				this.e_label.style.color = GlobalStyling.GetThemeColor(60, true);
 				this.e_label.style.paddingLeft = 'calc(var(--gap-05) * 2)';
-				this.e_label.style.paddingRight = '0';
+				this.e_label.style.paddingRight = 'var(--gap-05)';
 			}
 		}
 		else 
@@ -318,6 +319,7 @@ class TableViewColumn
 			}
 			if (this.e_label)
 			{
+				this.e_label.style.removeProperty('text-decoration');
 				this.e_label.style.removeProperty('color');
 				this.e_label.style.removeProperty('padding-left');
 				this.e_label.style.removeProperty('padding-right');
@@ -387,6 +389,20 @@ export class TableView extends PanelContent
 	OnCreateElements()
 	{
 		this.e_root = addElement(this.e_parent, 'div', 'tableview-root', 'position:absolute; inset:0;');
+
+		this.e_overview = addElement(this.e_root, 'div', 'tableview-overview', '');
+
+		if (this.title && this.title.length > 0)
+		{
+			this.e_overview_title = addElement(this.e_overview, 'div', 'tableview-overview-title', '');
+			this.e_overview_title.innerText = this.title.toUpperCase();
+		}
+		if (this.description && this.description.length > 0)
+		{
+			this.e_overview_desc = addElement(this.e_overview, 'div', 'tableview-overview-body', '');
+			this.e_overview_desc.innerHTML = this.description;
+		}
+
 		this.e_search_row = addElement(this.e_root, 'div', 'tableview-columns tableview-filters', '');
 		this.e_column_row = addElement(this.e_root, 'div', 'tableview-columns', '');
 		this.e_records = addElement(this.e_root, 'div', 'tableview-rows', '');
@@ -523,16 +539,16 @@ export class TableView extends PanelContent
 					this.e_column_row, 'div', 'tableview-cell', '',
 					_ =>
 					{
-						_.innerText = col.label;
+						_.innerHTML = col.label;
 						if (col.format_label && col.format_label.length > 0)
 						{
-							let e_format = addElement(_, 'div', '', '', _ => { _.innerText = col.format_label; });
+							let e_format = addElement(_, 'div', '', 'display:flex;flex-direction:row;', _ => { _.innerHTML = col.format_label; });
 							e_format.style.fontSize = '70%';
 							e_format.style.opacity = '60%';
 						}
 						else if (col.coming_soon === true)
 						{
-							let e_format = addElement(_, 'div', '', '', _ => { _.innerText = 'WIP'; });
+							let e_format = addElement(_, 'div', '', 'color:hsl(from var(--theme-color-highlight) h s 50%);', _ => { _.innerText = 'WIP'; });
 							e_format.style.fontSize = '70%';
 							e_format.style.opacity = '60%';
 						}
