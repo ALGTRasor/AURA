@@ -1,22 +1,21 @@
 import { addElement, CreatePagePanel, FadeElement } from "../../utils/domutils.js";
-import { DebugLog } from "../../debuglog.js";
-import { PageManager } from "../../pagemanager.js";
-import { PageDescriptor } from "../page_descriptor.js";
 
 import { SlideSelector } from "../../ui/slide_selector.js";
 import { PanelContent } from "../../ui/panel_content.js";
-import { RecordViewer } from "../../ui/recordviewer.js";
 import { RecordFormUtils } from "../../ui/recordform.js";
 
-import { FileExplorer } from "../../ui/file_explorer.js";
-
-import { AccountUser } from "../../datamodels/account_user.js";
-import { InternalUser } from "../../datamodels/internal_user.js";
-import { UserAccountInfo } from "../../useraccount.js";
-import { HrRequest } from "../../datamodels/hr_request.js";
+import { PageDescriptor } from "../page_descriptor.js";
+import { PageManager } from "../../pagemanager.js";
+import { DebugLog } from "../../debuglog.js";
 import { Help } from "./help.js";
-import { AppEvents } from "../../appevents.js";
+
+
+import { InternalUser } from "../../datamodels/internal_user.js";
+import { AccountUser } from "../../datamodels/account_user.js";
+import { HrRequest } from "../../datamodels/hr_request.js";
+import { UserAccountInfo } from "../../useraccount.js";
 import { TableView } from "../../ui/tableview.js";
+import { AppEvents } from "../../appevents.js";
 
 
 
@@ -143,7 +142,14 @@ export class UserDashboardDocs extends PanelContent
 
 
 
-
+class MyDataContent extends PanelContent
+{
+	constructor(page)
+	{
+		super(page.e_content);
+		this.page = page;
+	}
+}
 
 
 
@@ -161,7 +167,6 @@ export class PageMyData extends PageDescriptor
 
 		instance.sub_SharedDataRefresh = {};
 
-		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
 		instance.e_content.style.gap = 'var(--gap-025)';
 
 		let mode_slider = new SlideSelector();

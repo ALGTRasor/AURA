@@ -288,7 +288,18 @@ export class PageInstance extends EventTarget
 		if (this.page_descriptor.BeforeOpen) this.page_descriptor.BeforeOpen(this);
 
 		this.CreateBody();
-		if (this.page_descriptor.OnCreateElements) this.page_descriptor.OnCreateElements(this);
+		if (this.page_descriptor.OnCreateElements) 
+		{
+			try
+			{
+				if (this.e_page_error) { this.e_page_error.remove(); this.e_page_error = undefined; }
+				this.page_descriptor.OnCreateElements(this);
+			}
+			catch (e)
+			{
+				this.e_page_error = addElement(this.e_content, 'div', '', 'position:absolute; inset:0; color:red; align-content:center; text-align:center;', _ => { _.innerText = 'ERROR DURING LOAD: ' + e; });
+			}
+		}
 		if (this.page_descriptor.UpdateSize) this.page_descriptor.UpdateSize(this);
 
 		frame_parent.appendChild(this.e_frame);

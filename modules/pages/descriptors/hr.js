@@ -1,13 +1,11 @@
 import { HrRequest } from "../../datamodels/hr_request.js";
-import { SharedData } from "../../remotedata/datashared.js";
-import { addElement, CreatePagePanel } from "../../utils/domutils.js";
+import { CreatePagePanel } from "../../utils/domutils.js";
 import { PageManager } from "../../pagemanager.js";
-import { RecordFormUtils } from "../../ui/recordform.js";
-import { RecordViewer } from "../../ui/recordviewer.js";
 import { PageDescriptor } from "../page_descriptor.js";
 import { TableView } from "../../ui/tableview.js";
 import { PanelContent } from "../../ui/panel_content.js";
 import { AppEvents } from "../../appevents.js";
+import { SlideSelector } from "../../ui/slide_selector.js";
 
 
 
@@ -33,15 +31,29 @@ const USERS_TABLE_COLUMNS = [
 		desc: 'The company standing for this user.',
 		flexBasis: '6rem', flexGrow: '0.0',
 		format: 'upper',
+		calc_theme_color: (record, val) =>
+		{
+			switch (val)
+			{
+				case 'pending': return '#ff0';
+				case 'active': return '#0f0';
+				case 'terminated': return '#f00';
+			}
+		},
 	},
 	{
-		key: 'active_requests', label: 'ACTIVE REQUESTS', label_long: 'STANDING',
+		key: 'active_requests', label: 'REQUESTS', label_long: 'STANDING',
 		desc: 'The company standing for this user.',
 		flexBasis: '8rem', flexGrow: '0.25',
 		format: 'list', value_suffix: ' requests',
+		calc_theme_color: (record, val) =>
+		{
+			if (val.length < 1) return '#0f0';
+			return '#ff0';
+		},
 	},
 	{
-		key: 'docs_status', label: 'DOCS STATUS', label_long: 'DOCUMENTS STATUS',
+		key: 'docs_status', label: 'DOCUMENTS', label_long: 'DOCUMENTS STATUS',
 		desc: 'The documents status for this user.',
 		flexBasis: '8rem', flexGrow: '0.0',
 		format: 'upper',
@@ -66,6 +78,11 @@ const REQS_TABLE_COLUMNS = [
 		key: 'date_uploaded', label: 'UPLOADED', label_long: 'LAST UPLOAD DATE',
 		desc: 'The latest date that a version of this document was uploaded.',
 		flexBasis: '6rem', flexGrow: '0.0',
+		calc_theme_color: (record, val) =>
+		{
+			if (!val || val.length < 1) return '#ff0';
+			return '#0f0';
+		},
 	},
 	{
 		key: 'type_id', label: 'TYPE', label_long: 'DOCUMENT TYPE',
@@ -163,8 +180,6 @@ class HRUsersContent extends PanelContent
 	OnRemoveElements() { this.e_root.remove(); }
 }
 
-
-
 class HRRequestsContent extends PanelContent
 {
 	constructor(page)
@@ -189,6 +204,7 @@ class HRRequestsContent extends PanelContent
 		const data_reqs = [
 			{
 				created: '2025-05-21',
+				date_uploaded: '2025-05-24',
 				requester_id: 't.wink',
 				requestee_id: 't.rasor',
 				type_id: 'trec',
@@ -196,6 +212,7 @@ class HRRequestsContent extends PanelContent
 			},
 			{
 				created: '2025-05-21',
+				date_uploaded: '2025-05-24',
 				requester_id: 't.wink',
 				requestee_id: 't.rasor',
 				type_id: 'notary',
@@ -203,6 +220,7 @@ class HRRequestsContent extends PanelContent
 			},
 			{
 				created: '2025-05-21',
+				date_uploaded: '2025-05-24',
 				requester_id: 't.wink',
 				requestee_id: 't.rasor',
 				type_id: 'eo ins',
@@ -210,6 +228,7 @@ class HRRequestsContent extends PanelContent
 			},
 			{
 				created: '2025-05-21',
+				date_uploaded: '2025-05-24',
 				requester_id: 't.wink',
 				requestee_id: 't.rasor',
 				type_id: 'gl ins',
@@ -217,6 +236,7 @@ class HRRequestsContent extends PanelContent
 			},
 			{
 				created: '2025-05-21',
+				date_uploaded: '2025-05-24',
 				requester_id: 't.wink',
 				requestee_id: 't.rasor',
 				type_id: 'msa',
@@ -233,15 +253,35 @@ class HRRequestsContent extends PanelContent
 	OnRemoveElements() { this.e_root.remove(); }
 }
 
+class HRContent extends PanelContent
+{
+	constructor(page)
+	{
+		super(page.e_content);
+		this.page = page;
+	}
+}
+
+
 export class PageHR extends PageDescriptor
 {
-	extra_page = true;
+	title = 'hr';
+	icon = 'demography';
 	order_index = -9999;
+	extra_page = true;
 	coming_soon = true;
 
-	GetTitle() { return 'hr'; }
 	OnCreateElements(instance)
 	{
+		instance.e_content.style.gap = 'var(--gap-025)';
+
+		const modes = [
+			{ label: 'USERS', on_click: _ => { } },
+			{ label: 'DOCUMENTS', on_click: _ => { } },
+		];
+		instance.mode_slider = new SlideSelector();
+		instance.mode_slider.CreateElements(instance.e_content, modes);
+
 		instance.content_users = new HRUsersContent(instance);
 		instance.content_users.CreateElements();
 
@@ -253,6 +293,9 @@ export class PageHR extends PageDescriptor
 			instance.content_users.RefreshElements();
 			instance.content_reqs.RefreshElements();
 		}
+
+		instance.mode_slider.Subscribe(instance.refresh);
+		instance.mode_slider.SelectIndexAfterDelay(instance.state.data.view_mode ?? 0, 150, true);
 	}
 
 	OnOpen(instance)
@@ -273,8 +316,8 @@ export class PageHR extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '36rem';
-		else instance.e_frame.style.maxWidth = 'unset';
+		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.SetMaxFrameWidth('32rem');
+		else instance.ClearMaxFrameWidth();
 	}
 }
 
