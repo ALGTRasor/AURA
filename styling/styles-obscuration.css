@@ -3,7 +3,6 @@
 	z-index: 10000;
 	position: absolute;
 	inset: 0px;
-	backdrop-filter: blur(0.369rem) contrast(90%) brightness(90%);
 
 	background-image: radial-gradient(at 0% 100%, #5555, #111a);
 	background-size: 100vw 100vw;

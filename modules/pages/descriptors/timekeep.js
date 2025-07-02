@@ -225,12 +225,12 @@ class TKAllocations extends PanelContent
 				this.e_tableview.title = 'TIME PER PROJECT';
 				this.e_tableview.description = 'This table shows your billable time usage per project.';
 
-				this.e_tableview.columns.Reset();
-				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.columns.Register(_.key, _));
-				this.e_tableview.columns.all[4].format = 'billable_time';
-				this.e_tableview.columns.all[5].format = 'billable_time';
-				this.e_tableview.columns.all[6].format = 'billable_time';
-				this.e_tableview.AddAction('more_time', _ => { }, 'white');
+				this.e_tableview.configuration_active.columns.Reset();
+				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
+				this.e_tableview.configuration_active.columns.all[4].format = 'billable_time';
+				this.e_tableview.configuration_active.columns.all[5].format = 'billable_time';
+				this.e_tableview.configuration_active.columns.all[6].format = 'billable_time';
+				this.e_tableview.configuration_active.AddAction('more_time', _ => { }, 'white');
 
 				this.e_tableview.data.SetRecords(data, false);
 			}
@@ -248,7 +248,7 @@ class TKAllocations extends PanelContent
 
 	StoreState()
 	{
-		let data = this.e_tableview.GetState();
+		let data = this.e_tableview.configuration_active.GetState();
 		this.page.SetStateValue('allocation_table_state', data);
 	}
 
@@ -257,14 +257,14 @@ class TKAllocations extends PanelContent
 		if (this.page.state.HasValue('allocation_table_state'))
 		{
 			let data = this.page.GetStateValue('allocation_table_state');
-			this.e_tableview.SetState(data);
+			this.e_tableview.configuration_active.SetState(data);
 		}
 	}
 }
 
 
 
-class TKSummaryContent extends PanelContent
+class TKHistoryContent extends PanelContent
 {
 	constructor(page_content)
 	{
@@ -285,9 +285,9 @@ class TKSummaryContent extends PanelContent
 				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
 				this.e_tableview.group_by_property = 'created_date';
 
-				this.e_tableview.columns.Reset();
-				HISTORY_TABLE_COLUMNS.forEach(_ => this.e_tableview.columns.Register(_.key, _));
-				this.e_tableview.AddAction('more_time', _ => { }, 'hsl(from #0ff h s var(--theme-l030))');
+				this.e_tableview.configuration_active.columns.Reset();
+				HISTORY_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
+				this.e_tableview.configuration_active.AddAction('more_time', _ => { }, 'hsl(from #0ff h s var(--theme-l030))');
 
 				this.e_tableview.data.SetRecords(data, false);
 			}
@@ -305,7 +305,7 @@ class TKSummaryContent extends PanelContent
 
 	StoreState()
 	{
-		let data = this.e_tableview.GetState();
+		let data = this.e_tableview.configuration_active.GetState();
 		this.page.SetStateValue('allocation_table_state', data);
 	}
 
@@ -314,7 +314,7 @@ class TKSummaryContent extends PanelContent
 		if (this.page.state.HasValue('allocation_table_state'))
 		{
 			let data = this.page.GetStateValue('allocation_table_state');
-			this.e_tableview.SetState(data);
+			this.e_tableview.configuration_active.SetState(data);
 		}
 	}
 }
@@ -435,7 +435,7 @@ class TimekeepContent extends PanelContent
 		this.e_mode_content.id = 'e_mode_content';
 
 		this.mode_allocations = new TKAllocations(this);
-		this.mode_history = new TKSummaryContent(this);
+		this.mode_history = new TKHistoryContent(this);
 		this.mode_calendar = new TKCalendar(this);
 
 		this.content_current = undefined;

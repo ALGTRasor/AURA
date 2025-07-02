@@ -16,6 +16,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { HrRequest } from "../../datamodels/hr_request.js";
 import { Help } from "./help.js";
 import { AppEvents } from "../../appevents.js";
+import { TableView } from "../../ui/tableview.js";
 
 
 
@@ -87,6 +88,43 @@ export class UserDashboardHr extends PanelContent
 	}
 }
 
+
+const DOCS_TABLE_COLUMNS = [
+	{
+		key: 'created', label: 'REQUESTED', label_long: 'DATE REQUESTED',
+		desc: 'The date this document was first requested.',
+		flexBasis: '7rem', flexGrow: '0.0', format: 'date',
+	},
+	{
+		key: 'type_id', label: 'TYPE', label_long: 'DOCUMENT TYPE',
+		desc: 'The type of file this is.',
+		flexBasis: '6rem', flexGrow: '0.5',
+		format: 'uppercase',
+	},
+	{
+		key: 'status', label: 'STATUS', label_long: 'DOCUMENT STATUS',
+		desc: 'The status of this document.',
+		flexBasis: '7rem', flexGrow: '0.0',
+		format: 'uppercase',
+		calc_theme_color: (record, val) =>
+		{
+			switch (val)
+			{
+				case 'expired': return '#f00';
+				case 'required': return '#fc0';
+				case 'pending': return '#ff0';
+				case 'uploaded': return '#0ff';
+				case 'approved': return '#0f0';
+			}
+		},
+	},
+	{
+		key: 'date_uploaded', label: 'UPLOADED', label_long: 'LAST UPLOAD DATE',
+		desc: 'The latest date that a version of this document was uploaded.',
+		flexBasis: '7rem', flexGrow: '0.0',
+	},
+];
+
 export class UserDashboardDocs extends PanelContent
 {
 	OnCreateElements()
@@ -94,11 +132,41 @@ export class UserDashboardDocs extends PanelContent
 		this.e_root = CreatePagePanel(this.e_parent, true, false);
 		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'Documents');
 
-		this.explorer = new FileExplorer(this.e_root, 'ALGInternal', 'ALGFileLibrary');
-		this.explorer.base_relative_path = 'ALGUserDocs/HR/' + UserAccountInfo.account_info.user_id;
-		this.explorer.show_folder_actions = false;
-		this.explorer.show_navigation_bar = false;
-		this.explorer.CreateElements();
+		this.table_view = new TableView(this.e_root, undefined);
+		this.table_view.title = 'MY DOCUMENTS';
+		this.table_view.description = 'This is a list of all your HR related documents, with information about their effective timespan and potential expiration.';
+		this.table_view.configuration_active.columns.Reset();
+		DOCS_TABLE_COLUMNS.forEach(_ => this.table_view.configuration_active.columns.Register(_.key, _));
+		this.table_view.configuration_active.AddAction('upload', _ => { }, 'hsl(from #0fd h s var(--theme-l050))');
+
+		const data = [
+			{
+				created: '2025-05-21',
+				type_id: 'trec',
+				status: 'required',
+			},
+			{
+				created: '2025-05-21',
+				type_id: 'notary',
+				status: 'required',
+			},
+			{
+				created: '2025-05-21',
+				type_id: 'eo ins',
+				status: 'required',
+			},
+			{
+				created: '2025-05-21',
+				type_id: 'gl ins',
+				status: 'required',
+			},
+			{
+				created: '2025-05-21',
+				type_id: 'msa',
+				status: 'required',
+			}
+		];
+		this.table_view.data.SetRecords(data, false);
 	}
 	OnRefreshElements()
 	{
@@ -133,6 +201,7 @@ export class PageMyData extends PageDescriptor
 		instance.sub_SharedDataRefresh = {};
 
 		instance.e_frame.style.minWidth = 'min(100% - 3 * var(--gap-1), 32rem)';
+		instance.e_content.style.gap = 'var(--gap-025)';
 
 		let mode_slider = new SlideSelector();
 		instance.mode_slider = mode_slider;
@@ -140,7 +209,6 @@ export class PageMyData extends PageDescriptor
 		const modes = [
 			{ label: 'INFO', on_click: _ => { } },
 			{ label: 'DOCUMENTS', on_click: _ => { } },
-			{ label: 'HR', on_click: _ => { } }
 		];
 		mode_slider.CreateElements(instance.e_content, modes);
 		mode_slider.e_root.style.flexBasis = 'fit-content';
@@ -150,8 +218,8 @@ export class PageMyData extends PageDescriptor
 		const instance_content_root = instance.e_content;
 		instance.content_info = new UserDashboardInfo(instance_content_root);
 		instance.content_docs = new UserDashboardDocs(instance_content_root);
-		instance.content_hr = new UserDashboardHr(instance_content_root);
-		instance.content_hr.page_instance = instance;
+		//instance.content_hr = new UserDashboardHr(instance_content_root);
+		//instance.content_hr.page_instance = instance;
 
 		const _afterModeChange = () => { this.AfterModeChange(instance); };
 		mode_slider.Subscribe(_afterModeChange);
@@ -175,7 +243,7 @@ export class PageMyData extends PageDescriptor
 		{
 			case 0: instance.content_current = instance.content_info; break;
 			case 1: instance.content_current = instance.content_docs; break;
-			case 2: instance.content_current = instance.content_hr; break;
+			//case 2: instance.content_current = instance.content_hr; break;
 		}
 
 		instance.mode_slider.SetDisabled(false);
@@ -252,7 +320,7 @@ export class PageMyData extends PageDescriptor
 		instance.e_hr.style.minWidth = '80%';
 		instance.e_hr.style.minHeight = '36rem';
 
-		instance.content_hr.viewer_hr_requests.CreateElements(instance.e_hr);
+		//instance.content_hr.viewer_hr_requests.CreateElements(instance.e_hr);
 		this.UpdateHrBlock(instance);
 
 		instance.e_content.appendChild(instance.e_hr);
@@ -261,6 +329,8 @@ export class PageMyData extends PageDescriptor
 
 	UpdateHrBlock(instance)
 	{
+		return;
+
 		instance.content_hr.viewer_hr_requests.RemoveElements();
 		const sort = (x, y) =>
 		{
@@ -279,7 +349,7 @@ export class PageMyData extends PageDescriptor
 	{
 		instance.content_info.RefreshElements();
 		instance.content_docs.RefreshElements();
-		instance.content_hr.RefreshElements();
+		//instance.content_hr.RefreshElements();
 		return;
 
 		this.UpdateAccountInfoBlock(instance);
@@ -331,7 +401,7 @@ export class PageMyData extends PageDescriptor
 			{
 				instance.mode_slider.ApplySelection();
 				if (instance.content_current) instance.content_current.RefreshElements();
-				if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
+				//if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
 			},
 			333
 		);

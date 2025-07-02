@@ -27,7 +27,7 @@ class TableViewEntry extends PanelContent
 
 	RefreshColumns()
 	{
-		this.table_view.columns.forEach(
+		this.table_view.configuration_active.columns.forEach(
 			(x, i) =>
 			{
 				if (x.hidden !== true) x.ApplyStyling(this.e_props[i]);
@@ -37,7 +37,7 @@ class TableViewEntry extends PanelContent
 
 	OnRefreshElements()
 	{
-		if (this.table_view.columns.all && this.table_view.columns.all.length > 0)
+		if (this.table_view.configuration_active.columns.all && this.table_view.configuration_active.columns.all.length > 0)
 		{
 			this.e_props = [];
 			const add_prop = column =>
@@ -73,7 +73,7 @@ class TableViewEntry extends PanelContent
 				}
 				this.e_props.push(e_prop);
 			};
-			this.table_view.columns.forEach(add_prop);
+			this.table_view.configuration_active.columns.forEach(add_prop);
 
 			this.e_actions = [];
 			const add_action = action_data =>
@@ -94,7 +94,7 @@ class TableViewEntry extends PanelContent
 				);
 				this.e_actions.push(e_btn_action);
 			}
-			this.table_view.actions.forEach(add_action);
+			this.table_view.configuration_active.actions.forEach(add_action);
 		}
 		else
 		{
@@ -357,12 +357,212 @@ class TableViewColumns
 	}
 }
 
+
+export class TableViewConfiguration
+{
+	constructor(table_view)
+	{
+		this.table_view = table_view;
+		this.columns = new TableViewColumns(table_view);
+		this.actions = [];
+	}
+
+	GetState() { return this.columns.GetState(); }
+	SetState(data) { this.columns.SetState(data); }
+
+	AddAction(icon = 'help', action = record => { }, color = undefined) { this.actions.push({ icon: icon, action: action, color: color }) };
+
+	RecreateColumns()
+	{
+		this.table_view.e_column_row.innerHTML = '';
+		this.table_view.e_search_row.innerHTML = '';
+
+		let any_filterable = false;
+		this.columns.forEach(_ => any_filterable = any_filterable || _.search);
+		this.table_view.e_search_row.style.display = (any_filterable === true) ? 'unset' : 'none';
+
+		this.table_view.data.ClearSorters();
+		this.table_view.data.ClearFilters();
+		this.columns.forEach(
+			col =>
+			{
+				if (col.hidden === true) return;
+
+				const handle_sorter_click = e =>
+				{
+					if (e.button === 0)
+					{
+						if (col.collapsed === true)
+						{
+							col.collapsed = false;
+							this.RefreshColumns();
+						}
+
+						if (e.shiftKey === true)
+						{
+							col.ToggleSorting();
+						}
+						else
+						{
+							let was_sorting = col.sorting;
+							let was_sorting_reverse = col.sorting_reverse;
+							this.columns.forEach(_ => { _.SetSorting(false); });
+							col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
+						}
+						this.RefreshSoon();
+					}
+					else if (e.button === 1)
+					{
+						col.collapsed = col.collapsed !== true;
+						this.RefreshColumns();
+					}
+					this.table_view.EmitViewChange();
+				};
+
+				col.e_label = addElement(
+					this.table_view.e_column_row, 'div', 'tableview-cell', '',
+					_ =>
+					{
+						_.innerHTML = col.label;
+						if (col.format_label && col.format_label.length > 0)
+						{
+							let e_format = addElement(_, 'div', '', 'display:flex;flex-direction:row;', _ => { _.innerHTML = col.format_label; });
+							e_format.style.fontSize = '70%';
+							e_format.style.opacity = '60%';
+						}
+						else if (col.coming_soon === true)
+						{
+							let e_format = addElement(_, 'div', '', 'color:hsl(from red h s 50%);', _ => { _.innerText = 'SOON'; });
+							e_format.style.fontSize = '70%';
+							e_format.style.opacity = '60%';
+						}
+
+						if (col.coming_soon === true) 
+						{
+							_.style.setProperty('--theme-color', '#333');
+							_.style.backgroundColor = '#000';
+							_.style.opacity = '50%';
+						}
+
+						_.classList.add('tableview-cell-button');
+						_.addEventListener('click', handle_sorter_click);
+						_.addEventListener('auxclick', handle_sorter_click);
+
+						col.e_sort_icon = addElement(
+							_, 'div', 'tableview-column-icon', '',
+							_ =>
+							{
+								_.innerText = col.sort_icon;
+								_.style.rotate = col.sort_icon_angle;
+							}
+						);
+
+						MegaTips.RegisterSimple(
+							_,
+							[
+								col.coming_soon ? '<<<THIS COLUMN CONTAINS INCOMPLETE OR INVALID DATA.>>><br>' : undefined,
+								col.label_long ?? col.label,
+								col.desc ? `(((${col.desc})))` : undefined,
+								'<div style="height:var(--gap-025);padding:0;margin:0;"></div>',
+								col.sorter ? '[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))' : undefined,
+								col.sorter ? '[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))' : undefined,
+								'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
+								'<div style="height:var(--gap-05);padding:0;margin:0;"></div>',
+								col.sorter ? '(((Sorting multiple columns will apply from left to right.)))' : undefined,
+								col.sorter ? '(((Sorting columns cannot be collapsed.)))' : undefined,
+							].filter(_ => _ != undefined).join('<br>')
+						);
+					}
+				);
+				col.ApplyStyling(col.e_label, false);
+
+				col.e_txt_filter = addElement(
+					this.table_view.e_search_row, 'input', 'tableview-cell', 'min-width:0;',
+					_ =>
+					{
+						_.type = 'text';
+						_.value = this.filter_value ?? '';
+
+						_.addEventListener(
+							'click',
+							e =>
+							{
+								col.collapsed = false;
+								this.RefreshColumns();
+							}
+						);
+						_.addEventListener('keyup', e =>
+						{
+							if (col.filter_value === _.value) return;
+							e.stopPropagation();
+							col.filter_value = _.value;
+							this.table_view.EmitViewChange();
+							this.RefreshSoon();
+						});
+					}
+				);
+				col.ApplyStyling(col.e_txt_filter, true);
+
+				MegaTips.RegisterSimple(
+					col.e_txt_filter,
+					[
+						'(((Filter by))) ' + col.label,
+						'(((Start with an exclamation mark))) [[[!]]] (((to negate the results.)))',
+					].join('<br>')
+				);
+
+				col.column_filter = record =>
+				{
+					if (col.search) return col.search(record, col.e_txt_filter.value);
+					return true;
+				};
+				this.table_view.data.AddFilter(col.column_filter);
+
+				col.column_sorter = (x, y) =>
+				{
+					if (col.sorting !== true) return 0;
+					let sort_result = col.sorter(x, y);
+					if (col.sorting_reverse === true) sort_result *= -1;
+					return sort_result;
+				};
+				this.table_view.data.AddSorter(col.column_sorter);
+			}
+		);
+
+		this.actions.forEach(
+			action_data =>
+			{
+				addElement(this.table_view.e_column_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
+				addElement(this.table_view.e_search_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
+			}
+		);
+	}
+
+	RefreshColumns()
+	{
+		this.columns.forEach(
+			col =>
+			{
+				if (col.hidden === true) return;
+				col.e_txt_filter.value = col.filter_value ?? '';
+				col.ApplyStyling(col.e_label);
+				col.ApplyStyling(col.e_txt_filter);
+			}
+		);
+		this.table_view.record_entries.forEach(_ => _.RefreshColumns());
+	}
+}
+
 export class TableView extends PanelContent
 {
 	constructor(e_parent, records = [])
 	{
 		super(e_parent);
+
+		this.column_width_min = '2rem';
+		this.group_by_property = '';
 		this.dirty = false;
+
 		this.change_timeout = new RunningTimeout(
 			() =>
 			{
@@ -371,20 +571,13 @@ export class TableView extends PanelContent
 			},
 			0.5, false, 70
 		);
-		this.column_width_min = '2rem';
 
-		this.group_by_property = '';
+		this.configurations = [new TableViewConfiguration(this)];
+		this.configuration_active = this.configurations[0];
 
-		this.actions = [];
-		this.columns = new TableViewColumns(this);
 		this.data = new TableViewData(this);
 		this.data.SetRecords(records, false, false);
 	}
-
-	AddAction(icon = 'help', action = record => { }, color = undefined) { this.actions.push({ icon: icon, action: action, color: color }) };
-
-	GetState() { return this.columns.GetState(); }
-	SetState(data) { this.columns.SetState(data); }
 
 	OnCreateElements()
 	{
@@ -407,7 +600,8 @@ export class TableView extends PanelContent
 		this.e_column_row = addElement(this.e_root, 'div', 'tableview-columns', '');
 		this.e_records = addElement(this.e_root, 'div', 'tableview-rows', '');
 		this.record_entries = [];
-		this.RecreateColumns();
+
+		this.configuration_active.RecreateColumns();
 	}
 
 	OnRemoveElements()
@@ -436,7 +630,8 @@ export class TableView extends PanelContent
 		const during = () =>
 		{
 			this.e_records.innerHTML = '';
-			this.RefreshColumns();
+
+			this.configuration_active.RefreshColumns();
 			if (this.group_by_property && this.group_by_property.length > 0)
 			{
 				this.e_records.style.paddingTop = 'var(--gap-025)';
@@ -489,186 +684,6 @@ export class TableView extends PanelContent
 	{
 		this.dirty = true;
 		this.change_timeout.ExtendTimer();
-	}
-
-	RecreateColumns()
-	{
-		this.e_column_row.innerHTML = '';
-		this.e_search_row.innerHTML = '';
-		this.data.ClearSorters();
-		this.data.ClearFilters();
-		this.columns.forEach(
-			col =>
-			{
-				if (col.hidden === true) return;
-
-				const handle_sorter_click = e =>
-				{
-					if (e.button === 0)
-					{
-						if (col.collapsed === true)
-						{
-							col.collapsed = false;
-							this.RefreshColumns();
-						}
-						if (col.sorter)
-						{
-							if (e.shiftKey === true)
-							{
-								col.ToggleSorting();
-							}
-							else
-							{
-								let was_sorting = col.sorting;
-								let was_sorting_reverse = col.sorting_reverse;
-								this.columns.forEach(_ => { _.SetSorting(false); });
-								col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
-							}
-							this.RefreshSoon();
-						}
-					}
-					else if (e.button === 1)
-					{
-						col.collapsed = col.collapsed !== true;
-						this.RefreshColumns();
-					}
-					this.EmitViewChange();
-				};
-
-				col.e_label = addElement(
-					this.e_column_row, 'div', 'tableview-cell', '',
-					_ =>
-					{
-						_.innerHTML = col.label;
-						if (col.format_label && col.format_label.length > 0)
-						{
-							let e_format = addElement(_, 'div', '', 'display:flex;flex-direction:row;', _ => { _.innerHTML = col.format_label; });
-							e_format.style.fontSize = '70%';
-							e_format.style.opacity = '60%';
-						}
-						else if (col.coming_soon === true)
-						{
-							let e_format = addElement(_, 'div', '', 'color:hsl(from var(--theme-color-highlight) h s 50%);', _ => { _.innerText = 'WIP'; });
-							e_format.style.fontSize = '70%';
-							e_format.style.opacity = '60%';
-						}
-
-						if (col.coming_soon === true) 
-						{
-							_.style.setProperty('--theme-color', '#333');
-							_.style.backgroundColor = '#000';
-							_.style.opacity = '50%';
-						}
-
-						_.classList.add('tableview-cell-button');
-						_.addEventListener('click', handle_sorter_click);
-						_.addEventListener('auxclick', handle_sorter_click);
-
-						if (col.sorter)
-						{
-							col.e_sort_icon = addElement(
-								_, 'div', 'tableview-column-icon', '',
-								_ =>
-								{
-									_.innerText = col.sort_icon;
-									_.style.rotate = col.sort_icon_angle;
-								}
-							);
-						}
-						MegaTips.RegisterSimple(
-							_,
-							[
-								col.coming_soon ? '<<<THIS COLUMN CONTAINS INCOMPLETE OR INVALID DATA.>>><br>' : undefined,
-								col.label_long ?? col.label,
-								col.desc ? `(((${col.desc})))` : undefined,
-								'<div style="height:var(--gap-025);padding:0;margin:0;"></div>',
-								col.sorter ? '[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))' : undefined,
-								col.sorter ? '[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))' : undefined,
-								'[[[MIDDLE CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
-								'<div style="height:var(--gap-05);padding:0;margin:0;"></div>',
-								col.sorter ? '(((Sorting multiple columns will apply from left to right.)))' : undefined,
-								col.sorter ? '(((Sorting columns cannot be collapsed.)))' : undefined,
-							].filter(_ => _ != undefined).join('<br>')
-						);
-					}
-				);
-				col.ApplyStyling(col.e_label, false);
-
-
-				col.e_txt_filter = addElement(
-					this.e_search_row, 'input', 'tableview-cell', 'min-width:0;',
-					_ =>
-					{
-						_.type = 'text';
-						_.value = this.filter_value ?? '';
-
-						_.addEventListener(
-							'click',
-							e =>
-							{
-								col.collapsed = false;
-								this.RefreshColumns();
-							}
-						);
-						_.addEventListener('keyup', e =>
-						{
-							if (col.filter_value === _.value) return;
-							e.stopPropagation();
-							col.filter_value = _.value;
-							this.EmitViewChange();
-							this.RefreshSoon();
-						});
-					}
-				);
-				col.ApplyStyling(col.e_txt_filter, true);
-
-				MegaTips.RegisterSimple(
-					col.e_txt_filter,
-					[
-						'(((Filter by))) ' + col.label,
-						'(((Start with an exclamation mark))) [[[!]]] (((to negate the results.)))',
-					].join('<br>')
-				);
-
-				col.column_filter = record =>
-				{
-					if (col.search) return col.search(record, col.e_txt_filter.value);
-					return true;
-				};
-				this.data.AddFilter(col.column_filter);
-
-				col.column_sorter = (x, y) =>
-				{
-					if (col.sorting !== true) return 0;
-					let sort_result = col.sorter(x, y);
-					if (col.sorting_reverse === true) sort_result *= -1;
-					return sort_result;
-				};
-				this.data.AddSorter(col.column_sorter);
-			}
-		);
-
-		this.actions.forEach(
-			action_data =>
-			{
-				addElement(this.e_column_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
-				addElement(this.e_search_row, 'div', 'tableview-action', 'pointer-events:none;visibility:hidden;');
-			}
-		);
-	}
-
-	RefreshColumns()
-	{
-		this.columns.forEach(
-			col =>
-			{
-				if (col.hidden === true) return;
-				col.e_txt_filter.value = col.filter_value ?? '';
-				col.ApplyStyling(col.e_label);
-				col.ApplyStyling(col.e_txt_filter);
-			}
-		);
-		this.record_entries.forEach(_ => _.RefreshColumns());
 	}
 
 	EmitViewChange() { this.dispatchEvent(new CustomEvent('viewchange')); }

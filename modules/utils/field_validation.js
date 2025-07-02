@@ -13,7 +13,10 @@ const non_nan = (x, scale = 1.0, round = false) =>
 export class FieldValidation
 {
     static registered = [
+        { format_code: 'blank', validator: _ => '- - -' },
+
         { format_code: 'dollars', validator: _ => '$' + _ },
+        { format_code: 'phone-ext', validator: _ => '(555) 123-4567 - ' + _ },
 
         { format_code: 'billable_days', validator: _ => non_nan(_, 0.125, false) },
         { format_code: 'billable_hours', validator: _ => non_nan(_, 4.0, true) * 0.25 },

@@ -36,7 +36,8 @@ export class ExpandingSummary
         if (this.expanded === true) return;
         if (this.before_expand) this.before_expand();
         this.expanded = true;
-        this.e_root.style.minHeight = '8rem';
+        this.e_root.style.minHeight = 'unset';
+        this.e_root.style.flexBasis = 'fit-content';
         this.e_root.style.textWrapMode = 'wrap';
         this.e_root.style.alignContent = 'start';
         if (this.after_expand) this.after_expand();

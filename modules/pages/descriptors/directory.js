@@ -35,6 +35,7 @@ class DirectoryListContentBase extends PanelContent
 	get_data = () => [];
 	get_entry_title = _ => 'NO ITEM TITLE';
 	get_entry_search_blob = _ => '';
+	get_entry_summary = _ => [];
 
 	constructor(e_parent, page_instance)
 	{
@@ -68,6 +69,26 @@ class DirectoryListContentBase extends PanelContent
 			e_entry.before_expand = () => this.CollapseAll();
 			e_entry.after_expand = () =>
 			{
+				e_entry.e_summary_info = addElement(e_entry.e_root, 'div', '', 'display:flex;flex-direction:column;gap:var(--gap-025); font-size:80%; padding:var(--gap-05);');
+				const add_info = (label, value) => { addElement(e_entry.e_summary_info, 'div', '', 'flex-basis:fit-content; padding:0; flex-grow:0.0; flex-shrink:0.0;', _ => { _.innerText = `${label}: ${value}` }); };
+				let summary_items = this.get_entry_summary(entry);
+				summary_items.forEach(
+					_ =>
+					{
+						add_info(_.label, _.value);
+					}
+				);
+				//add_info('CLASS', '- - -');
+				//add_info('DBA', '- - -');
+				//add_info('REP', '- - -');
+
+				add_info('HOME', '(555) 123-4567');
+				add_info('MOBILE', '(555) 123-4567');
+				add_info('BUSINESS', '(555)123-4567 - 555');
+				//add_info('FAX', '(555) 123-4567');
+				add_info('EMAIL', 'user.name@domain.com');
+				//add_info('ADDRESS', '2163754 Long Street Name Drive, 872634 NM');
+
 				e_entry.e_btn_inspect = CreatePagePanel(
 					e_entry.e_root, true, false,
 					'position:absolute; top:2px; right:2px; width:min(1.5rem, 100%); aspect-ratio:1.0; height:auto;',
@@ -99,7 +120,11 @@ class DirectoryListContentBase extends PanelContent
 					}
 				);
 			};
-			e_entry.after_collapse = () => { e_entry.e_btn_inspect.remove(); };
+			e_entry.after_collapse = () =>
+			{
+				e_entry.e_summary_info.remove();
+				e_entry.e_btn_inspect.remove();
+			};
 			this.summaries.push(e_entry);
 		}
 	}
@@ -121,6 +146,22 @@ class DirectoryListContentExternal extends DirectoryListContentBase
 	get_data = () => SharedData['contacts'].instance.data;
 	get_entry_title = _ => _.contact_name;
 	get_entry_search_blob = _ => _.contact_name.toLowerCase().trim();
+	get_entry_summary = _ =>
+	{
+		return [
+
+		];
+		add_info('CLASS', '- - -');
+		add_info('DBA', '- - -');
+		add_info('REP', '- - -');
+
+		add_info('HOME', '(555) 123-4567');
+		add_info('MOBILE', '(555) 123-4567');
+		add_info('BUSINESS', '(555)123-4567 - 555');
+		add_info('FAX', '(555) 123-4567');
+		add_info('EMAIL', 'user.name@domain.com');
+		add_info('ADDRESS', '2163754 Long Street Name Drive, 872634 NM');
+	};
 	constructor(e_parent, page_instance) { super(e_parent, page_instance); }
 }
 
@@ -154,7 +195,7 @@ export class DirectoryListPageContent extends PanelContent
 			_ =>
 			{
 				_.type = 'text';
-				_.placeholder = 'Filter Directory...';
+				_.placeholder = 'Search Directory...';
 				_.addEventListener('keyup', e => { e.stopPropagation(); e.preventDefault(); this.filter_dirty.ExtendTimer(); });
 			}
 		);

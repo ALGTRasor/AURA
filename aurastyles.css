@@ -620,7 +620,7 @@ div[disabled]
 
 *[coming-soon]::after
 {
-	content: 'SOON™' / 'Coming Soon';
+	content: 'SOON' / 'Coming Soon';
 	position: absolute;
 	pointer-events: none !important;
 	user-select: none !important;
@@ -629,7 +629,8 @@ div[disabled]
 	left: 50%;
 	font-size: 0.5rem;
 	padding: 0 1rem 0 1rem;
-	color: hsl(from var(--theme-color) h s 50%);
+	color: hsl(from red h 75% 50%);
+	font-weight: bold;
 	background-color: #0006;
 	border: solid hsl(from var(--theme-color) h s 50%) 1px;
 	text-align: center;

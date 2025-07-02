@@ -334,6 +334,28 @@ class FileExplorerItem
         );
     }
 
+    RequestShare()
+    {
+        if (this.explorer.drive_id_valid !== true) return undefined;
+        OverlayManager.Show(
+            TextInputOverlay.host.GetNewInstance(
+                {
+                    prompt: `Sharing ${this.item_type}: [[[${this.item_info.name}]]]`,
+                    default_value: '',
+                    with_input: target_user =>
+                    {
+                        const execute = () =>
+                        {
+                            NotificationLog.Log(`Sorry! Sharing files is not yet available!`, '#ff0');
+                        };
+
+                        execute();
+                    }
+                }
+            )
+        );
+    }
+
     WarnNotFound(verb = 'making changes')
     {
         this.explorer.DeselectItem(this);
@@ -628,6 +650,7 @@ class FileExplorerItem
             }
         );
 
+        /*
         option_infos.push(
             {
                 label: 'Copy File [N]ame',
@@ -653,10 +676,23 @@ class FileExplorerItem
                 }
             }
         );
+        */
 
         option_infos.push(
             {
-                label: 'Delete File',
+                label: '[S]hare File',
+                color: '#0ff',
+                on_click: overlay =>
+                {
+                    this.RequestShare();
+                    overlay.Remove();
+                }
+            }
+        );
+
+        option_infos.push(
+            {
+                label: '[Delete] File',
                 color: '#f40',
                 on_click: overlay =>
                 {
@@ -814,6 +850,16 @@ class FileExplorerItem
                     },
                     {
                         label: 'Copy Folder [P]ath',
+                        color: '#0fa',
+                        on_click: overlay =>
+                        {
+                            NotificationLog.Log('Copied File Path', '#8ff');
+                            navigator.clipboard.writeText('/' + this.explorer.relative_path_current + '/' + this.item_info.name);
+                            //overlay.Remove();
+                        }
+                    },
+                    {
+                        label: '[S]hare Folder',
                         color: '#0fa',
                         on_click: overlay =>
                         {

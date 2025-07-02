@@ -46,7 +46,7 @@ export class PageHR extends PageDescriptor
 		instance.viewer_hr_requests.SetListItemSorter(sort);
 		instance.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
 		instance.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(instance, records));
-		instance.viewer_hr_requests.SetData(SharedData.hrRequests.data);
+		instance.viewer_hr_requests.SetData(SharedData['hr requests'].instance.data);
 		instance.viewer_hr_requests.CreateElements(instance.e_content);
 	}
 
