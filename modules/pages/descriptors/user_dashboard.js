@@ -45,60 +45,23 @@ export class UserDashboardInfo extends PanelContent
 	}
 }
 
-export class UserDashboardHr extends PanelContent
-{
-	OnCreateElements()
-	{
-		this.e_root = CreatePagePanel(this.e_parent, true, false);
-		//this.e_info_title = CreatePagePanel(this.e_root, false, false, 'text-align:center;opacity:60%;', _ => _.innerText = 'HR Info');
-		this.viewer_hr_requests = new RecordViewer();
-	}
-	OnRefreshElements()
-	{
-		this.viewer_hr_requests.RemoveElements();
-		const sort = (x, y) =>
-		{
-			if (x.request_name < y.request_name) return -1;
-			if (x.request_name > y.request_name) return 1;
-			return 0;
-		};
-		this.viewer_hr_requests.SetListItemSorter(sort);
-		this.viewer_hr_requests.SetListItemBuilder((table, x, e) => { addElement(e, 'span', '', '', c => { c.innerText = table[x].request_name }); });
-		this.viewer_hr_requests.SetViewBuilder(records => this.BuildRecordView_HrReqs(this.page_instance, records));
-		this.viewer_hr_requests.SetData(UserAccountInfo.hr_info.requests);
-		this.viewer_hr_requests.CreateElements(this.e_root);
-	}
-	OnRemoveElements()
-	{
-		this.e_root.remove();
-	}
-
-	BuildRecordView_HrReqs(instance, records = [])
-	{
-		if (!records || records.length < 1) return;
-
-		for (let id in records)
-		{
-			let record = records[id];
-			let e_info_root = CreatePagePanel(this.viewer_hr_requests.e_view_root, false, false, 'min-width:20vw;', e => { });
-			addElement(e_info_root, 'div', '', 'text-align:center;', x => { x.innerText = record.request_name; });
-			let e_info_body = CreatePagePanel(e_info_root, true, false, '', x => { });
-			RecordFormUtils.CreateRecordInfoList(e_info_body, record, HrRequest.data_model.field_descs, 'info', records.length < 2);
-		}
-	}
-}
 
 
 const DOCS_TABLE_COLUMNS = [
 	{
 		key: 'created', label: 'REQUESTED', label_long: 'DATE REQUESTED',
 		desc: 'The date this document was first requested.',
-		flexBasis: '7rem', flexGrow: '0.0', format: 'date',
+		flexBasis: '6rem', flexGrow: '0.0', format: 'date',
+	},
+	{
+		key: 'date_uploaded', label: 'UPLOADED', label_long: 'LAST UPLOAD DATE',
+		desc: 'The latest date that a version of this document was uploaded.',
+		flexBasis: '6rem', flexGrow: '0.0',
 	},
 	{
 		key: 'type_id', label: 'TYPE', label_long: 'DOCUMENT TYPE',
 		desc: 'The type of file this is.',
-		flexBasis: '6rem', flexGrow: '0.5',
+		flexBasis: '6rem', flexGrow: '1.0',
 		format: 'uppercase',
 	},
 	{
@@ -110,18 +73,12 @@ const DOCS_TABLE_COLUMNS = [
 		{
 			switch (val)
 			{
-				case 'expired': return '#f00';
 				case 'required': return '#fc0';
-				case 'pending': return '#ff0';
-				case 'uploaded': return '#0ff';
+				case 'pending': return '#0ff';
 				case 'approved': return '#0f0';
+				case 'expired': return '#f00';
 			}
 		},
-	},
-	{
-		key: 'date_uploaded', label: 'UPLOADED', label_long: 'LAST UPLOAD DATE',
-		desc: 'The latest date that a version of this document was uploaded.',
-		flexBasis: '7rem', flexGrow: '0.0',
 	},
 ];
 
@@ -135,9 +92,12 @@ export class UserDashboardDocs extends PanelContent
 		this.table_view = new TableView(this.e_root, undefined);
 		this.table_view.title = 'MY DOCUMENTS';
 		this.table_view.description = 'This is a list of all your HR related documents, with information about their effective timespan and potential expiration.';
+		this.table_view.placeholder_data = true;
+
 		this.table_view.configuration_active.columns.Reset();
 		DOCS_TABLE_COLUMNS.forEach(_ => this.table_view.configuration_active.columns.Register(_.key, _));
 		this.table_view.configuration_active.AddAction('upload', _ => { }, 'hsl(from #0fd h s var(--theme-l050))');
+
 
 		const data = [
 			{
@@ -167,6 +127,7 @@ export class UserDashboardDocs extends PanelContent
 			}
 		];
 		this.table_view.data.SetRecords(data, false);
+
 	}
 	OnRefreshElements()
 	{
@@ -393,18 +354,10 @@ export class PageMyData extends PageDescriptor
 
 	OnLayoutChange(instance)
 	{
-		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.e_frame.style.maxWidth = '36rem';
-		else instance.e_frame.style.maxWidth = 'unset';
+		if (instance.state.data.docked === true && instance.state.data.expanding === false) instance.SetMaxFrameWidth('32rem');
+		else instance.ClearMaxFrameWidth();
 
-		window.setTimeout(
-			() =>
-			{
-				instance.mode_slider.ApplySelection();
-				if (instance.content_current) instance.content_current.RefreshElements();
-				//if (instance.content_hr.viewer_hr_requests) instance.content_hr.viewer_hr_requests.RefreshElementVisibility();
-			},
-			333
-		);
+		instance.mode_slider.ApplySelectionSoon();
 	}
 }
 

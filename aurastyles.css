@@ -246,6 +246,23 @@ body *[content-loading]::after
 }
 
 
+body *[placeholder-data]::after
+{
+	content: '';
+
+	pointer-events: none;
+	user-select: none;
+
+	position: absolute;
+	z-index: 10;
+	inset: 0;
+
+	background: repeating-linear-gradient(45deg, black 0.1rem, white 0.1rem, white 1rem, black 1.1rem, black 2rem);
+	mix-blend-mode: overlay;
+	opacity: 0.005;
+}
+
+
 
 
 .scroll-y

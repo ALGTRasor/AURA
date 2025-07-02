@@ -630,6 +630,8 @@ export class TableView extends PanelContent
 		const during = () =>
 		{
 			this.e_records.innerHTML = '';
+			if (this.placeholder_data == true) this.e_records.setAttribute('placeholder-data', '');
+			else this.e_records.removeAttribute('placeholder-data');
 
 			this.configuration_active.RefreshColumns();
 			if (this.group_by_property && this.group_by_property.length > 0)
