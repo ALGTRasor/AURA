@@ -1,15 +1,16 @@
 import { MegaTips } from "../systems/megatips.js";
-import { addElement, ClearElementLoading, CreatePagePanel, MarkElementLoading } from "../utils/domutils.js";
+import { addElement } from "../utils/domutils.js";
 import { FieldValidation } from "../utils/field_validation.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
 import { GlobalStyling } from "./global_styling.js";
+import { MultiContentPanel } from "./multicontentpanel.js";
 import { PanelContent } from "./panel_content.js";
 
 class TableViewEntry extends PanelContent
 {
 	constructor(table_view, record = {})
 	{
-		super(table_view.e_records);
+		super(table_view.multicontent.e_content_root);
 		this.table_view = table_view;
 		this.record = record;
 	}
@@ -92,6 +93,8 @@ class TableViewEntry extends PanelContent
 						);
 					}
 				);
+				if (action_data.megatip) MegaTips.Register(e_btn_action, action_data.megatip)
+				else if (action_data.description) MegaTips.RegisterSimple(e_btn_action, action_data.description)
 				this.e_actions.push(e_btn_action);
 			}
 			this.table_view.configuration_active.actions.forEach(add_action);
@@ -130,6 +133,7 @@ class TableViewData
 
 		if (append !== true) this.records_base = [];
 		records.forEach(_ => this.records_base.push(_));
+
 
 		if (refresh === true) this.RefreshViewRecords();
 	}
@@ -369,7 +373,12 @@ export class TableViewConfiguration
 	GetState() { return this.columns.GetState(); }
 	SetState(data) { this.columns.SetState(data); }
 
-	AddAction(icon = 'help', action = record => { }, color = undefined) { this.actions.push({ icon: icon, action: action, color: color }) };
+	AddAction(icon = 'help', action = record => { }, data = {})
+	{
+		data.icon = icon;
+		data.action = action;
+		this.actions.push(data)
+	};
 
 	RecreateColumns()
 	{
@@ -389,35 +398,37 @@ export class TableViewConfiguration
 
 				const handle_sorter_click = e =>
 				{
-					if (e.ctrlKey)
+					if (e.button === 0)
 					{
-						e.stopPropagation();
-						e.preventDefault();
-						col.collapsed = col.collapsed !== true;
-						this.RefreshColumns();
-					}
-					else if (e.button === 0)
-					{
-						if (col.collapsed === true)
+						if (e.ctrlKey)
 						{
-							col.collapsed = false;
+							e.stopPropagation();
+							e.preventDefault();
+							col.collapsed = col.collapsed !== true;
 							this.RefreshColumns();
-						}
-
-						if (e.shiftKey === true)
-						{
-							col.ToggleSorting();
 						}
 						else
 						{
-							let was_sorting = col.sorting;
-							let was_sorting_reverse = col.sorting_reverse;
-							this.columns.forEach(_ => { _.SetSorting(false); });
-							col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
-						}
-						this.RefreshSoon();
-					}
+							if (col.collapsed === true)
+							{
+								col.collapsed = false;
+								this.RefreshColumns();
+							}
 
+							if (e.shiftKey === true)
+							{
+								col.ToggleSorting();
+							}
+							else
+							{
+								let was_sorting = col.sorting;
+								let was_sorting_reverse = col.sorting_reverse;
+								this.columns.forEach(_ => { _.SetSorting(false); });
+								col.SetSorting(was_sorting !== true || was_sorting_reverse !== true, was_sorting === true && was_sorting_reverse !== true);
+							}
+							this.table_view.RefreshSoon();
+						}
+					}
 
 					this.table_view.EmitViewChange();
 				};
@@ -467,12 +478,12 @@ export class TableViewConfiguration
 								col.label_long ?? col.label,
 								col.desc ? `(((${col.desc})))` : undefined,
 								'<div style="height:var(--gap-025);padding:0;margin:0;"></div>',
-								col.sorter ? '[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))' : undefined,
-								col.sorter ? '[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))' : undefined,
+								'[[[CLICK]]] (((to))) {{{SORT ONLY}}} (((by this column)))',
+								'[[[SHIFT CLICK]]] (((to))) {{{SORT ALSO}}} (((by this column)))',
 								'[[[CTRL CLICK]]] (((to))) {{{COLLAPSE / EXPAND}}} (((this column)))',
 								'<div style="height:var(--gap-05);padding:0;margin:0;"></div>',
-								col.sorter ? '(((Sorting multiple columns will apply from left to right.)))' : undefined,
-								col.sorter ? '(((Sorting columns cannot be collapsed.)))' : undefined,
+								'(((Sorting multiple columns will apply from left to right.)))',
+								'(((Sorting columns cannot be collapsed.)))',
 							].filter(_ => _ != undefined).join('<br>')
 						);
 					}
@@ -521,10 +532,18 @@ export class TableViewConfiguration
 				};
 				this.table_view.data.AddFilter(col.column_filter);
 
+				let colkey = col.key;
+
 				col.column_sorter = (x, y) =>
 				{
 					if (col.sorting !== true) return 0;
-					let sort_result = col.sorter(x, y);
+					const default_sorter = (x, y) =>
+					{
+						if (x[colkey] < y[colkey]) return -1;
+						if (x[colkey] > y[colkey]) return 1;
+						return 0;
+					};
+					let sort_result = col.sorter ? col.sorter(x, y) : default_sorter(x, y);
 					if (col.sorting_reverse === true) sort_result *= -1;
 					return sort_result;
 				};
@@ -547,14 +566,90 @@ export class TableViewConfiguration
 			col =>
 			{
 				if (col.hidden === true) return;
-				col.e_txt_filter.value = col.filter_value ?? '';
-				col.ApplyStyling(col.e_label);
-				col.ApplyStyling(col.e_txt_filter);
+				if (col.e_txt_filter)
+				{
+					col.e_txt_filter.value = col.filter_value ?? '';
+					col.ApplyStyling(col.e_txt_filter);
+				}
+				if (col.e_label) col.ApplyStyling(col.e_label);
 			}
 		);
-		this.table_view.record_entries.forEach(_ => _.RefreshColumns());
+		this.table_view.rows_content.record_entries.forEach(_ => _.RefreshColumns());
 	}
 }
+
+class TableViewRowContent extends PanelContent
+{
+	constructor(table_view)
+	{
+		super(null);
+		this.table_view = table_view;
+	}
+
+	OnCreateElements()
+	{
+		this.e_records = addElement(this.e_parent, 'div', 'tableview-rows', '');
+		this.record_entries = [];
+		this.OnRefreshElements();
+	}
+
+	OnRefreshElements()
+	{
+		this.e_records.innerHTML = '';
+		if (this.placeholder_data == true) this.e_records.setAttribute('placeholder-data', '');
+		else this.e_records.removeAttribute('placeholder-data');
+
+		this.table_view.configuration_active.RefreshColumns();
+		if (this.table_view.group_by_property && this.table_view.group_by_property.length > 0)
+		{
+			this.e_records.style.paddingTop = 'var(--gap-025)';
+			this.e_records.style.paddingBottom = 'var(--gap-025)';
+			this.e_records.style.gap = 'var(--gap-025)';
+			let groups = Object.groupBy(this.table_view.data.records_view, _ => _[this.table_view.group_by_property]);
+			for (let key in groups)
+			{
+				let records = groups[key];
+				let e_group = addElement(
+					this.e_records, 'div', 'tableview-row-group', '',
+					_ => { addElement(_, 'div', 'tableview-row-group-title', '', _ => { _.innerText = key.toUpperCase(); }); }
+				);
+				records.forEach(
+					_ =>
+					{
+						let entry = new TableViewEntry(this.table_view, _);
+						entry.e_parent = e_group;
+						entry.CreateElements();
+						this.record_entries.push(entry);
+					}
+				);
+			}
+		}
+		else
+		{
+			this.table_view.data.records_view.forEach(
+				_ =>
+				{
+					let entry = new TableViewEntry(this.table_view, _);
+					entry.e_parent = this.e_records;
+					entry.CreateElements();
+					this.record_entries.push(entry);
+				}
+			);
+		}
+	}
+
+	OnRemoveElements()
+	{
+		this.record_entries.forEach(_ => _.RemoveElements());
+		this.record_entries = [];
+		this.e_records.remove();
+	}
+}
+
+
+
+
+
 
 export class TableView extends PanelContent
 {
@@ -564,15 +659,13 @@ export class TableView extends PanelContent
 
 		this.column_width_min = '2rem';
 		this.group_by_property = '';
-		this.dirty = false;
 
 		this.change_timeout = new RunningTimeout(
 			() =>
 			{
-				this.dirty = false;
 				this.RefreshElements();
 			},
-			0.5, false, 70
+			0.1, false, 70
 		);
 
 		this.configurations = [new TableViewConfiguration(this)];
@@ -584,110 +677,50 @@ export class TableView extends PanelContent
 
 	OnCreateElements()
 	{
-		this.e_root = addElement(this.e_parent, 'div', 'tableview-root', 'position:absolute; inset:0;');
+		this.e_root = addElement(this.e_parent, 'div', 'tableview-root', 'position:relative; flex-basis:0.0; flex-grow:1.0; flex-shrink:0.0;');
 
+		let any_overview = false;
 		this.e_overview = addElement(this.e_root, 'div', 'tableview-overview', '');
 
 		if (this.title && this.title.length > 0)
 		{
+			any_overview = true;
 			this.e_overview_title = addElement(this.e_overview, 'div', 'tableview-overview-title', '');
 			this.e_overview_title.innerText = this.title.toUpperCase();
 		}
 		if (this.description && this.description.length > 0)
 		{
+			any_overview = true;
 			this.e_overview_desc = addElement(this.e_overview, 'div', 'tableview-overview-body', '');
 			this.e_overview_desc.innerHTML = this.description;
 		}
 
+		if (any_overview !== true) this.e_overview.style.display = 'none';
+
 		this.e_search_row = addElement(this.e_root, 'div', 'tableview-columns tableview-filters', '');
 		this.e_column_row = addElement(this.e_root, 'div', 'tableview-columns', '');
-		this.e_records = addElement(this.e_root, 'div', 'tableview-rows', '');
-		this.record_entries = [];
+
+		this.multicontent = new MultiContentPanel(this.e_root);
+		this.multicontent.CreateElements();
 
 		this.configuration_active.RecreateColumns();
+		this.rows_content = new TableViewRowContent(this);
 	}
 
 	OnRemoveElements()
 	{
-		this.record_entries.forEach(_ => _.RemoveElements());
-		this.record_entries = [];
+		this.multicontent.RemoveElements();
 		this.e_root.remove();
 	}
 
 	OnRefreshElements()
 	{
 		this.data.RefreshViewRecords();
-
-		const before = () =>
-		{
-			MarkElementLoading(this.e_records);
-			this.e_records.style.pointerEvents = 'none';
-		};
-
-		const after = () =>
-		{
-			ClearElementLoading(this.e_records, 250);
-			this.e_records.style.pointerEvents = 'all';
-		};
-
-		const during = () =>
-		{
-			this.e_records.innerHTML = '';
-			if (this.placeholder_data == true) this.e_records.setAttribute('placeholder-data', '');
-			else this.e_records.removeAttribute('placeholder-data');
-
-			this.configuration_active.RefreshColumns();
-			if (this.group_by_property && this.group_by_property.length > 0)
-			{
-				this.e_records.style.paddingTop = 'var(--gap-025)';
-				this.e_records.style.paddingBottom = 'var(--gap-025)';
-				this.e_records.style.gap = 'var(--gap-025)';
-				let groups = Object.groupBy(this.data.records_view, _ => _[this.group_by_property]);
-				for (let key in groups)
-				{
-					let records = groups[key];
-					let e_group = addElement(
-						this.e_records, 'div', 'tableview-row-group', '',
-						_ => { addElement(_, 'div', 'tableview-row-group-title', '', _ => { _.innerText = key.toUpperCase(); }); }
-					);
-					records.forEach(
-						_ =>
-						{
-							let entry = new TableViewEntry(this, _);
-							entry.e_parent = e_group;
-							entry.CreateElements();
-							this.record_entries.push(entry);
-						}
-					);
-				}
-			}
-			else
-			{
-				this.data.records_view.forEach(
-					_ =>
-					{
-						let entry = new TableViewEntry(this, _);
-						entry.CreateElements();
-						this.record_entries.push(entry);
-					}
-				);
-			}
-		};
-
-		this.TransitionElements(
-			before, during, after,
-			{
-				fade_target: () => this.e_records,
-				fade_duration: 0.125,
-				skip_fade_out: false,
-				skip_fade_in: false
-			}
-		);
+		this.multicontent.QueueContent(this.rows_content, false, false);
 	}
 
 	RefreshSoon()
 	{
-		this.dirty = true;
 		this.change_timeout.ExtendTimer();
 	}
 

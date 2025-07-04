@@ -95,7 +95,7 @@ export class UserDashboardDocs extends PanelContent
 
 		this.table_view.configuration_active.columns.Reset();
 		DOCS_TABLE_COLUMNS.forEach(_ => this.table_view.configuration_active.columns.Register(_.key, _));
-		this.table_view.configuration_active.AddAction('upload', _ => { }, 'hsl(from #0fd h s var(--theme-l050))');
+		this.table_view.configuration_active.AddAction('upload', _ => { }, { color: 'hsl(from #0fd h s var(--theme-l050))' });
 
 
 		const data = [

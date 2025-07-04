@@ -201,6 +201,22 @@
 
 
 
+.page-debug-log
+{
+	z-index: 999;
+	position: absolute;
+	pointer-events: none;
+	user-select: none;
+
+	inset: 0;
+
+	padding: var(--gap-1);
+	color: white;
+	text-shadow: -1px 1px 2px black;
+}
+
+
+
 
 
 
@@ -1893,11 +1909,11 @@ div:hover > .pie-chart-root .pie-chart-info
 	border-radius: 0 0 var(--corner-05) var(--corner-05);
 	display: flex;
 	flex-direction: column;
-	flex-basis: 1.0;
+	flex-basis: 100%;
 	flex-grow: 1.0;
+	flex-shrink: 1.0;
 	gap: 0;
 	border: solid 2px hsl(from var(--theme-color) h s 50% / 0.25);
-
 	overflow: hidden auto;
 }
 
@@ -2005,10 +2021,10 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	display: flex;
 	flex-direction: column;
-	padding: var(--gap-1) 0 var(--gap-1) 0;
+	padding: var(--gap-05) 0 var(--gap-05) 0;
 	background-color: hsl(from var(--theme-color) h s var(--theme-l030) / 0.025);
 
-	border-radius: var(--corner-1);
+	border-radius: var(--corner-05);
 	box-shadow: 0 0 6px #000f;
 }
 
@@ -2023,7 +2039,7 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	padding-bottom: var(--gap-025);
 	padding-left: calc(1rem + var(--gap-1));
-	font-size: 0.9rem;
+	font-size: 0.75rem;
 	font-weight: bold;
 	color: hsl(from var(--theme-color) h s var(--theme-l040) / 0.7);
 }
@@ -2037,7 +2053,7 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	margin: 0;
 	position: relative;
-	padding: var(--gap-05);
+	padding: calc(4px + var(--gap-05));
 	flex-basis: 1.5rem;
 	flex-shrink: 0.0;
 	flex-grow: 0.0;

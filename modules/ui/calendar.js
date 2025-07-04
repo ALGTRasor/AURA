@@ -193,7 +193,11 @@ export class Calendar extends PanelContent
 
     OnCreateElements()
     {
-        this.e_title_row = addElement(this.e_parent, 'div', '', 'display:flex; flex-direction:row; flex-wrap:0.0; justify-items:center;');
+        this.e_root = addElement(this.e_parent, 'div', '', 'position:relative; display:flex; flex-direction:column; flex-basis:0.0; flex-grow:1.0;');
+        this.e_root.id = 'calendar-root';
+
+        this.e_title_row = addElement(this.e_root, 'div', '', 'display:flex; flex-direction:row; flex-wrap:0.0; height:2rem; align-items:center;');
+        this.e_title_row.id = 'calendar-title-row';
 
         this.e_bt_prev = CreatePagePanel(
             this.e_title_row, true, false, 'flex-grow:0.0; width:1.25rem; height:1.25rem;',
@@ -230,7 +234,7 @@ export class Calendar extends PanelContent
             { passive: true }
         );
 
-        this.e_entry_container = CreatePagePanel(this.e_parent, true, false);
+        this.e_entry_container = CreatePagePanel(this.e_root, true, false);
 
         this.e_entry_root = addElement(this.e_entry_container, 'div', 'calendar-root');
 

@@ -6,6 +6,7 @@ import { MegaTips } from "../systems/megatips.js";
 import { PageManager } from "../pagemanager.js";
 import { AppInfo } from "../app_info.js";
 import { Modules } from "../modules.js";
+import { LayoutManager } from "../layoutmanager.js";
 
 export class ActionBar
 {
@@ -32,7 +33,88 @@ export class ActionBar
 		ActionBar.e_root.addEventListener('mouseenter', _ => { if (PageManager.pages_being_dragged < 1 && window.mobile_mode_enabled !== true) window.SetContentFaded(true); });
 		ActionBar.e_root.addEventListener('mouseleave', _ => { window.SetContentFaded(false); });
 
+		ActionBar.CreateLayoutMenu();
+
 		ActionBar.initialized = true;
+	}
+
+	static CreateLayoutMenu()
+	{
+		ActionBar.e_icon_layout_menu = addElement(ActionBar.e_root, 'div', 'layout-menu-button');
+		addElement(
+			ActionBar.e_icon_layout_menu, 'i', 'material-symbols icon',
+			'position:absolute; inset:0; color: var(--theme-color-l50);',
+			_ => { _.innerText = 'browse'; }
+		);
+		ActionBar.e_layout_menu = addElement(ActionBar.e_icon_layout_menu, 'div', 'layout-menu');
+		ActionBar.RefreshLayoutMenu();
+	}
+
+	static RefreshLayoutMenu()
+	{
+		ActionBar.e_layout_menu.innerHTML = '';
+		addElement(ActionBar.e_layout_menu, 'span', '', 'text-wrap:nowrap;', e_ => { e_.innerText = 'SAVED LAYOUTS'; });
+		LayoutManager.layouts_loaded.forEach(
+			(layout_data, i, a) =>
+			{
+				addElement(
+					ActionBar.e_layout_menu, 'div', 'layout-info', 'display:flex; flex-direction:column; gap:var(--gap-05);',
+					e_layout =>
+					{
+						addElement(e_layout, 'div', '', 'flex-basis:0.0; flex-grow:1.0; align-content:center;', _ => { _.innerText = `${(i + 1)} - ${layout_data.title}`; });
+						let e_btns = addElement(e_layout, 'div', '', 'flex-basis:1.5rem; flex-grow:0.0; flex-shrink:0.0; display:flex; flex-direction:row; border-radius:var(--corner-05); clip-path:stroke-box;');
+						addElement(
+							e_btns, 'div', 'layout-action', '',
+							_ =>
+							{
+								_.innerText = 'LOAD';
+								_.style.setProperty('--theme-color', 'skyblue');
+								_.addEventListener('click', e => { LayoutManager.SwitchTo(i); });
+							}
+						);
+						addElement(
+							e_btns, 'div', 'layout-action', '',
+							_ =>
+							{
+								_.innerText = 'SAVE'; _.style.setProperty('--theme-color', 'lime');
+								_.addEventListener('click', e => { LayoutManager.UpdateActiveLayoutPageData(); });
+							}
+						);
+						addElement(
+							e_btns, 'div', 'layout-action', '',
+							_ =>
+							{
+								_.setAttribute('coming-soon', '');
+								_.innerText = 'RENAME'; _.style.setProperty('--theme-color', 'goldenrod');
+								_.addEventListener('click', e => { });
+							}
+						);
+						if (i > 0) addElement(
+							e_btns, 'div', 'layout-action', '',
+							_ =>
+							{
+								_.innerText = 'DELETE'; _.style.setProperty('--theme-color', 'red');
+								_.addEventListener('click', e => { LayoutManager.DeleteLayout(i); });
+							}
+						);
+					}
+				);
+			}
+		);
+		addElement(
+			ActionBar.e_layout_menu, 'div', 'layout-add', 'flex-basis:1rem;',
+			e_add_new =>
+			{
+				addElement(
+					e_add_new, 'i', 'material-symbols icon',
+					'text-align:center; align-content:center; translate:0 0;',
+					_ => { _.innerText = 'add_circle'; }
+				);
+				e_add_new.style.setProperty('--theme-color', 'lime');
+
+				e_add_new.addEventListener('click', e => { LayoutManager.PushActiveLayout('new layout'); });
+			}
+		);
 	}
 
 	static AddIcon(icon = '', tooltip = '', on_click = e => { })

@@ -15,6 +15,8 @@ export class PanelContent extends EventTarget
 		this.e_parent = e_parent;
 	}
 
+	Emit(event_name) { this.dispatchEvent(new CustomEvent(event_name)); }
+
 	RecreateElements(data)
 	{
 		this.RemoveElements(data);
@@ -25,10 +27,13 @@ export class PanelContent extends EventTarget
 	{
 		if (this.created === true) return;
 
+		this.Emit('beforecreate');
+
 		try
 		{
 			this.OnCreateElements(data);
 			this.created = true;
+			this.Emit('aftercreate');
 		}
 		catch (e) { this.OnError(e); }
 	}
@@ -37,13 +42,23 @@ export class PanelContent extends EventTarget
 	{
 		this.CreateElements(data);
 		if (this.created !== true) return;
-		try { this.OnRefreshElements(data); } catch (e) { this.OnError(e); }
+		this.Emit('beforerefresh');
+		try
+		{
+			this.OnRefreshElements(data);
+		} catch (e) { this.OnError(e); }
+		this.Emit('afterrefresh');
 	}
 
 	RemoveElements(data)
 	{
 		if (this.created !== true) return;
-		try { this.OnRemoveElements(data); } catch (e) { this.OnError(e); }
+		this.Emit('beforeremove');
+		try
+		{
+			this.OnRemoveElements(data);
+		} catch (e) { this.OnError(e); }
+		this.Emit('afterremove');
 		this.created = false;
 	}
 
@@ -59,7 +74,7 @@ export class PanelContent extends EventTarget
 		during = async () => { },
 		after = async () => { },
 		options = {
-			fade_target: this.e_parent,
+			fade_target: () => this.e_parent,
 			fade_duration: 0.1,
 			skip_fade_out: false,
 			skip_fade_in: false
@@ -84,6 +99,7 @@ export class PanelContent extends EventTarget
 				await until(() => this.transitioning !== true);
 			}
 
+			this.Emit('beforetransition');
 			await before();
 			if (this.interrupt_transition === true) { cancel_transition(); return; }
 
@@ -99,7 +115,9 @@ export class PanelContent extends EventTarget
 
 			this.transitioning = false;
 			await after();
+			this.Emit('aftertransition');
 		};
+
 		perform_transition();
 	}
 }

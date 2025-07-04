@@ -273,3 +273,207 @@
 
 	scale: 80%;
 }
+
+
+
+
+.layout-menu-button
+{
+	position: absolute;
+
+	left: 5rem;
+	top: 50%;
+	translate: -50% -50%;
+	width: 3rem;
+	height: 3rem;
+	opacity: 50%;
+
+	overflow: visible;
+
+	transition-property: width, height;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.layout-menu-button:hover
+{
+	opacity: 100%;
+	width: 5rem;
+	height: 5rem;
+}
+
+.layout-menu-button > i
+{
+	position: absolute;
+	inset: 0;
+	color: var(--theme-color-l50);
+	translate: 0 0;
+
+	transition-property: translate;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.layout-menu-button:hover > i
+{
+	color: hsl(from var(--theme-color) h s var(--theme-l080)) !important;
+	translate: 0 -0.333rem;
+}
+
+.layout-menu-button .layout-menu
+{
+	z-index: 100;
+
+	user-select: none;
+	pointer-events: none;
+	position: absolute;
+	top: 55%;
+	left: 0%;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-05);
+
+	min-height: 1rem;
+	min-width: 1rem;
+	opacity: 0%;
+	border-radius: var(--corner-1);
+	clip-path: stroke-box;
+
+	margin: var(--gap-1);
+	padding: var(--gap-05);
+
+	font-size: 1rem;
+
+	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+	outline: solid 4px hsl(from var(--theme-color) h s var(--theme-l035));
+	outline-offset: -2px;
+
+	transition-property: opacity;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+
+.layout-menu-button:hover .layout-menu
+{
+	pointer-events: all;
+	opacity: 100%;
+}
+
+.layout-menu-button .layout-menu span
+{
+	padding-top: var(--gap-05);
+	padding-bottom: var(--gap-05);
+	font-size: 70%;
+	opacity: 60%;
+}
+
+.layout-menu .layout-add
+{
+	position: relative;
+
+	cursor: pointer;
+	flex-basis: fit-content;
+	flex-shrink: 0.0;
+	flex-grow: 0.0;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-05);
+
+	border-radius: var(--corner-1);
+	padding: var(--gap-05);
+	text-transform: uppercase;
+	color: var(--theme-color-l50);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
+
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l015));
+
+	transition-property: background-color, color;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+.layout-menu .layout-add:hover
+{
+	color: var(--theme-color-text);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l035));
+}
+.layout-menu .layout-add:active
+{
+	opacity: 90%;
+	color: var(--theme-color-text);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+}
+
+.layout-menu .layout-info
+{
+	position: relative;
+
+	flex-basis: fit-content;
+	flex-shrink: 0.0;
+	flex-grow: 0.0;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-05);
+
+	border-radius: var(--corner-1);
+	padding-top: calc(var(--gap-05) + 4px);
+	padding-bottom: calc(var(--gap-05) + 4px);
+	padding-left: calc(var(--gap-05) * 2);
+	padding-right: calc(var(--gap-05) * 2);
+	text-transform: uppercase;
+	color: var(--theme-color-l50);
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
+}
+.layout-menu .layout-info:hover
+{
+	color: var(--theme-color-text);
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l025));
+}
+
+
+.layout-menu .layout-info:hover > i
+{
+	color: var(--theme-color-text);
+}
+
+.layout-info .layout-action
+{
+	cursor: pointer;
+	align-content: center;
+	text-align: center;
+	flex-basis: 5rem;
+	flex-grow: 1.0;
+	flex-shrink: 0.0;
+
+	padding-top: var(--gap-1);
+	padding-bottom: var(--gap-1);
+	line-height: 0;
+	opacity: 20%;
+
+	font-size: 80%;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+	color: hsl(from var(--theme-color) h s 50%);
+
+	transition-property: opacity, background-color, color;
+	transition-timing-function: ease-in-out;
+	transition-duration: var(--trans-dur-off-fast);
+}
+.layout-info:hover .layout-action
+{
+	opacity: 100%;
+}
+.layout-info .layout-action:hover
+{
+	font-size: 90%;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l030));
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+}
+.layout-info .layout-action:active
+{
+	font-size: 85%;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l025));
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
+}

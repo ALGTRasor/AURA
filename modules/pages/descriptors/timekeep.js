@@ -1,4 +1,4 @@
-import { addElement, ClearElementLoading, CreatePagePanel, FadeElement, MarkElementLoading } from "../../utils/domutils.js";
+import { addElement, CreatePagePanel } from "../../utils/domutils.js";
 import { RunningTimeout } from "../../utils/running_timeout.js";
 import { SampleArray } from "../../utils/arrayutils.js";
 import { PanelContent } from "../../ui/panel_content.js";
@@ -11,6 +11,7 @@ import { UserAccountInfo } from "../../useraccount.js";
 import { PageManager } from "../../pagemanager.js";
 import { PageDescriptor } from "../page_descriptor.js";
 import { hoursDelta } from "../../utils/timeutils.js";
+import { MultiContentPanel } from "../../ui/multicontentpanel.js";
 
 
 
@@ -206,40 +207,34 @@ class TKAllocations extends PanelContent
 {
 	constructor(page_content)
 	{
-		super(page_content.e_mode_content);
+		super(page_content.multicontent.e_root);
 		this.page_content = page_content;
 		this.page = page_content.page_instance;
 	}
 
 	OnCreateElements()
 	{
-		this.e_root = CreatePagePanel(
-			this.e_parent, true, false, 'flex-basis:100%; flex-direction:column;',
-			_ =>
-			{
-				let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
-				this.e_tableview = new TableView(_, undefined);
-				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
+		let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
+		this.e_tableview = new TableView(this.e_parent, undefined);
+		this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
 
-				//this.e_tableview.group_by_property = 'guid';
-				this.e_tableview.title = 'TIME PER PROJECT';
-				this.e_tableview.description = 'This table shows your billable time usage per project.';
+		//this.e_tableview.group_by_property = 'guid';
+		this.e_tableview.title = 'TIME PER PROJECT';
+		this.e_tableview.description = 'This table shows your used and remaining  billable time per project.';
 
-				this.e_tableview.configuration_active.columns.Reset();
-				ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
-				this.e_tableview.configuration_active.columns.all[4].format = 'billable_time';
-				this.e_tableview.configuration_active.columns.all[5].format = 'billable_time';
-				this.e_tableview.configuration_active.columns.all[6].format = 'billable_time';
-				this.e_tableview.configuration_active.AddAction('more_time', _ => { }, 'white');
+		this.e_tableview.configuration_active.columns.Reset();
+		ALLOCATION_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
+		this.e_tableview.configuration_active.columns.all[4].format = 'billable_time';
+		this.e_tableview.configuration_active.columns.all[5].format = 'billable_time';
+		this.e_tableview.configuration_active.columns.all[6].format = 'billable_time';
+		this.e_tableview.configuration_active.AddAction('more_time', _ => { }, { color: 'skyblue', description: 'Use this time.' });
 
-				this.e_tableview.data.SetRecords(data, false);
-			}
-		);
+		this.e_tableview.data.SetRecords(data, false);
 
 		this.OnRefreshElements();
 	}
 
-	OnRemoveElements() { this.e_root.remove(); }
+	OnRemoveElements() { this.e_tableview.RemoveElements(); }
 
 	OnRefreshElements()
 	{
@@ -268,35 +263,31 @@ class TKHistoryContent extends PanelContent
 {
 	constructor(page_content)
 	{
-		super(page_content.e_mode_content);
+		super(page_content.multicontent.e_root);
 		this.page_content = page_content;
 		this.page = page_content.page_instance;
 	}
 
 	OnCreateElements()
 	{
-		this.e_root = CreatePagePanel(
-			this.e_parent, true, false, 'flex-basis:100%; flex-direction:column;',
-			_ =>
-			{
-				let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
+		let data = window.SharedData['user allocations'].instance.data.filter(_ => _.user_id === UserAccountInfo.account_info.user_id);
 
-				this.e_tableview = new TableView(_, undefined);
-				this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
-				this.e_tableview.group_by_property = 'created_date';
+		this.e_tableview = new TableView(this.e_parent, undefined);
+		this.e_tableview.addEventListener('viewchange', () => { this.StoreState(this.page); this.page.TriggerStateDataChange(); });
+		this.e_tableview.group_by_property = 'created_date';
+		this.e_tableview.title = 'DAILY USAGE';
+		this.e_tableview.description = 'This table shows your billable time usage by date.';
 
-				this.e_tableview.configuration_active.columns.Reset();
-				HISTORY_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
-				this.e_tableview.configuration_active.AddAction('more_time', _ => { }, 'hsl(from #0ff h s var(--theme-l030))');
+		this.e_tableview.configuration_active.columns.Reset();
+		HISTORY_TABLE_COLUMNS.forEach(_ => this.e_tableview.configuration_active.columns.Register(_.key, _));
+		this.e_tableview.configuration_active.AddAction('chronic', _ => { }, { color: 'gold', description: 'Amend this usage.' });
 
-				this.e_tableview.data.SetRecords(data, false);
-			}
-		);
+		this.e_tableview.data.SetRecords(data, false, true);
 
 		this.OnRefreshElements();
 	}
 
-	OnRemoveElements() { this.e_root.remove(); }
+	OnRemoveElements() { this.e_tableview.RemoveElements(); }
 
 	OnRefreshElements()
 	{
@@ -306,15 +297,17 @@ class TKHistoryContent extends PanelContent
 	StoreState()
 	{
 		let data = this.e_tableview.configuration_active.GetState();
-		this.page.SetStateValue('allocation_table_state', data);
+		this.page.SetStateValue('table_state_history', data);
+		console.warn('state stored: TKHistoryContent');
 	}
 
 	RestoreState()
 	{
-		if (this.page.state.HasValue('allocation_table_state'))
+		if (this.page.state.HasValue('table_state_history'))
 		{
-			let data = this.page.GetStateValue('allocation_table_state');
+			let data = this.page.GetStateValue('table_state_history');
 			this.e_tableview.configuration_active.SetState(data);
+			console.warn('state restored: TKHistoryContent');
 		}
 	}
 }
@@ -323,7 +316,7 @@ class TKCalendar extends PanelContent
 {
 	constructor(page_content)
 	{
-		super(page_content.e_mode_content);
+		super(page_content.multicontent.e_root);
 		this.page_content = page_content;
 		this.page = page_content.page_instance;
 	}
@@ -334,9 +327,9 @@ class TKCalendar extends PanelContent
 		this.all_uses = [];
 		this.records.forEach(_ => { this.all_uses = this.all_uses.concat(_.use_history); });
 
-		this.e_root = CreatePagePanel(
-			this.e_parent, true, true, 'flex-direction:column; overflow:visible;',
-			_ => { this.e_root_list = CreatePagePanel(_, false, true, 'flex-direction:column; align-content:stretch;'); }
+		this.e_root = addElement(
+			this.e_parent, 'div', '', 'display:flex; flex-direction:column; overflow:visible; flex-basis:0.0; flex-grow:1.0; padding:var(--gap-05);',
+			_ => { this.e_root_list = CreatePagePanel(_, false, true, 'flex-direction:column; overflow:visible;'); }
 		);
 
 		this.calendar = new Calendar(this.e_root_list, new Date());
@@ -424,27 +417,49 @@ class TimekeepContent extends PanelContent
 		this.slide_mode = new SlideSelector();
 		const modes = [
 			{ label: 'CALENDAR', on_click: _ => { }, tooltip: 'Billable time by calendar period.' },
-			{ label: 'TABLE', on_click: _ => { }, tooltip: 'Billable time by allocation.' },
-			{ label: 'CHARTS', on_click: _ => { }, tooltip: 'Billable time by allocation.' },
-			{ label: 'SUMMARY', on_click: _ => { }, tooltip: 'Billable time by usage.' },
+			{ label: 'PROJECTS', on_click: _ => { }, tooltip: 'Billable time by project (detailed view).' },
+			{ label: 'CHARTS', on_click: _ => { }, tooltip: 'Billable time by project (simplified view).' },
+			{ label: 'HISTORY', on_click: _ => { }, tooltip: 'Billable time usage history.' },
 		];
 		this.slide_mode.CreateElements(this.e_root, modes);
 
-		this.e_mode_content_container = addElement(this.e_root, 'div', '', 'border-radius:inherit; position:relative; flex-basis:100%;');
-		this.e_mode_content = addElement(this.e_mode_content_container, 'div', '', 'border-radius:inherit; display:flex; flex-direction:column; gap:var(--gap-05); overflow:hidden; top:0; left:0; width:100%; height:100%; padding:0; margin:0;');
-		this.e_mode_content.id = 'e_mode_content';
+		this.e_multicontent_container = CreatePagePanel(this.e_root, true, false, 'display:flex; flex-direction:column; flex-basis:1.0; padding:0;');
+		this.multicontent = new MultiContentPanel(this.e_multicontent_container);
+		this.multicontent.addEventListener(
+			'beforetransition',
+			() =>
+			{
+				this.slide_mode.SetDisabled(true);
+				let can_store = this.multicontent.content_active && this.multicontent.content_active.StoreState;
+				if (can_store === true) this.multicontent.content_active.StoreState();
+			}
+		);
+		this.multicontent.addEventListener(
+			'aftertransition',
+			() =>
+			{
+				let can_restore = this.multicontent.content_active && this.multicontent.content_active.RestoreState;
+				if (can_restore === true) this.multicontent.content_active.RestoreState();
+				this.slide_mode.SetDisabled(false);
+			}
+		);
+		this.multicontent.CreateElements();
+
+		//this.e_mode_content_container = addElement(this.e_root, 'div', '', 'border-radius:inherit; position:relative; flex-basis:100%;');
+		//this.e_mode_content = addElement(this.e_mode_content_container, 'div', '', 'border-radius:inherit; display:flex; flex-direction:column; gap:var(--gap-05); overflow:hidden; top:0; left:0; width:100%; height:100%; padding:0; margin:0;');
+		//this.e_mode_content.id = 'e_mode_content';
 
 		this.mode_allocations = new TKAllocations(this);
 		this.mode_history = new TKHistoryContent(this);
 		this.mode_calendar = new TKCalendar(this);
 
-		this.content_current = undefined;
+		//this.content_current = undefined;
 
 		this.on_mode_change = () => { this.AfterModeChange(); };
-		this.update_content = () => { this.UpdateModeContent(); };
 		this.refresh_soon = () => { this.RefreshContentSoon(); };
+		this.update_content = () => { this.UpdateModeContent(); };
 
-		this.content_timeout = new RunningTimeout(this.update_content, 0.5, false, 70);
+		this.content_timeout = new RunningTimeout(this.update_content, 0.25, false, 70);
 		window.SharedData.Subscribe('user allocations', this.refresh_soon);
 
 		this.slide_mode.Subscribe(this.on_mode_change);
@@ -466,6 +481,7 @@ class TimekeepContent extends PanelContent
 	AfterModeChange()
 	{
 		this.page_instance.state.SetValue('view_mode', this.slide_mode.selected_index);
+		this.slide_mode.SetDisabled(true);
 		this.RefreshContentSoon();
 	}
 
@@ -478,13 +494,14 @@ class TimekeepContent extends PanelContent
 	{
 		switch (this.slide_mode.selected_index) 
 		{
-			case 0: this.TransitionContent(this.mode_calendar); break;
-			case 1: this.TransitionContent(this.mode_allocations); break;
-			case 2: this.TransitionContent(this.mode_allocations); break;
-			case 3: this.TransitionContent(this.mode_history); break;
+			case 0: this.multicontent.QueueContent(this.mode_calendar, false, false); break;
+			case 1: this.multicontent.QueueContent(this.mode_allocations, false, false); break;
+			case 2: this.multicontent.QueueContent(this.mode_allocations, false, false); break;
+			case 3: this.multicontent.QueueContent(this.mode_history, false, false); break;
 		}
 	}
 
+	/*
 	TransitionContent(content_next = PanelContent.Nothing)
 	{
 		const PerformTransition = async () =>
@@ -493,7 +510,7 @@ class TimekeepContent extends PanelContent
 			MarkElementLoading(this.e_mode_content);
 
 			let can_store_state = this.content_current && this.content_current.StoreState;
-			if (can_store_state) this.content_current.StoreState();
+			if (this.content_current && this.content_current.StoreState) this.content_current.StoreState();
 
 			if (this.content_current && this.content_current.e_root)
 			{
@@ -505,7 +522,7 @@ class TimekeepContent extends PanelContent
 			this.content_current.CreateElements();
 
 			let can_restore_state = this.content_current && this.content_current.RestoreState;
-			if (can_restore_state) this.content_current.RestoreState();
+			if (this.content_current && this.content_current.RestoreState) this.content_current.RestoreState();
 
 			this.slide_mode.SetDisabled(false);
 			await FadeElement(this.content_current.e_root, 0, 100, 0.125);
@@ -515,6 +532,7 @@ class TimekeepContent extends PanelContent
 		if (content_next) PerformTransition();
 		else console.warn('invalid next content');
 	}
+	*/
 }
 
 export class PageTimekeep extends PageDescriptor
@@ -558,7 +576,7 @@ export class PageTimekeep extends PageDescriptor
 		if (instance.state.data.docked === true)
 		{
 			if (instance.state.data.expanding === true) instance.ClearMaxFrameWidth();
-			else instance.SetMaxFrameWidth('100vh');
+			else instance.SetMaxFrameWidth('80vh');
 		}
 		else
 		{

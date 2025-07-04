@@ -21,6 +21,7 @@
 	--theme-hue: 180deg;
 	--theme-saturation: 100%;
 	--theme-color: hsl(var(--theme-hue), var(--theme-saturation), calc(50% / var(--theme-invert) + 50%));
+	--theme-color-l50: hsl(from var(--theme-color) h s 50%);
 
 	--theme-color-10: rgba(from var(--theme-color) r g b / 0.1);
 	--theme-color-20: rgba(from var(--theme-color) r g b / 0.2);
@@ -197,52 +198,54 @@ html[devmode]::after
 }
 
 
-body *[content-loading]
-{
-	pointer-events: none;
-	user-select: none;
-}
-
 
 @keyframes anim-loading-overlay
 {
 	0%
 	{
-		background-position: 0% 200%;
+		background-position: -1rem 0;
 	}
 
 	50%
 	{
-		background-position: 0% 0%;
+		background-position: 0 0;
 	}
 
 	100%
 	{
-		background-position: 0% -200%;
+		background-position: 1rem 0;
 	}
 }
 
-body *[content-loading]::after
+body *[content-loading] > *
+{
+	cursor: wait !important;
+	pointer-events: none !important;
+	user-select: none !important;
+}
+
+body *[content-loading] > *::after
 {
 	content: '';
+
+	display: block;
+	z-index: 1000;
+	position: absolute;
+	inset: 0;
 
 	pointer-events: all;
 	user-select: none;
 	cursor: wait;
 
-	position: absolute;
-	z-index: 10;
-	inset: 0;
+	border-radius: inherit;
+	clip-path: stroke-box;
 
-	--back-color-0: hsl(from var(--theme-color) h s var(--theme-l060) / 0.0);
-	--back-color-1: hsl(from var(--theme-color) h s var(--theme-l060) / 0.2);
+	--color-a: hsl(from var(--theme-color) h s var(--theme-l030) / 0.2);
+	--color-b: hsl(from var(--theme-color) h s var(--theme-l030) / 0.6);
+	opacity: 0.5;
 
-	background-size: 100% 400%;
-	background-image: linear-gradient(0deg, var(--back-color-0) 35%, var(--back-color-1) 50%, var(--back-color-0) 65%);
-	backdrop-filter: blur(1px);
-
-	animation: anim-loading-overlay linear calc(2s * var(--trans-dur-mult) + 0.5s) infinite;
-	animation-delay: calc(-1s * var(--trans-dur-mult) - 0.25s);
+	background: repeating-linear-gradient(90deg, var(--color-a) 0.1rem, var(--color-b) 0.1rem, var(--color-b) 1rem, var(--color-a) 1.1rem, var(--color-a) 2rem);
+	animation: anim-loading-overlay linear calc(0.5s * var(--trans-dur-mult) + 0.05s) infinite;
 }
 
 
@@ -250,6 +253,7 @@ body *[placeholder-data]::after
 {
 	content: '';
 
+	display: block;
 	pointer-events: none;
 	user-select: none;
 
@@ -267,8 +271,8 @@ body *[placeholder-data]::after
 
 .scroll-y
 {
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 

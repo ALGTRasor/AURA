@@ -7,18 +7,59 @@ import { UserAccountInfo } from "./useraccount.js";
 import { DevMode } from "./systems/devmode.js";
 import { HotkeyDescriptor, Hotkeys } from "./utils/hotkeys.js";
 import { AppEvents } from "./appevents.js";
+import { NotificationLog } from "./notificationlog.js";
 
+const lskey_layouts = 'layoutmanager_layouts';
+const lskey_layout_index = 'layoutmanager_layout_active';
 const lskey_page_layout = 'pagemanager_layout';
 
-export class PageManager
+export class PageRegistry
 {
-	static page_descriptors = [];
+	static descriptors = [];
 
+	static Add(page = PageDescriptor.Nothing, hotkey = '', hotkey_description = '')
+	{
+		if (DevMode.active === true) console.info('registered page: ' + page.title);
+		PageRegistry.descriptors.push(page);
+
+		if (typeof hotkey === 'string' && hotkey.length > 0)
+		{
+			Hotkeys.Register(
+				new HotkeyDescriptor(
+					hotkey,
+					m =>
+					{
+						if (m.none) PageManager.TogglePageByTitle(page.title);
+					},
+					{
+						action_description: 'Page: ' + hotkey_description,
+						permission: page.permission
+					}
+				)
+			);
+		}
+	}
+
+	static GetIndex(page_title = '')
+	{
+		for (let pdid = 0; pdid < PageRegistry.descriptors.length; pdid++)
+		{
+			let this_title = PageRegistry.descriptors[pdid].title;
+			if (this_title === page_title) return pdid;
+		}
+		return -1;
+	}
+}
+
+
+
+export class PageManager 
+{
 	static page_instances = [];
 	static page_instance_focused = null;
 	static page_instance_hovered = null;
-	static pages_being_dragged = 0;
 
+	static pages_being_dragged = 0;
 	static pauseLayoutChange = false;
 
 	static GetHotkeyTarget()
@@ -83,67 +124,8 @@ export class PageManager
 		);
 	}
 
-	static RegisterPage(page = PageDescriptor.Nothing, hotkey = '', hotkey_description = '')
-	{
-		if (DevMode.active === true) console.info('registered page: ' + page.title);
-		PageManager.page_descriptors.push(page);
-
-		if (typeof hotkey === 'string' && hotkey.length > 0)
-		{
-			Hotkeys.Register(
-				new HotkeyDescriptor(
-					hotkey,
-					m =>
-					{
-						if (m.none) PageManager.TogglePageByTitle(page.title);
-					},
-					{
-						action_description: 'Page: ' + hotkey_description,
-						permission: page.permission
-					}
-				)
-			);
-		}
-	}
-
-	static GetDescriptorIndex(page_title = '')
-	{
-		for (let pdid = 0; pdid < PageManager.page_descriptors.length; pdid++)
-		{
-			let this_title = PageManager.page_descriptors[pdid].title;
-			if (this_title === page_title) return pdid;
-		}
-		return -1;
-	}
-
-	static CacheCurrentLayout()
-	{
-		const get_page_data = _ => { return { title: _.page_descriptor.title, state: _.state.data } };
-		const pages_sort = (x, y) =>
-		{
-			if (x.siblingIndex > y.siblingIndex) return 1;
-			if (x.siblingIndex < y.siblingIndex) return -1;
-			return 0;
-		};
-		let page_instances_sorted = PageManager.page_instances.sort(pages_sort).map(get_page_data);
-		localStorage.setItem(lskey_page_layout, JSON.stringify({ pages: page_instances_sorted }));
-	}
-
-	static RestoreCachedLayout()
-	{
-		let got_pages = localStorage.getItem(lskey_page_layout);
-		if (got_pages)
-		{
-			let page_instances_sorted = JSON.parse(got_pages).pages;
-			for (let id in page_instances_sorted) 
-			{
-				let p = page_instances_sorted[id];
-				PageManager.OpenPageByTitle(p.title, p.state);
-			}
-			return page_instances_sorted.length > 0;
-		}
-		return false;
-	}
+	static RegisterPage(page = PageDescriptor.Nothing, hotkey = '', hotkey_description = '') { PageRegistry.Add(page, hotkey, hotkey_description); }
+	static GetDescriptorIndex(page_title = '') { return PageRegistry.GetIndex(page_title); }
 
 	static GetPageIndexFromTitle(pages = [], title = '')
 	{
@@ -157,13 +139,14 @@ export class PageManager
 		return -1;
 	}
 
-	static OpenPageByIndex(index, state = undefined, force_new = false) { PageManager.OpenPageFromDescriptor(PageManager.page_descriptors[index], state, force_new); }
+	static OpenPageByIndex(index, state = undefined, force_new = false) { PageManager.OpenPageFromDescriptor(PageRegistry.descriptors[index], state, force_new); }
+
 	static OpenPageByTitle(title, state = undefined, force_new = false)
 	{
 		var target_title = title.toLowerCase().trim();
-		for (let pid in PageManager.page_descriptors)
+		for (let pid in PageRegistry.descriptors)
 		{
-			let p = PageManager.page_descriptors[pid];
+			let p = PageRegistry.descriptors[pid];
 			if (p.title === target_title) 
 			{
 				PageManager.OpenPageFromDescriptor(p, state, force_new);
@@ -171,12 +154,13 @@ export class PageManager
 			}
 		}
 	}
+
 	static GetInstanceByTitle(title)
 	{
 		var target_title = title.toLowerCase().trim();
-		for (let pid in PageManager.page_descriptors)
+		for (let pid in PageRegistry.descriptors)
 		{
-			let p = PageManager.page_descriptors[pid];
+			let p = PageRegistry.descriptors[pid];
 			if (p.title === target_title) 
 			{
 				return p.GetInstance();
@@ -185,21 +169,20 @@ export class PageManager
 		return undefined;
 	}
 
-
-	static CloseAll(after = () => { })
+	static CloseAll(after = () => { }, fancy = true)
 	{
 		const close_first = () =>
 		{
 			if (PageManager.page_instances.length < 1)
 			{
 				PageManager.closingAll = false;
-				PageManager.pauseLayoutChange = false;
-				PageManager.AfterPageClosed();
 				if (after) after();
+				PageManager.AfterPageClosed();
+				PageManager.pauseLayoutChange = false;
 				return;
 			}
 			PageManager.page_instances[0].CloseInstance();
-			window.setTimeout(close_first, 50);
+			window.setTimeout(close_first, fancy === true ? 50 : 1);
 		};
 
 		PageManager.closingAll = true;
@@ -245,7 +228,7 @@ export class PageManager
 		let page_id = PageManager.GetDescriptorIndex(title);
 		if (page_id < 0) return false;
 
-		let page_desc = PageManager.page_descriptors[page_id];
+		let page_desc = PageRegistry.descriptors[page_id];
 
 		if (
 			typeof page_desc.permission === 'string'
@@ -276,7 +259,7 @@ export class PageManager
 			return;
 		}
 
-		let desc = PageManager.page_descriptors[desc_id];
+		let desc = PageRegistry.descriptors[desc_id];
 		let existing = desc.GetInstance();
 		if (existing)
 		{
@@ -286,7 +269,6 @@ export class PageManager
 
 		PageManager.OpenPageFromDescriptor(desc, state, force_new);
 	}
-
 
 	static OpenPageFromDescriptor(page = PageDescriptor.Nothing, state = undefined, force_new = false)
 	{
@@ -344,9 +326,12 @@ export class PageManager
 			if (condition && condition()) PageManager.TogglePageByTitle('nav menu');
 		}, delay);
 	}
+
 	static FocusLastPageInstance(delay = 250) { window.setTimeout(() => { if (PageManager.page_instances.length > 0) PageManager.FocusPage(PageManager.page_instances[PageManager.page_instances.length - 1]); }, delay); }
 }
 
-Modules.Report('Page Manager', 'This module registers Page Descriptors and caches the current page layout when applicable');
 
-Autosave.HookSaveEvent(PageManager.CacheCurrentLayout);
+
+
+
+Modules.Report('Page Manager', 'This module registers Page Descriptors and caches the current page layout when applicable');

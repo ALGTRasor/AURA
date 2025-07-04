@@ -2,7 +2,7 @@ import { AppNotifications } from "../../systems/app_notifications.js";
 import { PageDescriptor } from "../page_descriptor.js";
 import { UserAccountInfo } from "../../useraccount.js";
 import { DevMode } from "../../systems/devmode.js";
-import { PageManager } from "../../pagemanager.js";
+import { PageManager, PageRegistry } from "../../pagemanager.js";
 import { QuickMenu } from "../../ui/quickmenu.js";
 import { until } from "../../utils/until.js";
 import { Help } from "./help.js";
@@ -124,16 +124,16 @@ export class PageNavMenu extends PageDescriptor
 		let buttons = [];
 		let buttons_extra = [];
 
-		for (let page_desc_id in PageManager.page_descriptors)
+		for (let page_desc_id in PageRegistry.descriptors)
 		{
-			let page_desc = PageManager.page_descriptors[page_desc_id];
+			let page_desc = PageRegistry.descriptors[page_desc_id];
 			if (page_desc.hidden_page === true || page_desc.extra_page === true) continue;
 			TryAddButton(buttons, page_desc);
 		}
 
-		for (let page_desc_id in PageManager.page_descriptors)
+		for (let page_desc_id in PageRegistry.descriptors)
 		{
-			let page_desc = PageManager.page_descriptors[page_desc_id];
+			let page_desc = PageRegistry.descriptors[page_desc_id];
 			if (page_desc.hidden_page === true || page_desc.extra_page !== true) continue;
 			TryAddButton(buttons_extra, page_desc);
 		}

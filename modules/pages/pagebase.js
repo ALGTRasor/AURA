@@ -304,7 +304,14 @@ export class PageInstance extends EventTarget
 
 		frame_parent.appendChild(this.e_frame);
 		fadeAppendChild(body_parent, this.e_body);
-		window.setTimeout(() => { fadeAppendChild(this.e_body, this.e_content); }, 125);
+
+		window.setTimeout(
+			() => 
+			{
+				fadeAppendChild(this.e_body, this.e_content);
+			},
+			125
+		);
 
 		AppEvents.AddListener('page-layout-change', _ => this.UpdatePageContext());
 		this.page_descriptor.OnOpen(this);
@@ -318,6 +325,12 @@ export class PageInstance extends EventTarget
 		}
 
 		this.created = true;
+	}
+
+	Log(msg)
+	{
+		if (this.e_body && !this.e_debug_log) this.e_debug_log = addElement(this.e_body, 'div', 'page-debug-log');
+		if (this.e_debug_log) addElement(this.e_debug_log, 'div', '', '', _ => { _.innerText = msg; });
 	}
 
 	RemoveElements(immediate = false)

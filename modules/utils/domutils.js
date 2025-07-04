@@ -200,7 +200,7 @@ export function MarkElementLoading(e, delay = -1)
 export function ClearElementLoading(e, delay = -1)
 {
     if (delay > 0) window.setTimeout(() => { ClearElementLoading(e, -1); }, delay);
-    else e?.removeAttribute('content-loading');
+    else if (e.removeAttribute) e.removeAttribute('content-loading');
 }
 
 

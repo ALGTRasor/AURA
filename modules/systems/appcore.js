@@ -1,5 +1,7 @@
-import "../useraccount.js";
+import "../utils/objectutils.js";
+import "../utils/domutils.js";
 import "../utils/datastates.js";
+import "../useraccount.js";
 
 import { UserAccountInfo } from "../useraccount.js";
 import { AccountStateManager } from "./accountstatemanager.js";
@@ -10,7 +12,7 @@ import { NotificationLog } from "../notificationlog.js";
 import { GlobalStyling } from "../ui/global_styling.js";
 import { OverlayManager } from "../ui/overlay_manager.js";
 import { UserSettings } from "../usersettings.js";
-import { addElement } from "../utils/domutils.js";
+import { LayoutManager } from "../layoutmanager.js";
 import { PageManager } from "../pagemanager.js";
 import { ActionBar } from "../ui/actionbar.js";
 import { AppEvents } from "../appevents.js";
@@ -95,8 +97,10 @@ export class AppCore extends EventTarget
 		window.addEventListener('keydown', AppInput.HandleKeyDown);
 		window.addEventListener('keyup', AppInput.HandleKeyUp);
 
+		LayoutManager.Initialize();
+
 		let should_restore_layout = UserSettings.GetOptionValue('pagemanager-restore-layout', true);
-		if (should_restore_layout !== true || PageManager.RestoreCachedLayout() !== true)
+		if (should_restore_layout !== true || LayoutManager.RestoreLayouts() !== true)
 		{
 			if (UserAccountInfo.HasAppAccess()) PageManager.OpenPageByTitle('nav menu');
 			else PageManager.OpenPageByTitle('user dashboard');
