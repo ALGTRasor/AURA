@@ -18,6 +18,8 @@ export class PageHelp extends PageDescriptor
 
 	OnCreateElements(instance)
 	{
+		instance.e_content.style.gap = 'var(--gap-025)';
+
 		//instance.e_help_root = CreatePagePanel(instance.e_content, true, false, 'display:flex; flex-direction:column; gap:var(--gap-025); text-align:center;');
 		//this.UpdateHelpContent(instance);
 

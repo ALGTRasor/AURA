@@ -123,32 +123,39 @@ export class MSAccountProvider extends UserAccountProvider
 
 		if (this.has_access_token) // may still be invalid or expired
 		{
-			await this.VerifyAccess();
+			try
+			{
+				await this.VerifyAccess();
 
-			let reqs = [
-				new RequestBatchRequest(
-					'get', '/me/',
-					_ => { this.UpdateAccountInfo(_.body); },
-					_ => { }
-				),
-				new RequestBatchRequest(
-					'get', '/me/photos/240x240/$value',
-					_ => { this.UpdateAccountProfilePicture(_); },
-					_ =>
-					{
-						_.headers = SharePoint.GetAuthOnlyHeaders();
-						_.headers['Content-Type'] = 'application/json';
-					}
-				),
-			];
+				let reqs = [
+					new RequestBatchRequest(
+						'get', '/me/',
+						_ => { this.UpdateAccountInfo(_.body); },
+						_ => { }
+					),
+					new RequestBatchRequest(
+						'get', '/me/photos/240x240/$value',
+						_ => { this.UpdateAccountProfilePicture(_); },
+						_ =>
+						{
+							_.headers = SharePoint.GetAuthOnlyHeaders();
+							_.headers['Content-Type'] = 'application/json';
+						}
+					),
+				];
 
-			await SharePoint.ProcessBatchRequests(new RequestBatch(reqs));
+				await SharePoint.ProcessBatchRequests(new RequestBatch(reqs));
 
-			localStorage.removeItem(lskey_login_attempts);
-			localStorage.removeItem(lskey_login_forced);
+				localStorage.removeItem(lskey_login_attempts);
+				localStorage.removeItem(lskey_login_forced);
 
-			DebugLog.Log('autologin done');
-			UserAccountManager.account_provider.logged_in = true;
+				DebugLog.Log('autologin done');
+				UserAccountManager.account_provider.logged_in = true;
+			}
+			catch (e)
+			{
+				console.error('FAILED AUTOLOGIN: ' + e);
+			}
 		}
 		else
 		{
@@ -166,7 +173,14 @@ export class MSAccountProvider extends UserAccountProvider
 
 	async VerifyAccess()
 	{
-		await this.TryFetchNewToken();
+		let profile_req =
+			new RequestBatchRequest(
+				'get', '/me/',
+				_ => { this.UpdateAccountInfo(_.body); },
+				_ => { }
+			);
+
+		await SharePoint.ProcessBatchRequests(new RequestBatch([profile_req]));
 	}
 
 	AttemptReauthorize(reason = '')
