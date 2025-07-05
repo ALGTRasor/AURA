@@ -12,7 +12,7 @@ export class MultiContentPanel extends PanelContent
 
 	OnCreateElements()
 	{
-		const style_root = 'display:flex; flex-direction:column; position:relative; flex-grow:1.0; flex-basis:0.0; overflow:hidden;';
+		const style_root = 'display:flex; flex-direction:column; position:relative; flex-grow:1.0; overflow:hidden;';
 		this.e_root = addElement(this.e_parent, 'div', '', style_root);
 		this.e_root.style.filter = 'opacity(0%)';
 		this.e_root.id = 'multicontent-root';

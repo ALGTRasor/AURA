@@ -3,6 +3,7 @@ import { Modules } from "./modules.js";
 import { AppEvents } from "./appevents.js";
 import { PageManager } from "./pagemanager.js";
 import { ActionBar } from "./ui/actionbar.js";
+import { UserAccountManager } from "./useraccount.js";
 
 const lskey_layouts = 'layoutmanager_layouts';
 const lskey_layout_index = 'layoutmanager_layout_active';
@@ -25,7 +26,7 @@ export class LayoutManager
 
 	static AfterPageLayoutChange()
 	{
-		LayoutManager.UpdateActiveLayoutPageData();
+		window.setTimeout(() => { LayoutManager.UpdateActiveLayoutPageData(); }, 5);
 	}
 
 	static SwitchTo(index)
@@ -36,6 +37,7 @@ export class LayoutManager
 			{
 				LayoutManager.layout_active_index = index;
 				LayoutManager.ApplyActiveLayout();
+				ActionBar.RefreshLayoutMenu();
 				PageManager.pauseLayoutChange = false;
 			}
 		);
@@ -43,6 +45,8 @@ export class LayoutManager
 
 	static StoreLayouts()
 	{
+		if (UserAccountManager.account_provider.logged_in !== true) return;
+
 		localStorage.setItem(lskey_layouts, JSON.stringify({ layouts: LayoutManager.layouts_loaded }));
 		localStorage.setItem(lskey_layout_index, LayoutManager.layout_active_index.toString());
 	}

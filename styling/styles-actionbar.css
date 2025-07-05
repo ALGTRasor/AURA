@@ -332,21 +332,20 @@
 
 	display: flex;
 	flex-direction: column;
-	gap: var(--gap-05);
+	gap: calc(0.25rem + var(--gap-025));
 
 	min-height: 1rem;
 	min-width: 1rem;
 	opacity: 0%;
 	border-radius: var(--corner-1);
-	clip-path: stroke-box;
 
-	margin: var(--gap-1);
-	padding: var(--gap-05);
+	margin: calc(0.5rem + var(--gap-05));
+	padding: calc(0.5rem + var(--gap-05));
 
 	font-size: 1rem;
 
-	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
-	outline: solid 4px hsl(from var(--theme-color) h s var(--theme-l035));
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l035));
 	outline-offset: -2px;
 
 	transition-property: opacity;
@@ -360,12 +359,28 @@
 	opacity: 100%;
 }
 
+.layout-menu-button .layout-menu::after
+{
+	content: '';
+	z-index: 200;
+	display: block;
+	position: absolute;
+	top: -0.5rem;
+	left: 1rem;
+	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l035));
+	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
+	border-radius: calc(var(--corner-025) + 2px);
+	width: 1rem;
+	height: 1rem;
+	rotate: 45deg;
+}
+
 .layout-menu-button .layout-menu span
 {
-	padding-top: var(--gap-05);
-	padding-bottom: var(--gap-05);
-	font-size: 70%;
-	opacity: 60%;
+	padding-top: var(--gap-025);
+	padding-bottom: var(--gap-025);
+	font-size: 90%;
+	color: var(--theme-color-text);
 }
 
 .layout-menu .layout-add
@@ -423,8 +438,12 @@
 	padding-bottom: calc(var(--gap-05) + 4px);
 	padding-left: calc(var(--gap-05) * 2);
 	padding-right: calc(var(--gap-05) * 2);
+
 	text-transform: uppercase;
+	text-align: left;
 	color: var(--theme-color-l50);
+	text-shadow: -2px 2px 2px #000a;
+
 	background-color: hsl(from var(--theme-color) h s var(--theme-l010));
 }
 .layout-menu .layout-info:hover
@@ -433,10 +452,43 @@
 	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l025));
 }
 
+.layout-menu .layout-info[selected]
+{
+	color: hsl(from var(--theme-color) h s var(--theme-l080));
+	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+	outline: solid 2px hsl(from var(--theme-color) h s var(--theme-l050));
+	box-shadow: 0 0 5px var(--glow-color);
+	text-shadow: -2px 2px 2px #000a, 0 0 4px hsl(from var(--glow-color) h s l / 0.5);
+}
+
+.layout-menu .layout-info[selected]::after
+{
+	content: 'ACTIVE';
+	display: block;
+	position: absolute;
+	top: calc(2px + var(--gap-025));
+	right: calc(2px + var(--gap-025));
+	color: hsl(from var(--theme-color) h s var(--theme-l070));
+	text-shadow: 0 0 5px hsl(from var(--glow-color) h s l / 0.5);
+	font-size: 0.65rem;
+}
+
 
 .layout-menu .layout-info:hover > i
 {
 	color: var(--theme-color-text);
+}
+
+.layout-info .layout-actions
+{
+	flex-basis: 1.5rem;
+	flex-grow: 0.0;
+	flex-shrink: 0.0;
+	display: flex;
+	flex-direction: row;
+	border-radius: var(--corner-05);
+	box-sizing: border-box;
+	clip-path: stroke-box;
 }
 
 .layout-info .layout-action
@@ -444,18 +496,19 @@
 	cursor: pointer;
 	align-content: center;
 	text-align: center;
-	flex-basis: 5rem;
+	flex-basis: 6rem;
 	flex-grow: 1.0;
 	flex-shrink: 0.0;
 
-	padding-top: var(--gap-1);
-	padding-bottom: var(--gap-1);
+	padding-top: calc(0.5rem + var(--gap-05));
+	padding-bottom: calc(0.5rem + var(--gap-05));
 	line-height: 0;
 	opacity: 20%;
 
-	font-size: 80%;
-	background-color: hsl(from var(--theme-color) h s var(--theme-l015));
+	font-size: 70%;
+	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	color: hsl(from var(--theme-color) h s 50%);
+	text-shadow: none;
 
 	transition-property: opacity, background-color, color;
 	transition-timing-function: ease-in-out;

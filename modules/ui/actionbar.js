@@ -7,6 +7,8 @@ import { PageManager } from "../pagemanager.js";
 import { AppInfo } from "../app_info.js";
 import { Modules } from "../modules.js";
 import { LayoutManager } from "../layoutmanager.js";
+import { TextInputOverlay } from "./overlays/overlay_input_text.js";
+import { Autosave } from "../autosave.js";
 
 export class ActionBar
 {
@@ -53,25 +55,31 @@ export class ActionBar
 	static RefreshLayoutMenu()
 	{
 		ActionBar.e_layout_menu.innerHTML = '';
-		addElement(ActionBar.e_layout_menu, 'span', '', 'text-wrap:nowrap;', e_ => { e_.innerText = 'SAVED LAYOUTS'; });
+		addElement(ActionBar.e_layout_menu, 'span', '', 'text-wrap:nowrap;', e_ => { e_.innerText = 'LAYOUTS'; });
 		LayoutManager.layouts_loaded.forEach(
 			(layout_data, i, a) =>
 			{
+				let is_selected = i === LayoutManager.layout_active_index;
+
 				addElement(
 					ActionBar.e_layout_menu, 'div', 'layout-info', 'display:flex; flex-direction:column; gap:var(--gap-05);',
 					e_layout =>
 					{
-						addElement(e_layout, 'div', '', 'flex-basis:0.0; flex-grow:1.0; align-content:center;', _ => { _.innerText = `${(i + 1)} - ${layout_data.title}`; });
-						let e_btns = addElement(e_layout, 'div', '', 'flex-basis:1.5rem; flex-grow:0.0; flex-shrink:0.0; display:flex; flex-direction:row; border-radius:var(--corner-05); clip-path:stroke-box;');
+						if (is_selected === true) e_layout.setAttribute('selected', '');
+
+						addElement(e_layout, 'div', '', 'flex-basis:0.0; flex-grow:1.0; align-content:center;', _ => { _.innerText = `${(i + 1)} ${layout_data.title}`; });
+						let e_btns = addElement(e_layout, 'div', 'layout-actions', '');
 						addElement(
 							e_btns, 'div', 'layout-action', '',
 							_ =>
 							{
-								_.innerText = 'LOAD';
-								_.style.setProperty('--theme-color', 'skyblue');
+								_.innerText = is_selected === true ? 'RELOAD' : 'SWITCH';
+								_.style.setProperty('--theme-color', is_selected === true ? 'unset' : 'skyblue');
 								_.addEventListener('click', e => { LayoutManager.SwitchTo(i); });
+								MegaTips.RegisterSimple(_, 'Load this layout and replace the current one');
 							}
 						);
+						/*
 						addElement(
 							e_btns, 'div', 'layout-action', '',
 							_ =>
@@ -80,23 +88,57 @@ export class ActionBar
 								_.addEventListener('click', e => { LayoutManager.UpdateActiveLayoutPageData(); });
 							}
 						);
+						*/
 						addElement(
 							e_btns, 'div', 'layout-action', '',
 							_ =>
 							{
-								_.setAttribute('coming-soon', '');
 								_.innerText = 'RENAME'; _.style.setProperty('--theme-color', 'goldenrod');
-								_.addEventListener('click', e => { });
+								_.addEventListener(
+									'click',
+									e =>
+									{
+										let o = TextInputOverlay.ShowNew(
+											{
+												prompt: 'New Layout Name',
+												default_value: '',
+												with_input: layout_name =>
+												{
+													LayoutManager.layouts_loaded[i].title = layout_name;
+													ActionBar.RefreshLayoutMenu();
+													Autosave.InvokeSoon();
+												}
+											}
+										);
+									}
+								);
+								MegaTips.RegisterSimple(_, 'Rename this layout');
 							}
 						);
-						if (i > 0) addElement(
-							e_btns, 'div', 'layout-action', '',
-							_ =>
-							{
-								_.innerText = 'DELETE'; _.style.setProperty('--theme-color', 'red');
-								_.addEventListener('click', e => { LayoutManager.DeleteLayout(i); });
-							}
-						);
+						if (i > 0)
+						{
+							addElement(
+								e_btns, 'div', 'layout-action', '',
+								_ =>
+								{
+									_.innerText = 'DELETE'; _.style.setProperty('--theme-color', 'red');
+									_.addEventListener('click', e => { LayoutManager.DeleteLayout(i); });
+									MegaTips.RegisterSimple(_, 'Delete this layout');
+								}
+							);
+						}
+						else
+						{
+							addElement(
+								e_btns, 'div', 'layout-action', '',
+								_ =>
+								{
+									_.innerText = 'RESET'; _.style.setProperty('--theme-color', 'unset');
+									_.addEventListener('click', e => { PageManager.CloseAll(); });
+									MegaTips.RegisterSimple(_, 'Reset this layout to the default');
+								}
+							);
+						}
 					}
 				);
 			}
@@ -113,6 +155,8 @@ export class ActionBar
 				e_add_new.style.setProperty('--theme-color', 'lime');
 
 				e_add_new.addEventListener('click', e => { LayoutManager.PushActiveLayout('new layout'); });
+
+				MegaTips.RegisterSimple(e_add_new, 'Add a new layout using a copy of the current layout');
 			}
 		);
 	}
