@@ -2,6 +2,7 @@ import { MegaTips } from "../systems/megatips.js";
 import { addElement } from "../utils/domutils.js";
 import { FieldValidation } from "../utils/field_validation.js";
 import { RunningTimeout } from "../utils/running_timeout.js";
+import { DataView } from "./dataview.js";
 import { GlobalStyling } from "./global_styling.js";
 import { MultiContentPanel } from "./multicontentpanel.js";
 import { PanelContent } from "./panel_content.js";
@@ -69,8 +70,8 @@ class TableViewEntry extends PanelContent
 
 				if (column.coming_soon === true) 
 				{
-					e_prop.style.backgroundColor = 'black';
-					e_prop.style.color = '#333';
+					e_prop.style.backgroundColor = 'hsl(from var(--theme-color) h s var(--theme-l040))';
+					e_prop.style.color = 'hsl(from var(--theme-color) h s var(--theme-l060))';
 				}
 				this.e_props.push(e_prop);
 			};
@@ -106,56 +107,6 @@ class TableViewEntry extends PanelContent
 	}
 }
 
-class TableViewData
-{
-	constructor(table_view)
-	{
-		this.table_view = table_view;
-		this.records_base = [];
-		this.records_view = [];
-		this.filters = [];
-		this.sorters = [];
-	}
-
-	ClearRecords()
-	{
-		this.records_base = [];
-		this.records_view = [];
-	}
-
-	SetRecords(records = [], append = true, refresh = true)
-	{
-		if (records.length < 1)
-		{
-			if (append !== true) this.ClearRecords();
-			return;
-		}
-
-		if (append !== true) this.records_base = [];
-		records.forEach(_ => this.records_base.push(_));
-
-
-		if (refresh === true) this.RefreshViewRecords();
-	}
-
-	RefreshViewRecords()
-	{
-		this.ApplyFilters();
-		this.ApplySorters();
-	}
-
-	ClearFilters() { this.filters = []; }
-	AddFilter(filter = record => true) { if (filter) this.filters.push(filter); }
-	ApplyFilters()
-	{
-		this.records_view = Array.from(this.records_base);
-		this.filters.forEach(f => this.records_view = this.records_view.filter(f));
-	}
-
-	ClearSorters() { this.sorters = []; }
-	AddSorter(sorter = (x, y) => 0) { if (sorter) this.sorters.push(sorter); }
-	ApplySorters() { this.sorters.forEach(s => this.records_view.sort(s)); }
-}
 
 class TableViewColumn
 {
@@ -446,15 +397,15 @@ export class TableViewConfiguration
 						}
 						else if (col.coming_soon === true)
 						{
-							let e_format = addElement(_, 'div', '', 'color:hsl(from red h s 50%);', _ => { _.innerText = 'SOON'; });
+							let e_format = addElement(_, 'div', '', 'color:hsl(from red h s var(--theme-l080)); font-style:italic;', _ => { _.innerText = 'COMING SOON'; });
 							e_format.style.fontSize = '70%';
 							e_format.style.opacity = '60%';
 						}
 
 						if (col.coming_soon === true) 
 						{
-							_.style.setProperty('--theme-color', '#333');
-							_.style.backgroundColor = '#000';
+							_.style.color = 'hsl(from var(--theme-color) h s var(--theme-l060))';
+							_.style.backgroundColor = 'hsl(from var(--theme-color) h s var(--theme-l040))';
 							_.style.opacity = '50%';
 						}
 
@@ -671,7 +622,8 @@ export class TableView extends PanelContent
 		this.configurations = [new TableViewConfiguration(this)];
 		this.configuration_active = this.configurations[0];
 
-		this.data = new TableViewData(this);
+		this.data = new DataView();
+		this.data.table_view = this;
 		this.data.SetRecords(records, false, false);
 	}
 

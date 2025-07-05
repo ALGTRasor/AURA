@@ -9,6 +9,7 @@ import { Modules } from "../modules.js";
 import { LayoutManager } from "../layoutmanager.js";
 import { TextInputOverlay } from "./overlays/overlay_input_text.js";
 import { Autosave } from "../autosave.js";
+import { NotificationLog } from "../notificationlog.js";
 
 export class ActionBar
 {
@@ -49,31 +50,39 @@ export class ActionBar
 			_ => { _.innerText = 'browse'; }
 		);
 		ActionBar.e_layout_menu = addElement(ActionBar.e_icon_layout_menu, 'div', 'layout-menu');
+		ActionBar.e_layouts = addElement(ActionBar.e_layout_menu, 'div', 'layout-menu-layouts');
 		ActionBar.RefreshLayoutMenu();
 	}
 
 	static RefreshLayoutMenu()
 	{
-		ActionBar.e_layout_menu.innerHTML = '';
-		addElement(ActionBar.e_layout_menu, 'span', '', 'text-wrap:nowrap;', e_ => { e_.innerText = 'LAYOUTS'; });
+		ActionBar.e_layouts.innerHTML = '';
 		LayoutManager.layouts_loaded.forEach(
 			(layout_data, i, a) =>
 			{
 				let is_selected = i === LayoutManager.layout_active_index;
 
 				addElement(
-					ActionBar.e_layout_menu, 'div', 'layout-info', 'display:flex; flex-direction:column; gap:var(--gap-05);',
+					ActionBar.e_layouts, 'div', 'layout-info', 'display:flex; flex-direction:column; gap:var(--gap-05);',
 					e_layout =>
 					{
 						if (is_selected === true) e_layout.setAttribute('selected', '');
 
-						addElement(e_layout, 'div', '', 'flex-basis:0.0; flex-grow:1.0; align-content:center;', _ => { _.innerText = `${(i + 1)} ${layout_data.title}`; });
+						addElement(
+							e_layout, 'div', 'layout-title', '',
+							_ =>
+							{
+								addElement(_, 'span', 'layout-index', '', _ => { _.innerText = (i + 1).toString(); });
+								addElement(_, 'span', '', '', _ => { _.innerText = layout_data?.title ?? 'Invalid Layout'; });
+							}
+						);
+
 						let e_btns = addElement(e_layout, 'div', 'layout-actions', '');
 						addElement(
 							e_btns, 'div', 'layout-action', '',
 							_ =>
 							{
-								_.innerText = is_selected === true ? 'RELOAD' : 'SWITCH';
+								_.innerText = is_selected === true ? 'RELOAD' : 'ACTIVATE';
 								_.style.setProperty('--theme-color', is_selected === true ? 'unset' : 'skyblue');
 								_.addEventListener('click', e => { LayoutManager.SwitchTo(i); });
 								MegaTips.RegisterSimple(_, 'Load this layout and replace the current one');
@@ -93,21 +102,17 @@ export class ActionBar
 							e_btns, 'div', 'layout-action', '',
 							_ =>
 							{
-								_.innerText = 'RENAME'; _.style.setProperty('--theme-color', 'goldenrod');
+								_.innerText = 'RENAME';
+								_.style.setProperty('--theme-color', 'goldenrod');
 								_.addEventListener(
 									'click',
 									e =>
 									{
-										let o = TextInputOverlay.ShowNew(
+										TextInputOverlay.ShowNew(
 											{
 												prompt: 'New Layout Name',
 												default_value: '',
-												with_input: layout_name =>
-												{
-													LayoutManager.layouts_loaded[i].title = layout_name;
-													ActionBar.RefreshLayoutMenu();
-													Autosave.InvokeSoon();
-												}
+												with_input: layout_name => { LayoutManager.RenameLayout(i, layout_name); }
 											}
 										);
 									}
@@ -144,7 +149,7 @@ export class ActionBar
 			}
 		);
 		addElement(
-			ActionBar.e_layout_menu, 'div', 'layout-add', 'flex-basis:1rem;',
+			ActionBar.e_layouts, 'div', 'layout-add', 'flex-basis:1rem;',
 			e_add_new =>
 			{
 				addElement(

@@ -2059,7 +2059,8 @@ div:hover > .pie-chart-root .pie-chart-info
 	flex-grow: 0.0;
 
 	border-radius: var(--corner-05);
-	background-color: hsl(from var(--theme-color) h s var(--theme-l020) / 0.5);
+	color: hsl(from var(--theme-color) h s var(--theme-l050));
+	background-color: hsl(from var(--theme-color) h s var(--theme-l050) / 0.25);
 	scale: 70%;
 	border: solid 2px transparent;
 }
@@ -2068,7 +2069,7 @@ div:hover > .pie-chart-root .pie-chart-info
 {
 	background-color: hsl(from var(--theme-color) h s var(--theme-l020));
 	box-shadow: -2px 2px 4px hsl(from var(--shadow-color) h s l / 0.3);
-	scale: 85%;
+	scale: 100%;
 	border: solid 2px hsl(from var(--theme-color) h s var(--theme-l080));
 }
 
@@ -2090,6 +2091,11 @@ div:hover > .pie-chart-root .pie-chart-info
 	align-content: center;
 	text-align: center;
 	font-size: 1.35rem;
+	color: inherit;
+}
+.tableview-action:hover .tableview-action-icon
+{
+	color: var(--theme-color-text);
 }
 
 .tableview-columns .tableview-cell

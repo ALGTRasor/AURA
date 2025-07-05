@@ -172,7 +172,15 @@ export class SlideSelector extends EventTarget
             this.e_root, 'div', 'menu-button', null,
             x =>
             {
-                x.innerText = text ? text : '???';
+                if (text.startsWith('icon:'))
+                {
+                    text = text.replace('icon:', '');
+                    addElement(x, 'i', 'material-symbols icon', 'color:inherit;', _ => { _.innerText = text; });
+                }
+                else
+                {
+                    x.innerText = text ? text : '???';
+                }
                 x.tabIndex = '0';
                 x.style.zIndex = '5';
                 x.style.background = 'none';

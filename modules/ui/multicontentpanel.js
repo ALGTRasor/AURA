@@ -6,7 +6,7 @@ export class MultiContentPanel extends PanelContent
 {
 	content_active = null;
 	content_queued = [];
-	transition_duration = 0.35;
+	transition_duration = 0.2;
 
 	queue_timeout = new RunningTimeout(() => { this.RefreshElements(); }, 0.05, false, 20);
 

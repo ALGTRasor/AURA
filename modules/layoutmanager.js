@@ -4,6 +4,8 @@ import { AppEvents } from "./appevents.js";
 import { PageManager } from "./pagemanager.js";
 import { ActionBar } from "./ui/actionbar.js";
 import { UserAccountManager } from "./useraccount.js";
+import { clamp } from "./utils/mathutils.js";
+import { NotificationLog } from "./notificationlog.js";
 
 const lskey_layouts = 'layoutmanager_layouts';
 const lskey_layout_index = 'layoutmanager_layout_active';
@@ -20,6 +22,7 @@ export class LayoutManager
 
 	static Initialize()
 	{
+		LayoutManager.enabled = true;
 		LayoutManager.SwitchTo(LayoutManager.layout_active_index);
 		AppEvents.AddListener('page-layout-change', LayoutManager.AfterPageLayoutChange);
 	}
@@ -35,7 +38,7 @@ export class LayoutManager
 		PageManager.CloseAll(
 			() =>
 			{
-				LayoutManager.layout_active_index = index;
+				LayoutManager.layout_active_index = clamp(index, 0, LayoutManager.layouts_loaded.length - 1);
 				LayoutManager.ApplyActiveLayout();
 				ActionBar.RefreshLayoutMenu();
 				PageManager.pauseLayoutChange = false;
@@ -46,13 +49,13 @@ export class LayoutManager
 	static StoreLayouts()
 	{
 		if (UserAccountManager.account_provider.logged_in !== true) return;
-
 		localStorage.setItem(lskey_layouts, JSON.stringify({ layouts: LayoutManager.layouts_loaded }));
 		localStorage.setItem(lskey_layout_index, LayoutManager.layout_active_index.toString());
 	}
 
 	static RestoreLayouts()
 	{
+		if (UserAccountManager.account_provider.logged_in !== true) return;
 		let ls_val = localStorage.getItem(lskey_layouts);
 		if (ls_val)
 		{
@@ -107,12 +110,23 @@ export class LayoutManager
 		LayoutManager.GetActive().pages = LayoutManager.GetActiveLayoutPageData();
 	}
 
+	static RenameLayout(target_index = 0, new_name = 'New Layout')
+	{
+		if (target_index < 1) return;
+		LayoutManager.layouts_loaded[target_index].title = new_name;
+		ActionBar.RefreshLayoutMenu();
+		Autosave.InvokeSoon();
+		NotificationLog.Log('Renamed Layout');
+	}
+
 	static DeleteLayout(target_index = 0)
 	{
 		if (target_index < 1) return;
-		if (LayoutManager.layout_active_index === target_index) LayoutManager.SwitchTo(LayoutManager.layout_active_index - 1);
 		LayoutManager.layouts_loaded.splice(target_index, 1);
+		LayoutManager.SwitchTo(LayoutManager.layout_active_index);
 		ActionBar.RefreshLayoutMenu();
+		Autosave.InvokeSoon();
+		NotificationLog.Log('Deleted Layout');
 	}
 
 	// adds a new layout using the live layout
@@ -122,6 +136,7 @@ export class LayoutManager
 		LayoutManager.layouts_loaded.push({ title: title, pages: data });
 		if (and_switch === true) LayoutManager.SwitchTo(LayoutManager.layouts_loaded.length - 1);
 		ActionBar.RefreshLayoutMenu();
+		Autosave.InvokeSoon();
 	}
 
 	static ApplyActiveLayout()

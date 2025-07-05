@@ -539,12 +539,12 @@ class PanelUserAllocationList extends PanelContent
 
 
 const view_modes = [
-	{ label: 'BY GROUP', on_click: _ => { }, tooltip: 'Allocations by Group ID' },
+	{ label: 'BY PROJECT', on_click: _ => { }, tooltip: 'Allocations by Group ID' },
 	{ label: 'BY USER', on_click: _ => { }, tooltip: 'Allocations by User' }
 ];
 const view_formats = [
-	{ label: 'CHARTS', on_click: _ => { }, tooltip: 'View as Pie Charts' },
-	{ label: 'TABLE', on_click: _ => { }, tooltip: 'View as a Table' }
+	{ label: 'icon:pie_chart', on_click: _ => { }, tooltip: 'View as Pie Charts' },
+	{ label: 'icon:table', on_click: _ => { }, tooltip: 'View as a Table' }
 ];
 
 export class PageUserAllocations extends PageDescriptor
@@ -568,11 +568,16 @@ export class PageUserAllocations extends PageDescriptor
 		instance.RefreshViewSoon = () => instance.view_timeout.ExtendTimer();
 		instance.RefreshDataSoon = () => instance.data_timeout.ExtendTimer();
 
-		instance.slide_format = new SlideSelector();
-		instance.slide_format.CreateElements(instance.e_content, view_formats);
+		instance.e_slides = addElement(instance.e_content, 'div', '', 'display:flex;flex-direction:row;flex-grow:0.0;flex-shrink:0.0;gap:var(--gap-025);');
 
 		instance.slide_mode = new SlideSelector();
-		instance.slide_mode.CreateElements(instance.e_content, view_modes);
+		instance.slide_mode.CreateElements(instance.e_slides, view_modes);
+		instance.slide_mode.e_root.style.flexGrow = '1.0';
+
+		instance.slide_format = new SlideSelector();
+		instance.slide_format.CreateElements(instance.e_slides, view_formats);
+		instance.slide_format.e_root.style.flexBasis = '7rem';
+		instance.slide_format.e_root.style.flexGrow = '0.0';
 
 		instance.panel_list = new PanelUserAllocationList(instance.e_content, [], _ => _.guid.toUpperCase(), _ => _.user_id);
 		instance.panel_list.CreateElements(instance.e_content);
